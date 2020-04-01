@@ -286,9 +286,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         boolean include = !excludeFile && !excludeExtension;
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Include {}: {}", Utils.normalizePath(fo, root), include);
-        }
+        //if (LOGGER.isDebugEnabled()) {
+        //    LOGGER.debug("Include {}: {}", Utils.normalizePath(fo, root), include);
+        //}
 
         return include;
     }
