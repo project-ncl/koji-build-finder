@@ -66,8 +66,6 @@ public final class Utils {
     }
 
     public static String getBuildFinderScmRevision() {
-        final String jarName = "koji-build-finder";
-
         String scmRevision = "unknown";
 
         try {
@@ -77,7 +75,7 @@ public final class Utils {
             while (resources.hasMoreElements()) {
                 URL jarUrl = resources.nextElement();
 
-                if (jarUrl.getFile().contains(jarName)) {
+                if (jarUrl.getFile().contains("build-finder") || jarUrl.getFile().contains("core")) {
                     Manifest manifest = new Manifest(jarUrl.openStream());
                     String manifestValue = manifest.getMainAttributes().getValue("Scm-Revision");
 

@@ -873,7 +873,7 @@
             <configuration>
               <doCheck>false</doCheck>
               <doUpdate>false</doUpdate>
-              <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
+              <revisionOnScmFailure>unknown</revisionOnScmFailure>
               <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
             </configuration>
           </execution>
