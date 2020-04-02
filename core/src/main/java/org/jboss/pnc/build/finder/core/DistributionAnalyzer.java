@@ -64,12 +64,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributionAnalyzer.class);
 
     /**
-     * Ideally we should be able to use FileSystemManager::canCreateFileSystem but that relies on
-     * an accurate extension map in providers.xml. Either fix that up manually or exclude non-viable
-     * archive schemes. Further without overriding the URLConnection.getFileNameMap the wrong results
-     * will be returned for zip/gz which is classified as application/octet-stream.
+     * Ideally we should be able to use FileSystemManager::canCreateFileSystem but that relies on an accurate extension
+     * map in providers.xml. Either fix that up manually or exclude non-viable archive schemes. Further without
+     * overriding the URLConnection.getFileNameMap the wrong results will be returned for zip/gz which is classified as
+     * application/octet-stream.
      */
-    private static final List<String> NON_ARCHIVE_SCHEMES = Collections.unmodifiableList(Arrays.asList("tmp", "res", "ram", "file"));
+    private static final List<String> NON_ARCHIVE_SCHEMES = Collections
+            .unmodifiableList(Arrays.asList("tmp", "res", "ram", "file"));
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
@@ -130,6 +131,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         this.filesInError = new HashSet<>();
     }
 
+    private static boolean isJar(FileObject fo) {
+        String ext = fo.getName().getExtension();
+
+        return ext.equals("jar") || ext.equals("war") || ext.equals("rar") || ext.equals("ear") || ext.equals("sar")
+                || ext.equals("kar") || ext.equals("jdocbook") || ext.equals("jdocbook-style") || ext.equals("plugin");
+    }
+
     public Map<ChecksumType, MultiValuedMap<String, String>> checksumFiles() throws IOException {
         Instant startTime = Instant.now();
         FileObject fo = null;
@@ -140,15 +148,20 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
             for (File file : files) {
                 fo = sfs.resolveFile(file.getAbsolutePath());
-                root = fo.getName().getFriendlyURI().substring(0, fo.getName().getFriendlyURI().indexOf(fo.getName().getBaseName()));
-                Set<Checksum> fileChecksums = cacheManager != null ? Checksum.checksum(fo, checksumTypesToCheck, root) : null;
+                root = fo.getName()
+                        .getFriendlyURI()
+                        .substring(0, fo.getName().getFriendlyURI().indexOf(fo.getName().getBaseName()));
+                Set<Checksum> fileChecksums = cacheManager != null ? Checksum.checksum(fo, checksumTypesToCheck, root)
+                        : null;
 
                 if (fileChecksums != null) {
                     Iterator<ChecksumType> it = checksumTypesToCheck.iterator();
 
                     while (it.hasNext()) {
                         ChecksumType checksumType = it.next();
-                        String value = Checksum.findByType(fileChecksums, checksumType).map(Checksum::getValue).orElse(null);
+                        String value = Checksum.findByType(fileChecksums, checksumType)
+                                .map(Checksum::getValue)
+                                .orElse(null);
 
                         if (value != null) {
                             MultiValuedMap<String, String> localMap = fileCaches.get(checksumType).get(value);
@@ -159,13 +172,18 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                 Collection<Map.Entry<String, String>> entries = localMap.entries();
 
                                 for (Map.Entry<String, String> entry : entries) {
-                                    inverseMap.put(entry.getValue(), new Checksum(checksumType, entry.getKey(), entry.getValue()));
+                                    inverseMap.put(
+                                            entry.getValue(),
+                                            new Checksum(checksumType, entry.getKey(), entry.getValue()));
                                 }
 
                                 if (queue != null && checksumType.equals(ChecksumType.md5)) {
                                     for (Map.Entry<String, String> entry : entries) {
                                         try {
-                                            Checksum checksum = new Checksum(checksumType, entry.getKey(), entry.getValue());
+                                            Checksum checksum = new Checksum(
+                                                    checksumType,
+                                                    entry.getKey(),
+                                                    entry.getValue());
                                             queue.put(checksum);
                                         } catch (InterruptedException e) {
                                             Thread.currentThread().interrupt();
@@ -175,16 +193,31 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
                                 it.remove();
 
-                                LOGGER.info("Loaded {} checksums for file: {} (checksum: {}) from cache", green(localMap.size()), green(file.getName()), green(value));
+                                LOGGER.info(
+                                        "Loaded {} checksums for file: {} (checksum: {}) from cache",
+                                        green(localMap.size()),
+                                        green(file.getName()),
+                                        green(value));
                             } else {
-                                LOGGER.info("File: {} (checksum: {}) not found in cache", green(file.getName()), green(value));
+                                LOGGER.info(
+                                        "File: {} (checksum: {}) not found in cache",
+                                        green(file.getName()),
+                                        green(value));
                             }
                         }
                     }
                 }
 
                 if (!checksumTypesToCheck.isEmpty()) {
-                    LOGGER.info("Finding checksums: {} for file: {}", green(String.join(", ", checksumTypesToCheck.stream().map(String::valueOf).collect(Collectors.toSet()))), green(file.getName()));
+                    LOGGER.info(
+                            "Finding checksums: {} for file: {}",
+                            green(
+                                    String.join(
+                                            ", ",
+                                            checksumTypesToCheck.stream()
+                                                    .map(String::valueOf)
+                                                    .collect(Collectors.toSet()))),
+                            green(file.getName()));
 
                     listChildren(fo);
 
@@ -225,19 +258,18 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         int numChecksums = map.values().iterator().next().size();
 
-        LOGGER.info("Total number of checksums: {}, time: {}, average: {}", green(numChecksums), green(duration), green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0D));
+        LOGGER.info(
+                "Total number of checksums: {}, time: {}, average: {}",
+                green(numChecksums),
+                green(duration),
+                green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0D));
 
         return Collections.unmodifiableMap(map);
     }
 
     private boolean isArchive(FileObject fo) {
-        return !NON_ARCHIVE_SCHEMES.contains(fo.getName().getExtension()) && Stream.of(sfs.getSchemes()).anyMatch(s -> s.equals(fo.getName().getExtension()));
-    }
-
-    private static boolean isJar(FileObject fo) {
-        String ext = fo.getName().getExtension();
-
-        return ext.equals("jar") || ext.equals("war") || ext.equals("rar") || ext.equals("ear") || ext.equals("sar") || ext.equals("kar") || ext.equals("jdocbook") || ext.equals("jdocbook-style") || ext.equals("plugin");
+        return !NON_ARCHIVE_SCHEMES.contains(fo.getName().getExtension())
+                && Stream.of(sfs.getSchemes()).anyMatch(s -> s.equals(fo.getName().getExtension()));
     }
 
     private boolean shouldListArchive(FileObject fo) throws FileSystemException {
@@ -245,7 +277,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             return true;
         }
 
-        return !isJar(fo) && level.intValue() == 1 || level.intValue() == 2 && fo.getParent().isFolder() && fo.getParent().getName().toString().endsWith("!/") && fo.getParent().getChildren().length == 1;
+        return !isJar(fo) && level.intValue() == 1 || level.intValue() == 2 && fo.getParent().isFolder()
+                && fo.getParent().getName().toString().endsWith("!/") && fo.getParent().getChildren().length == 1;
     }
 
     private void listArchive(FileObject fo) {
@@ -276,19 +309,22 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private boolean includeFile(FileObject fo) {
-        boolean excludeExtension = config.getArchiveExtensions() != null && !config.getArchiveExtensions().isEmpty() && config.getArchiveExtensions().stream().noneMatch(x -> x.equals(fo.getName().getExtension())) && !fo.getName().getExtension().equals("rpm");
+        boolean excludeExtension = config.getArchiveExtensions() != null && !config.getArchiveExtensions().isEmpty()
+                && config.getArchiveExtensions().stream().noneMatch(x -> x.equals(fo.getName().getExtension()))
+                && !fo.getName().getExtension().equals("rpm");
         boolean excludeFile = false;
 
         if (!excludeExtension) {
             String friendlyURI = fo.getName().getFriendlyURI();
-            excludeFile = config.getExcludes() != null && !config.getExcludes().isEmpty() && config.getExcludes().stream().map(Pattern::pattern).anyMatch(friendlyURI::matches);
+            excludeFile = config.getExcludes() != null && !config.getExcludes().isEmpty()
+                    && config.getExcludes().stream().map(Pattern::pattern).anyMatch(friendlyURI::matches);
         }
 
         boolean include = !excludeFile && !excludeExtension;
 
-        //if (LOGGER.isDebugEnabled()) {
-        //    LOGGER.debug("Include {}: {}", Utils.normalizePath(fo, root), include);
-        //}
+        // if (LOGGER.isDebugEnabled()) {
+        // LOGGER.debug("Include {}: {}", Utils.normalizePath(fo, root), include);
+        // }
 
         return include;
     }
@@ -394,12 +430,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         JSONUtils.dumpObjectToFile(getChecksums(checksumType), getChecksumFile(checksumType));
     }
 
-    public void setFiles(MultiValuedMap<String, Checksum> inverseMap) {
-        this.inverseMap = inverseMap;
-    }
-
     public MultiValuedMap<String, Checksum> getFiles() {
         return MultiMapUtils.unmodifiableMultiValuedMap(inverseMap);
+    }
+
+    public void setFiles(MultiValuedMap<String, Checksum> inverseMap) {
+        this.inverseMap = inverseMap;
     }
 
     public void setChecksums(Map<ChecksumType, MultiValuedMap<String, String>> map) {

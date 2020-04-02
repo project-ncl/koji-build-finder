@@ -43,7 +43,16 @@ public class GAVReport extends Report {
         setBaseFilename("gav");
         setOutputDirectory(outputDirectory);
 
-        this.gavs = builds.stream().filter(b -> b.getBuildInfo().getId() > 0).filter(b -> b.getTypes() != null && b.getTypes().contains("maven")).flatMap(b -> b.getArchives().stream()).map(a -> a.getArchive().getGroupId() + ":" + a.getArchive().getArtifactId() + ":" + a.getArchive().getVersion()).sorted().distinct().collect(Collectors.toList());
+        this.gavs = builds.stream()
+                .filter(b -> b.getBuildInfo().getId() > 0)
+                .filter(b -> b.getTypes() != null && b.getTypes().contains("maven"))
+                .flatMap(b -> b.getArchives().stream())
+                .map(
+                        a -> a.getArchive().getGroupId() + ":" + a.getArchive().getArtifactId() + ":"
+                                + a.getArchive().getVersion())
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -53,6 +62,10 @@ public class GAVReport extends Report {
 
     @Override
     public ContainerTag toHTML() {
-        return table(attrs("#table-" + getBaseFilename()), caption(text(getName())), thead(tr(th(text("<groupId>-<artifactId>-<version>")))), tbody(each(gavs, i -> tr(td(text(i))))));
+        return table(
+                attrs("#table-" + getBaseFilename()),
+                caption(text(getName())),
+                thead(tr(th(text("<groupId>-<artifactId>-<version>")))),
+                tbody(each(gavs, i -> tr(td(text(i))))));
     }
 }

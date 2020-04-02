@@ -50,7 +50,9 @@ public class BuildFinderTest {
         config.setChecksumTypes(EnumSet.of(checksumType));
         config.setOutputDirectory(folder.getAbsolutePath());
 
-        DistributionAnalyzer da = new DistributionAnalyzer(Collections.singletonList(new File(target.getAbsolutePath())), config);
+        DistributionAnalyzer da = new DistributionAnalyzer(
+                Collections.singletonList(new File(target.getAbsolutePath())),
+                config);
         da.checksumFiles();
         da.outputToFile(checksumType);
 
@@ -70,7 +72,9 @@ public class BuildFinderTest {
         config.setChecksumTypes(EnumSet.of(checksumType));
         config.setOutputDirectory(folder.getAbsolutePath());
 
-        DistributionAnalyzer da = new DistributionAnalyzer(Collections.singletonList(new File(target.getAbsolutePath())), config);
+        DistributionAnalyzer da = new DistributionAnalyzer(
+                Collections.singletonList(new File(target.getAbsolutePath())),
+                config);
         da.checksumFiles();
         da.outputToFile(checksumType);
 

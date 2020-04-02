@@ -32,7 +32,8 @@ public final class KojiJSONUtils {
 
     public static Map<BuildSystemInteger, KojiBuild> loadBuildsFile(File file) throws IOException {
         ObjectMapper mapper = new BuildFinderObjectMapper();
-        TypeReference<Map<BuildSystemInteger, KojiBuild>> ref = new TypeReference<Map<BuildSystemInteger, KojiBuild>>() { };
+        TypeReference<Map<BuildSystemInteger, KojiBuild>> ref = new TypeReference<Map<BuildSystemInteger, KojiBuild>>() {
+        };
 
         return mapper.readValue(file, ref);
     }

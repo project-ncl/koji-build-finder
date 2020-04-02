@@ -69,7 +69,8 @@ public class PncClient14 {
      */
     private static void unirestSetup() {
         Unirest.setObjectMapper(new ObjectMapper() {
-            private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper = new com.fasterxml.jackson.databind.ObjectMapper().registerModule(new JavaTimeModule());
+            private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .registerModule(new JavaTimeModule());
 
             public <T> T readValue(String value, Class<T> valueType) {
                 try {
@@ -132,7 +133,8 @@ public class PncClient14 {
     private List<Artifact> getArtifacts(String key, String value) throws PncClientException {
         try {
             String urlRequest = getArtifactsUrl(key, value);
-            HttpResponse<PageParameterArtifact> artifacts = Unirest.get(urlRequest).asObject(PageParameterArtifact.class);
+            HttpResponse<PageParameterArtifact> artifacts = Unirest.get(urlRequest)
+                    .asObject(PageParameterArtifact.class);
             PageParameterArtifact artifactData = artifacts.getBody();
 
             if (artifactData == null) {
@@ -188,7 +190,8 @@ public class PncClient14 {
             String value = values.get(i);
             String urlRequest = getArtifactsUrl(key, value);
             LOGGER.debug("key={}, value={}, urlRequest={}", key, value, urlRequest);
-            Future<HttpResponse<PageParameterArtifact>> artifacts = Unirest.get(urlRequest).asObjectAsync(PageParameterArtifact.class);
+            Future<HttpResponse<PageParameterArtifact>> artifacts = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterArtifact.class);
             futures.add(artifacts);
         }
 
@@ -227,7 +230,8 @@ public class PncClient14 {
     public List<Artifact> getBuiltArtifactsById(int id) throws PncClientException {
         try {
             String urlRequest = getBuiltArtifactsByIdUrl(id);
-            HttpResponse<PageParameterArtifact> artifacts = Unirest.get(urlRequest).asObject(PageParameterArtifact.class);
+            HttpResponse<PageParameterArtifact> artifacts = Unirest.get(urlRequest)
+                    .asObject(PageParameterArtifact.class);
             PageParameterArtifact artifactData = artifacts.getBody();
 
             if (artifactData == null) {
@@ -247,7 +251,8 @@ public class PncClient14 {
 
         for (Integer id : ids) {
             String urlRequest = getBuiltArtifactsByIdUrl(id);
-            Future<HttpResponse<PageParameterArtifact>> artifactFuture = Unirest.get(urlRequest).asObjectAsync(PageParameterArtifact.class);
+            Future<HttpResponse<PageParameterArtifact>> artifactFuture = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterArtifact.class);
             futures.add(artifactFuture);
         }
 
@@ -298,7 +303,8 @@ public class PncClient14 {
     public BuildRecord getBuildRecordById(int id) throws PncClientException {
         try {
             String urlRequest = getBuildRecordByIdUrl(id);
-            HttpResponse<PageParameterBuildRecord> buildRecords = Unirest.get(urlRequest).asObject(PageParameterBuildRecord.class);
+            HttpResponse<PageParameterBuildRecord> buildRecords = Unirest.get(urlRequest)
+                    .asObject(PageParameterBuildRecord.class);
             PageParameterBuildRecord buildRecordData = buildRecords.getBody();
 
             if (buildRecordData == null) {
@@ -314,9 +320,10 @@ public class PncClient14 {
     public List<BuildRecord> getBuildRecordsById(List<Integer> ids) throws PncClientException {
         List<Future<HttpResponse<PageParameterBuildRecord>>> futures = new ArrayList<>(ids.size());
 
-        for (Integer id: ids) {
+        for (Integer id : ids) {
             String urlRequest = getBuildRecordByIdUrl(id);
-            Future<HttpResponse<PageParameterBuildRecord>> buildRecordFuture = Unirest.get(urlRequest).asObjectAsync(PageParameterBuildRecord.class);
+            Future<HttpResponse<PageParameterBuildRecord>> buildRecordFuture = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterBuildRecord.class);
             futures.add(buildRecordFuture);
         }
 
@@ -354,7 +361,8 @@ public class PncClient14 {
     public BuildRecordPushResult getBuildRecordPushResultById(int id) throws PncClientException {
         try {
             String urlRequest = getBuildRecordPushResultByIdUrl(id);
-            HttpResponse<PageParameterBuildRecordPushResult> buildRecordPushResults = Unirest.get(urlRequest).asObject(PageParameterBuildRecordPushResult.class);
+            HttpResponse<PageParameterBuildRecordPushResult> buildRecordPushResults = Unirest.get(urlRequest)
+                    .asObject(PageParameterBuildRecordPushResult.class);
             PageParameterBuildRecordPushResult buildRecordPushResultData = buildRecordPushResults.getBody();
 
             if (buildRecordPushResultData == null) {
@@ -370,9 +378,10 @@ public class PncClient14 {
     public List<BuildRecordPushResult> getBuildRecordPushResultsById(List<Integer> ids) throws PncClientException {
         List<Future<HttpResponse<PageParameterBuildRecordPushResult>>> futures = new ArrayList<>(ids.size());
 
-        for (Integer id: ids) {
+        for (Integer id : ids) {
             String urlRequest = getBuildRecordPushResultByIdUrl(id);
-            Future<HttpResponse<PageParameterBuildRecordPushResult>> buildRecordFuture = Unirest.get(urlRequest).asObjectAsync(PageParameterBuildRecordPushResult.class);
+            Future<HttpResponse<PageParameterBuildRecordPushResult>> buildRecordFuture = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterBuildRecordPushResult.class);
             futures.add(buildRecordFuture);
         }
 
@@ -410,7 +419,8 @@ public class PncClient14 {
     public BuildConfiguration getBuildConfigurationById(int id) throws PncClientException {
         try {
             String urlRequest = getBuildConfigurationByIdUrl(id);
-            HttpResponse<PageParameterBuildConfiguration> buildConfigurations = Unirest.get(urlRequest).asObject(PageParameterBuildConfiguration.class);
+            HttpResponse<PageParameterBuildConfiguration> buildConfigurations = Unirest.get(urlRequest)
+                    .asObject(PageParameterBuildConfiguration.class);
             PageParameterBuildConfiguration buildConfigurationData = buildConfigurations.getBody();
 
             if (buildConfigurationData == null) {
@@ -426,9 +436,10 @@ public class PncClient14 {
     public List<BuildConfiguration> getBuildConfigurationsById(List<Integer> ids) throws PncClientException {
         List<Future<HttpResponse<PageParameterBuildConfiguration>>> futures = new ArrayList<>(ids.size());
 
-        for (Integer id: ids) {
+        for (Integer id : ids) {
             String urlRequest = getBuildConfigurationByIdUrl(id);
-            Future<HttpResponse<PageParameterBuildConfiguration>> buildConfigurationFuture = Unirest.get(urlRequest).asObjectAsync(PageParameterBuildConfiguration.class);
+            Future<HttpResponse<PageParameterBuildConfiguration>> buildConfigurationFuture = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterBuildConfiguration.class);
             futures.add(buildConfigurationFuture);
         }
 
@@ -466,7 +477,8 @@ public class PncClient14 {
     public ProductVersion getProductVersionById(int id) throws PncClientException {
         try {
             String urlRequest = getProductVersionByIdUrl(id);
-            HttpResponse<PageParameterProductVersion> buildConfigurations = Unirest.get(urlRequest).asObject(PageParameterProductVersion.class);
+            HttpResponse<PageParameterProductVersion> buildConfigurations = Unirest.get(urlRequest)
+                    .asObject(PageParameterProductVersion.class);
             PageParameterProductVersion buildConfigurationData = buildConfigurations.getBody();
 
             if (buildConfigurationData == null) {
@@ -482,9 +494,10 @@ public class PncClient14 {
     public List<ProductVersion> getProductVersionsById(List<Integer> ids) throws PncClientException {
         List<Future<HttpResponse<PageParameterProductVersion>>> futures = new ArrayList<>(ids.size());
 
-        for (Integer id: ids) {
+        for (Integer id : ids) {
             String urlRequest = getProductVersionByIdUrl(id);
-            Future<HttpResponse<PageParameterProductVersion>> buildConfigurationFuture = Unirest.get(urlRequest).asObjectAsync(PageParameterProductVersion.class);
+            Future<HttpResponse<PageParameterProductVersion>> buildConfigurationFuture = Unirest.get(urlRequest)
+                    .asObjectAsync(PageParameterProductVersion.class);
             futures.add(buildConfigurationFuture);
         }
 

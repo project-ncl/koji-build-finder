@@ -117,10 +117,6 @@ public class BuildConfig {
         return null;
     }
 
-    public void save(File file) throws IOException {
-        JSONUtils.dumpObjectToFile(this, file);
-    }
-
     public static BuildConfig merge(BuildConfig config, File file) throws IOException {
         ObjectReader reader = getMapper().readerForUpdating(config);
         return reader.readValue(file);
@@ -143,6 +139,10 @@ public class BuildConfig {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         return mapper;
+    }
+
+    public void save(File file) throws IOException {
+        JSONUtils.dumpObjectToFile(this, file);
     }
 
     public List<String> getArchiveExtensions() {
@@ -273,6 +273,10 @@ public class BuildConfig {
         return kojiHubURL;
     }
 
+    public void setKojiHubURL(URL kojiHubURL) {
+        this.kojiHubURL = kojiHubURL;
+    }
+
     public int getKojiMulticallSize() {
         if (kojiMulticallSize == null) {
             kojiMulticallSize = ConfigDefaults.KOJI_MULTICALL_SIZE;
@@ -295,10 +299,6 @@ public class BuildConfig {
 
     public void setKojiNumThreads(Integer kojiNumThreads) {
         this.kojiNumThreads = kojiNumThreads;
-    }
-
-    public void setKojiHubURL(URL kojiHubURL) {
-        this.kojiHubURL = kojiHubURL;
     }
 
     public URL getKojiWebURL() {
@@ -385,7 +385,6 @@ public class BuildConfig {
         this.useBuildsFile = useBuildsFile;
     }
 
-
     public Boolean getUseChecksumsFile() {
         if (useChecksumsFile == null) {
             useChecksumsFile = ConfigDefaults.USE_CHECKSUMS_FILE;
@@ -400,27 +399,16 @@ public class BuildConfig {
 
     @Override
     public String toString() {
-        return "BuildConfig{"
-            + "\n\tarchiveExtensions=" + getArchiveExtensions()
-            + ", \n\tarchiveTypes=" + getArchiveTypes()
-            + ", \n\tbuildSystems=" + getBuildSystems()
-            + ", \n\tcacheLifespan=" + getCacheLifespan()
-            + ", \n\tcacheMaxIdle=" + getCacheMaxIdle()
-            + ", \n\tchecksumOnly=" + getChecksumOnly()
-            + ", \n\tchecksumTypes=" + getChecksumTypes()
-            + ", \n\tdisableCache=" + getDisableCache()
-            + ", \n\texcludes=" + getExcludes()
-            + ", \n\tkojiHubURL=" + getKojiHubURL()
-            + ", \n\tkojiMulticallSize=" + getKojiMulticallSize()
-            + ", \n\tkojiNumThreads=" + getKojiNumThreads()
-            + ", \n\tkojiWebURL=" + getKojiWebURL()
-            + ", \n\toutputDirectory=" + getOutputDirectory()
-            + ", \n\tpncConnectionTimeout=" + getPncConnectionTimeout()
-            + ", \n\tpncPartitionSize=" + getPncPartitionSize()
-            + ", \n\tpncReadTimeout=" + getPncReadTimeout()
-            + ", \n\tpncURL=" + getPncURL()
-            + ", \n\tuseBuildsFile=" + getUseBuildsFile()
-            + ", \n\tuseChecksumsFile='" + getUseChecksumsFile()
-            + "}";
+        return "BuildConfig{" + "\n\tarchiveExtensions=" + getArchiveExtensions() + ", \n\tarchiveTypes="
+                + getArchiveTypes() + ", \n\tbuildSystems=" + getBuildSystems() + ", \n\tcacheLifespan="
+                + getCacheLifespan() + ", \n\tcacheMaxIdle=" + getCacheMaxIdle() + ", \n\tchecksumOnly="
+                + getChecksumOnly() + ", \n\tchecksumTypes=" + getChecksumTypes() + ", \n\tdisableCache="
+                + getDisableCache() + ", \n\texcludes=" + getExcludes() + ", \n\tkojiHubURL=" + getKojiHubURL()
+                + ", \n\tkojiMulticallSize=" + getKojiMulticallSize() + ", \n\tkojiNumThreads=" + getKojiNumThreads()
+                + ", \n\tkojiWebURL=" + getKojiWebURL() + ", \n\toutputDirectory=" + getOutputDirectory()
+                + ", \n\tpncConnectionTimeout=" + getPncConnectionTimeout() + ", \n\tpncPartitionSize="
+                + getPncPartitionSize() + ", \n\tpncReadTimeout=" + getPncReadTimeout() + ", \n\tpncURL=" + getPncURL()
+                + ", \n\tuseBuildsFile=" + getUseBuildsFile() + ", \n\tuseChecksumsFile='" + getUseChecksumsFile()
+                + "}";
     }
 }

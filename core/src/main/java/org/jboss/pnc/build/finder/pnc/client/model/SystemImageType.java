@@ -16,8 +16,5 @@
 package org.jboss.pnc.build.finder.pnc.client.model;
 
 public enum SystemImageType {
-    DOCKER_IMAGE,
-    VIRTUAL_MACHINE_RAW,
-    VIRTUAL_MACHINE_QCOW2,
-    LOCAL_WORKSPACE
+    DOCKER_IMAGE, VIRTUAL_MACHINE_RAW, VIRTUAL_MACHINE_QCOW2, LOCAL_WORKSPACE
 }

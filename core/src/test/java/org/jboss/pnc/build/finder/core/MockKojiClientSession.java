@@ -81,7 +81,9 @@ public class MockKojiClientSession implements ClientSession {
         }
 
         try {
-            ListArchivesResponse response = parseCapturedMessage(ListArchivesResponse.class, "listArchives-" + id + ".xml");
+            ListArchivesResponse response = parseCapturedMessage(
+                    ListArchivesResponse.class,
+                    "listArchives-" + id + ".xml");
             return response.getArchives();
         } catch (Exception e) {
             throw new KojiClientException("listArchives(" + query + ") failed", e);
@@ -91,7 +93,9 @@ public class MockKojiClientSession implements ClientSession {
     @Override
     public Map<String, KojiArchiveType> getArchiveTypeMap() throws KojiClientException {
         try {
-            GetArchiveTypesResponse response = parseCapturedMessage(GetArchiveTypesResponse.class, "getArchiveTypes-all.xml");
+            GetArchiveTypesResponse response = parseCapturedMessage(
+                    GetArchiveTypesResponse.class,
+                    "getArchiveTypes-all.xml");
             Map<String, KojiArchiveType> types = new HashMap<>();
             List<KojiArchiveType> archiveTypes = response.getArchiveTypes();
 
@@ -132,7 +136,9 @@ public class MockKojiClientSession implements ClientSession {
     @Override
     public KojiTaskRequest getTaskRequest(int taskId) throws KojiClientException {
         try {
-            GetTaskRequestResponse response = parseCapturedMessage(GetTaskRequestResponse.class, "getTaskRequest-" + taskId + ".xml");
+            GetTaskRequestResponse response = parseCapturedMessage(
+                    GetTaskRequestResponse.class,
+                    "getTaskRequest-" + taskId + ".xml");
             return new KojiTaskRequest(response.getTaskRequestInfo());
         } catch (Exception e) {
             throw new KojiClientException("getTaskReqest(" + taskId + ") failed", e);

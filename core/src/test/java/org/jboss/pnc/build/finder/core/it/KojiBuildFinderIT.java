@@ -62,7 +62,9 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
 
     @Test
     public void testChecksumsAndFindBuilds() throws IOException, ExecutionException {
-        assertNotNull("You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with", URL);
+        assertNotNull(
+                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
+                URL);
 
         final URL url = new URL(URL);
         final File file = new File(folder.newFolder(), url.getPath());

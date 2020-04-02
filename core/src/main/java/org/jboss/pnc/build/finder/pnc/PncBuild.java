@@ -51,7 +51,13 @@ public class PncBuild implements Serializable {
         this.artifacts = new ArrayList<>();
     }
 
-    public PncBuild(BuildRecord buildRecord, BuildRecordPushResult buildRecordPushResult, BuildConfiguration buildConfiguration, ProductVersion productVersion, List<Artifact> artifacts, List<Artifact> remoteArtifacts) {
+    public PncBuild(
+            BuildRecord buildRecord,
+            BuildRecordPushResult buildRecordPushResult,
+            BuildConfiguration buildConfiguration,
+            ProductVersion productVersion,
+            List<Artifact> artifacts,
+            List<Artifact> remoteArtifacts) {
         this.buildRecord = buildRecord;
         this.buildRecordPushResult = buildRecordPushResult;
         this.buildConfiguration = buildConfiguration;
@@ -64,16 +70,16 @@ public class PncBuild implements Serializable {
         return buildRecord;
     }
 
-    public void setBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
-        this.buildRecordPushResult = buildRecordPushResult;
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
     }
 
     public BuildRecordPushResult getBuildRecordPushResult() {
         return buildRecordPushResult;
     }
 
-    public void setBuildRecord(BuildRecord buildRecord) {
-        this.buildRecord = buildRecord;
+    public void setBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
+        this.buildRecordPushResult = buildRecordPushResult;
     }
 
     public BuildConfiguration getBuildConfiguration() {
@@ -129,6 +135,7 @@ public class PncBuild implements Serializable {
 
     @Override
     public String toString() {
-        return "PncBuild [buildRecord=" + buildRecord + ", buildRecordPushResult=" + buildRecordPushResult + ", artifacts=" + artifacts + ", remoteArtifacts=" + remoteArtifacts + "]";
+        return "PncBuild [buildRecord=" + buildRecord + ", buildRecordPushResult=" + buildRecordPushResult
+                + ", artifacts=" + artifacts + ", remoteArtifacts=" + remoteArtifacts + "]";
     }
 }

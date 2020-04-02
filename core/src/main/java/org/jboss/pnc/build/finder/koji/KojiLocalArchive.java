@@ -57,6 +57,30 @@ public class KojiLocalArchive {
         this.unmatchedFilenames = new TreeSet<>();
     }
 
+    public static boolean isMissingBuildTypeInfo(KojiArchiveInfo archive) {
+        if (archive == null) {
+            return false;
+        }
+
+        String archiveBuildType = archive.getBuildType();
+
+        if (archiveBuildType == null) {
+            return false;
+        }
+
+        switch (archiveBuildType) {
+            case "image":
+                return archive.getArch() == null;
+            case "maven":
+                return archive.getGroupId() == null;
+            case "win":
+                return archive.getPlatforms() == null;
+            case "rpm":
+            default:
+                return false;
+        }
+    }
+
     public KojiArchiveInfo getArchive() {
         return archive;
     }
@@ -89,30 +113,6 @@ public class KojiLocalArchive {
         this.checksums = checksums;
     }
 
-    public static boolean isMissingBuildTypeInfo(KojiArchiveInfo archive) {
-        if (archive == null) {
-            return false;
-        }
-
-        String archiveBuildType = archive.getBuildType();
-
-        if (archiveBuildType == null) {
-            return false;
-        }
-
-        switch (archiveBuildType) {
-        case "image":
-            return archive.getArch() == null;
-        case "maven":
-            return archive.getGroupId() == null;
-        case "win":
-            return archive.getPlatforms() == null;
-        case "rpm":
-        default:
-            return false;
-        }
-    }
-
     @JsonIgnore
     public boolean isBuiltFromSource() {
         return unmatchedFilenames.isEmpty();
@@ -128,7 +128,7 @@ public class KojiLocalArchive {
 
     @Override
     public String toString() {
-        return "KojiLocalArchive [archive=" + archive + ", rpm=" + rpm + ", filenames=" + filenames + ", checksums=" + checksums
-            + ", unmatchedFilenames=" + unmatchedFilenames + "]";
+        return "KojiLocalArchive [archive=" + archive + ", rpm=" + rpm + ", filenames=" + filenames + ", checksums="
+                + checksums + ", unmatchedFilenames=" + unmatchedFilenames + "]";
     }
 }

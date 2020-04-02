@@ -40,10 +40,6 @@ public class ProductRelease implements Serializable {
 
     private SupportLevel supportLevel;
 
-    public enum SupportLevel {
-        UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
-    }
-
     public Integer getId() {
         return id;
     }
@@ -111,7 +107,11 @@ public class ProductRelease implements Serializable {
     @Override
     public String toString() {
         return "ProductRelease [id=" + id + ", version=" + version + ", releaseDate=" + releaseDate + ", downloadUrl="
-            + downloadUrl + ", issueTrackerUrl=" + issueTrackerUrl + ", productVersionId=" + productVersionId
-            + ", productMilestoneId=" + productMilestoneId + ", supportLevel=" + supportLevel + "]";
+                + downloadUrl + ", issueTrackerUrl=" + issueTrackerUrl + ", productVersionId=" + productVersionId
+                + ", productMilestoneId=" + productMilestoneId + ", supportLevel=" + supportLevel + "]";
+    }
+
+    public enum SupportLevel {
+        UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
     }
 }

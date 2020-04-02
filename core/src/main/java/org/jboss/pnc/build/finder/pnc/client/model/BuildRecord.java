@@ -66,7 +66,8 @@ public class BuildRecord implements Serializable {
     private Boolean temporaryBuild;
 
     /**
-     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
+     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record
+     * belongs
      */
     private Integer productMilestoneId;
 
@@ -273,15 +274,15 @@ public class BuildRecord implements Serializable {
     @Override
     public String toString() {
         return "BuildRecord [id=" + id + ", submitTime=" + submitTime + ", startTime=" + startTime + ", endTime="
-            + endTime + ", buildConfigurationId=" + buildConfigurationId + ", buildConfigurationName="
-            + buildConfigurationName + ", buildConfigurationRev=" + buildConfigurationRev + ", projectId="
-            + projectId + ", projectName=" + projectName + ", userId=" + userId + ", username=" + username
-            + ", scmRepoURL=" + scmRepoURL + ", scmRevision=" + scmRevision + ", buildEnvironmentId="
-            + buildEnvironmentId + ", attributes=" + attributes + ", liveLogsUri=" + liveLogsUri
-            + ", buildConfigSetRecordId=" + buildConfigSetRecordId + ", buildContentId=" + buildContentId
-            + ", temporaryBuild=" + temporaryBuild + ", productMilestoneId=" + productMilestoneId
-            + ", executionRootName=" + executionRootName + ", executionRootVersion=" + executionRootVersion
-            + ", dependentBuildRecordIds=" + dependentBuildRecordIds
-            + ", dependencyBuildRecordIds=" + dependencyBuildRecordIds + "]";
+                + endTime + ", buildConfigurationId=" + buildConfigurationId + ", buildConfigurationName="
+                + buildConfigurationName + ", buildConfigurationRev=" + buildConfigurationRev + ", projectId="
+                + projectId + ", projectName=" + projectName + ", userId=" + userId + ", username=" + username
+                + ", scmRepoURL=" + scmRepoURL + ", scmRevision=" + scmRevision + ", buildEnvironmentId="
+                + buildEnvironmentId + ", attributes=" + attributes + ", liveLogsUri=" + liveLogsUri
+                + ", buildConfigSetRecordId=" + buildConfigSetRecordId + ", buildContentId=" + buildContentId
+                + ", temporaryBuild=" + temporaryBuild + ", productMilestoneId=" + productMilestoneId
+                + ", executionRootName=" + executionRootName + ", executionRootVersion=" + executionRootVersion
+                + ", dependentBuildRecordIds=" + dependentBuildRecordIds + ", dependencyBuildRecordIds="
+                + dependencyBuildRecordIds + "]";
     }
 }

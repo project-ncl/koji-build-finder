@@ -66,7 +66,11 @@ public class BuildStatistics {
 
                     numberOfImportedArchives += unmatchedFilenamesCount;
 
-                    LOGGER.warn("Built archive {} with {} unmatched files: {}", red(archive.getArchive().getFilename()), red(unmatchedFilenamesCount), red(archive.getUnmatchedFilenames()));
+                    LOGGER.warn(
+                            "Built archive {} with {} unmatched files: {}",
+                            red(archive.getArchive().getFilename()),
+                            red(unmatchedFilenamesCount),
+                            red(archive.getUnmatchedFilenames()));
                 }
             }
 
@@ -76,7 +80,14 @@ public class BuildStatistics {
                 numberOfImportedArchives += archiveCount;
 
                 if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("Imported build {} with {} archives: {}", red(build.getBuildInfo().getName()), red(archiveCount), red(archives.stream().flatMap(a -> a.getFilenames().stream()).collect(Collectors.toList())));
+                    LOGGER.warn(
+                            "Imported build {} with {} archives: {}",
+                            red(build.getBuildInfo().getName()),
+                            red(archiveCount),
+                            red(
+                                    archives.stream()
+                                            .flatMap(a -> a.getFilenames().stream())
+                                            .collect(Collectors.toList())));
                 }
             }
         }

@@ -29,7 +29,8 @@ import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 public class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testMultiCall(final int chunkSize) throws KojiClientException {
-        final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiMultiCallPerformanceIT.class, String.format("multiCall-%03d", chunkSize)));
+        final Timer timer = REGISTRY.timer(
+                MetricRegistry.name(KojiMultiCallPerformanceIT.class, String.format("multiCall-%03d", chunkSize)));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             List<List<Integer>> chunks = ListUtils.partition(getBuilds(), chunkSize);

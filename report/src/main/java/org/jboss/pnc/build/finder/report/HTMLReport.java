@@ -66,14 +66,14 @@ public class HTMLReport extends Report {
     private static final String NAME = "Koji Build Finder";
 
     private static final String HTML_STYLE = ""
-        + "body { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 13px; }\n"
-        + "table { width: 100%; border-style: solid; border-width: 1px; border-collapse: collapse; }\n"
-        + "caption { background: lemonchiffon; caption-side: top; font-weight: bold; font-size: larger; text-align: left; margin-top: 50px; }\n"
-        + "th { border-style: solid; border-width: 1px; background-color: darkgrey; text-align: left; font-weight: bold; }\n"
-        + "tr { border-style: solid; border-width: 1px; }\n"
-        + "tr:nth-child(even) { background-color: lightgrey; }\n"
-        + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top; font-size: small; }\n"
-        + "footer { font-size: smaller; }";
+            + "body { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 13px; }\n"
+            + "table { width: 100%; border-style: solid; border-width: 1px; border-collapse: collapse; }\n"
+            + "caption { background: lemonchiffon; caption-side: top; font-weight: bold; font-size: larger; text-align: left; margin-top: 50px; }\n"
+            + "th { border-style: solid; border-width: 1px; background-color: darkgrey; text-align: left; font-weight: bold; }\n"
+            + "tr { border-style: solid; border-width: 1px; }\n"
+            + "tr:nth-child(even) { background-color: lightgrey; }\n"
+            + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top; font-size: small; }\n"
+            + "footer { font-size: smaller; }";
 
     private URL kojiwebUrl;
 
@@ -83,7 +83,13 @@ public class HTMLReport extends Report {
 
     private List<Report> reports;
 
-    public HTMLReport(File outputDirectory, Collection<File> files, List<KojiBuild> builds, URL kojiwebUrl, URL pncUrl, List<Report> reports) {
+    public HTMLReport(
+            File outputDirectory,
+            Collection<File> files,
+            List<KojiBuild> builds,
+            URL kojiwebUrl,
+            URL pncUrl,
+            List<Report> reports) {
         setName("Build Report for " + files.stream().map(File::getName).collect(Collectors.joining(", ")));
         setDescription("List of analyzed artifacts whether or not they were found in a Koji build");
         setBaseFilename("output");
@@ -103,7 +109,11 @@ public class HTMLReport extends Report {
         int id = build.getBuildInfo().getId();
 
         if (build.isPnc()) {
-            return a().withHref(pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id") + "/build-configs/" + build.getBuildInfo().getExtra().get("external_build_configuration_id") + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id")).with(text(Integer.toString(id)));
+            return a().withHref(
+                    pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
+                            + "/build-configs/" + build.getBuildInfo().getExtra().get("external_build_configuration_id")
+                            + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id"))
+                    .with(text(Integer.toString(id)));
         }
 
         return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(Integer.toString(id)));
@@ -113,7 +123,12 @@ public class HTMLReport extends Report {
         String name = build.getBuildInfo().getName();
 
         if (build.isPnc()) {
-            return a().withHref(pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id") + "/build-configs/" + build.getBuildInfo().getExtra().get("external_build_configuration_id")).with(text(name));
+            return a()
+                    .withHref(
+                            pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
+                                    + "/build-configs/"
+                                    + build.getBuildInfo().getExtra().get("external_build_configuration_id"))
+                    .with(text(name));
         }
 
         int id = build.getBuildInfo().getPackageId();
@@ -134,7 +149,14 @@ public class HTMLReport extends Report {
         boolean error = !unmatchedFilenames.isEmpty() || build.isImport() || !validId;
 
         if (build.isPnc()) {
-            return error ? errorText(name) : a().withHref(pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id") + "/build-configs/" + build.getBuildInfo().getExtra().get("external_build_configuration_id") + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id") + "/artifacts").with(text(name));
+            return error ? errorText(name)
+                    : a().withHref(
+                            pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
+                                    + "/build-configs/"
+                                    + build.getBuildInfo().getExtra().get("external_build_configuration_id")
+                                    + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id")
+                                    + "/artifacts")
+                            .with(text(name));
         }
 
         String href = "/archiveinfo?archiveID=" + id;
@@ -182,7 +204,11 @@ public class HTMLReport extends Report {
         String name = tag.getName();
 
         if (build.isPnc()) {
-            return li(a().withHref(pncUrl + "/pnc-web/#/product/" + build.getBuildInfo().getExtra().get("external_product_id") + "/version/" + build.getBuildInfo().getExtra().get("external_version_id")).with(text(name)));
+            return li(
+                    a().withHref(
+                            pncUrl + "/pnc-web/#/product/" + build.getBuildInfo().getExtra().get("external_product_id")
+                                    + "/version/" + build.getBuildInfo().getExtra().get("external_version_id"))
+                            .with(text(name)));
         }
 
         return li(a().withHref(kojiwebUrl + "/taginfo?tagID=" + id).with(text(name)));
@@ -196,39 +222,182 @@ public class HTMLReport extends Report {
     @Override
     public ContainerTag toHTML() {
         return html(
-            head(style().withText(HTML_STYLE)).with(
-                title().withText(getName())
-            ),
-            body().with(
-                header(
-                    h1(getName())
-                ),
-                main(
-                    div(attrs("#div-reports"), table(caption(text("Reports")), thead(tr(th(text("Name")), th(text("Description")))), tbody(tr(td(a().withHref("#div-" + getBaseFilename()).with(text("Builds"))), td(text(getDescription()))), each(reports, report -> tr(td(a().withHref("#div-" + report.getBaseFilename()).with(text(report.getName()))), td(text(report.getDescription()))))))),
-                    div(attrs("#div-" + getBaseFilename()),
-                        table(caption(text("Builds")), thead(tr(th(text("#")), th(text("ID")), th(text("Name")), th(text("Version")), th(text("Artifacts")), th(text("Tags")), th(text("Type")), th(text("Sources")), th(text("Patches")), th(text("SCM URL")), th(text("Options")), th(text("Extra")))),
-                            tbody(each(builds, build ->
-                                tr(
-                                    td(text(Integer.toString(builds.indexOf(build)))),
-                                    td(build.getBuildInfo().getId() > 0 ? linkBuild(build) : errorText(String.valueOf(build.getBuildInfo().getId()))),
-                                    td(build.getBuildInfo().getId() > 0 ? linkPackage(build) : text("")),
-                                    td(build.getBuildInfo().getId() > 0 ? text(build.getBuildInfo().getVersion().replace('_', '-')) : text("")),
-                                    td(build.getArchives() != null ? ol(each(build.getArchives(), archive -> li(linkLocalArchive(build, archive), text(": "), text(String.join(", ", archive.getFilenames()))))) : text("")),
-                                    td(build.getTags() != null ? ul(each(build.getTags(), tag -> linkTag(build, tag))) : text("")),
-                                    td(build.getMethod() != null ? text(build.getMethod()) : build.getBuildInfo().getId() > 0 ? errorText("imported build") : text("")),
-                                    td(build.getScmSourcesZip() != null ? linkArchive(build, build.getScmSourcesZip()) : text("")),
-                                    td(build.getPatchesZip() != null ? linkArchive(build, build.getPatchesZip()) : text("")),
-                                    td(build.getSource() != null ? linkSource(build) : build.getBuildInfo().getId() == 0 ? text("") : errorText("missing URL")),
-                                    td(build.getTaskInfo() != null && build.getTaskInfo().getMethod() != null && build.getTaskInfo().getMethod().equals("maven") && build.getTaskRequest() != null && build.getTaskRequest().asMavenBuildRequest().getProperties() != null && build.getTaskRequest().asMavenBuildRequest() != null ? each(build.getTaskRequest().asMavenBuildRequest().getProperties().entrySet(), entry -> text(entry.getKey() + (entry.getValue() != null ? "=" + entry.getValue() + "; " : "; "))) : text("")),
-                                    td(build.getBuildInfo().getExtra() != null ? each(build.getBuildInfo().getExtra().entrySet(), entry -> text(entry.getKey() + (entry.getValue() != null ? "=" + entry.getValue() + "; " : "; "))) : text(""))
-                                ))
-                            )
-                        )), each(reports, report ->
-                        div(attrs("#div-" + report.getBaseFilename()), report.toHTML()))
-                ),
-                div(attrs("#div-footer"), footer().attr(Attr.CLASS, "footer").attr(Attr.ID, "footer").with(text("Created: " + new Date() + " by "), a().withHref("https://github.com/release-engineering/koji-build-finder/").with(text(NAME)), text(" " + Utils.getBuildFinderVersion() + " (SHA: "), a().withHref("https://github.com/release-engineering/koji-build-finder/commit/" + Utils.getBuildFinderScmRevision()).with(text(Utils.getBuildFinderScmRevision() + ")"))))
-            )
-        );
+                head(style().withText(HTML_STYLE)).with(title().withText(getName())),
+                body().with(
+                        header(h1(getName())),
+                        main(
+                                div(
+                                        attrs("#div-reports"),
+                                        table(
+                                                caption(text("Reports")),
+                                                thead(tr(th(text("Name")), th(text("Description")))),
+                                                tbody(
+                                                        tr(
+                                                                td(
+                                                                        a().withHref("#div-" + getBaseFilename())
+                                                                                .with(text("Builds"))),
+                                                                td(text(getDescription()))),
+                                                        each(
+                                                                reports,
+                                                                report -> tr(
+                                                                        td(
+                                                                                a().withHref(
+                                                                                        "#div-" + report
+                                                                                                .getBaseFilename())
+                                                                                        .with(text(report.getName()))),
+                                                                        td(text(report.getDescription()))))))),
+                                div(
+                                        attrs("#div-" + getBaseFilename()),
+                                        table(
+                                                caption(text("Builds")),
+                                                thead(
+                                                        tr(
+                                                                th(text("#")),
+                                                                th(text("ID")),
+                                                                th(text("Name")),
+                                                                th(text("Version")),
+                                                                th(text("Artifacts")),
+                                                                th(text("Tags")),
+                                                                th(text("Type")),
+                                                                th(text("Sources")),
+                                                                th(text("Patches")),
+                                                                th(text("SCM URL")),
+                                                                th(text("Options")),
+                                                                th(text("Extra")))),
+                                                tbody(
+                                                        each(
+                                                                builds,
+                                                                build -> tr(
+                                                                        td(
+                                                                                text(
+                                                                                        Integer.toString(
+                                                                                                builds.indexOf(
+                                                                                                        build)))),
+                                                                        td(
+                                                                                build.getBuildInfo().getId() > 0
+                                                                                        ? linkBuild(build)
+                                                                                        : errorText(
+                                                                                                String.valueOf(
+                                                                                                        build.getBuildInfo()
+                                                                                                                .getId()))),
+                                                                        td(
+                                                                                build.getBuildInfo().getId() > 0
+                                                                                        ? linkPackage(build)
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getBuildInfo().getId() > 0 ? text(
+                                                                                        build.getBuildInfo()
+                                                                                                .getVersion()
+                                                                                                .replace('_', '-'))
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getArchives() != null ? ol(
+                                                                                        each(
+                                                                                                build.getArchives(),
+                                                                                                archive -> li(
+                                                                                                        linkLocalArchive(
+                                                                                                                build,
+                                                                                                                archive),
+                                                                                                        text(": "),
+                                                                                                        text(
+                                                                                                                String.join(
+                                                                                                                        ", ",
+                                                                                                                        archive.getFilenames())))))
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getTags() != null
+                                                                                        ? ul(
+                                                                                                each(
+                                                                                                        build.getTags(),
+                                                                                                        tag -> linkTag(
+                                                                                                                build,
+                                                                                                                tag)))
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getMethod() != null
+                                                                                        ? text(build.getMethod())
+                                                                                        : build.getBuildInfo()
+                                                                                                .getId() > 0
+                                                                                                        ? errorText(
+                                                                                                                "imported build")
+                                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getScmSourcesZip() != null
+                                                                                        ? linkArchive(
+                                                                                                build,
+                                                                                                build.getScmSourcesZip())
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getPatchesZip() != null
+                                                                                        ? linkArchive(
+                                                                                                build,
+                                                                                                build.getPatchesZip())
+                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getSource() != null
+                                                                                        ? linkSource(build)
+                                                                                        : build.getBuildInfo()
+                                                                                                .getId() == 0
+                                                                                                        ? text("")
+                                                                                                        : errorText(
+                                                                                                                "missing URL")),
+                                                                        td(
+                                                                                build.getTaskInfo() != null
+                                                                                        && build.getTaskInfo()
+                                                                                                .getMethod() != null
+                                                                                        && build.getTaskInfo()
+                                                                                                .getMethod()
+                                                                                                .equals("maven")
+                                                                                        && build.getTaskRequest() != null
+                                                                                        && build.getTaskRequest()
+                                                                                                .asMavenBuildRequest()
+                                                                                                .getProperties() != null
+                                                                                        && build.getTaskRequest()
+                                                                                                .asMavenBuildRequest() != null
+                                                                                                        ? each(
+                                                                                                                build.getTaskRequest()
+                                                                                                                        .asMavenBuildRequest()
+                                                                                                                        .getProperties()
+                                                                                                                        .entrySet(),
+                                                                                                                entry -> text(
+                                                                                                                        entry.getKey()
+                                                                                                                                + (entry.getValue() != null
+                                                                                                                                        ? "=" + entry
+                                                                                                                                                .getValue()
+                                                                                                                                                + "; "
+                                                                                                                                        : "; ")))
+                                                                                                        : text("")),
+                                                                        td(
+                                                                                build.getBuildInfo().getExtra() != null
+                                                                                        ? each(
+                                                                                                build.getBuildInfo()
+                                                                                                        .getExtra()
+                                                                                                        .entrySet(),
+                                                                                                entry -> text(
+                                                                                                        entry.getKey()
+                                                                                                                + (entry.getValue() != null
+                                                                                                                        ? "=" + entry
+                                                                                                                                .getValue()
+                                                                                                                                + "; "
+                                                                                                                        : "; ")))
+                                                                                        : text(""))))))),
+                                each(
+                                        reports,
+                                        report -> div(attrs("#div-" + report.getBaseFilename()), report.toHTML()))),
+                        div(
+                                attrs("#div-footer"),
+                                footer().attr(Attr.CLASS, "footer")
+                                        .attr(Attr.ID, "footer")
+                                        .with(
+                                                text("Created: " + new Date() + " by "),
+                                                a().withHref(
+                                                        "https://github.com/release-engineering/koji-build-finder/")
+                                                        .with(text(NAME)),
+                                                text(" " + Utils.getBuildFinderVersion() + " (SHA: "),
+                                                a().withHref(
+                                                        "https://github.com/release-engineering/koji-build-finder/commit/"
+                                                                + Utils.getBuildFinderScmRevision())
+                                                        .with(text(Utils.getBuildFinderScmRevision() + ")"))))));
     }
 
     @Override

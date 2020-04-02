@@ -64,7 +64,7 @@ public class MainTest {
     public void verifyHelp() {
         exit.expectSystemExitWithStatus(0);
 
-        String[] args = new String[] {"--help"};
+        String[] args = new String[] { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -79,7 +79,7 @@ public class MainTest {
     public void verifyVersion() {
         exit.expectSystemExitWithStatus(0);
 
-        String[] args = new String[] {"--version"};
+        String[] args = new String[] { "--version" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -110,7 +110,11 @@ public class MainTest {
         String krbPrincipal = "test@TEST.ABC";
         String krbService = "testService";
 
-        String[] args = new String[] {"-o", outputDirectory.toString(), "-c", configFile.toString(), "--disable-cache", "-k", "-t", "sha256", "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(), "--koji-web-url", webURL.toString(), "--krb-ccache", krbCcache.toString(), "--krb-keytab", krbKeytab.toString(), "--krb-principal", krbPrincipal, "--krb-service", krbService, "--krb-password", krbPassword, inputFile.toString()};
+        String[] args = new String[] { "-o", outputDirectory.toString(), "-c", configFile.toString(), "--disable-cache",
+                "-k", "-t", "sha256", "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(),
+                "--koji-web-url", webURL.toString(), "--krb-ccache", krbCcache.toString(), "--krb-keytab",
+                krbKeytab.toString(), "--krb-principal", krbPrincipal, "--krb-service", krbService, "--krb-password",
+                krbPassword, inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -147,7 +151,8 @@ public class MainTest {
 
     @Test
     public void verifyConfig() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with status 0.
+        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
+        // status 0.
         assumeFalse(SystemUtils.IS_OS_WINDOWS);
 
         exit.expectSystemExitWithStatus(0);
@@ -156,7 +161,9 @@ public class MainTest {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
-        String[] args = new String[] {"--output-directory", outputDirectory.toString(), "--config", configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "sha256", inputFile.toString()};
+        String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
+                configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "sha256",
+                inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -179,7 +186,8 @@ public class MainTest {
 
     @Test
     public void verifyDebug() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with status 0.
+        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
+        // status 0.
         assumeFalse(SystemUtils.IS_OS_WINDOWS);
 
         exit.expectSystemExitWithStatus(0);
@@ -188,7 +196,8 @@ public class MainTest {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
         Level level = root.getLevel();
 
         try {
@@ -196,7 +205,9 @@ public class MainTest {
 
             assertFalse(root.isDebugEnabled());
 
-            String[] args = new String[] {"--output-directory", outputDirectory.toString(), "--config", configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--debug", inputFile.toString()};
+            String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
+                    configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--debug",
+                    inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -226,7 +237,8 @@ public class MainTest {
 
     @Test
     public void verifyQuiet() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with status 0.
+        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
+        // status 0.
         assumeFalse(SystemUtils.IS_OS_WINDOWS);
 
         exit.expectSystemExitWithStatus(0);
@@ -235,7 +247,8 @@ public class MainTest {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
         Level level = root.getLevel();
 
         try {
@@ -243,7 +256,9 @@ public class MainTest {
 
             assertTrue(root.isEnabledFor(Level.INFO));
 
-            String[] args = new String[] {"--output-directory", outputDirectory.toString(), "--config", configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--quiet", inputFile.toString()};
+            String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
+                    configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--quiet",
+                    inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 

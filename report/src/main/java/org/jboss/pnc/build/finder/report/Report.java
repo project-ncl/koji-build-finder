@@ -43,7 +43,11 @@ public abstract class Report {
             return;
         }
 
-        FileUtils.writeStringToFile(new File(outputDirectory, baseFilename + ".txt"), text, StandardCharsets.UTF_8, false);
+        FileUtils.writeStringToFile(
+                new File(outputDirectory, baseFilename + ".txt"),
+                text,
+                StandardCharsets.UTF_8,
+                false);
     }
 
     public abstract ContainerTag toHTML();
@@ -55,7 +59,11 @@ public abstract class Report {
             return;
         }
 
-        FileUtils.writeStringToFile(new File(outputDirectory, baseFilename + ".html"), html, StandardCharsets.UTF_8, false);
+        FileUtils.writeStringToFile(
+                new File(outputDirectory, baseFilename + ".html"),
+                html,
+                StandardCharsets.UTF_8,
+                false);
     }
 
     public String getName() {

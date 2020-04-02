@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import com.redhat.red.build.koji.KojiClientException;
 
-public class EmptyBuildsTest  {
+public class EmptyBuildsTest {
     @Test
     public void verifyEmptyChecksums() throws IOException, KojiClientException {
         BuildConfig config = new BuildConfig();

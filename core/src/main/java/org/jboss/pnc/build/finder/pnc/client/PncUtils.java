@@ -71,12 +71,16 @@ public final class PncUtils {
         buildInfo.setName(record.getExecutionRootName().replace(':', '-'));
         buildInfo.setVersion(record.getExecutionRootVersion() != null ? record.getExecutionRootVersion() : "0");
         buildInfo.setRelease("1");
-        buildInfo.setNvr(buildInfo.getName() + "-" + buildInfo.getVersion().replace("-", "_") + "-" + buildInfo.getRelease().replace("-", "_"));
+        buildInfo.setNvr(
+                buildInfo.getName() + "-" + buildInfo.getVersion().replace("-", "_") + "-"
+                        + buildInfo.getRelease().replace("-", "_"));
         buildInfo.setCreationTime(Date.from(record.getStartTime()));
         buildInfo.setCompletionTime(Date.from(record.getEndTime()));
         buildInfo.setBuildState(KojiBuildState.COMPLETE);
         buildInfo.setOwnerName(record.getUsername());
-        buildInfo.setSource((record.getScmRepoURL().startsWith("http") ? "git+" : "") + record.getScmRepoURL() + (record.getScmRevision() != null ? "#" + record.getScmRevision() : ""));
+        buildInfo.setSource(
+                (record.getScmRepoURL().startsWith("http") ? "git+" : "") + record.getScmRepoURL()
+                        + (record.getScmRevision() != null ? "#" + record.getScmRevision() : ""));
 
         Map<String, Object> extra = new HashMap<>(5);
 
@@ -173,7 +177,9 @@ public final class PncUtils {
 
         if (buildVersion == null || buildVersion.equals("0")) {
             buildInfo.setVersion(version);
-            buildInfo.setNvr(buildInfo.getName() + "-" + buildInfo.getVersion().replace("-", "_") + "-" + buildInfo.getRelease().replace("-", "_"));
+            buildInfo.setNvr(
+                    buildInfo.getName() + "-" + buildInfo.getVersion().replace("-", "_") + "-"
+                            + buildInfo.getRelease().replace("-", "_"));
         }
     }
 }

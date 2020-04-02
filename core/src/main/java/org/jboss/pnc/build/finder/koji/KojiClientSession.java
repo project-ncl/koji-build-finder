@@ -59,23 +59,53 @@ public class KojiClientSession extends KojiClient implements ClientSession {
 
     private KojiClientHelper helper;
 
-    public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService) throws KojiClientException {
+    public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService)
+            throws KojiClientException {
         super(config, passwordManager, executorService);
         helper = new KojiClientHelper(this);
     }
 
-    public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService, MetricRegistry registry) throws KojiClientException {
+    public KojiClientSession(
+            KojiConfig config,
+            PasswordManager passwordManager,
+            ExecutorService executorService,
+            MetricRegistry registry) throws KojiClientException {
         super(config, passwordManager, executorService, registry);
         helper = new KojiClientHelper(this);
     }
 
     public KojiClientSession(URL url) throws KojiClientException {
-        super(new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS).withTimeout(DEFAULT_TIMEOUT).withConnectionPoolTimeout(DEFAULT_TIMEOUT).withKojiURL(url.toExternalForm()).build(), new MemoryPasswordManager(), Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
+        super(
+                new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS)
+                        .withTimeout(DEFAULT_TIMEOUT)
+                        .withConnectionPoolTimeout(DEFAULT_TIMEOUT)
+                        .withKojiURL(url.toExternalForm())
+                        .build(),
+                new MemoryPasswordManager(),
+                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
         helper = new KojiClientHelper(this);
     }
 
-    public KojiClientSession(URL url, String krbService, String krbPrincipal, String krbPassword, File krbCCache, File krbKeytab) throws KojiClientException {
-        super(new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS).withTimeout(DEFAULT_TIMEOUT).withConnectionPoolTimeout(DEFAULT_TIMEOUT).withKojiURL(url != null ? url.toExternalForm() : null).withKrbService(krbService).withKrbCCache(krbCCache != null ? krbCCache.getPath() : null).withKrbKeytab(krbKeytab != null ? krbKeytab.getPath() : null).withKrbPrincipal(krbPrincipal).withKrbPassword(krbPassword).build(), new MemoryPasswordManager(), Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
+    public KojiClientSession(
+            URL url,
+            String krbService,
+            String krbPrincipal,
+            String krbPassword,
+            File krbCCache,
+            File krbKeytab) throws KojiClientException {
+        super(
+                new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS)
+                        .withTimeout(DEFAULT_TIMEOUT)
+                        .withConnectionPoolTimeout(DEFAULT_TIMEOUT)
+                        .withKojiURL(url != null ? url.toExternalForm() : null)
+                        .withKrbService(krbService)
+                        .withKrbCCache(krbCCache != null ? krbCCache.getPath() : null)
+                        .withKrbKeytab(krbKeytab != null ? krbKeytab.getPath() : null)
+                        .withKrbPrincipal(krbPrincipal)
+                        .withKrbPassword(krbPassword)
+                        .build(),
+                new MemoryPasswordManager(),
+                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
         session = super.login();
         helper = new KojiClientHelper(this);
     }
@@ -144,7 +174,11 @@ public class KojiClientSession extends KojiClient implements ClientSession {
             return buildInfos;
         }
 
-        List<KojiBuildTypeInfo> buildTypeInfos = super.multiCall(Constants.GET_BUILD_TYPE, args, KojiBuildTypeInfo.class, session);
+        List<KojiBuildTypeInfo> buildTypeInfos = super.multiCall(
+                Constants.GET_BUILD_TYPE,
+                args,
+                KojiBuildTypeInfo.class,
+                session);
 
         if (buildInfos.size() != buildTypeInfos.size()) {
             throw new KojiClientException("Sizes must be equal");

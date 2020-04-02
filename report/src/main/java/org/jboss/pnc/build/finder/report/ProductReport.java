@@ -59,16 +59,27 @@ public class ProductReport extends Report {
         setBaseFilename("products");
         setOutputDirectory(outputDirectory);
 
-        List<String> targets = builds.stream().filter(b -> b.getBuildInfo() != null && b.getBuildInfo().getId() > 0).filter(b -> b.getTaskRequest() != null && b.getTaskRequest().asBuildRequest() != null && b.getTaskRequest().asBuildRequest().getTarget() != null).map(b -> b.getTaskRequest().asBuildRequest().getTarget()).collect(Collectors.toList());
-        Map<String, Long> map = targets.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        List<Map.Entry<String, Long>> countList = map.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+        List<String> targets = builds.stream()
+                .filter(b -> b.getBuildInfo() != null && b.getBuildInfo().getId() > 0)
+                .filter(
+                        b -> b.getTaskRequest() != null && b.getTaskRequest().asBuildRequest() != null
+                                && b.getTaskRequest().asBuildRequest().getTarget() != null)
+                .map(b -> b.getTaskRequest().asBuildRequest().getTarget())
+                .collect(Collectors.toList());
+        Map<String, Long> map = targets.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        List<Map.Entry<String, Long>> countList = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
         Collections.reverse(countList);
 
         MultiValuedMap<String, KojiBuild> prodMap = new ArrayListValuedHashMap<>();
 
         for (KojiBuild build : builds) {
-            if (build.getTaskRequest() == null || build.getTaskRequest().asBuildRequest() == null || build.getTaskRequest().asBuildRequest().getTarget() == null) {
-                  continue;
+            if (build.getTaskRequest() == null || build.getTaskRequest().asBuildRequest() == null
+                    || build.getTaskRequest().asBuildRequest().getTarget() == null) {
+                continue;
             }
 
             for (Entry<String, Long> countEntry : countList) {
@@ -93,7 +104,9 @@ public class ProductReport extends Report {
         for (Entry<String, Collection<KojiBuild>> entry : entrySet) {
             String target = entry.getKey();
             Collection<KojiBuild> prodBuilds = entry.getValue();
-            List<String> buildList = prodBuilds.stream().map(b -> b.getBuildInfo().getNvr()).collect(Collectors.toList());
+            List<String> buildList = prodBuilds.stream()
+                    .map(b -> b.getBuildInfo().getNvr())
+                    .collect(Collectors.toList());
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} ({}): {}", target, targetToProduct(target), buildList);
@@ -104,7 +117,9 @@ public class ProductReport extends Report {
     }
 
     private static String targetToProduct(String tagName) {
-        String prodName = tagName.replaceAll("([a-z\\-]+)([0-9.?]+)?(.*)", "$1-$2").replaceAll("-+", " ").replaceAll("(jb|jboss)", "JBoss");
+        String prodName = tagName.replaceAll("([a-z\\-]+)([0-9.?]+)?(.*)", "$1-$2")
+                .replaceAll("-+", " ")
+                .replaceAll("(jb|jboss)", "JBoss");
         Iterator<String> it = Arrays.asList(prodName.split(" ")).iterator();
 
         StringBuilder sb = new StringBuilder();
@@ -132,6 +147,13 @@ public class ProductReport extends Report {
 
     @Override
     public ContainerTag toHTML() {
-        return table(attrs("#table-" + getBaseFilename()), caption(text(getName())), thead(tr(th(text("Product name")), th(text("Builds")))), tbody(each(this.productMap.entrySet(), entry -> tr(td(text(entry.getKey())), td(text(String.join(", ", entry.getValue())))))));
+        return table(
+                attrs("#table-" + getBaseFilename()),
+                caption(text(getName())),
+                thead(tr(th(text("Product name")), th(text("Builds")))),
+                tbody(
+                        each(
+                                this.productMap.entrySet(),
+                                entry -> tr(td(text(entry.getKey())), td(text(String.join(", ", entry.getValue())))))));
     }
 }

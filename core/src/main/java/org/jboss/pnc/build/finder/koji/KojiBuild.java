@@ -78,7 +78,16 @@ public class KojiBuild {
         this.duplicateArchives = new ArrayList<>();
     }
 
-    public KojiBuild(KojiBuildInfo buildInfo, KojiTaskInfo taskInfo, KojiTaskRequest taskRequest, List<KojiLocalArchive> archives, List<KojiArchiveInfo> remoteArchives, List<KojiTagInfo> tags, List<String> types, List<KojiRpmInfo> rpms, List<KojiRpmInfo> remoteRpms) {
+    public KojiBuild(
+            KojiBuildInfo buildInfo,
+            KojiTaskInfo taskInfo,
+            KojiTaskRequest taskRequest,
+            List<KojiLocalArchive> archives,
+            List<KojiArchiveInfo> remoteArchives,
+            List<KojiTagInfo> tags,
+            List<String> types,
+            List<KojiRpmInfo> rpms,
+            List<KojiRpmInfo> remoteRpms) {
         this.buildInfo = buildInfo;
         this.taskInfo = taskInfo;
         this.taskRequest = taskRequest;
@@ -196,7 +205,10 @@ public class KojiBuild {
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-project-sources.tar.gz";
-            sourcesZip = remoteArchives.stream().filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename)).findFirst().orElse(null);
+            sourcesZip = remoteArchives.stream()
+                    .filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename))
+                    .findFirst()
+                    .orElse(null);
             return sourcesZip;
         }
 
@@ -211,7 +223,10 @@ public class KojiBuild {
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-scm-sources.zip";
-            sourcesZip = remoteArchives.stream().filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename)).findFirst().orElse(null);
+            sourcesZip = remoteArchives.stream()
+                    .filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename))
+                    .findFirst()
+                    .orElse(null);
             return sourcesZip;
         }
 
@@ -226,7 +241,10 @@ public class KojiBuild {
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String patchesZipFilename = mavenArtifactId + "-" + mavenVersion + "-patches.zip";
-            patchesZip = remoteArchives.stream().filter(pArchive -> pArchive.getFilename().equals(patchesZipFilename)).findFirst().orElse(null);
+            patchesZip = remoteArchives.stream()
+                    .filter(pArchive -> pArchive.getFilename().equals(patchesZipFilename))
+                    .findFirst()
+                    .orElse(null);
             return patchesZip;
         }
 
@@ -235,12 +253,17 @@ public class KojiBuild {
 
     @JsonIgnore
     public boolean isImport() {
-        return !(buildInfo != null && buildInfo.getExtra() != null && buildInfo.getExtra().containsKey(KojiJsonConstants.BUILD_SYSTEM) || taskInfo != null);
+        return !(buildInfo != null && buildInfo.getExtra() != null
+                && buildInfo.getExtra().containsKey(KojiJsonConstants.BUILD_SYSTEM) || taskInfo != null);
     }
 
     @JsonIgnore
     public boolean isMaven() {
-        return buildInfo != null && buildInfo.getExtra() != null && (buildInfo.getExtra().containsKey(KEY_MAVEN) || buildInfo.getExtra().get(KojiJsonConstants.BUILD_SYSTEM) != null && buildInfo.getExtra().get(KojiJsonConstants.BUILD_SYSTEM).equals("PNC")) || taskInfo != null && taskInfo.getMethod() != null && taskInfo.getMethod().equals(KEY_MAVEN);
+        return buildInfo != null && buildInfo.getExtra() != null
+                && (buildInfo.getExtra().containsKey(KEY_MAVEN)
+                        || buildInfo.getExtra().get(KojiJsonConstants.BUILD_SYSTEM) != null
+                                && buildInfo.getExtra().get(KojiJsonConstants.BUILD_SYSTEM).equals("PNC"))
+                || taskInfo != null && taskInfo.getMethod() != null && taskInfo.getMethod().equals(KEY_MAVEN);
     }
 
     @JsonIgnore
@@ -293,9 +316,8 @@ public class KojiBuild {
     @Override
     public String toString() {
         return "KojiBuild [buildInfo=" + buildInfo + ", taskInfo=" + taskInfo + ", taskRequest=" + taskRequest
-            + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags
-            + ", rpms=" + rpms + ", remoteRpms=" + remoteRpms + ", duplicateArchives=" + duplicateArchives
-            + "]";
+                + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags + ", rpms=" + rpms
+                + ", remoteRpms=" + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
     }
 
     public static class KojiBuildExternalizer implements AdvancedExternalizer<KojiBuild> {
@@ -303,7 +325,8 @@ public class KojiBuild {
 
         private static final int VERSION = 2;
 
-        private static final Integer ID = (Character.getNumericValue('K') << 16) | (Character.getNumericValue('B') << 8) | Character.getNumericValue('F');
+        private static final Integer ID = (Character.getNumericValue('K') << 16) | (Character.getNumericValue('B') << 8)
+                | Character.getNumericValue('F');
 
         @Override
         public void writeObject(ObjectOutput output, KojiBuild build) throws IOException {

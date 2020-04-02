@@ -16,6 +16,5 @@
 package org.jboss.pnc.build.finder.pnc.client.model;
 
 public enum BuildType {
-    MVN,
-    GRADLE
+    MVN, GRADLE
 }

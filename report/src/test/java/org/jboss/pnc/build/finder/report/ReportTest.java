@@ -135,7 +135,11 @@ public class ReportTest {
         NVRReport nvrReport = new NVRReport(folder, builds);
         assertEquals(nvrExpected, nvrReport.renderText());
         nvrReport.outputText();
-        assertEquals(nvrExpected, FileUtils.readFileToString(new File(nvrReport.getOutputDirectory(), nvrReport.getBaseFilename() + ".txt"), "UTF-8"));
+        assertEquals(
+                nvrExpected,
+                FileUtils.readFileToString(
+                        new File(nvrReport.getOutputDirectory(), nvrReport.getBaseFilename() + ".txt"),
+                        "UTF-8"));
     }
 
     @Test
@@ -144,7 +148,11 @@ public class ReportTest {
         GAVReport gavReport = new GAVReport(folder, builds);
         assertEquals(gavExpected, gavReport.renderText());
         gavReport.outputText();
-        assertEquals(gavExpected, FileUtils.readFileToString(new File(gavReport.getOutputDirectory(), gavReport.getBaseFilename() + ".txt"), "UTF-8"));
+        assertEquals(
+                gavExpected,
+                FileUtils.readFileToString(
+                        new File(gavReport.getOutputDirectory(), gavReport.getBaseFilename() + ".txt"),
+                        "UTF-8"));
     }
 
     @Test
@@ -155,8 +163,14 @@ public class ReportTest {
         assertEquals(2, buildStatisticsReport.getBuildStatistics().getNumberOfImportedBuilds());
         assertEquals(5, buildStatisticsReport.getBuildStatistics().getNumberOfArchives());
         assertEquals(2, buildStatisticsReport.getBuildStatistics().getNumberOfImportedArchives());
-        assertEquals(((double) 2 / (double) 5) * 100.00, buildStatisticsReport.getBuildStatistics().getPercentOfBuildsImported(), 0);
-        assertEquals(((double) 2 / (double) 5) * 100.00, buildStatisticsReport.getBuildStatistics().getPercentOfArchivesImported(), 0);
+        assertEquals(
+                ((double) 2 / (double) 5) * 100.00,
+                buildStatisticsReport.getBuildStatistics().getPercentOfBuildsImported(),
+                0);
+        assertEquals(
+                ((double) 2 / (double) 5) * 100.00,
+                buildStatisticsReport.getBuildStatistics().getPercentOfArchivesImported(),
+                0);
     }
 
     @Test
@@ -179,8 +193,14 @@ public class ReportTest {
         assertEquals(2, productReport.getProductMap().size());
         assertTrue(productReport.getProductMap().containsKey("JBoss EAP 7.0"));
         assertTrue(productReport.getProductMap().containsKey("JBoss AMQ 7"));
-        assertTrue(productReport.getProductMap().get("JBoss EAP 7.0").contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
-        assertTrue(productReport.getProductMap().get("JBoss AMQ 7").contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
+        assertTrue(
+                productReport.getProductMap()
+                        .get("JBoss EAP 7.0")
+                        .contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
+        assertTrue(
+                productReport.getProductMap()
+                        .get("JBoss AMQ 7")
+                        .contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
     }
 
     @Test
@@ -192,8 +212,19 @@ public class ReportTest {
         reports.add(new NVRReport(folder, builds));
         reports.add(new GAVReport(folder, builds));
 
-        HTMLReport htmlReport = new HTMLReport(folder, files, builds, ConfigDefaults.KOJI_WEB_URL, ConfigDefaults.PNC_URL, Collections.unmodifiableList(reports));
+        HTMLReport htmlReport = new HTMLReport(
+                folder,
+                files,
+                builds,
+                ConfigDefaults.KOJI_WEB_URL,
+                ConfigDefaults.PNC_URL,
+                Collections.unmodifiableList(reports));
         htmlReport.outputHTML();
-        assertTrue(FileUtils.readFileToString(new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"), "UTF-8").contains("<html>"));
+        assertTrue(
+                FileUtils
+                        .readFileToString(
+                                new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"),
+                                "UTF-8")
+                        .contains("<html>"));
     }
 }

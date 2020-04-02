@@ -48,7 +48,8 @@ public final class JSONUtils {
 
     public static Map<String, Collection<String>> loadChecksumsFile(File file) throws IOException {
         ObjectMapper mapper = new BuildFinderObjectMapper();
-        TypeReference<Map<String, Collection<String>>> typeRef = new TypeReference<Map<String, Collection<String>>>() { };
+        TypeReference<Map<String, Collection<String>>> typeRef = new TypeReference<Map<String, Collection<String>>>() {
+        };
 
         return mapper.readValue(file, typeRef);
     }

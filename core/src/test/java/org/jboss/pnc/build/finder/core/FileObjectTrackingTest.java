@@ -46,52 +46,56 @@ public class FileObjectTrackingTest {
     public final TestRule restoreSystemProperties = new RestoreSystemProperties();
 
     @Test
-    @BMRules(rules = {
-        // DefaultFileSystemManager / StandardFileSystemManager
-        @BMRule(name = "track-filesystem-create",
-            targetClass = "DefaultFileSystemManager",
-            targetMethod = "<init>",
-            targetLocation = "AT ENTRY",
-            action = "link(\"fileSystemManagerCounter\", incrementCounter(\"DefaultFileSystemManager\")) "
-//                        + "; traceStack() ; System.out.println (\"init: \" + $0.getClass().getName() + \" and \" + $0.hashCode()); "
-        ),
-        @BMRule(name = "track-filesystem-close",
-            targetClass = "DefaultFileSystemManager",
-            targetMethod = "close",
-            targetLocation = "AT ENTRY",
-            action = "link(\"fileSystemManagerCounter\", decrementCounter(\"DefaultFileSystemManager\"))"
-//                            + " ; System.out.println (\"close: \" + $0.getClass().getName() + \" and linked \" + linked(\"fileSystemManagerCounter\") ); "
-        ),
-        @BMRule(name = "pass-file-info",
-            targetClass = "FileObjectTrackingTest",
-            targetMethod = "getFileSystemCounter",
-            targetLocation = "AT ENTRY",
-            action = "return linked(\"fileSystemManagerCounter\")"
-        ),
-        // FileObject
-        @BMRule(name = "track-file-object-create",
-            targetClass = "AbstractFileObject",
-            targetMethod = "<init>",
-            targetLocation = "AT ENTRY",
-            // Ignore LocalFiles as they are used for the temporary file cache.
-            condition = "$0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
-            action = "link(\"fileObjectCounter\", incrementCounter(\"AbstractFileObject\")) "
-        ),
-        @BMRule(name = "track-file-object-close",
-            targetClass = "AbstractFileObject",
-            targetMethod = "close",
-            targetLocation = "AT ENTRY",
-            // Ignore LocalFiles as they are used for the temporary file cache.
-            condition = " $0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
-            action = "link(\"fileObjectCounter\", decrementCounter(\"AbstractFileObject\"))"
-        ),
-        @BMRule(name = "pass-object-info",
-            targetClass = "FileObjectTrackingTest",
-            targetMethod = "getAbstractFileObjectCounter",
-            targetLocation = "AT ENTRY",
-            action = "return linked(\"fileObjectCounter\")"
-        )
-    })
+    @BMRules(
+            rules = {
+                    // DefaultFileSystemManager / StandardFileSystemManager
+                    @BMRule(
+                            name = "track-filesystem-create",
+                            targetClass = "DefaultFileSystemManager",
+                            targetMethod = "<init>",
+                            targetLocation = "AT ENTRY",
+                            action = "link(\"fileSystemManagerCounter\", incrementCounter(\"DefaultFileSystemManager\")) "
+                    // + "; traceStack() ; System.out.println (\"init: \" + $0.getClass().getName() + \" and \" +
+                    // $0.hashCode()); "
+                    ),
+                    @BMRule(
+                            name = "track-filesystem-close",
+                            targetClass = "DefaultFileSystemManager",
+                            targetMethod = "close",
+                            targetLocation = "AT ENTRY",
+                            action = "link(\"fileSystemManagerCounter\", decrementCounter(\"DefaultFileSystemManager\"))"
+                    // + " ; System.out.println (\"close: \" + $0.getClass().getName() + \" and linked \" +
+                    // linked(\"fileSystemManagerCounter\") ); "
+                    ),
+                    @BMRule(
+                            name = "pass-file-info",
+                            targetClass = "FileObjectTrackingTest",
+                            targetMethod = "getFileSystemCounter",
+                            targetLocation = "AT ENTRY",
+                            action = "return linked(\"fileSystemManagerCounter\")"),
+                    // FileObject
+                    @BMRule(
+                            name = "track-file-object-create",
+                            targetClass = "AbstractFileObject",
+                            targetMethod = "<init>",
+                            targetLocation = "AT ENTRY",
+                            // Ignore LocalFiles as they are used for the temporary file cache.
+                            condition = "$0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
+                            action = "link(\"fileObjectCounter\", incrementCounter(\"AbstractFileObject\")) "),
+                    @BMRule(
+                            name = "track-file-object-close",
+                            targetClass = "AbstractFileObject",
+                            targetMethod = "close",
+                            targetLocation = "AT ENTRY",
+                            // Ignore LocalFiles as they are used for the temporary file cache.
+                            condition = " $0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
+                            action = "link(\"fileObjectCounter\", decrementCounter(\"AbstractFileObject\"))"),
+                    @BMRule(
+                            name = "pass-object-info",
+                            targetClass = "FileObjectTrackingTest",
+                            targetMethod = "getAbstractFileObjectCounter",
+                            targetLocation = "AT ENTRY",
+                            action = "return linked(\"fileObjectCounter\")") })
     public void verifyObjectCreation() throws IOException {
         File cache = temp.newFolder();
         System.setProperty("java.io.tmpdir", cache.getAbsolutePath());

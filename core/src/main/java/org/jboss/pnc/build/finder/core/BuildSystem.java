@@ -16,18 +16,12 @@
 package org.jboss.pnc.build.finder.core;
 
 public enum BuildSystem {
-    none(0),
-    koji(1),
-    pnc(2);
+    none(0), koji(1), pnc(2);
 
     private int value;
 
     BuildSystem(int value) {
         this.value = value;
-    }
-
-    public int getValue() {
-        return value;
     }
 
     public static BuildSystem fromInteger(int value) {
@@ -38,5 +32,9 @@ public enum BuildSystem {
         }
 
         throw new IllegalArgumentException("Unknown BuildSystem value: " + value);
+    }
+
+    public int getValue() {
+        return value;
     }
 }

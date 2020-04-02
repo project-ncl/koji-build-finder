@@ -16,9 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 public enum ChecksumType {
-    md5(0, "MD5"),
-    sha1(1, "SHA-1"),
-    sha256(2, "SHA-256");
+    md5(0, "MD5"), sha1(1, "SHA-1"), sha256(2, "SHA-256");
 
     private Integer value;
     private String algorithm;
@@ -26,14 +24,6 @@ public enum ChecksumType {
     ChecksumType(int value, String algorithm) {
         this.value = value;
         this.algorithm = algorithm;
-    }
-
-    public Integer getValue() {
-        return value;
-    }
-
-    public String getAlgorithm() {
-        return algorithm;
     }
 
     public static ChecksumType fromInteger(Integer value) {
@@ -44,5 +34,13 @@ public enum ChecksumType {
         }
 
         throw new IllegalArgumentException("Unknown value for checksum type: " + value);
+    }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public String getAlgorithm() {
+        return algorithm;
     }
 }

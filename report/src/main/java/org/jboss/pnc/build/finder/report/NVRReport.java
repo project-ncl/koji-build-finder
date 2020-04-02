@@ -46,7 +46,13 @@ public class NVRReport extends Report {
         setBaseFilename("nvr");
         setOutputDirectory(outputDirectory);
 
-        this.nvrs = builds.stream().map(KojiBuild::getBuildInfo).filter(info -> info.getId() > 0).map(KojiBuildInfo::getNvr).sorted(String::compareToIgnoreCase).distinct().collect(Collectors.toList());
+        this.nvrs = builds.stream()
+                .map(KojiBuild::getBuildInfo)
+                .filter(info -> info.getId() > 0)
+                .map(KojiBuildInfo::getNvr)
+                .sorted(String::compareToIgnoreCase)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -56,6 +62,10 @@ public class NVRReport extends Report {
 
     @Override
     public ContainerTag toHTML() {
-        return table(attrs("#table-" + getBaseFilename()), caption(text(getName())), thead(tr(th(text("<name>-<version>-<release>")))), tbody(each(nvrs, i -> tr(td(text(i))))));
+        return table(
+                attrs("#table-" + getBaseFilename()),
+                caption(text(getName())),
+                thead(tr(th(text("<name>-<version>-<release>")))),
+                tbody(each(nvrs, i -> tr(td(text(i))))));
     }
 }

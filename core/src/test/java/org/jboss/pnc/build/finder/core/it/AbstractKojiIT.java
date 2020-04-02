@@ -41,21 +41,14 @@ import com.redhat.red.build.koji.config.SimpleKojiConfig;
 import com.redhat.red.build.koji.config.SimpleKojiConfigBuilder;
 
 public abstract class AbstractKojiIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiIT.class);
-
-    private static final int DEFAULT_THREAD_COUNT = 1;
-
-    private ScheduledReporter reporter;
-
-    private KojiClientSession session;
-
-    private BuildConfig config;
-
-    private PncClient14 pncclient;
-
     protected static final int MAX_CONNECTIONS = 20;
-
     protected static final MetricRegistry REGISTRY = new MetricRegistry();
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiIT.class);
+    private static final int DEFAULT_THREAD_COUNT = 1;
+    private ScheduledReporter reporter;
+    private KojiClientSession session;
+    private BuildConfig config;
+    private PncClient14 pncclient;
 
     @Before
     public void setup() throws IOException, KojiClientException {
@@ -79,10 +72,20 @@ public abstract class AbstractKojiIT {
             throw new IOException("You must set pnc-url in: " + configFile.getAbsolutePath());
         }
 
-        final SimpleKojiConfig kojiConfig = new SimpleKojiConfigBuilder().withKojiURL(kojiHubURL.toExternalForm()).withMaxConnections(MAX_CONNECTIONS).build();
-        this.session = new KojiClientSession(kojiConfig, new MemoryPasswordManager(), Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT), REGISTRY);
+        final SimpleKojiConfig kojiConfig = new SimpleKojiConfigBuilder().withKojiURL(kojiHubURL.toExternalForm())
+                .withMaxConnections(MAX_CONNECTIONS)
+                .build();
+        this.session = new KojiClientSession(
+                kojiConfig,
+                new MemoryPasswordManager(),
+                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT),
+                REGISTRY);
         this.pncclient = new PncClient14(config);
-        this.reporter = Slf4jReporter.forRegistry(REGISTRY).outputTo(LOGGER).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.SECONDS).build();
+        this.reporter = Slf4jReporter.forRegistry(REGISTRY)
+                .outputTo(LOGGER)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.SECONDS)
+                .build();
 
         reporter.start(600, TimeUnit.SECONDS);
     }

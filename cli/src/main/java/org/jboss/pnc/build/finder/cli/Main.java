@@ -91,7 +91,13 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
-@Command(abbreviateSynopsis = true, description = "Finds builds in Koji.", mixinStandardHelpOptions = true, name = "koji-build-finder", showDefaultValues = true, versionProvider = Main.ManifestVersionProvider.class)
+@Command(
+        abbreviateSynopsis = true,
+        description = "Finds builds in Koji.",
+        mixinStandardHelpOptions = true,
+        name = "koji-build-finder",
+        showDefaultValues = true,
+        versionProvider = Main.ManifestVersionProvider.class)
 public final class Main implements Callable<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
@@ -102,91 +108,113 @@ public final class Main implements Callable<Void> {
     @Spec
     private CommandSpec commandSpec;
 
-    @Option(names = {"-a", "--archive-type"}, paramLabel = "STRING", description = "Add a Koji archive type to check.", converter = FilenameConverter.class)
+    @Option(
+            names = { "-a", "--archive-type" },
+            paramLabel = "STRING",
+            description = "Add a Koji archive type to check.",
+            converter = FilenameConverter.class)
     private List<String> archiveTypes = ConfigDefaults.ARCHIVE_TYPES;
 
-    @Option(names = {"-b", "--build-system"}, paramLabel = "BUILD_SYSTEM", description = "Add a build system (${COMPLETION-CANDIDATES}).")
+    @Option(
+            names = { "-b", "--build-system" },
+            paramLabel = "BUILD_SYSTEM",
+            description = "Add a build system (${COMPLETION-CANDIDATES}).")
     private List<BuildSystem> buildSystems = ConfigDefaults.BUILD_SYSTEMS;
 
-    @Option(names = {"--cache-lifespan"}, paramLabel = "LONG", description = "Specify cache lifespan.")
+    @Option(names = { "--cache-lifespan" }, paramLabel = "LONG", description = "Specify cache lifespan.")
     private Long cacheLifespan = ConfigDefaults.CACHE_LIFESPAN;
 
-    @Option(names = {"--cache-max-idle"}, paramLabel = "LONG", description = "Specify cache maximum idle time.")
+    @Option(names = { "--cache-max-idle" }, paramLabel = "LONG", description = "Specify cache maximum idle time.")
     private Long cacheMaxIdle = ConfigDefaults.CACHE_MAX_IDLE;
 
-    @Option(names = {"-c", "--config"}, paramLabel = "FILE", description = "Specify configuration file to use.")
+    @Option(names = { "-c", "--config" }, paramLabel = "FILE", description = "Specify configuration file to use.")
     private File configFile = new File(ConfigDefaults.CONFIG);
 
-    @Option(names = {"-d", "--debug"}, description = "Enable debug logging.")
+    @Option(names = { "-d", "--debug" }, description = "Enable debug logging.")
     private Boolean debug = Boolean.FALSE;
 
-    @Option(names = {"--disable-cache"}, description = "Disable local cache.")
+    @Option(names = { "--disable-cache" }, description = "Disable local cache.")
     private Boolean disableCache = ConfigDefaults.DISABLE_CACHE;
 
-    @Option(names = {"--disable-recursion"}, description = "Disable recursion.")
+    @Option(names = { "--disable-recursion" }, description = "Disable recursion.")
     private Boolean disableRecursion = ConfigDefaults.DISABLE_RECURSION;
 
-    @Option(names = {"-e", "--archive-extension"}, paramLabel = "STRING", description = "Add a Koji archive type extension to check.", converter = FilenameConverter.class)
+    @Option(
+            names = { "-e", "--archive-extension" },
+            paramLabel = "STRING",
+            description = "Add a Koji archive type extension to check.",
+            converter = FilenameConverter.class)
     private List<String> archiveExtensions = ConfigDefaults.ARCHIVE_EXTENSIONS;
 
-    @Option(names = {"-k", "--checksum-only"}, description = "Only checksum files and do not find builds.")
+    @Option(names = { "-k", "--checksum-only" }, description = "Only checksum files and do not find builds.")
     private Boolean checksumOnly = ConfigDefaults.CHECKSUM_ONLY;
 
-    @Option(names = {"--koji-hub-url"}, paramLabel = "URL", description = "Set Koji hub URL.")
+    @Option(names = { "--koji-hub-url" }, paramLabel = "URL", description = "Set Koji hub URL.")
     private URL kojiHubURL = ConfigDefaults.KOJI_HUB_URL;
 
-    @Option(names = {"--koji-multicall-size"}, paramLabel = "INT", description = "Set Koji multicall size.")
+    @Option(names = { "--koji-multicall-size" }, paramLabel = "INT", description = "Set Koji multicall size.")
     private Integer kojiMulticallSize = ConfigDefaults.KOJI_MULTICALL_SIZE;
 
-    @Option(names = {"--koji-num-threads"}, paramLabel = "INT", description = "Set Koji num threads.")
+    @Option(names = { "--koji-num-threads" }, paramLabel = "INT", description = "Set Koji num threads.")
     private Integer kojiNumThreads = ConfigDefaults.KOJI_NUM_THREADS;
 
-    @Option(names = {"--koji-web-url"}, paramLabel = "URL", description = "Set Koji web URL.")
+    @Option(names = { "--koji-web-url" }, paramLabel = "URL", description = "Set Koji web URL.")
     private URL kojiWebURL = ConfigDefaults.KOJI_WEB_URL;
 
-    @Option(names = {"--krb-ccache"}, paramLabel = "FILE", description = "Set location of Kerberos credential cache.")
+    @Option(names = { "--krb-ccache" }, paramLabel = "FILE", description = "Set location of Kerberos credential cache.")
     private File krbCCache;
 
-    @Option(names = {"--krb-keytab"}, paramLabel = "FILE", description = "Set location of Kerberos keytab.")
+    @Option(names = { "--krb-keytab" }, paramLabel = "FILE", description = "Set location of Kerberos keytab.")
     private File krbKeytab;
 
-    @Option(names = {"--krb-password"}, paramLabel = "STRING", description = "Set Kerberos password.", arity = "0..1", interactive = true)
+    @Option(
+            names = { "--krb-password" },
+            paramLabel = "STRING",
+            description = "Set Kerberos password.",
+            arity = "0..1",
+            interactive = true)
     private String krbPassword;
 
-    @Option(names = {"--krb-principal"}, paramLabel = "STRING", description = "Set Kerberos client principal.")
+    @Option(names = { "--krb-principal" }, paramLabel = "STRING", description = "Set Kerberos client principal.")
     private String krbPrincipal;
 
-    @Option(names = {"--krb-service"}, paramLabel = "STRING", description = "Set Kerberos client service.")
+    @Option(names = { "--krb-service" }, paramLabel = "STRING", description = "Set Kerberos client service.")
     private String krbService;
 
-    @Option(names = {"-o", "--output-directory"}, paramLabel = "FILE", description = "Set output directory.")
+    @Option(names = { "-o", "--output-directory" }, paramLabel = "FILE", description = "Set output directory.")
     private File outputDirectory = new File(ConfigDefaults.OUTPUT_DIR);
 
-    @Option(names = {"--pnc-connection-timeout"}, paramLabel = "LONG", description = "Set Pnc connection timeout.")
+    @Option(names = { "--pnc-connection-timeout" }, paramLabel = "LONG", description = "Set Pnc connection timeout.")
     private Long pncConnectionTimeout = ConfigDefaults.PNC_CONNECTION_TIMEOUT;
 
-    @Option(names = {"--pnc-partition-size"}, paramLabel = "INT", description = "Set Pnc partition size.")
+    @Option(names = { "--pnc-partition-size" }, paramLabel = "INT", description = "Set Pnc partition size.")
     private Integer pncPartitionSize = ConfigDefaults.PNC_PARTITION_SIZE;
 
-    @Option(names = {"--pnc-read-timeout"}, paramLabel = "LONG", description = "Set Pnc read timeout.")
+    @Option(names = { "--pnc-read-timeout" }, paramLabel = "LONG", description = "Set Pnc read timeout.")
     private Long pncReadTimeout = ConfigDefaults.PNC_READ_TIMEOUT;
 
-    @Option(names = {"--pnc-url"}, paramLabel = "URL", description = "Set Pnc URL.")
+    @Option(names = { "--pnc-url" }, paramLabel = "URL", description = "Set Pnc URL.")
     private URL pncURL = ConfigDefaults.PNC_URL;
 
-    @Option(names = {"-q", "--quiet"}, description = "Disable all logging.")
+    @Option(names = { "-q", "--quiet" }, description = "Disable all logging.")
     private Boolean quiet = Boolean.FALSE;
 
-    @Option(names = {"-t", "--checksum-type"}, paramLabel = "CHECKSUM", description = "Add a checksum type (${COMPLETION-CANDIDATES}).")
+    @Option(
+            names = { "-t", "--checksum-type" },
+            paramLabel = "CHECKSUM",
+            description = "Add a checksum type (${COMPLETION-CANDIDATES}).")
     private Set<ChecksumType> checksumTypes = ConfigDefaults.CHECKSUM_TYPES;
 
-    @Option(names = {"--use-builds-file"}, description = "Use builds file.")
+    @Option(names = { "--use-builds-file" }, description = "Use builds file.")
     private Boolean useBuildsFile = ConfigDefaults.USE_BUILDS_FILE;
 
-    @Option(names = {"--use-checksums-file"}, description = "Use checksums file.")
+    @Option(names = { "--use-checksums-file" }, description = "Use checksums file.")
     private Boolean useChecksumsFile = ConfigDefaults.USE_CHECKSUMS_FILE;
 
-    @Option(names = {"-x", "--exclude"}, paramLabel = "PATTERN", description = "Add a pattern to exclude from build lookup.")
+    @Option(
+            names = { "-x", "--exclude" },
+            paramLabel = "PATTERN",
+            description = "Add a pattern to exclude from build lookup.")
     private List<Pattern> excludes = ConfigDefaults.EXCLUDES;
 
     @Parameters(arity = "1..*", paramLabel = "FILE", description = "One or more files.")
@@ -200,7 +228,8 @@ public final class Main implements Callable<Void> {
         Main main = new Main();
 
         try {
-            Ansi ansi = System.getProperty("picocli.ansi") == null ? Ansi.ON : Boolean.getBoolean("picocli.ansi") ? Ansi.ON : Ansi.OFF;
+            Ansi ansi = System.getProperty("picocli.ansi") == null ? Ansi.ON
+                    : Boolean.getBoolean("picocli.ansi") ? Ansi.ON : Ansi.OFF;
             CommandLine cmd = new CommandLine(main).setColorScheme(Help.defaultColorScheme(ansi));
             int exitCode = cmd.execute(args);
             System.exit(exitCode);
@@ -210,6 +239,39 @@ public final class Main implements Callable<Void> {
         } finally {
             main.closeCaches();
             main.shutdownPool();
+        }
+    }
+
+    private static void disableLogging() {
+        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.OFF);
+    }
+
+    private static void enableDebugLogging() {
+        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory
+                .getLogger(Logger.ROOT_LOGGER_NAME);
+
+        rootLogger.setLevel(Level.DEBUG);
+
+        LoggerContext loggerContext = rootLogger.getLoggerContext();
+        List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
+
+        for (ch.qos.logback.classic.Logger logger : loggerList) {
+            logger.setLevel(Level.DEBUG);
+        }
+
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setContext(loggerContext);
+        encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+        encoder.start();
+
+        ConsoleAppender<ILoggingEvent> appender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("STDOUT");
+
+        if (appender != null) {
+            appender.setContext(loggerContext);
+            appender.setEncoder(encoder);
+            appender.start();
         }
     }
 
@@ -232,10 +294,15 @@ public final class Main implements Callable<Void> {
             }
         } else {
             if (defaults == null) {
-                LOGGER.info("Configuration file {} does not exist. Implicitly creating with defaults.", green(configFile));
+                LOGGER.info(
+                        "Configuration file {} does not exist. Implicitly creating with defaults.",
+                        green(configFile));
                 config = new BuildConfig();
             } else {
-                LOGGER.info("Configuration file {} does not exist. Implicitly creating using defaults from file {} on classpath.", green(configFile), green(ConfigDefaults.CONFIG_FILE));
+                LOGGER.info(
+                        "Configuration file {} does not exist. Implicitly creating using defaults from file {} on classpath.",
+                        green(configFile),
+                        green(ConfigDefaults.CONFIG_FILE));
                 config = defaults;
             }
         }
@@ -257,7 +324,11 @@ public final class Main implements Callable<Void> {
             config.setDisableCache(disableCache);
             LOGGER.info("Local cache: {}", green("disabled"));
         } else {
-            LOGGER.info("Local cache: {}, lifespan: {}, maxIdle: {}", green("enabled"), green(config.getCacheLifespan()), green(config.getCacheMaxIdle()));
+            LOGGER.info(
+                    "Local cache: {}, lifespan: {}, maxIdle: {}",
+                    green("enabled"),
+                    green(config.getCacheLifespan()),
+                    green(config.getCacheMaxIdle()));
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--disable-recursion")) {
@@ -354,12 +425,26 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         KojiBuild.KojiBuildExternalizer externalizer = new KojiBuild.KojiBuildExternalizer();
-        GlobalConfiguration globalConfig = new GlobalConfigurationBuilder().serialization().addAdvancedExternalizer(externalizer.getId(), externalizer).build();
+        GlobalConfiguration globalConfig = new GlobalConfigurationBuilder().serialization()
+                .addAdvancedExternalizer(externalizer.getId(), externalizer)
+                .build();
 
         cacheManager = new DefaultCacheManager(globalConfig);
 
         String location = new File(ConfigDefaults.CONFIG).getParent();
-        Configuration configuration = new ConfigurationBuilder().expiration().lifespan(config.getCacheLifespan()).maxIdle(config.getCacheMaxIdle()).wakeUpInterval(-1L).persistence().passivation(false).addSingleFileStore().shared(false).preload(true).fetchPersistentState(true).purgeOnStartup(false).location(location).build();
+        Configuration configuration = new ConfigurationBuilder().expiration()
+                .lifespan(config.getCacheLifespan())
+                .maxIdle(config.getCacheMaxIdle())
+                .wakeUpInterval(-1L)
+                .persistence()
+                .passivation(false)
+                .addSingleFileStore()
+                .shared(false)
+                .preload(true)
+                .fetchPersistentState(true)
+                .purgeOnStartup(false)
+                .location(location)
+                .build();
 
         for (ChecksumType checksumType : checksumTypes) {
             cacheManager.defineConfiguration("files-" + checksumType, configuration);
@@ -449,7 +534,21 @@ public final class Main implements Callable<Void> {
         LOGGER.info("{}", green("      \\/                   \\/       \\/           \\/     \\/    \\/       "));
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}{} (SHA: {})", String.format("%" +  Math.max(0, 79 - String.format("%s (SHA: %s)", Utils.getBuildFinderVersion(), Utils.getBuildFinderScmRevision()).length() - 7) + "s", ""), boldYellow(Utils.getBuildFinderVersion()), cyan(Utils.getBuildFinderScmRevision()));
+            LOGGER.info(
+                    "{}{} (SHA: {})",
+                    String.format(
+                            "%" + Math.max(
+                                    0,
+                                    79 - String
+                                            .format(
+                                                    "%s (SHA: %s)",
+                                                    Utils.getBuildFinderVersion(),
+                                                    Utils.getBuildFinderScmRevision())
+                                            .length() - 7)
+                                    + "s",
+                            ""),
+                    boldYellow(Utils.getBuildFinderVersion()),
+                    cyan(Utils.getBuildFinderScmRevision()));
         }
 
         LOGGER.info("{}", green(""));
@@ -486,7 +585,9 @@ public final class Main implements Callable<Void> {
 
         LOGGER.debug("mkdirs returned {}", ret);
 
-        LOGGER.info("Checksum type: {}", green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
+        LOGGER.info(
+                "Checksum type: {}",
+                green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
 
         final Map<ChecksumType, MultiValuedMap<String, String>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
 
@@ -600,9 +701,18 @@ public final class Main implements Callable<Void> {
             }
 
             if (config.getUseChecksumsFile().booleanValue()) {
-                boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null || krbCCache != null || krbKeytab != null;
+                boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null
+                        || krbCCache != null || krbKeytab != null;
 
-                try (KojiClientSession session = isKerberos ? new KojiClientSession(config.getKojiHubURL(), krbService, krbPrincipal, krbPassword, krbCCache, krbKeytab) : new KojiClientSession(config.getKojiHubURL())) {
+                try (KojiClientSession session = isKerberos
+                        ? new KojiClientSession(
+                                config.getKojiHubURL(),
+                                krbService,
+                                krbPrincipal,
+                                krbPassword,
+                                krbCCache,
+                                krbKeytab)
+                        : new KojiClientSession(config.getKojiHubURL())) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
@@ -646,9 +756,18 @@ public final class Main implements Callable<Void> {
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(inputs, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
 
-                boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null || krbCCache != null || krbKeytab != null;
+                boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null
+                        || krbCCache != null || krbKeytab != null;
 
-                try (KojiClientSession session = isKerberos ? new KojiClientSession(config.getKojiHubURL(), krbService, krbPrincipal, krbPassword, krbCCache, krbKeytab) : new KojiClientSession(config.getKojiHubURL())) {
+                try (KojiClientSession session = isKerberos
+                        ? new KojiClientSession(
+                                config.getKojiHubURL(),
+                                krbService,
+                                krbPrincipal,
+                                krbPassword,
+                                krbCCache,
+                                krbKeytab)
+                        : new KojiClientSession(config.getKojiHubURL())) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
@@ -713,8 +832,13 @@ public final class Main implements Callable<Void> {
 
         BuildSystemInteger zero = new BuildSystemInteger(0, BuildSystem.none);
 
-        if (builds != null && builds.containsKey(zero) && (!builds.get(zero).getArchives().isEmpty() || builds.keySet().size() > 1)) {
-            List<KojiBuild> buildList = builds.entrySet().stream().sorted(Entry.comparingByKey()).map(Entry::getValue).collect(Collectors.toList());
+        if (builds != null && builds.containsKey(zero)
+                && (!builds.get(zero).getArchives().isEmpty() || builds.keySet().size() > 1)) {
+            List<KojiBuild> buildList = builds.entrySet()
+                    .stream()
+                    .sorted(Entry.comparingByKey())
+                    .map(Entry::getValue)
+                    .collect(Collectors.toList());
             List<Report> reports = new ArrayList<>(4);
 
             reports.add(new BuildStatisticsReport(outputDirectory, buildList));
@@ -733,7 +857,13 @@ public final class Main implements Callable<Void> {
                 }
             }
 
-            Report report = new HTMLReport(outputDirectory, files, buildList, config.getKojiWebURL(), config.getPncURL(), Collections.unmodifiableList(reports));
+            Report report = new HTMLReport(
+                    outputDirectory,
+                    files,
+                    buildList,
+                    config.getKojiWebURL(),
+                    config.getPncURL(),
+                    Collections.unmodifiableList(reports));
 
             try {
                 report.outputHTML();
@@ -765,7 +895,7 @@ public final class Main implements Callable<Void> {
 
         @Override
         public String[] getVersion() {
-            return new String[] {Utils.getBuildFinderVersion() + " (SHA: " + Utils.getBuildFinderScmRevision() + ")"};
+            return new String[] { Utils.getBuildFinderVersion() + " (SHA: " + Utils.getBuildFinderScmRevision() + ")" };
         }
     }
 
@@ -777,37 +907,6 @@ public final class Main implements Callable<Void> {
             }
 
             return value;
-        }
-    }
-
-    private static void disableLogging() {
-        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.OFF);
-    }
-
-    private static void enableDebugLogging() {
-        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-        rootLogger.setLevel(Level.DEBUG);
-
-        LoggerContext loggerContext = rootLogger.getLoggerContext();
-        List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
-
-        for (ch.qos.logback.classic.Logger logger : loggerList) {
-            logger.setLevel(Level.DEBUG);
-        }
-
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        encoder.setContext(loggerContext);
-        encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
-        encoder.start();
-
-        ConsoleAppender<ILoggingEvent> appender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("STDOUT");
-
-        if (appender != null) {
-            appender.setContext(loggerContext);
-            appender.setEncoder(encoder);
-            appender.start();
         }
     }
 }

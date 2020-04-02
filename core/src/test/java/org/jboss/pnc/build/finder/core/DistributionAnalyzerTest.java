@@ -84,7 +84,7 @@ public class DistributionAnalyzerTest {
     @Test
     public void verifyType() throws IOException {
         List<File> af = new ArrayList<>();
-        String[] types = {"test.res", "test.ram", "test.tmp", "test.file"};
+        String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
 
         for (String s : types) {
             File test = temp.newFile(s);

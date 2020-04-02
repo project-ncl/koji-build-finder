@@ -58,7 +58,8 @@ public class Checksum {
         this.filename = filename;
     }
 
-    public static Set<Checksum> checksum(FileObject fo, Set<ChecksumType> checksumTypes, String root) throws IOException {
+    public static Set<Checksum> checksum(FileObject fo, Set<ChecksumType> checksumTypes, String root)
+            throws IOException {
         Map<ChecksumType, MessageDigest> mds = new EnumMap<>(ChecksumType.class);
 
         for (ChecksumType checksumType : checksumTypes) {
@@ -121,7 +122,8 @@ public class Checksum {
 
                             final String sigmd5 = Hex.encodeHexString((byte[]) md5);
 
-                            future = CompletableFuture.supplyAsync(() -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root)));
+                            future = CompletableFuture.supplyAsync(
+                                    () -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root)));
 
                             futures2.put(checksumType, future);
                             break;
@@ -134,7 +136,8 @@ public class Checksum {
 
                             final String sigsha1 = Hex.encodeHexString((byte[]) sha1);
 
-                            future = CompletableFuture.supplyAsync(() -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root)));
+                            future = CompletableFuture.supplyAsync(
+                                    () -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root)));
 
                             futures2.put(checksumType, future);
                             break;
@@ -147,7 +150,8 @@ public class Checksum {
 
                             final String sigsha256 = Hex.encodeHexString((byte[]) sha256);
 
-                            future = CompletableFuture.supplyAsync(() -> new Checksum(checksumType, sigsha256, Utils.normalizePath(fo, root)));
+                            future = CompletableFuture.supplyAsync(
+                                    () -> new Checksum(checksumType, sigsha256, Utils.normalizePath(fo, root)));
 
                             futures2.put(checksumType, future);
                             break;
@@ -173,7 +177,9 @@ public class Checksum {
     }
 
     public static Optional<Checksum> findByType(Set<Checksum> checksums, ChecksumType type) {
-        List<Checksum> list = checksums.stream().filter(checksum -> checksum.getType().equals(type)).collect(Collectors.toList());
+        List<Checksum> list = checksums.stream()
+                .filter(checksum -> checksum.getType().equals(type))
+                .collect(Collectors.toList());
         int size = list.size();
 
         if (size == 0) {

@@ -97,14 +97,11 @@ public class BuildRecordPushResult implements Serializable {
     @Override
     public String toString() {
         return "BuildRecordPushResult [id=" + id + ", buildRecordId=" + buildRecordId + ", status=" + status + ", log="
-            + log + ", artifactImportErrors=" + artifactImportErrors + ", brewBuildId=" + brewBuildId
-            + ", brewBuildUrl=" + brewBuildUrl + "]";
+                + log + ", artifactImportErrors=" + artifactImportErrors + ", brewBuildId=" + brewBuildId
+                + ", brewBuildUrl=" + brewBuildUrl + "]";
     }
 
     public enum Status {
-        SUCCESS,
-        FAILED,
-        SYSTEM_ERROR,
-        CANCELED
+        SUCCESS, FAILED, SYSTEM_ERROR, CANCELED
     }
 }
