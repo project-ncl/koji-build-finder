@@ -449,7 +449,7 @@ public final class Main implements Callable<Void> {
         LOGGER.info("{}", green("      \\/                   \\/       \\/           \\/     \\/    \\/       "));
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}{} (SHA: {})", String.format("%" +  Math.max(0, 79 - String.format("%s (SHA: %s)", BuildFinder.getVersion(), BuildFinder.getScmRevision()).length() - 7) + "s", ""), boldYellow(BuildFinder.getVersion()), cyan(BuildFinder.getScmRevision()));
+            LOGGER.info("{}{} (SHA: {})", String.format("%" +  Math.max(0, 79 - String.format("%s (SHA: %s)", Utils.getBuildFinderVersion(), Utils.getBuildFinderScmRevision()).length() - 7) + "s", ""), boldYellow(Utils.getBuildFinderVersion()), cyan(Utils.getBuildFinderScmRevision()));
         }
 
         LOGGER.info("{}", green(""));
@@ -765,7 +765,7 @@ public final class Main implements Callable<Void> {
 
         @Override
         public String[] getVersion() {
-            return new String[] {BuildFinder.getVersion() + " (SHA: " + BuildFinder.getScmRevision() + ")"};
+            return new String[] {Utils.getBuildFinderVersion() + " (SHA: " + Utils.getBuildFinderScmRevision() + ")"};
         }
     }
 

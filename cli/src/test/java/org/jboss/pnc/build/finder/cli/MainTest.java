@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.TestUtils;
+import org.jboss.pnc.build.finder.core.Utils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -87,7 +87,13 @@ public class MainTest {
 
         Main.main(args);
 
-        assertTrue(systemOutRule.getLogWithNormalizedLineSeparator().contains(BuildFinder.getVersion()));
+        String log = systemOutRule.getLogWithNormalizedLineSeparator();
+
+        assertTrue(log.contains(Utils.getBuildFinderVersion()));
+
+        assertTrue(log.contains(Utils.getBuildFinderScmRevision()));
+
+        assertFalse(log.contains("unknown"));
     }
 
     @Test

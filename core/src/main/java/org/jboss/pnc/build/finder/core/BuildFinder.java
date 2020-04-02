@@ -20,7 +20,6 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,7 +44,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1448,46 +1445,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         LOGGER.debug("Found best build id {} from {} candidates", green(build.getBuildInfo().getId()), green(candidateBuilds.size()));
 
         return build;
-    }
-
-    public static String getVersion() {
-        Package p = BuildFinder.class.getPackage();
-
-        return p == null || p.getImplementationVersion() == null ? "unknown" : p.getImplementationVersion();
-    }
-
-    /**
-     * Retrieves the SHA this was built with.
-     *
-     * @return the GIT sha of this codebase.
-     */
-    public static String getScmRevision() {
-        final String jarName = "koji-build-finder";
-
-        String scmRevision = "unknown";
-
-        try {
-            Enumeration<URL> resources = BuildFinder.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-
-            while (resources.hasMoreElements()) {
-                URL jarUrl = resources.nextElement();
-
-                if (jarUrl.getFile().contains(jarName)) {
-                    Manifest manifest = new Manifest(jarUrl.openStream());
-                    String manifestValue = manifest.getMainAttributes().getValue("Scm-Revision");
-
-                    if (manifestValue != null && !manifestValue.isEmpty()) {
-                        scmRevision = manifestValue;
-                    }
-
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.warn("Error getting SCM revision: {}", red(e.getMessage()));
-        }
-
-        return scmRevision;
     }
 
     public static String getChecksumFilename(ChecksumType checksumType) {
