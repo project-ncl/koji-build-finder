@@ -126,6 +126,7 @@
     <version.org.json.json>20190722</version.org.json.json>
     <version.org.ow2.asm>8.0</version.org.ow2.asm>
     <version.org.slf4j>1.7.30</version.org.slf4j>
+    <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.8</version.org.sonatype.plugins.nexus-staging-maven-plugin>
   </properties>
 
   <dependencyManagement>
@@ -784,6 +785,11 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${version.org.jacoco}</version>
         </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>${version.org.sonatype.plugins.nexus-staging-maven-plugin}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -855,6 +861,15 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+              <tagNameFormat>@{project.version}</tagNameFormat>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <releaseProfiles>release</releaseProfiles>
+          </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -930,6 +945,16 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>false</autoReleaseAfterClose>
+          </configuration>
       </plugin>
     </plugins>
 
