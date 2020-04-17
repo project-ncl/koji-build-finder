@@ -1,6 +1,6 @@
-# Koji Build Finder
+# Build Finder
 
-[Koji Build Finder](https://github.com/release-engineering/koji-build-finder/) iterates over any files or directories in the input, recursively scanning any supported (possibly compressed) archive types, locating the associated Koji build for each file matching any given Koji archive type. It attempts to find at least one Koji build containing the file checksum (duplicate builds result in a warning) and records files that don't have any corresponding Koji build to a file. For files with a corresponding Koji build, if the Koji build does not have a corresponding Koji task, it reports the build as an *import*. For builds with a corresponding Koji task, it writes information about the build to a file. Additionally, it writes various reports about the builds.
+[Build Finder](https://github.com/project-ncl/build-finder/) iterates over any files or directories in the input, recursively scanning any supported (possibly compressed) archive types, locating the associated Koji build for each file matching any given Koji archive type. It attempts to find at least one Koji build containing the file checksum (duplicate builds result in a warning) and records files that don't have any corresponding Koji build to a file. For files with a corresponding Koji build, if the Koji build does not have a corresponding Koji task, it reports the build as an *import*. For builds with a corresponding Koji task, it writes information about the build to a file. Additionally, it writes various reports about the builds.
 
 ## Build Status
 
@@ -34,10 +34,10 @@ Koji Build Finder operates in three stages:
 
 ## Usage
 
-To see the available options, execute the command `java -jar target/koji-build-finder-<version>-jar-with-dependencies.jar --help`, where `<version>` is the Koji Build Finder version. The options are as follows:
+To see the available options, execute the command `java -jar target/build-finder-<version>.jar --help`, where `<version>` is the Build Finder version. The options are as follows:
 
-    Usage: koji-build-finder [OPTIONS] FILE...
-    Finds builds in Koji.
+    Usage: build-finder [OPTIONS] FILE...
+    Finds builds in Koji and PNC.
           FILE...                One or more files.
       -a, --archive-type=STRING  Add a Koji archive type to check.
                                    Default: [jar, xml, pom, so, dll, dylib]
@@ -46,7 +46,7 @@ To see the available options, execute the command `java -jar target/koji-build-f
                                    Default: [pnc, koji]
       -c, --config=FILE          Specify configuration file to use.
                                    Default: ${user.home}.
-                                   koji-build-finder\config.json
+                                   build-finder\config.json
           --cache-lifespan=LONG  Specify cache lifespan.
                                    Default: 3600000
           --cache-max-idle=LONG  Specify cache maximum idle time.
@@ -99,8 +99,7 @@ To see the available options, execute the command `java -jar target/koji-build-f
 
 ### Running via Docker containers
 
-There is a `Dockerfile` and a `Makefile` supplied in the code repository. If you are unfamiliar with Java-based projects, you can easily create a container image and run Koji Build Finder in a Fedora Linux container by executing the following commands in a shell:
-
+There is a `Dockerfile` and a `Makefile` supplied in the code repository. If you are unfamiliar with Java-based projects, you can easily create a container image and run Build Finder in a Fedora Linux container by executing the following commands in a shell:
 1. Build the container image:
 
 ```
@@ -111,14 +110,14 @@ $ make build
 
 ```
 $ make shell
-# java -jar target/koji-build-finder-<version>-jar-with-dependencies.jar
+# java -jar target/build-finder-<version>.jar
 ```
 
 where `<version>` should be replaced with the current version of the software.
 
 ## Getting Started
 
-On the first run, Koji Build Finder will write a starter configuration file. You may optionally edit this file by hand, but you do not need to create it ahead of time as Koji Build Finder will create a default configuration file if none exists.
+On the first run, Build Finder will write a starter configuration file. You may optionally edit this file by hand, but you do not need to create it ahead of time as Build Finder will create a default configuration file if none exists.
 
 ### Configuration file format
 
@@ -187,7 +186,7 @@ All of the options found in the configuration file can also be specified and ove
 
 ### Command-line options
 
-The `koji-*-url` options are the only required command-line options (if not specified in the configuration file) and these options specify the URLs for the Koji server. If running Koji Build Finder for the first time, you should pass these options so that they are written to the configuration file.
+The `koji-*-url` options are the only required command-line options (if not specified in the configuration file) and these options specify the URLs for the Koji server. If running Build Finder for the first time, you should pass these options so that they are written to the configuration file.
 
 The `krb-*` options are used for logging in via Kerberos as opposed to via SSL as it does not require the additional setup of SSL certificates. Note that the [Apache Kerby](https://directory.apache.org/kerby/) library is used to supply Kerberos functionality. As such, interaction with the other Kerberos implementations, such as the canonical MIT Kerberos implementation, may not work with the `krb-ccache` or `krb-keytab` options. The `krb-principal` and `krb-password` options are expected to always work, but care should be taken to protect your password. Note that when using the `krb-*` options, the `krb-service` option is necessary in order for Kerberos login to work.
 
@@ -195,9 +194,9 @@ The `krb-*` options are used for logging in via Kerberos as opposed to via SSL a
 
 After optionally completing setup of the configuration file, `config.json`, you can run the software with a command as follows.
 
-    java -jar koji-build-finder-<version>-jar-with-dependencies.jar /path/to/distribution.zip
+    java -jar build-finder-<version>.jar /path/to/distribution.zip
 
-where `<version>` is the current version of the software and `/path/to/distribution.zip` is the path to the file that you wish to examine. In this execution, Koji Build Finder will read through the file `distribution.zip`, trying to match each file entry against a build in the Koji database provided that the file name matches one of the specified Koji archive types and does not match the exclusion pattern.
+where `<version>` is the current version of the software and `/path/to/distribution.zip` is the path to the file that you wish to examine. In this execution, Build Finder will read through the file `distribution.zip`, trying to match each file entry against a build in the Koji database provided that the file name matches one of the specified Koji archive types and does not match the exclusion pattern.
 
 On the first completed run, the software will create a `checksum-<checksum-type>.json` file to cache the file checksums and a `builds.json` file to cache the Koji build information. Currently, if you wish to perform a clean run, you must *manually* remove the JSON files. Otherwise, the cache will be loaded and the information will not be recalculated. Alternatively, you may specify a different output directory for each run using the `--output-directory` option.
 
