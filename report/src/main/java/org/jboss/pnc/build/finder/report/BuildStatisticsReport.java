@@ -29,6 +29,7 @@ import static j2html.TagCreator.tr;
 import java.io.File;
 import java.util.List;
 
+import org.jboss.pnc.build.finder.core.BuildStatistics;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
