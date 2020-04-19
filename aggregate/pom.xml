@@ -9,6 +9,8 @@
   </parent>
 
   <artifactId>aggregate</artifactId>
+  <packaging>pom</packaging>
+
   <name>Jacoco Aggregate Report</name>
 
   <dependencies>
