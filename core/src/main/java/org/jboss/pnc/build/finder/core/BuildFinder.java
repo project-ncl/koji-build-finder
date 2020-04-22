@@ -591,7 +591,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 matchedArchive.getUnmatchedFilenames().add(filename);
 
                 LOGGER.debug(
-                        "Archive {} ({}) is not build from source since it contains unfound file {} (built from source: {})",
+                        "Archive {} ({}) contains unfound file {} (built from source: {})",
                         archive.getArchiveId(),
                         archive.getFilename(),
                         filename,

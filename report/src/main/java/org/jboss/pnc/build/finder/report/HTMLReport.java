@@ -41,6 +41,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.title;
 import static j2html.TagCreator.tr;
 import static j2html.TagCreator.ul;
+import static java.lang.String.join;
 
 import java.io.File;
 import java.net.URL;
@@ -68,12 +69,13 @@ public class HTMLReport extends Report {
     private static final String HTML_STYLE = ""
             + "body { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 13px; }\n"
             + "table { width: 100%; border-style: solid; border-width: 1px; border-collapse: collapse; }\n"
-            + "caption { background: lemonchiffon; caption-side: top; font-weight: bold; font-size: larger; text-align: left; margin-top: 50px; }\n"
-            + "th { border-style: solid; border-width: 1px; background-color: darkgrey; text-align: left; font-weight: bold; }\n"
-            + "tr { border-style: solid; border-width: 1px; }\n"
+            + "caption { background: lemonchiffon; caption-side: top; font-weight: bold; font-size: larger;"
+            + "text-align: left; margin-top: 50px; }\n"
+            + "th { border-style: solid; border-width: 1px; background-color: darkgrey; text-align: left;"
+            + "font-weight: bold; }\n" + "tr { border-style: solid; border-width: 1px; }\n"
             + "tr:nth-child(even) { background-color: lightgrey; }\n"
-            + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top; font-size: small; }\n"
-            + "footer { font-size: smaller; }";
+            + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top;"
+            + "font-size: small; }\n" + "footer { font-size: smaller; }";
 
     private URL kojiwebUrl;
 
@@ -106,7 +108,7 @@ public class HTMLReport extends Report {
     }
 
     private Tag<?> linkBuild(KojiBuild build) {
-        int id = build.getBuildInfo().getId();
+        int id = build.getId();
 
         if (build.isPnc()) {
             return a().withHref(
@@ -119,7 +121,7 @@ public class HTMLReport extends Report {
         return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(Integer.toString(id)));
     }
 
-    private Tag<?> linkPackage(KojiBuild build) {
+    private Tag<?> linkPkg(KojiBuild build) {
         String name = build.getBuildInfo().getName();
 
         if (build.isPnc()) {
@@ -141,7 +143,7 @@ public class HTMLReport extends Report {
         boolean validId = id != null && id > 0;
 
         if (!unmatchedFilenames.isEmpty()) {
-            String archives = String.join(", ", unmatchedFilenames);
+            String archives = join(", ", unmatchedFilenames);
 
             name += " (unmatched files: " + archives + ")";
         }
@@ -184,7 +186,7 @@ public class HTMLReport extends Report {
         return error ? errorText(name) : a().withHref(kojiwebUrl + href).with(text(name));
     }
 
-    private Tag<?> linkLocalArchive(KojiBuild build, KojiLocalArchive localArchive) {
+    private Tag<?> linkLocAr(KojiBuild build, KojiLocalArchive localArchive) {
         KojiArchiveInfo archive = localArchive.getArchive();
         KojiRpmInfo rpm = localArchive.getRpm();
         Collection<String> unmatchedFilenames = localArchive.getUnmatchedFilenames();
@@ -196,7 +198,6 @@ public class HTMLReport extends Report {
         } else {
             return errorText("Error linking local archive with files: " + localArchive.getFilenames());
         }
-
     }
 
     private Tag<?> linkTag(KojiBuild build, KojiTagInfo tag) {
@@ -267,95 +268,76 @@ public class HTMLReport extends Report {
                                                 tbody(
                                                         each(
                                                                 builds,
-                                                                build -> tr(
+                                                                b -> tr(
+                                                                        td(text(Integer.toString(builds.indexOf(b)))),
                                                                         td(
-                                                                                text(
-                                                                                        Integer.toString(
-                                                                                                builds.indexOf(
-                                                                                                        build)))),
-                                                                        td(
-                                                                                build.getBuildInfo().getId() > 0
-                                                                                        ? linkBuild(build)
+                                                                                b.getId() > 0 ? linkBuild(b)
                                                                                         : errorText(
                                                                                                 String.valueOf(
-                                                                                                        build.getBuildInfo()
-                                                                                                                .getId()))),
+                                                                                                        b.getId()))),
+                                                                        td(b.getId() > 0 ? linkPkg(b) : text("")),
                                                                         td(
-                                                                                build.getBuildInfo().getId() > 0
-                                                                                        ? linkPackage(build)
-                                                                                        : text("")),
-                                                                        td(
-                                                                                build.getBuildInfo().getId() > 0 ? text(
-                                                                                        build.getBuildInfo()
+                                                                                b.getId() > 0 ? text(
+                                                                                        b.getBuildInfo()
                                                                                                 .getVersion()
                                                                                                 .replace('_', '-'))
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getArchives() != null ? ol(
+                                                                                b.getArchives() != null ? ol(
                                                                                         each(
-                                                                                                build.getArchives(),
-                                                                                                archive -> li(
-                                                                                                        linkLocalArchive(
-                                                                                                                build,
-                                                                                                                archive),
+                                                                                                b.getArchives(),
+                                                                                                a -> li(
+                                                                                                        linkLocAr(b, a),
                                                                                                         text(": "),
                                                                                                         text(
-                                                                                                                String.join(
+                                                                                                                join(
                                                                                                                         ", ",
-                                                                                                                        archive.getFilenames())))))
+                                                                                                                        a.getFilenames())))))
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getTags() != null
-                                                                                        ? ul(
-                                                                                                each(
-                                                                                                        build.getTags(),
-                                                                                                        tag -> linkTag(
-                                                                                                                build,
-                                                                                                                tag)))
+                                                                                b.getTags() != null ? ul(
+                                                                                        each(
+                                                                                                b.getTags(),
+                                                                                                tag -> linkTag(b, tag)))
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getMethod() != null
-                                                                                        ? text(build.getMethod())
-                                                                                        : build.getBuildInfo()
-                                                                                                .getId() > 0
-                                                                                                        ? errorText(
-                                                                                                                "imported build")
-                                                                                                        : text("")),
+                                                                                b.getMethod() != null
+                                                                                        ? text(b.getMethod())
+                                                                                        : b.getId() > 0 ? errorText(
+                                                                                                "imported build")
+                                                                                                : text("")),
                                                                         td(
-                                                                                build.getScmSourcesZip() != null
+                                                                                b.getScmSourcesZip() != null
                                                                                         ? linkArchive(
-                                                                                                build,
-                                                                                                build.getScmSourcesZip())
+                                                                                                b,
+                                                                                                b.getScmSourcesZip())
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getPatchesZip() != null
+                                                                                b.getPatchesZip() != null
                                                                                         ? linkArchive(
-                                                                                                build,
-                                                                                                build.getPatchesZip())
+                                                                                                b,
+                                                                                                b.getPatchesZip())
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getSource() != null
-                                                                                        ? linkSource(build)
-                                                                                        : build.getBuildInfo()
-                                                                                                .getId() == 0
-                                                                                                        ? text("")
-                                                                                                        : errorText(
-                                                                                                                "missing URL")),
+                                                                                b.getSource() != null ? linkSource(b)
+                                                                                        : b.getId() == 0 ? text("")
+                                                                                                : errorText(
+                                                                                                        "missing URL")),
                                                                         td(
-                                                                                build.getTaskInfo() != null
-                                                                                        && build.getTaskInfo()
+                                                                                b.getTaskInfo() != null
+                                                                                        && b.getTaskInfo()
                                                                                                 .getMethod() != null
-                                                                                        && build.getTaskInfo()
+                                                                                        && b.getTaskInfo()
                                                                                                 .getMethod()
                                                                                                 .equals("maven")
-                                                                                        && build.getTaskRequest() != null
-                                                                                        && build.getTaskRequest()
+                                                                                        && b.getTaskRequest() != null
+                                                                                        && b.getTaskRequest()
                                                                                                 .asMavenBuildRequest()
                                                                                                 .getProperties() != null
-                                                                                        && build.getTaskRequest()
+                                                                                        && b.getTaskRequest()
                                                                                                 .asMavenBuildRequest() != null
                                                                                                         ? each(
-                                                                                                                build.getTaskRequest()
+                                                                                                                b.getTaskRequest()
                                                                                                                         .asMavenBuildRequest()
                                                                                                                         .getProperties()
                                                                                                                         .entrySet(),
@@ -368,9 +350,9 @@ public class HTMLReport extends Report {
                                                                                                                                         : "; ")))
                                                                                                         : text("")),
                                                                         td(
-                                                                                build.getBuildInfo().getExtra() != null
+                                                                                b.getBuildInfo().getExtra() != null
                                                                                         ? each(
-                                                                                                build.getBuildInfo()
+                                                                                                b.getBuildInfo()
                                                                                                         .getExtra()
                                                                                                         .entrySet(),
                                                                                                 entry -> text(

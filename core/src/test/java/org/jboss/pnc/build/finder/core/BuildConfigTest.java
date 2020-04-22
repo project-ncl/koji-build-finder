@@ -57,7 +57,8 @@ public class BuildConfigTest {
 
     @Test
     public void verifyMapping() throws IOException {
-        String json = "{\"archive-types\":[\"jar\"],\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\",\"checksum-only\":true,\"checksum-type\":\"md5\"}";
+        String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
+                + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
 
         assertTrue(bc.getChecksumOnly());
@@ -86,7 +87,8 @@ public class BuildConfigTest {
 
     @Test
     public void verifySave() throws IOException {
-        String json = "{\"archive-types\":[\"jar\"],\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\",\"checksum-only\":true,\"checksum-type\":\"md5\"}";
+        String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
+                + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
         File file = temp.newFile();
 
@@ -99,7 +101,9 @@ public class BuildConfigTest {
 
     @Test
     public void verifyLoadFromClassPath() throws IOException {
-        String json = "{\"archive-types\":[\"jar\"],\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\",\"checksum-only\":true,\"checksum-type\":\"sha256\",\"koji-hub-url\":\"https://my.url.com/hub\",\"koji-web-url\":\"https://my.url.com/web\"}";
+        String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
+                + "\"checksum-only\":true," + "\"checksum-type\":\"sha256\","
+                + "\"koji-hub-url\":\"https://my.url.com/hub\"," + "\"koji-web-url\":\"https://my.url.com/web\"}";
         BuildConfig bc = BuildConfig.load(BuildConfigTest.class.getClassLoader());
         BuildConfig bc2 = BuildConfig.load(json);
 

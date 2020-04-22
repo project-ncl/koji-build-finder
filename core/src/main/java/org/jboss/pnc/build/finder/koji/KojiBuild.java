@@ -99,6 +99,15 @@ public class KojiBuild {
         this.remoteRpms = remoteRpms;
     }
 
+    @JsonIgnore
+    public int getId() {
+        if (buildInfo == null) {
+            return -1;
+        }
+
+        return Integer.valueOf(buildInfo.getId());
+    }
+
     public KojiBuildInfo getBuildInfo() {
         return buildInfo;
     }

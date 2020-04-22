@@ -54,7 +54,7 @@ public class FileObjectTrackingTest {
                             targetClass = "DefaultFileSystemManager",
                             targetMethod = "<init>",
                             targetLocation = "AT ENTRY",
-                            action = "link(\"fileSystemManagerCounter\", incrementCounter(\"DefaultFileSystemManager\")) "
+                            action = "link(\"fileSystemManagerCounter\",incrementCounter(\"DefaultFileSystemManager\"))"
                     // + "; traceStack() ; System.out.println (\"init: \" + $0.getClass().getName() + \" and \" +
                     // $0.hashCode()); "
                     ),
@@ -63,7 +63,7 @@ public class FileObjectTrackingTest {
                             targetClass = "DefaultFileSystemManager",
                             targetMethod = "close",
                             targetLocation = "AT ENTRY",
-                            action = "link(\"fileSystemManagerCounter\", decrementCounter(\"DefaultFileSystemManager\"))"
+                            action = "link(\"fileSystemManagerCounter\",decrementCounter(\"DefaultFileSystemManager\"))"
                     // + " ; System.out.println (\"close: \" + $0.getClass().getName() + \" and linked \" +
                     // linked(\"fileSystemManagerCounter\") ); "
                     ),
@@ -80,15 +80,15 @@ public class FileObjectTrackingTest {
                             targetMethod = "<init>",
                             targetLocation = "AT ENTRY",
                             // Ignore LocalFiles as they are used for the temporary file cache.
-                            condition = "$0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
-                            action = "link(\"fileObjectCounter\", incrementCounter(\"AbstractFileObject\")) "),
+                            condition = "$0.getClass().getName()!=\"org.apache.commons.vfs2.provider.local.LocalFile\"",
+                            action = "link(\"fileObjectCounter\",incrementCounter(\"AbstractFileObject\"))"),
                     @BMRule(
                             name = "track-file-object-close",
                             targetClass = "AbstractFileObject",
                             targetMethod = "close",
                             targetLocation = "AT ENTRY",
                             // Ignore LocalFiles as they are used for the temporary file cache.
-                            condition = " $0.getClass().getName() != \"org.apache.commons.vfs2.provider.local.LocalFile\" ",
+                            condition = "$0.getClass().getName()!=\"org.apache.commons.vfs2.provider.local.LocalFile\"",
                             action = "link(\"fileObjectCounter\", decrementCounter(\"AbstractFileObject\"))"),
                     @BMRule(
                             name = "pass-object-info",
