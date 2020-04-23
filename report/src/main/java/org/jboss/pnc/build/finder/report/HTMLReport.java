@@ -111,10 +111,8 @@ public class HTMLReport extends Report {
         int id = build.getId();
 
         if (build.isPnc()) {
-            return a().withHref(
-                    pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
-                            + "/build-configs/" + build.getBuildInfo().getExtra().get("external_build_configuration_id")
-                            + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id"))
+            return a()
+                    .withHref(pncUrl + "/pnc-web/#/builds/" + build.getBuildInfo().getExtra().get("external_build_id"))
                     .with(text(Integer.toString(id)));
         }
 
@@ -153,10 +151,7 @@ public class HTMLReport extends Report {
         if (build.isPnc()) {
             return error ? errorText(name)
                     : a().withHref(
-                            pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
-                                    + "/build-configs/"
-                                    + build.getBuildInfo().getExtra().get("external_build_configuration_id")
-                                    + "/build-records/" + build.getBuildInfo().getExtra().get("external_build_id")
+                            pncUrl + "/pnc-web/#/builds/" + build.getBuildInfo().getExtra().get("external_build_id")
                                     + "/artifacts")
                             .with(text(name));
         }
