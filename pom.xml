@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) 2017 Red Hat, Inc.
@@ -56,21 +56,20 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/build-finder.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/build-finder.git</developerConnection>
-    <url>https://github.com/project-ncl/build-finder</url>
     <tag>HEAD</tag>
+    <url>https://github.com/project-ncl/build-finder</url>
   </scm>
 
   <properties>
-    <koji.hub.url/>
-    <koji.web.url/>
+    <koji.hub.url></koji.hub.url>
+    <koji.web.url></koji.web.url>
     <mavenVersion>3.3.9</mavenVersion>
-    <pnc.url/>
+    <pnc.url></pnc.url>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
-    <version.commons-codec>1.14</version.commons-codec>
-    <version.commons-io>2.6</version.commons-io>
     <version.com.fasterxml.jackson.core>2.10.3</version.com.fasterxml.jackson.core>
+    <version.com.github.ekryd.sortpom>2.11.0</version.com.github.ekryd.sortpom>
     <version.com.github.spotbugs>4.0.0</version.com.github.spotbugs>
     <version.com.github.stefanbirkner>1.19.0</version.com.github.stefanbirkner>
     <version.com.google.guava>29.0-jre</version.com.google.guava>
@@ -79,6 +78,8 @@
     <version.com.mycila>3.0</version.com.mycila>
     <version.com.puppycrawl.tools>8.31</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.12</version.com.redhat.red.build.kojiji>
+    <version.commons-codec>1.14</version.commons-codec>
+    <version.commons-io>2.6</version.commons-io>
     <version.info.picocli>4.2.0</version.info.picocli>
     <version.io.dropwizard.metrics>4.1.6</version.io.dropwizard.metrics>
     <version.junit>4.13</version.junit>
@@ -136,27 +137,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.jboss.pnc.build.finder</groupId>
-        <artifactId>cli</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.pnc.build.finder</groupId>
-        <artifactId>core</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.pnc.build.finder</groupId>
-        <artifactId>core</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-        <type>test-jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.pnc.build.finder</groupId>
-        <artifactId>report</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${version.ch.qos.logback}</version>
@@ -165,16 +145,6 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
         <version>${version.ch.qos.logback}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons-codec}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${version.commons-io}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -239,6 +209,16 @@
             <artifactId>log4j-over-slf4j</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${version.commons-codec}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${version.commons-io}</version>
       </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
@@ -427,6 +407,27 @@
         <version>${version.org.jboss.pnc}</version>
       </dependency>
       <dependency>
+        <groupId>org.jboss.pnc.build.finder</groupId>
+        <artifactId>cli</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc.build.finder</groupId>
+        <artifactId>core</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc.build.finder</groupId>
+        <artifactId>core</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc.build.finder</groupId>
+        <artifactId>report</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${version.org.json.json}</version>
@@ -462,9 +463,8 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.commonjava.rwx</groupId>
@@ -477,65 +477,94 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
       <id>jboss-public-repository</id>
       <name>JBoss Public Maven Repository</name>
       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
+    </repository>
+    <repository>
       <releases>
         <enabled>false</enabled>
       </releases>
-    </repository>
-    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
       <id>jboss-snapshots-repository</id>
       <name>JBoss Snapshots Maven Repository</name>
       <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>jboss-public-repository</id>
       <name>JBoss Public Maven Repository</name>
       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </pluginRepository>
     <pluginRepository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
       <id>jboss-snapshots-repository</id>
       <name>JBoss Snapshots Maven Repository</name>
       <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
       <layout>default</layout>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 
   <build>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>${project.basedir}/src/main/resources</directory>
+      </resource>
+    </resources>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.github.ekryd.sortpom</groupId>
+          <artifactId>sortpom-maven-plugin</artifactId>
+          <version>${version.com.github.ekryd.sortpom}</version>
+          <configuration>
+            <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+            <lineSeparator>\n</lineSeparator>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <sortProperties>true</sortProperties>
+            <keepBlankLines>true</keepBlankLines>
+            <sortDependencies>scope,groupId,artifactId</sortDependencies>
+            <sortPlugins>scope,groupId,artifactId</sortPlugins>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>sort</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
@@ -707,6 +736,11 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-plugin-plugin</artifactId>
+          <version>${version.org.apache.maven.plugins.maven-plugin-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
           <version>${version.org.apache.maven.plugins.maven-pmd-plugin}</version>
           <dependencies>
@@ -731,11 +765,6 @@
               <version>${version.net.sourceforge.pmd}</version>
             </dependency>
           </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>${version.org.apache.maven.plugins.maven-plugin-plugin}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -779,13 +808,13 @@
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
-          <artifactId>versions-maven-plugin</artifactId>
-          <version>${version.org.codehaus.mojo.versions-maven-plugin}</version>
+          <artifactId>buildnumber-maven-plugin</artifactId>
+          <version>${version.org.codehaus.mojo.buildnumber-maven-plugin}</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>${version.org.codehaus.mojo.buildnumber-maven-plugin}</version>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${version.org.codehaus.mojo.versions-maven-plugin}</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.plexus</groupId>
@@ -870,7 +899,7 @@
                 <requireMavenVersion>
                   <version>${mavenVersion}</version>
                 </requireMavenVersion>
-                <requireSameVersions/>
+                <requireSameVersions></requireSameVersions>
               </rules>
             </configuration>
           </execution>
@@ -901,13 +930,13 @@
         </executions>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <configuration>
-              <tagNameFormat>@{project.version}</tagNameFormat>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <releaseProfiles>release</releaseProfiles>
-          </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <releaseProfiles>release</releaseProfiles>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -919,10 +948,10 @@
         <executions>
           <execution>
             <id>get-scm-revision</id>
-            <phase>initialize</phase>
             <goals>
               <goal>create</goal>
             </goals>
+            <phase>initialize</phase>
             <configuration>
               <doCheck>false</doCheck>
               <doUpdate>false</doUpdate>
@@ -964,10 +993,10 @@
           </execution>
           <execution>
             <id>jacoco-site</id>
-            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
           <execution>
             <id>jacoco-initialize-integration</id>
@@ -977,31 +1006,24 @@
           </execution>
           <execution>
             <id>jacoco-site-integration</id>
-            <phase>verify</phase>
             <goals>
               <goal>report-integration</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
       <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <extensions>true</extensions>
-          <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-          </configuration>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>false</autoReleaseAfterClose>
+        </configuration>
       </plugin>
     </plugins>
-
-    <resources>
-      <resource>
-        <directory>${project.basedir}/src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
   </build>
 
   <reporting>

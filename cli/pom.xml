@@ -14,20 +14,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.pnc.build.finder</groupId>
-      <artifactId>core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc.build.finder</groupId>
-      <artifactId>core</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc.build.finder</groupId>
-      <artifactId>report</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.redhat.red.build</groupId>
       <artifactId>kojiji</artifactId>
     </dependency>
@@ -45,11 +31,11 @@
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-component-annotations</artifactId>
+      <artifactId>infinispan-commons</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
-      <artifactId>infinispan-commons</artifactId>
+      <artifactId>infinispan-component-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.infinispan</groupId>
@@ -58,6 +44,14 @@
     <dependency>
       <groupId>org.jboss.logmanager</groupId>
       <artifactId>jboss-logmanager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build.finder</groupId>
+      <artifactId>core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build.finder</groupId>
+      <artifactId>report</artifactId>
     </dependency>
     <dependency>
       <groupId>com.github.stefanbirkner</groupId>
@@ -69,6 +63,12 @@
       <artifactId>commons-lang3</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build.finder</groupId>
+      <artifactId>core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -78,10 +78,10 @@
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <filters>
                 <filter>
@@ -176,7 +176,7 @@
               <minimizeJar>true</minimizeJar>
               <finalName>build-finder-${project.version}</finalName>
               <shadedArtifactAttached>false</shadedArtifactAttached>
-              <shadedClassifierName/>
+              <shadedClassifierName></shadedClassifierName>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>

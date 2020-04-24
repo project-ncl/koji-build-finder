@@ -14,14 +14,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.pnc.build.finder</groupId>
-      <artifactId>core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc.build.finder</groupId>
-      <artifactId>core</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
+      <groupId>com.j2html</groupId>
+      <artifactId>j2html</artifactId>
     </dependency>
     <dependency>
       <groupId>com.redhat.red.build</groupId>
@@ -32,12 +26,18 @@
       <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.j2html</groupId>
-      <artifactId>j2html</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build.finder</groupId>
+      <artifactId>core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build.finder</groupId>
+      <artifactId>core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
