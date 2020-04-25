@@ -15,20 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import com.redhat.red.build.koji.KojiClientException;
-import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
-import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveType;
-import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
-import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
-import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections4.MultiMapUtils;
-import org.jboss.pnc.build.finder.koji.ClientSession;
-import org.jboss.pnc.build.finder.koji.KojiBuild;
-import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +28,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.MultiMapUtils;
+import org.jboss.pnc.build.finder.koji.ClientSession;
+import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.redhat.red.build.koji.KojiClientException;
+import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
+import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveType;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
+import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
 
 /**
  * Class providing utility operations for BuildFinder classes

@@ -15,6 +15,18 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.ClientErrorException;
+
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -36,17 +48,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import javax.ws.rs.ClientErrorException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Tests of PncBuildFinder

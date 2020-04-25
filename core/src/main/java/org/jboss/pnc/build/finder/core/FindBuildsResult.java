@@ -15,11 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import org.jboss.pnc.build.finder.koji.KojiBuild;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 /**
  * Container holding results of the findBuilds methods

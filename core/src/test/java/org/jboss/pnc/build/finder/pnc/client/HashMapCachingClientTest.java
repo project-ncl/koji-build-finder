@@ -15,6 +15,9 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
@@ -24,9 +27,6 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author Jakub Bartecek

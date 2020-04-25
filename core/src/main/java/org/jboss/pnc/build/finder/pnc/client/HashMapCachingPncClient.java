@@ -15,15 +15,15 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductVersion;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Implementation of adapter to communicate with PNC Orchestrator REST API, which caches the results in HashMaps to

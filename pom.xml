@@ -84,6 +84,7 @@
     <version.io.dropwizard.metrics>4.1.6</version.io.dropwizard.metrics>
     <version.junit>4.13</version.junit>
     <version.net.revelc.code.formatter>2.11.0</version.net.revelc.code.formatter>
+    <version.net.revelc.code.impsort-maven-plugin>1.4.1</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.22.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
     <version.org.apache.commons.commons-compress>1.20</version.org.apache.commons.commons-compress>
@@ -556,14 +557,6 @@
             <sortDependencies>scope,groupId,artifactId</sortDependencies>
             <sortPlugins>scope,groupId,artifactId</sortPlugins>
           </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>sort</goal>
-              </goals>
-              <phase>verify</phase>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>com.github.spotbugs</groupId>
@@ -590,6 +583,17 @@
           </dependencies>
         </plugin>
         <plugin>
+          <groupId>net.revelc.code</groupId>
+          <artifactId>impsort-maven-plugin</artifactId>
+          <version>${version.net.revelc.code.impsort-maven-plugin}</version>
+          <configuration>
+            <groups>java.,javax.,org.,com.</groups>
+            <lineEnding>LF</lineEnding>
+            <removeUnused>true</removeUnused>
+            <staticGroups>*</staticGroups>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>net.revelc.code.formatter</groupId>
           <artifactId>formatter-maven-plugin</artifactId>
           <version>${version.net.revelc.code.formatter}</version>
@@ -597,14 +601,6 @@
             <configFile>https://raw.githubusercontent.com/project-ncl/ide-config/master/eclipse/jboss-java-formatter.xml</configFile>
             <lineEnding>LF</lineEnding>
           </configuration>
-          <executions>
-            <execution>
-              <id>java-format</id>
-              <goals>
-                <goal>format</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -861,6 +857,40 @@
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>sort</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.revelc.code</groupId>
+        <artifactId>impsort-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.revelc.code.formatter</groupId>
+        <artifactId>formatter-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

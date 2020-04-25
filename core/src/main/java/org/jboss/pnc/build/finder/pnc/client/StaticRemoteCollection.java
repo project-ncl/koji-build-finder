@@ -15,11 +15,11 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
-import org.jboss.pnc.client.RemoteCollection;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+
+import org.jboss.pnc.client.RemoteCollection;
 
 /**
  * Static implementation of RemoteCollection, which loads all the remote content and stores it inside the entity
