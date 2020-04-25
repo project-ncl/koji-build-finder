@@ -38,6 +38,14 @@ public class BuildStatistics {
 
     private long numberOfImportedBuilds;
 
+    private double percentOfBuildsImported;
+
+    private double percentOfArchivesImported;
+
+    public BuildStatistics() {
+
+    }
+
     public BuildStatistics(List<KojiBuild> builds) {
         this.builds = builds;
 
@@ -91,6 +99,11 @@ public class BuildStatistics {
                 }
             }
         }
+
+        if (!builds.isEmpty()) {
+            percentOfBuildsImported = ((double) numberOfImportedBuilds / (double) numberOfBuilds) * 100.00;
+            percentOfArchivesImported = ((double) numberOfImportedArchives / (double) numberOfArchives) * 100.00;
+        }
     }
 
     public long getNumberOfBuilds() {
@@ -110,18 +123,10 @@ public class BuildStatistics {
     }
 
     public double getPercentOfBuildsImported() {
-        if (builds.isEmpty()) {
-            return 0D;
-        }
-
-        return ((double) numberOfImportedBuilds / (double) numberOfBuilds) * 100.00;
+        return percentOfBuildsImported;
     }
 
     public double getPercentOfArchivesImported() {
-        if (builds.isEmpty()) {
-            return 0D;
-        }
-
-        return ((double) numberOfImportedArchives / (double) numberOfArchives) * 100.00;
+        return percentOfArchivesImported;
     }
 }
