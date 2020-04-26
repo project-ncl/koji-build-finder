@@ -14,9 +14,17 @@
 
 ## Development
 
-To format the code, run `net.revelc.code.formatter:formatter-maven-plugin:format`.
+[Apache Maven](https://maven.apache.org/) is used for the building. The command `mvn clean install` will compile the code and run the unit tests.
 
-[Apache Maven](https://maven.apache.org/) is used for the building. The command `mvn clean install` will compile the code and run all of the unit tests.
+To run, the integration tests, you need a `${user.home}/.build-finder/config.json` file with valid settings for `koji-hub-url` and `pnc-url`. Then, run the command `mvn -DskipITs=false -Ddistribution.url=<url> clean install` where `<url>` points to the distribution file (`.ear`, `.zip`, etc.) that you want to use for testing.
+
+If the build fails due to problems with file formatting:
+
+* To format the `pom.xml` files, run `mvn com.github.ekryd.sortpom:sortpom-maven-plugin:sort`.
+
+* To format the source code, run `net.revelc.code.formatter:formatter-maven-plugin:format`.
+
+* To sort the Java `import` statements, run `net.revelc.code:impsort-maven-plugin:sort`.
 
 ## Operation
 
