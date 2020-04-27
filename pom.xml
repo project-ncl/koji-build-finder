@@ -68,7 +68,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
-    <version.com.fasterxml.jackson.core>2.10.3</version.com.fasterxml.jackson.core>
+    <version.com.fasterxml.jackson.core>2.11.0</version.com.fasterxml.jackson.core>
     <version.com.github.ekryd.sortpom>2.11.0</version.com.github.ekryd.sortpom>
     <version.com.github.spotbugs>4.0.0</version.com.github.spotbugs>
     <version.com.github.stefanbirkner>1.19.0</version.com.github.stefanbirkner>
@@ -76,7 +76,7 @@
     <version.com.j2html>1.4.0</version.com.j2html>
     <version.com.mashape.unirest>1.4.9</version.com.mashape.unirest>
     <version.com.mycila>3.0</version.com.mycila>
-    <version.com.puppycrawl.tools>8.31</version.com.puppycrawl.tools>
+    <version.com.puppycrawl.tools>8.32</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.12</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.14</version.commons-codec>
     <version.commons-io>2.6</version.commons-io>
@@ -85,7 +85,7 @@
     <version.junit>4.13</version.junit>
     <version.net.revelc.code.formatter>2.11.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.4.1</version.net.revelc.code.impsort-maven-plugin>
-    <version.net.sourceforge.pmd>6.22.0</version.net.sourceforge.pmd>
+    <version.net.sourceforge.pmd>6.23.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
     <version.org.apache.commons.commons-compress>1.20</version.org.apache.commons.commons-compress>
     <version.org.apache.commons.commons-lang3>3.10</version.org.apache.commons.commons-lang3>
