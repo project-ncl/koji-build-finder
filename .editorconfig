@@ -25,5 +25,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = off
 
+[.appveyor.yml]
+end_of_line = crlf
+
 [*.xml]
 indent_size = 2
