@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 public class BuildStatistics {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildStatistics.class);
 
-    private List<KojiBuild> builds;
-
     private long numberOfBuilds;
 
     private long numberOfArchives;
@@ -47,8 +45,6 @@ public class BuildStatistics {
     }
 
     public BuildStatistics(List<KojiBuild> builds) {
-        this.builds = builds;
-
         for (KojiBuild build : builds) {
             boolean isImport = build.isImport();
             List<KojiLocalArchive> archives = build.getArchives();
