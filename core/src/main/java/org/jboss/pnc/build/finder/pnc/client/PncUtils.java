@@ -46,7 +46,7 @@ public final class PncUtils {
         throw new IllegalArgumentException();
     }
 
-    // FIXME Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
+    // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
     private static void setMavenBuildInfoFromBuildRecord(Build record, KojiBuildInfo buildInfo) {
         String executionRootName = getSafelyExecutionRootName(record);
         String executionRootVersion = record.getAttributes().get(Attributes.BUILD_BREW_VERSION);
@@ -123,8 +123,8 @@ public final class PncUtils {
             extra.put("external_brew_build_url", buildPushResult.getBrewBuildUrl());
         });
 
-        // TODO Review - it is not necessary for the core logic, but only for reports
-        pncbuild.getProductVersion().ifPresent((productVersion -> {
+        // TODO: Review - it is not necessary for the core logic, but only for reports
+        pncbuild.getProductVersion().ifPresent(productVersion -> {
             // XXX: These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
             extra.put("external_product_id", productVersion.getProduct().getId());
             extra.put("external_version_id", productVersion.getId());
@@ -158,8 +158,7 @@ public final class PncUtils {
 
             build.setTaskInfo(taskInfo);
             build.setTaskRequest(taskRequest);
-
-        }));
+        });
 
         buildInfo.setExtra(extra);
 

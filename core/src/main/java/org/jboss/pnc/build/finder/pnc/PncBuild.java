@@ -15,7 +15,6 @@
  */
 package org.jboss.pnc.build.finder.pnc;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +25,8 @@ import org.jboss.pnc.dto.ProductVersion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class PncBuild implements Serializable {
-    private static final long serialVersionUID = 4500090728323371691L;
-
+// FIXME: To use current Infinispan cache, the fields have to be serializable
+public class PncBuild {
     private Build build;
 
     private Optional<BuildPushResult> buildPushResult;

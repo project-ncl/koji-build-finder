@@ -22,9 +22,9 @@ If the build fails due to problems with file formatting:
 
 * To format the `pom.xml` files, run `mvn com.github.ekryd.sortpom:sortpom-maven-plugin:sort`.
 
-* To format the source code, run `net.revelc.code.formatter:formatter-maven-plugin:format`.
+* To format the source code, run `mvn net.revelc.code.formatter:formatter-maven-plugin:format`.
 
-* To sort the Java `import` statements, run `net.revelc.code:impsort-maven-plugin:sort`.
+* To sort the Java `import` statements, run `mvn net.revelc.code:impsort-maven-plugin:sort`.
 
 ## Operation
 

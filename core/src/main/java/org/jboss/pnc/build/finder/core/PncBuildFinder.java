@@ -50,7 +50,7 @@ public class PncBuildFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncBuildFinder.class);
 
     // TODO make the parallelismThreashold configurable
-    private final int concurrentMapParallelismThreshold = 10;
+    private static final int CONCURRENT_MAP_PARALLELISM_THRESHOLD = 10;
 
     private final PncClient pncClient;
 
@@ -81,15 +81,14 @@ public class PncBuildFinder {
         FindBuildsResult findBuildsResult = new FindBuildsResult();
 
         pncBuilds.values().forEach((pncBuild -> {
-
             if (isBuildZero(pncBuild)) {
                 KojiBuild kojiBuild = convertPncBuildZeroToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds().put(new BuildSystemInteger(0, BuildSystem.none), kojiBuild);
 
-                pncBuild.getArtifacts().forEach(enhancedArtifact -> {
-                    findBuildsResult.getNotFoundChecksums()
-                            .put(enhancedArtifact.getChecksum(), enhancedArtifact.getFilenames());
-                });
+                pncBuild.getArtifacts()
+                        .forEach(
+                                enhancedArtifact -> findBuildsResult.getNotFoundChecksums()
+                                        .put(enhancedArtifact.getChecksum(), enhancedArtifact.getFilenames()));
             } else {
                 KojiBuild kojiBuild = convertPncBuildToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds()
@@ -104,7 +103,7 @@ public class PncBuildFinder {
             throws RemoteResourceException {
         final RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
-        pncBuilds.forEach(concurrentMapParallelismThreshold, (buildId, pncBuild) -> {
+        pncBuilds.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (buildId, pncBuild) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "Parallel execution of populatePncBuildsMetadata using thread "
@@ -145,7 +144,7 @@ public class PncBuildFinder {
         Set<EnhancedArtifact> artifacts = new ConcurrentHashSet<>();
         final RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
-        checksumTable.forEach(concurrentMapParallelismThreshold, (checksum, fileNames) -> {
+        checksumTable.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (checksum, fileNames) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "Parallel execution of lookupArtifactsInPnc using thread " + Thread.currentThread().getName()
@@ -180,7 +179,7 @@ public class PncBuildFinder {
         ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>();
         Build buildZero = Build.builder().id("0").build();
 
-        artifacts.forEach((artifact) -> {
+        artifacts.forEach(artifact -> {
             Build build;
 
             if (artifact.getArtifact().isPresent() && artifact.getArtifact().get().getBuild() != null) {
@@ -218,8 +217,9 @@ public class PncBuildFinder {
             throws RemoteResourceException {
         if (buildFinderUtils.shouldSkipChecksum(checksum, fileNames)) {
             LOGGER.debug("Skipped checksum {} for fileNames {}", checksum, fileNames);
-            return null;
+            return Optional.empty();
         }
+
         LOGGER.debug("PNC: checksum={}", checksum);
 
         // Lookup Artifacts and associated builds in PNC
@@ -269,7 +269,7 @@ public class PncBuildFinder {
             case DELETED:
                 return -4;
             default:
-                LOGGER.warn("Unsupported ArtifactQuality! Got: " + quality);
+                LOGGER.warn("Unsupported ArtifactQuality! Got: {}", quality);
                 return -100;
         }
     }
@@ -315,10 +315,12 @@ public class PncBuildFinder {
     private KojiBuild convertPncBuildZeroToKojiBuild(PncBuild pncBuild) {
         KojiBuild buildZero = buildFinderUtils.createKojiBuildZero();
 
-        pncBuild.getArtifacts().forEach((enhancedArtifact -> {
-            buildFinderUtils
-                    .addArchiveWithoutBuild(buildZero, enhancedArtifact.getChecksum(), enhancedArtifact.getFilenames());
-        }));
+        pncBuild.getArtifacts()
+                .forEach(
+                        enhancedArtifact -> buildFinderUtils.addArchiveWithoutBuild(
+                                buildZero,
+                                enhancedArtifact.getChecksum(),
+                                enhancedArtifact.getFilenames()));
 
         buildFinderUtils.addFilesInError(buildZero);
 
@@ -338,7 +340,7 @@ public class PncBuildFinder {
     private class RemoteResourceExceptionWrapper {
         private RemoteResourceException exception;
 
-        public RemoteResourceException getException() {
+        public synchronized RemoteResourceException getException() {
             return exception;
         }
 
