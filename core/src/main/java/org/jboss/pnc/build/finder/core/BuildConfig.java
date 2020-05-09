@@ -85,10 +85,6 @@ public class BuildConfig {
     @JsonProperty("use-checksums-file")
     private Boolean useChecksumsFile;
 
-    public BuildConfig() {
-
-    }
-
     public static BuildConfig load(File file) throws IOException {
         return getMapper().readValue(file, BuildConfig.class);
     }

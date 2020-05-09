@@ -217,10 +217,6 @@ public final class Main implements Callable<Void> {
     @Parameters(arity = "1..*", paramLabel = "FILE", description = "One or more files.")
     private List<File> files;
 
-    public Main() {
-
-    }
-
     public static void main(String... args) {
         Main main = new Main();
 
