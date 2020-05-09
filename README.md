@@ -7,8 +7,7 @@
 | Name      | Description                | Badge                      |
 | --------- | -------------------------- | -------------------------- |
 | Maven     | Latest Release             | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder)
-| AppVeyor  | Build Status (Windows)     | [![Build Status (AppVeyor)](https://ci.appveyor.com/api/projects/status/g1bjwaun03fao5qm?svg=true)](https://ci.appveyor.com/project/dwalluck/build-finder) |
-| Travis CI | Build Status (Linux/OS X)  | [![Build Status (Travis CI)](https://api.travis-ci.com/project-ncl/build-finder.svg)](https://travis-ci.com/project-ncl/build-finder) |
+| CI        | Build Status               | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22) |
 | Codecov   | Code Coverage              | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder) |
 | Snyk      | Known Vulnerabilities      | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder) |
 
