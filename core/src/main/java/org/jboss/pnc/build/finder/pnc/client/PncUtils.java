@@ -206,8 +206,8 @@ public final class PncUtils {
                 return "npm";
             default:
                 LOGGER.warn(
-                        "Unsupported build type conversion. BuildType: "
-                                + pncBuild.getBuild().getBuildConfigRevision().getBuildType());
+                        "Unsupported build type conversion. BuildType: {}",
+                        pncBuild.getBuild().getBuildConfigRevision().getBuildType());
                 return "unknown";
         }
     }

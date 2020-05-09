@@ -94,9 +94,9 @@ import picocli.CommandLine.Spec;
 
 @Command(
         abbreviateSynopsis = true,
-        description = "Finds builds in Koji.",
+        description = "Finds builds in Koji and PNC.",
         mixinStandardHelpOptions = true,
-        name = "koji-build-finder",
+        name = "build-finder",
         showDefaultValues = true,
         versionProvider = Main.ManifestVersionProvider.class)
 public final class Main implements Callable<Void> {

@@ -49,7 +49,7 @@ import io.vertx.core.impl.ConcurrentHashSet;
 public class PncBuildFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncBuildFinder.class);
 
-    // TODO make the parallelismThreashold configurable
+    // TODO: make the parallelismThreashold configurable
     private static final int CONCURRENT_MAP_PARALLELISM_THRESHOLD = 10;
 
     private final PncClient pncClient;
@@ -106,9 +106,11 @@ public class PncBuildFinder {
         pncBuilds.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (buildId, pncBuild) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
-                        "Parallel execution of populatePncBuildsMetadata using thread "
-                                + Thread.currentThread().getName() + "of build " + pncBuild);
+                        "Parallel execution of populatePncBuildsMetadata using thread {} of build {}",
+                        Thread.currentThread().getName(),
+                        pncBuild);
             }
+
             Build build = pncBuild.getBuild();
 
             // Skip build with id 0, which is just a container for not found artifacts
@@ -147,8 +149,9 @@ public class PncBuildFinder {
         checksumTable.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (checksum, fileNames) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
-                        "Parallel execution of lookupArtifactsInPnc using thread " + Thread.currentThread().getName()
-                                + " of an artifact with checksum: " + checksum);
+                        "Parallel execution of lookupArtifactsInPnc using thread {} of an artifact with checksum {}",
+                        Thread.currentThread().getName(),
+                        checksum);
             }
 
             try {
@@ -295,6 +298,11 @@ public class PncBuildFinder {
         KojiBuild kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild);
 
         for (EnhancedArtifact artifact : pncBuild.getArtifacts()) {
+            // XXX: Can this ever happen?
+            if (!artifact.getArtifact().isPresent()) {
+                LOGGER.warn("Enhanced artifact with checksum {} has missing artifact", artifact.getChecksum());
+                continue;
+            }
 
             KojiArchiveInfo kojiArchive = PncUtils.artifactToKojiArchiveInfo(pncBuild, artifact.getArtifact().get());
             PncUtils.fixNullVersion(kojibuild, kojiArchive);

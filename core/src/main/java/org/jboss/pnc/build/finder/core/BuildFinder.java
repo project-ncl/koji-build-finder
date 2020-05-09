@@ -1323,15 +1323,17 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             checksums.clear();
         }
 
-        int numBuilds = allBuilds.size() - 1;
-        Instant endTime = Instant.now();
-        Duration duration = Duration.between(startTime, endTime).abs();
+        if (LOGGER.isInfoEnabled()) {
+            int numBuilds = allBuilds.size() - 1;
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime).abs();
 
-        LOGGER.info(
-                "Found {} builds in {} (average: {})",
-                green(numBuilds),
-                green(duration),
-                green(numBuilds > 0 ? duration.dividedBy(numBuilds) : 0));
+            LOGGER.info(
+                    "Found {} builds in {} (average: {})",
+                    green(numBuilds),
+                    green(duration),
+                    green(numBuilds > 0 ? duration.dividedBy(numBuilds) : 0));
+        }
 
         return allBuilds;
     }
