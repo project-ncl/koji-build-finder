@@ -30,7 +30,7 @@
   <logger name="org.apache.kerby" level="WARN" />
   <logger name="org.commonjava.util.jhttpc" level="WARN" />
   <logger name="org.commonjava.rwx" level="WARN" />
-  <logger name="org.infinispan" level="WARN" />
+  <logger name="org.infinispan" level="ERROR" />
   <logger name="org.jboss.logging" level="WARN" />
   <logger name="org.jboss.pnc.client" level="WARN" />
   <logger name="org.jboss.resteasy" level="WARN" />

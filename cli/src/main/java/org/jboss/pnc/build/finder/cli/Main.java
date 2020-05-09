@@ -44,10 +44,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.io.FileUtils;
+import org.infinispan.commons.util.Version;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.jboss.marshalling.commons.GenericJBossMarshaller;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.jboss.pnc.build.finder.core.BuildConfig;
@@ -320,8 +322,10 @@ public final class Main implements Callable<Void> {
             LOGGER.info("Local cache: {}", green("disabled"));
         } else {
             LOGGER.info(
-                    "Local cache: {}, lifespan: {}, maxIdle: {}",
+                    "Local cache: {} ({} {}), lifespan: {}, maxIdle: {}",
                     green("enabled"),
+                    green(Version.getBrandName()),
+                    green(Version.getVersion()),
                     green(config.getCacheLifespan()),
                     green(config.getCacheMaxIdle()));
         }
@@ -412,13 +416,19 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         KojiBuild.KojiBuildExternalizer externalizer = new KojiBuild.KojiBuildExternalizer();
-        GlobalConfiguration globalConfig = new GlobalConfigurationBuilder().serialization()
+        GlobalConfigurationBuilder globalConfig = new GlobalConfigurationBuilder();
+        String location = new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
+
+        globalConfig.globalState()
+                .persistentLocation(location)
+                .serialization()
+                .marshaller(new GenericJBossMarshaller())
                 .addAdvancedExternalizer(externalizer.getId(), externalizer)
-                .build();
+                .whiteList()
+                .addRegexp(".*")
+                .create();
 
-        cacheManager = new DefaultCacheManager(globalConfig);
-
-        String location = new File(ConfigDefaults.CONFIG).getParent();
+        GlobalConfiguration globalConfiguration = globalConfig.build();
         Configuration configuration = new ConfigurationBuilder().expiration()
                 .lifespan(config.getCacheLifespan())
                 .maxIdle(config.getCacheMaxIdle())
@@ -426,12 +436,15 @@ public final class Main implements Callable<Void> {
                 .persistence()
                 .passivation(false)
                 .addSingleFileStore()
+                .segmented(true)
                 .shared(false)
                 .preload(true)
                 .fetchPersistentState(true)
                 .purgeOnStartup(false)
                 .location(location)
                 .build();
+
+        cacheManager = new DefaultCacheManager(globalConfiguration);
 
         for (ChecksumType checksumType : checksumTypes) {
             cacheManager.defineConfiguration("files-" + checksumType, configuration);
