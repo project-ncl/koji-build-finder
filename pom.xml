@@ -555,13 +555,6 @@
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>${version.com.mycila}</version>
-          <dependencies>
-            <dependency>
-              <groupId>com.mycila</groupId>
-              <artifactId>license-maven-plugin-git</artifactId>
-              <version>${version.com.mycila}</version>
-            </dependency>
-          </dependencies>
         </plugin>
         <plugin>
           <groupId>net.revelc.code</groupId>
