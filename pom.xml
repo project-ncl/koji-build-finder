@@ -530,12 +530,6 @@
   </pluginRepositories>
 
   <build>
-    <resources>
-      <resource>
-        <filtering>true</filtering>
-        <directory>${project.basedir}/src/main/resources</directory>
-      </resource>
-    </resources>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -561,13 +555,6 @@
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>${version.com.mycila}</version>
-          <configuration>
-            <header>APACHE-2-SIMPLIFIED-COPYRIGHT.txt</header>
-            <mapping>
-              <editorconfig>SCRIPT_STYLE</editorconfig>
-              <Makefile>SCRIPT_STYLE</Makefile>
-            </mapping>
-          </configuration>
           <dependencies>
             <dependency>
               <groupId>com.mycila</groupId>
@@ -825,12 +812,6 @@
           <groupId>org.ec4j.maven</groupId>
           <artifactId>editorconfig-maven-plugin</artifactId>
           <version>${version.org.ec4j.maven.editorconfig-maven-plugin}</version>
-          <configuration>
-            <excludes>
-              <exclude>.git/**</exclude>
-              <exclude>src/test/resources/*.war</exclude>
-            </excludes>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
@@ -881,6 +862,31 @@
               <goal>sort</goal>
             </goals>
             <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>LICENSE</exclude>
+            <exclude>LICENSE-HEADER</exclude>
+            <exclude>src/test/resources/**/*.war</exclude>
+            <exclude>src/test/resources/**/*.xml</exclude>
+          </excludes>
+          <header>LICENSE-HEADER</header>
+          <mapping>
+            <gitattributes>SCRIPT_STYLE</gitattributes>
+            <java>SLASHSTAR_STYLE</java>
+            <Makefile>SCRIPT_STYLE</Makefile>
+          </mapping>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
