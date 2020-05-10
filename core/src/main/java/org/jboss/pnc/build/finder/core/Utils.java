@@ -18,10 +18,12 @@ package org.jboss.pnc.build.finder.core;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.commons.vfs2.FileObject;
@@ -76,14 +78,21 @@ public final class Utils {
                 URL jarUrl = resources.nextElement();
 
                 if (jarUrl.getFile().contains("build-finder") || jarUrl.getFile().contains("core")) {
-                    Manifest manifest = new Manifest(jarUrl.openStream());
-                    String manifestValue = manifest.getMainAttributes().getValue("Scm-Revision");
+                    try (InputStream is = jarUrl.openStream()) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes mainAtrributes = manifest.getMainAttributes();
+                        String implementationTitle = mainAtrributes.getValue("Implementation-Title");
 
-                    if (manifestValue != null && !manifestValue.isEmpty()) {
-                        scmRevision = manifestValue;
+                        if (implementationTitle != null && !implementationTitle.isEmpty()
+                                && implementationTitle.contains("Build Finder")) {
+                            String scmRevisionValue = mainAtrributes.getValue("Scm-Revision");
+
+                            if (scmRevisionValue != null && !scmRevisionValue.isEmpty()) {
+                                scmRevision = scmRevisionValue;
+                                break;
+                            }
+                        }
                     }
-
-                    break;
                 }
             }
         } catch (IOException e) {
