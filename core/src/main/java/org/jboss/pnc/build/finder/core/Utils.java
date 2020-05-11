@@ -15,16 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import org.apache.commons.vfs2.FileObject;
 import org.slf4j.Logger;
@@ -32,6 +27,10 @@ import org.slf4j.LoggerFactory;
 
 public final class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+
+    private static final String PROPERTIES_FILE = "build-finder.properties";
+
+    private static Properties properties;
 
     private Utils() {
 
@@ -61,44 +60,38 @@ public final class Utils {
     }
 
     public static String getBuildFinderVersion() {
-        Class<Utils> clazz = Utils.class;
-        Package p = clazz.getPackage();
-
-        return p == null || p.getImplementationVersion() == null ? "unknown" : p.getImplementationVersion();
+        return getProperty("version");
     }
 
     public static String getBuildFinderScmRevision() {
-        String scmRevision = "unknown";
+        return getProperty("Scm-Revision");
+    }
 
-        try {
-            Class<Utils> clazz = Utils.class;
-            Enumeration<URL> resources = clazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
+    private static String getProperty(String name) {
+        final String unknown = "unknown";
 
-            while (resources.hasMoreElements()) {
-                URL jarUrl = resources.nextElement();
-
-                if (jarUrl.getFile().contains("build-finder") || jarUrl.getFile().contains("core")) {
-                    try (InputStream is = jarUrl.openStream()) {
-                        Manifest manifest = new Manifest(is);
-                        Attributes mainAtrributes = manifest.getMainAttributes();
-                        String implementationTitle = mainAtrributes.getValue("Implementation-Title");
-
-                        if (implementationTitle != null && !implementationTitle.isEmpty()
-                                && implementationTitle.contains("Build Finder")) {
-                            String scmRevisionValue = mainAtrributes.getValue("Scm-Revision");
-
-                            if (scmRevisionValue != null && !scmRevisionValue.isEmpty()) {
-                                scmRevision = scmRevisionValue;
-                                break;
-                            }
-                        }
+        if (properties == null) {
+            try {
+                try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+                    if (is == null) {
+                        return unknown;
                     }
+
+                    properties = new Properties();
+
+                    properties.load(is);
                 }
+            } catch (IOException e) {
+                return unknown;
             }
-        } catch (IOException e) {
-            LOGGER.warn("Error getting SCM revision: {}", red(e.getMessage()));
         }
 
-        return scmRevision;
+        Object value = properties.get(name);
+
+        if (value == null) {
+            return unknown;
+        }
+
+        return String.valueOf(value);
     }
 }
