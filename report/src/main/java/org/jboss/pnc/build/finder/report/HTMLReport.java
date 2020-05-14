@@ -150,10 +150,7 @@ public class HTMLReport extends Report {
 
         if (build.isPnc()) {
             return error ? errorText(name)
-                    : a().withHref(
-                            pncUrl + "/pnc-web/#/builds/" + build.getBuildInfo().getExtra().get("external_build_id")
-                                    + "/artifacts")
-                            .with(text(name));
+                    : a().withHref(pncUrl + "/pnc-web/#/artifacts/" + archive.getArchiveId()).with(text(name));
         }
 
         String href = "/archiveinfo?archiveID=" + id;
