@@ -15,8 +15,9 @@
  */
 package org.jboss.pnc.build.finder.pnc.it;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.client.RemoteCollection;
@@ -24,7 +25,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ProductVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Jakub Bartecek
@@ -84,13 +85,17 @@ public class PncClientImplIT extends AbstractKojiIT {
         assertEquals(0, remoteArtifacts.size());
     }
 
-    @Test(expected = RemoteResourceNotFoundException.class)
-    public void shouldNotGetBuildPushResult() throws RemoteResourceException {
-        // given
-        String buildId = "-100";
+    @Test
+    public void shouldNotGetBuildPushResult() {
+        assertThrows(
+                RemoteResourceNotFoundException.class,
+                () -> {
+                    // given
+                    String buildId = "-100";
 
-        // when
-        getPncClient().getBuildPushResult(buildId);
+                    // when
+                    getPncClient().getBuildPushResult(buildId);
+                });
     }
 
     @Test
@@ -106,12 +111,16 @@ public class PncClientImplIT extends AbstractKojiIT {
         assertNotNull(productVersion.getProduct());
     }
 
-    @Test(expected = RemoteResourceNotFoundException.class)
-    public void shouldNotGetProductVersion() throws RemoteResourceException {
-        // given
-        String buildId = "-100";
+    @Test
+    public void shouldNotGetProductVersion() {
+        assertThrows(
+                RemoteResourceNotFoundException.class,
+                () -> {
+                    // given
+                    String buildId = "-100";
 
-        // when
-        getPncClient().getProductVersion(buildId);
+                    // when
+                    getPncClient().getProductVersion(buildId);
+                });
     }
 }

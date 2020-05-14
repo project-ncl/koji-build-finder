@@ -15,10 +15,12 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
@@ -42,6 +44,8 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                 context.stop();
             }
         }
+
+        assertNotEquals(0L, timer.getCount());
     }
 
     @Test
@@ -79,6 +83,8 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                 context.stop();
             }
         }
+
+        assertNotEquals(0L, timer.getCount());
     }
 
     @Test
@@ -100,5 +106,7 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                 context.stop();
             }
         }
+
+        assertNotEquals(0L, timer.getCount());
     }
 }

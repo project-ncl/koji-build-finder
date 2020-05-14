@@ -15,9 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,25 +36,16 @@ import java.util.Set;
 import org.apache.commons.collections4.MultiMapUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.contrib.java.lang.system.SystemOutRule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+
+import com.github.blindpirate.extensions.CaptureSystemOutput;
 
 public class DistributionAnalyzerTest {
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
-
-    @Rule
-    public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
-
-    @Rule
-    public final TestRule restoreSystemProperties = new RestoreSystemProperties();
-
     @Test
     public void verifyEmptyList() throws IOException {
         List<File> af = Collections.emptyList();
@@ -65,10 +57,10 @@ public class DistributionAnalyzerTest {
 
     @Test
     // XXX: Disabled for performance
-    @Ignore
-    public void verifySize() throws IOException {
+    @Disabled
+    public void verifySize(@TempDir File folder) throws IOException {
         List<File> af = new ArrayList<>();
-        File test = temp.newFile();
+        File test = new File(folder, "verify-size");
         af.add(test);
 
         try (RandomAccessFile f = new RandomAccessFile(test, "rw")) {
@@ -82,12 +74,12 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void verifyType() throws IOException {
+    public void verifyType(@TempDir File folder) throws IOException {
         List<File> af = new ArrayList<>();
         String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
 
-        for (String s : types) {
-            File test = temp.newFile(s);
+        for (String type : types) {
+            File test = new File(folder, "verify-type-" + type);
             af.add(test);
         }
 
@@ -97,15 +89,11 @@ public class DistributionAnalyzerTest {
         da.checksumFiles();
     }
 
+    // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
+    @DisabledOnOs(WINDOWS)
     @Test
-    public void verifyCacheClearance() throws IOException {
-        // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
-        assumeFalse(SystemUtils.IS_OS_WINDOWS);
-
-        File cache = temp.newFolder();
-        System.setProperty("java.io.tmpdir", cache.getAbsolutePath());
-
-        Collection<File> ls = FileUtils.listFiles(cache, null, true);
+    public void verifyCacheClearance(@TempDir File folder) throws IOException {
+        Collection<File> ls = FileUtils.listFiles(folder, null, true);
         assertTrue(ls.isEmpty());
 
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
@@ -114,7 +102,7 @@ public class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         da.checksumFiles();
 
-        ls = FileUtils.listFiles(cache, null, true);
+        ls = FileUtils.listFiles(folder, null, true);
         assertTrue(ls.isEmpty());
     }
 
@@ -140,8 +128,9 @@ public class DistributionAnalyzerTest {
         assertEquals(7, checksums.get(ChecksumType.md5).size());
     }
 
+    @CaptureSystemOutput
     @Test
-    public void loadManPageZip() throws IOException {
+    public void loadManPageZip(CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip"));
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -149,7 +138,7 @@ public class DistributionAnalyzerTest {
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
         assertEquals(4, checksums.get(ChecksumType.md5).size());
-        assertTrue(systemOutRule.getLog().contains("Unable to process archive/compressed file"));
+        outputCapture.expect(containsString("Unable to process archive/compressed file"));
     }
 
     @Test
@@ -239,6 +228,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
+    @Execution(ExecutionMode.SAME_THREAD)
     public void loadNestedTarGzNoRecusion() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.tar.gz"));
         BuildConfig config = new BuildConfig();

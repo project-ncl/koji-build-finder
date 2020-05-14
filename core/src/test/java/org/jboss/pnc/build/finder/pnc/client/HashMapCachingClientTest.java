@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -23,15 +25,14 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductVersion;
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 /**
  * @author Jakub Bartecek
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
 public class HashMapCachingClientTest {
     private HashMapCachingPncClient cachingPncClient;
 
@@ -45,13 +46,13 @@ public class HashMapCachingClientTest {
     @Test
     public void m1ShouldGetArtifactsByMd5FromClient() throws RemoteResourceException {
         cachingPncClient.getArtifactsByMd5("md5");
-        Assert.assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
+        assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
     }
 
     @Test
     public void m2ShouldGetArtifactsByMd5FromCache() throws RemoteResourceException {
         cachingPncClient.getArtifactsByMd5("md5");
-        Assert.assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
+        assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
     }
 
     private class DummyPncClient implements PncClient {

@@ -69,9 +69,10 @@
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
     <version.com.fasterxml.jackson.core>2.11.0</version.com.fasterxml.jackson.core>
+    <version.com.ginsberg.junit5-system-exit>1.0.0</version.com.ginsberg.junit5-system-exit>
+    <version.com.github.blindpirate>0.1.2</version.com.github.blindpirate>
     <version.com.github.ekryd.sortpom>2.11.0</version.com.github.ekryd.sortpom>
     <version.com.github.spotbugs>4.0.0</version.com.github.spotbugs>
-    <version.com.github.stefanbirkner>1.19.0</version.com.github.stefanbirkner>
     <version.com.google.guava>29.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
     <version.com.mycila>3.0</version.com.mycila>
@@ -81,13 +82,11 @@
     <version.commons-io>2.6</version.commons-io>
     <version.info.picocli>4.2.0</version.info.picocli>
     <version.io.dropwizard.metrics>4.1.7</version.io.dropwizard.metrics>
-    <version.junit>4.13</version.junit>
     <version.net.revelc.code.formatter>2.11.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.4.1</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.23.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
     <version.org.apache.commons.commons-compress>1.20</version.org.apache.commons.commons-compress>
-    <version.org.apache.commons.commons-lang3>3.10</version.org.apache.commons.commons-lang3>
     <version.org.apache.commons.commons-vfs2>2.6.0</version.org.apache.commons.commons-vfs2>
     <version.org.apache.httpcomponents.httpasyncclient>4.1.4</version.org.apache.httpcomponents.httpasyncclient>
     <version.org.apache.httpcomponents.httpclient>4.5.12</version.org.apache.httpcomponents.httpclient>
@@ -129,6 +128,7 @@
     <version.org.jboss.logmanager>2.1.15.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.0.0-SNAPSHOT</version.org.jboss.pnc>
     <version.org.json.json>20190722</version.org.json.json>
+    <version.org.junit.jupiter>5.6.2</version.org.junit.jupiter>
     <version.org.mockito>3.3.3</version.org.mockito>
     <version.org.ow2.asm>8.0.1</version.org.ow2.asm>
     <version.org.slf4j>1.7.30</version.org.slf4j>
@@ -166,11 +166,6 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.stefanbirkner</groupId>
-        <artifactId>system-rules</artifactId>
-        <version>${version.com.github.stefanbirkner}</version>
       </dependency>
       <!-- Required dependency for packager-rpm -->
       <dependency>
@@ -227,11 +222,6 @@
         <version>${version.io.dropwizard.metrics}</version>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${version.junit}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
         <version>${version.org.apache.commons.commons-collections4}</version>
@@ -241,11 +231,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
         <version>${version.org.apache.commons.commons-compress}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${version.org.apache.commons.commons-lang3}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -388,11 +373,6 @@
         <version>${version.org.infinispan}</version>
       </dependency>
       <dependency>
-        <groupId>org.jboss.byteman</groupId>
-        <artifactId>byteman-bmunit</artifactId>
-        <version>${version.org.jboss.byteman}</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.logmanager</groupId>
         <artifactId>jboss-logmanager</artifactId>
         <version>${version.org.jboss.logmanager}</version>
@@ -440,8 +420,38 @@
         <version>${version.org.slf4j}</version>
       </dependency>
       <dependency>
+        <groupId>com.ginsberg</groupId>
+        <artifactId>junit5-system-exit</artifactId>
+        <version>${version.com.ginsberg.junit5-system-exit}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.blindpirate</groupId>
+        <artifactId>junit5-capture-system-output-extension</artifactId>
+        <version>${version.com.github.blindpirate}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.byteman</groupId>
+        <artifactId>byteman-bmunit5</artifactId>
+        <version>${version.org.jboss.byteman}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${version.org.junit.jupiter}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${version.org.junit.jupiter}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
+        <artifactId>mockito-junit-jupiter</artifactId>
         <version>${version.org.mockito}</version>
         <scope>test</scope>
       </dependency>
@@ -458,6 +468,22 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.ginsberg</groupId>
+      <artifactId>junit5-system-exit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.blindpirate</groupId>
+      <artifactId>junit5-capture-system-output-extension</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -470,11 +496,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -953,9 +974,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <includes>
-            <include>**/*IT.java</include>
-          </includes>
+          <properties>
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
+          </properties>
           <skipITs>${skipITs}</skipITs>
         </configuration>
         <executions>
@@ -985,6 +1007,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <properties>
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
+          </properties>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

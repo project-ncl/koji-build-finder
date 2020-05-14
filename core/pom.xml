@@ -99,27 +99,16 @@
       <artifactId>infinispan-jboss-marshalling</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-bmunit5</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>rest-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.stefanbirkner</groupId>
-      <artifactId>system-rules</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.byteman</groupId>
-      <artifactId>byteman-bmunit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

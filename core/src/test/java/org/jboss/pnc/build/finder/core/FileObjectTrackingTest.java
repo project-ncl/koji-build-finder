@@ -15,8 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,25 +27,13 @@ import java.util.Map;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
-import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+import org.jboss.byteman.contrib.bmunit.WithByteman;
+import org.junit.jupiter.api.io.TempDir;
 
-@RunWith(BMUnitRunner.class)
+@WithByteman
 // Uncomment this to get byteman logging!
 // @BMUnitConfig(bmunitVerbose=true, debug=true, verbose = true)
 public class FileObjectTrackingTest {
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
-
-    @Rule
-    public final TestRule restoreSystemProperties = new RestoreSystemProperties();
-
-    @Test
     @BMRules(
             rules = {
                     // DefaultFileSystemManager / StandardFileSystemManager
@@ -96,10 +84,7 @@ public class FileObjectTrackingTest {
                             targetMethod = "getAbstractFileObjectCounter",
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
-    public void verifyObjectCreation() throws IOException {
-        File cache = temp.newFolder();
-        System.setProperty("java.io.tmpdir", cache.getAbsolutePath());
-
+    public void verifyObjectCreation(@TempDir File folder) throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
 
         BuildConfig config = new BuildConfig();

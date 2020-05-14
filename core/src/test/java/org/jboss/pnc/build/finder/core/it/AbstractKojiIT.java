@@ -28,8 +28,8 @@ import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.pnc.client.PncClientImpl;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public abstract class AbstractKojiIT {
     private BuildConfig config;
     private PncClientImpl pncclient;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, KojiClientException {
         final Path configPath = Paths.get(ConfigDefaults.CONFIG);
         final File configFile = configPath.toFile();
@@ -102,7 +102,7 @@ public abstract class AbstractKojiIT {
         return pncclient;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (session != null) {
             session.close();

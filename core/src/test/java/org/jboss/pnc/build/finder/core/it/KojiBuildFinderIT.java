@@ -15,9 +15,9 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,9 +37,8 @@ import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,17 +56,15 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
 
     private static final int READ_TIMEOUT = 900000;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test
-    public void testChecksumsAndFindBuilds() throws IOException, ExecutionException {
+    public void testChecksumsAndFindBuilds(@TempDir File folder1, @TempDir File folder2)
+            throws IOException, ExecutionException {
         assertNotNull(
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL);
 
         final URL url = new URL(URL);
-        final File file = new File(folder.newFolder(), url.getPath());
+        final File file = new File(folder1, url.getPath());
 
         FileUtils.copyURLToFile(url, file, CONNECTION_TIMEOUT, READ_TIMEOUT);
 
@@ -97,7 +94,7 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
         try {
             final ClientSession session = getKojiClientSession();
             final BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder.newFolder());
+            finder.setOutputDirectory(folder2);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             map = futureChecksum.get();

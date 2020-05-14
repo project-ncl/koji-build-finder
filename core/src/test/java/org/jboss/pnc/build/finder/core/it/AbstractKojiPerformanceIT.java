@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,7 +218,7 @@ public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiPerformanceIT.class);
     private List<Integer> builds;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, KojiClientException {
         super.setup();
 

@@ -15,10 +15,12 @@
  */
 package org.jboss.pnc.build.finder.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.emptyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,17 +29,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.TestUtils;
 import org.jboss.pnc.build.finder.core.Utils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.ExpectedSystemExit;
-import org.junit.contrib.java.lang.system.SystemOutRule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ginsberg.junit.exit.ExpectSystemExitWithStatus;
+import com.github.blindpirate.extensions.CaptureSystemOutput;
 
 import ch.qos.logback.classic.Level;
 import picocli.CommandLine;
@@ -45,25 +48,17 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
 public class MainTest {
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
-
-    @Rule
-    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
-
-    @Rule
-    public final SystemOutRule systemOutRule = new SystemOutRule().muteForSuccessfulTests().enableLog();
-
-    public static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
+    private static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
         CommandLine cmd = new CommandLine(command);
 
         return cmd.parseArgs(args);
     }
 
+    @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
+    @ExpectSystemExitWithStatus(0)
     @Test
-    public void verifyHelp() {
-        exit.expectSystemExitWithStatus(0);
-
+    public void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = new String[] { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -72,46 +67,43 @@ public class MainTest {
 
         Main.main(args);
 
-        assertTrue(systemOutRule.getLogWithNormalizedLineSeparator().contains("Usage:"));
+        outputCapture.expect(containsString("Usage:"));
     }
 
+    @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
+    @ExpectSystemExitWithStatus(0)
     @Test
-    public void verifyVersion() {
-        exit.expectSystemExitWithStatus(0);
-
+    public void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = new String[] { "--version" };
-
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
         assertTrue(parseResult.hasMatchedOption("--version"));
 
         Main.main(args);
 
-        String log = systemOutRule.getLogWithNormalizedLineSeparator();
+        outputCapture.expect(containsString(Utils.getBuildFinderVersion()));
 
-        assertTrue(log.contains(Utils.getBuildFinderVersion()));
+        outputCapture.expect(containsString(Utils.getBuildFinderScmRevision()));
 
-        assertTrue(log.contains(Utils.getBuildFinderScmRevision()));
-
-        assertFalse(log.contains("unknown"));
+        outputCapture.expect(not(containsString("unknown")));
     }
 
     @Test
-    public void verifyParsing() throws IOException {
-        File outputDirectory = temp.newFolder();
+    public void verifyParsing(@TempDir File folder) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
         URL hubURL = new URL("http://a.b");
         URL webURL = new URL("http://c.d");
-        File krbCcache = temp.newFile();
-        File krbKeytab = temp.newFile();
+        File krbCcache = new File(folder, "krb5-cache");
+        File krbKeytab = new File(folder, "krb5-keytab");
         String krbPassword = "test";
         String krbPrincipal = "test@TEST.ABC";
         String krbService = "testService";
 
-        String[] args = new String[] { "-o", outputDirectory.toString(), "-c", configFile.toString(), "--disable-cache",
-                "-k", "-t", "sha256", "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(),
+        String[] args = new String[] { "-o", folder.toString(), "-c", configFile.toString(), "--disable-cache", "-k",
+                "-t", "sha256", "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(),
                 "--koji-web-url", webURL.toString(), "--krb-ccache", krbCcache.toString(), "--krb-keytab",
                 krbKeytab.toString(), "--krb-principal", krbPrincipal, "--krb-service", krbService, "--krb-password",
                 krbPassword, inputFile.toString() };
@@ -120,13 +112,13 @@ public class MainTest {
 
         File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(outputDirectory, parsedOutputDirectory);
+        assertEquals(folder, parsedOutputDirectory);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
         assertEquals(configFile, parsedConfigFile);
 
-        assertTrue(parseResult.matchedOption("--checksum-only").getValue());
+        assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
 
         assertEquals(EnumSet.of(ChecksumType.sha256), parseResult.matchedOption("--checksum-type").getValue());
 
@@ -150,49 +142,40 @@ public class MainTest {
     }
 
     @Test
-    public void verifyConfig() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
-        // status 0.
-        assumeFalse(SystemUtils.IS_OS_WINDOWS);
-
-        exit.expectSystemExitWithStatus(0);
-
-        File outputDirectory = temp.newFolder();
+    @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
+    @ExpectSystemExitWithStatus(0)
+    public void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
-        String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
-                configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "sha256",
-                inputFile.toString() };
+        String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
+                "--disable-cache", "--checksum-only", "--checksum-type", "sha256", inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
         File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(outputDirectory, parsedOutputDirectory);
+        assertEquals(folder, parsedOutputDirectory);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
         assertEquals(configFile, parsedConfigFile);
 
-        assertTrue(parseResult.matchedOption("--checksum-only").getValue());
+        assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
 
         assertEquals(EnumSet.of(ChecksumType.sha256), parseResult.matchedOption("--checksum-type").getValue());
 
         Main.main(args);
 
-        assertTrue(systemOutRule.getLogWithNormalizedLineSeparator().contains(".war!"));
+        outputCapture.expect(containsString(".war!"));
     }
 
     @Test
-    public void verifyDebug() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
-        // status 0.
-        assumeFalse(SystemUtils.IS_OS_WINDOWS);
-
-        exit.expectSystemExitWithStatus(0);
-
-        File outputDirectory = temp.newFolder();
+    @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
+    @ExpectSystemExitWithStatus(0)
+    public void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -205,45 +188,40 @@ public class MainTest {
 
             assertFalse(root.isDebugEnabled());
 
-            String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
-                    configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--debug",
-                    inputFile.toString() };
+            String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
+                    "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--debug", inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
             File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(outputDirectory, parsedOutputDirectory);
+            assertEquals(folder, parsedOutputDirectory);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
             assertEquals(configFile, parsedConfigFile);
 
-            assertTrue(parseResult.matchedOption("--checksum-only").getValue());
+            assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
 
             assertEquals(EnumSet.of(ChecksumType.md5), parseResult.matchedOption("--checksum-type").getValue());
 
-            assertTrue(parseResult.matchedOption("--debug").getValue());
+            assertEquals(Boolean.TRUE, parseResult.matchedOption("--debug").getValue());
 
             Main.main(args);
 
             assertTrue(root.isDebugEnabled());
 
-            assertTrue(systemOutRule.getLogWithNormalizedLineSeparator().contains("DEBUG"));
+            outputCapture.expect(containsString("DEBUG"));
         } finally {
             root.setLevel(level);
         }
     }
 
     @Test
-    public void verifyQuiet() throws IOException {
-        // XXX: Skip on Windows due to org.junit.contrib.java.lang.system.internal.CheckExitCalled: Tried to exit with
-        // status 0.
-        assumeFalse(SystemUtils.IS_OS_WINDOWS);
-
-        exit.expectSystemExitWithStatus(0);
-
-        File outputDirectory = temp.newFolder();
+    @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
+    @ExpectSystemExitWithStatus(0)
+    public void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -256,31 +234,30 @@ public class MainTest {
 
             assertTrue(root.isEnabledFor(Level.INFO));
 
-            String[] args = new String[] { "--output-directory", outputDirectory.toString(), "--config",
-                    configFile.toString(), "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--quiet",
-                    inputFile.toString() };
+            String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
+                    "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--quiet", inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
             File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(outputDirectory, parsedOutputDirectory);
+            assertEquals(folder, parsedOutputDirectory);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
             assertEquals(configFile, parsedConfigFile);
 
-            assertTrue(parseResult.matchedOption("--checksum-only").getValue());
+            assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
 
             assertEquals(EnumSet.of(ChecksumType.md5), parseResult.matchedOption("--checksum-type").getValue());
 
-            assertTrue(parseResult.matchedOption("--quiet").getValue());
+            assertEquals(Boolean.TRUE, parseResult.matchedOption("--quiet").getValue());
 
             Main.main(args);
 
             assertTrue(root.isEnabledFor(Level.OFF));
 
-            assertEquals(0, systemOutRule.getLogWithNormalizedLineSeparator().length());
+            outputCapture.expect(emptyString());
         } finally {
             root.setLevel(level);
         }

@@ -18,7 +18,7 @@ package org.jboss.pnc.build.finder.core.it;
 import java.util.List;
 
 import org.apache.commons.collections4.ListUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;

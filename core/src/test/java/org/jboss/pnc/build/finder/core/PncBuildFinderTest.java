@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -42,19 +44,18 @@ import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Tests of PncBuildFinder
  *
  * @author Jakub Bartecek
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PncBuildFinderTest {
     @Mock
     private BuildConfig buildConfig;
@@ -73,8 +74,8 @@ public class PncBuildFinderTest {
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(new HashMap<>());
 
         // then
-        Assert.assertEquals(0, findBuildsResult.getFoundBuilds().size());
-        Assert.assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
+        assertEquals(0, findBuildsResult.getFoundBuilds().size());
+        assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
     }
 
     @Test
@@ -126,14 +127,14 @@ public class PncBuildFinderTest {
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(requestMap);
 
         // then
-        Assert.assertEquals(1, findBuildsResult.getFoundBuilds().size());
-        Assert.assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
+        assertEquals(1, findBuildsResult.getFoundBuilds().size());
+        assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
 
         KojiBuild foundBuild = findBuildsResult.getFoundBuilds().get(new BuildSystemInteger(100, BuildSystem.pnc));
         List<KojiLocalArchive> foundArchives = foundBuild.getArchives();
 
-        Assert.assertEquals(1, foundArchives.size());
-        Assert.assertEquals(md5, foundArchives.get(0).getArchive().getChecksum());
+        assertEquals(1, foundArchives.size());
+        assertEquals(md5, foundArchives.get(0).getArchive().getChecksum());
     }
 
     @Test
@@ -157,18 +158,17 @@ public class PncBuildFinderTest {
 
         // then
         // Verify that only BuildZero is returned
-        Assert.assertEquals(1, findBuildsResult.getFoundBuilds().size());
-        Assert.assertEquals(
-                Integer.valueOf(0),
-                findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue());
+        assertEquals(1, findBuildsResult.getFoundBuilds().size());
+        assertEquals(Integer.valueOf(0), findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue());
 
         // Verify that the artifact is in the notFoundChecksums collection
-        Assert.assertEquals(1, findBuildsResult.getNotFoundChecksums().size());
-        Assert.assertTrue(findBuildsResult.getNotFoundChecksums().containsKey(checksum));
+        assertEquals(1, findBuildsResult.getNotFoundChecksums().size());
+        assertTrue(findBuildsResult.getNotFoundChecksums().containsKey(checksum));
     }
 
     private StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
         List<Artifact> artifactList = new ArrayList<>();
+
         for (Artifact artifact : artifacts) {
             artifactList.add(artifact);
         }

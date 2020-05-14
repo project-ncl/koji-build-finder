@@ -15,17 +15,16 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +32,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
-
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
 
     @Test
     public void verifyDefaults() throws JsonProcessingException {
@@ -86,11 +82,11 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifySave() throws IOException {
+    public void verifySave(@TempDir File folder) throws IOException {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
-        File file = temp.newFile();
+        File file = new File(folder, "config.json");
 
         bc.save(file);
 

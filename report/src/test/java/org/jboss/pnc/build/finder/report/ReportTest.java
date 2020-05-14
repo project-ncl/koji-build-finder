@@ -15,11 +15,11 @@
  */
 package org.jboss.pnc.build.finder.report;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,27 +36,19 @@ import org.jboss.pnc.build.finder.core.JSONUtils;
 import org.jboss.pnc.build.finder.core.TestUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ReportTest {
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
+    private static List<KojiBuild> builds;
 
-    private List<KojiBuild> builds;
-
-    private File folder;
-
-    @Before
-    public void setBuilds() throws IOException {
+    @BeforeAll
+    public static void setBuilds(@TempDir File folder) throws IOException {
         File buildsFile = TestUtils.loadFile("report-test/builds.json");
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
 
         assertEquals(6, buildMap.size());
-
-        folder = temp.newFolder();
 
         File newBuildsFile = new File(folder, "builds.json");
 
@@ -71,7 +63,7 @@ public class ReportTest {
 
         List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
         buildList.sort(Comparator.comparingInt(b -> b.getBuildInfo().getId()));
-        this.builds = Collections.unmodifiableList(buildList);
+        builds = Collections.unmodifiableList(buildList);
 
         assertEquals(buildMap.size(), buildList.size());
     }
@@ -130,7 +122,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyNVRReport() throws IOException {
+    public void verifyNVRReport(@TempDir File folder) throws IOException {
         final String nvrExpected = "artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6\n"
                 + "commons-beanutils-commons-beanutils-1.9.2.redhat_1-1\ncommons-lang-commons-lang-2.6-1\n"
                 + "commons-lang-commons-lang-2.6-2\norg.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1";
@@ -145,7 +137,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyGAVReport() throws IOException {
+    public void verifyGAVReport(@TempDir File folder) throws IOException {
         final String gavExpected = "commons-beanutils:commons-beanutils:1.9.2.redhat-1\n"
                 + "commons-lang:commons-lang:2.6\norg.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1\n"
                 + "org.wildfly.swarm:config-api:1.1.0.Final-redhat-14";
@@ -160,7 +152,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyBuildStatisticsReport() throws IOException {
+    public void verifyBuildStatisticsReport(@TempDir File folder) throws IOException {
         BuildStatisticsReport buildStatisticsReport = new BuildStatisticsReport(folder, builds);
         buildStatisticsReport.outputText();
         assertEquals(builds.size() - 1, buildStatisticsReport.getBuildStatistics().getNumberOfBuilds());
@@ -178,7 +170,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyBuildStatisticsReportEmptyBuilds() throws IOException {
+    public void verifyBuildStatisticsReportEmptyBuilds(@TempDir File folder) throws IOException {
         BuildStatisticsReport buildStatisticsReport = new BuildStatisticsReport(folder, Collections.emptyList());
         buildStatisticsReport.outputText();
         assertEquals(0, buildStatisticsReport.getBuildStatistics().getNumberOfBuilds());
@@ -190,7 +182,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyProductReport() throws IOException {
+    public void verifyProductReport(@TempDir File folder) throws IOException {
         ProductReport productReport = new ProductReport(folder, builds);
         productReport.outputText();
 
@@ -208,7 +200,7 @@ public class ReportTest {
     }
 
     @Test
-    public void verifyHTMLReport() throws IOException {
+    public void verifyHTMLReport(@TempDir File folder) throws IOException {
         List<File> files = Collections.unmodifiableList(Collections.emptyList());
 
         List<Report> reports = new ArrayList<>(3);

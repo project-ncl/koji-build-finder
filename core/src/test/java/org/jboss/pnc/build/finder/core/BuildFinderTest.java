@@ -15,44 +15,40 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class BuildFinderTest {
-    @Rule
-    public final TemporaryFolder temp = new TemporaryFolder();
+    private static List<File> files;
 
-    private File target;
-
-    @Before
-    public void setTarget() throws IOException {
-        this.target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
+    @BeforeAll
+    public static void setTarget() throws IOException {
+        File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
+        assertTrue(target.canRead());
+        files = Collections.singletonList(target);
     }
 
     @Test
-    public void verifyDirectory() throws IOException {
-        File folder = temp.newFolder();
+    public void verifyDirectory(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.sha1;
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));
         config.setOutputDirectory(folder.getAbsolutePath());
 
-        DistributionAnalyzer da = new DistributionAnalyzer(
-                Collections.singletonList(new File(target.getAbsolutePath())),
-                config);
+        DistributionAnalyzer da = new DistributionAnalyzer(files, config);
         da.checksumFiles();
         da.outputToFile(checksumType);
 
@@ -63,18 +59,14 @@ public class BuildFinderTest {
     }
 
     @Test
-    public void verifyloadChecksumsFile() throws IOException {
-        File folder = temp.newFolder();
+    public void verifyloadChecksumsFile(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.md5;
-
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));
         config.setOutputDirectory(folder.getAbsolutePath());
 
-        DistributionAnalyzer da = new DistributionAnalyzer(
-                Collections.singletonList(new File(target.getAbsolutePath())),
-                config);
+        DistributionAnalyzer da = new DistributionAnalyzer(files, config);
         da.checksumFiles();
         da.outputToFile(checksumType);
 
