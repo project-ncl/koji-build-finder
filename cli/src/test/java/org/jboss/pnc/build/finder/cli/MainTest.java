@@ -47,6 +47,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
+@Execution(ExecutionMode.SAME_THREAD)
 public class MainTest {
     private static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
         CommandLine cmd = new CommandLine(command);

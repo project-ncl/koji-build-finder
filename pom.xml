@@ -975,7 +975,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
 junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
           </properties>
           <skipITs>${skipITs}</skipITs>
@@ -1009,7 +1009,7 @@ junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameter
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
 junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
           </properties>
         </configuration>

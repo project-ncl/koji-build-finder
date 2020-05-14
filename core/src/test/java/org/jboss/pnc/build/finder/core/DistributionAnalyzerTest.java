@@ -45,7 +45,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.github.blindpirate.extensions.CaptureSystemOutput;
 
+@Execution(ExecutionMode.SAME_THREAD)
 public class DistributionAnalyzerTest {
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void verifyEmptyList() throws IOException {
         List<File> af = Collections.emptyList();
@@ -55,9 +57,10 @@ public class DistributionAnalyzerTest {
         da.checksumFiles();
     }
 
-    @Test
     // XXX: Disabled for performance
     @Disabled
+    @Execution(ExecutionMode.SAME_THREAD)
+    @Test
     public void verifySize(@TempDir File folder) throws IOException {
         List<File> af = new ArrayList<>();
         File test = new File(folder, "verify-size");
@@ -73,6 +76,7 @@ public class DistributionAnalyzerTest {
         }
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void verifyType(@TempDir File folder) throws IOException {
         List<File> af = new ArrayList<>();
@@ -91,6 +95,7 @@ public class DistributionAnalyzerTest {
 
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
     @DisabledOnOs(WINDOWS)
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void verifyCacheClearance(@TempDir File folder) throws IOException {
         Collection<File> ls = FileUtils.listFiles(folder, null, true);
@@ -106,6 +111,7 @@ public class DistributionAnalyzerTest {
         assertTrue(ls.isEmpty());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedZip() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
@@ -117,6 +123,7 @@ public class DistributionAnalyzerTest {
         assertEquals(25, checksums.get(ChecksumType.md5).size());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedWar() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.war"));
@@ -129,6 +136,7 @@ public class DistributionAnalyzerTest {
     }
 
     @CaptureSystemOutput
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadManPageZip(CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip"));
@@ -141,6 +149,7 @@ public class DistributionAnalyzerTest {
         outputCapture.expect(containsString("Unable to process archive/compressed file"));
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedZipMultiThreaded() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
@@ -152,6 +161,7 @@ public class DistributionAnalyzerTest {
         assertEquals(25, checksums.get(ChecksumType.md5).size());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
@@ -191,6 +201,7 @@ public class DistributionAnalyzerTest {
         assertEquals(25 * checksums.values().size(), checksums.values().stream().mapToInt(MultiValuedMap::size).sum());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedZipNoRecursion() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
@@ -203,6 +214,7 @@ public class DistributionAnalyzerTest {
         assertEquals(3, checksums.get(ChecksumType.md5).size());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNested2ZipNoRecursion() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested2.zip"));
@@ -215,6 +227,7 @@ public class DistributionAnalyzerTest {
         assertEquals(2, checksums.get(ChecksumType.md5).size());
     }
 
+    @Execution(ExecutionMode.SAME_THREAD)
     @Test
     public void loadNestedWarNoRecusion() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.war"));
@@ -227,8 +240,8 @@ public class DistributionAnalyzerTest {
         assertEquals(1, checksums.get(ChecksumType.md5).size());
     }
 
-    @Test
     @Execution(ExecutionMode.SAME_THREAD)
+    @Test
     public void loadNestedTarGzNoRecusion() throws IOException {
         List<File> target = Collections.singletonList(TestUtils.loadFile("nested.tar.gz"));
         BuildConfig config = new BuildConfig();
