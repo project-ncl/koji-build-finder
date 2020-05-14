@@ -100,6 +100,7 @@ import picocli.CommandLine.Spec;
         mixinStandardHelpOptions = true,
         name = "build-finder",
         showDefaultValues = true,
+        showEndOfOptionsDelimiterInUsageHelp = true,
         versionProvider = Main.ManifestVersionProvider.class)
 public final class Main implements Callable<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
