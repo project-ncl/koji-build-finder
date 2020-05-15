@@ -14,12 +14,13 @@ Additionally, it writes various reports about the builds.
 
 ## Build Status
 
-| Name    | Description           | Badge                                                                                                                                                                                                          |    |
-|:--------|:----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---|
-| Maven   | Latest Release        | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder) |    |
-| CI      | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)          |    |
-| Codecov | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                             |    |
-| Snyk    | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                               |    |
+| Name    | Description           | Badge                                                                                                                                                                                                          |
+|:--------|:----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Maven   | Latest Release        | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder) |
+| CI      | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)          |
+| Codecov | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                             |
+| Snyk    | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                               |
+| Dependabot | Dependencies          | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)
 
 ## Development
 
@@ -140,7 +141,8 @@ Build Finder version. The options are as follows:
       -V, --version              Print version information and exit.
       -x, --exclude=PATTERN      Add a pattern to exclude from build lookup.
                                    Default: [^(?!.*/pom\.xml$).*/.*\.xml$]
-
+      --                         This option can be used to separate command-line
+                                   options from the list of positional parameters.
 ### Running via Docker containers
 
 There is a `Dockerfile` and a `Makefile` supplied in the code
