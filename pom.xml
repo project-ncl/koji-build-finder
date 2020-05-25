@@ -127,7 +127,7 @@
     <version.org.jboss.byteman>4.0.11</version.org.jboss.byteman>
     <version.org.jboss.logmanager>2.1.15.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.0.0-SNAPSHOT</version.org.jboss.pnc>
-    <version.org.json.json>20190722</version.org.json.json>
+    <version.org.json.json>20200518</version.org.json.json>
     <version.org.junit.jupiter>5.6.2</version.org.junit.jupiter>
     <version.org.mockito>3.3.3</version.org.mockito>
     <version.org.ow2.asm>8.0.1</version.org.ow2.asm>
