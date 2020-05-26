@@ -986,8 +986,11 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
-junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+junit.jupiter.execution.parallel.mode.default=concurrent
+junit.jupiter.execution.parallel.mode.classes.default=concurrent
+junit.jupiter.execution.parallel.config.strategy=dynamic
+junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameters>
           </properties>
           <skipITs>${skipITs}</skipITs>
         </configuration>
@@ -1020,8 +1023,11 @@ junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameter
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
-junit.jupiter.execution.parallel.mode.default=concurrent</configurationParameters>
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+junit.jupiter.execution.parallel.mode.default=concurrent
+junit.jupiter.execution.parallel.mode.classes.default=concurrent
+junit.jupiter.execution.parallel.config.strategy=dynamic
+junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameters>
           </properties>
         </configuration>
       </plugin>
