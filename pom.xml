@@ -1078,50 +1078,16 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <artifactId>jacoco-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>jacoco-merge</id>
-            <goals>
-              <goal>merge</goal>
-            </goals>
-            <configuration>
-              <fileSets>
-                <fileSet>
-                  <directory>${project.build.directory}</directory>
-                  <includes>
-                    <include>cli/jacoco.exec</include>
-                    <include>core/jacoco.exec</include>
-                    <include>core/jacoco-it.exec</include>
-                    <include>report/jacoco.exec</include>
-                  </includes>
-                </fileSet>
-              </fileSets>
-              <destFile>${project.build.directory}/jacoco.exec</destFile>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jacoco-initialize</id>
+            <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
           </execution>
           <execution>
-            <id>jacoco-site</id>
-            <goals>
-              <goal>report</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-          <execution>
-            <id>jacoco-initialize-integration</id>
+            <id>prepare-agent-integration</id>
             <goals>
               <goal>prepare-agent-integration</goal>
             </goals>
-          </execution>
-          <execution>
-            <id>jacoco-site-integration</id>
-            <goals>
-              <goal>report-integration</goal>
-            </goals>
-            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
