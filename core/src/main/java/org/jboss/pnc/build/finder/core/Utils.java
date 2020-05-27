@@ -15,12 +15,15 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,5 +96,17 @@ public final class Utils {
         }
 
         return String.valueOf(value);
+    }
+
+    public static String getUserHome() {
+        String userHome = FileUtils.getUserDirectoryPath();
+
+        if (userHome == null || userHome.equals("?")) {
+            LOGGER.error("Got bogus user.home value: {}", red(userHome));
+
+            throw new RuntimeException("Invalid user.home: " + userHome);
+        }
+
+        return userHome;
     }
 }

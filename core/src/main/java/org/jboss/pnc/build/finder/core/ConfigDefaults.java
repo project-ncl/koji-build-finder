@@ -15,13 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -30,15 +25,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class ConfigDefaults {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigDefaults.class);
-
-    private static final String USER_HOME = getUserHome();
-
+    private static final String USER_HOME = Utils.getUserHome();
     public static final List<String> ARCHIVE_TYPES = Collections
             .unmodifiableList(Arrays.asList("jar", "xml", "pom", "so", "dll", "dylib"));
     public static final List<String> ARCHIVE_EXTENSIONS = Collections.unmodifiableList(
@@ -83,25 +71,5 @@ public abstract class ConfigDefaults {
 
     private ConfigDefaults() {
 
-    }
-
-    private static String getUserHome() {
-        String userHome = FileUtils.getUserDirectoryPath();
-
-        if (userHome == null || !Files.isDirectory(Paths.get(userHome))) {
-            LOGGER.warn("You appear to have a bogus user.home value: {}", red(userHome));
-
-            LOGGER.warn("Trying to use temporary directory");
-
-            try {
-                userHome = Files.createTempDirectory("build-finder-").toAbsolutePath().toString();
-
-                LOGGER.warn("Using temporary directory for configuration path: {}", red(userHome));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not set user.home");
-            }
-        }
-
-        return userHome;
     }
 }

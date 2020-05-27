@@ -15,9 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -25,6 +27,8 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.ClearSystemProperty;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +36,29 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
+
+    private void userHome() {
+        String userHome = Utils.getUserHome();
+
+        LOGGER.debug("user.home={}", userHome);
+    }
+
+    @SetSystemProperty(key = "user.home", value = "?")
+    @Test
+    public void verifyUserHomeQuestionMark() {
+        assertThrows(RuntimeException.class, () -> userHome());
+    }
+
+    @ClearSystemProperty(key = "user.home")
+    @Test
+    public void verifyUserHomeNull() {
+        assertThrows(RuntimeException.class, () -> userHome());
+    }
+
+    @Test
+    public void verifyUserHome() {
+        assertDoesNotThrow(() -> userHome());
+    }
 
     @Test
     public void verifyDefaults() throws JsonProcessingException {
