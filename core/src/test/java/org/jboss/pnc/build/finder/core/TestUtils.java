@@ -17,7 +17,9 @@ package org.jboss.pnc.build.finder.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 public final class TestUtils {
     private TestUtils() {
@@ -41,18 +43,10 @@ public final class TestUtils {
             throw new IOException("Unable to resolve: " + file);
         }
 
-        String urlFile = url.getFile();
-
-        if (urlFile.isEmpty()) {
-            throw new IOException("Unable to get file from URL: " + url);
+        try {
+            return Paths.get(url.toURI()).toFile();
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
         }
-
-        File newFile = new File(urlFile);
-
-        if (!newFile.exists()) {
-            throw new IOException("File does not exist: " + newFile);
-        }
-
-        return newFile;
     }
 }

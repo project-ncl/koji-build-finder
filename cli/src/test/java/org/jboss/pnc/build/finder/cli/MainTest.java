@@ -34,8 +34,9 @@ import org.jboss.pnc.build.finder.core.TestUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceAccessMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
-@Execution(ExecutionMode.SAME_THREAD)
 public class MainTest {
     private static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
         CommandLine cmd = new CommandLine(command);
@@ -56,8 +56,8 @@ public class MainTest {
     }
 
     @CaptureSystemOutput
-    @Execution(ExecutionMode.SAME_THREAD)
     @ExpectSystemExitWithStatus(0)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
     public void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = new String[] { "--help" };
@@ -72,8 +72,8 @@ public class MainTest {
     }
 
     @CaptureSystemOutput
-    @Execution(ExecutionMode.SAME_THREAD)
     @ExpectSystemExitWithStatus(0)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
     public void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = new String[] { "--version" };
@@ -142,10 +142,10 @@ public class MainTest {
         assertEquals(krbService, parseResult.matchedOption("--krb-service").getValue());
     }
 
-    @Test
     @CaptureSystemOutput
-    @Execution(ExecutionMode.SAME_THREAD)
     @ExpectSystemExitWithStatus(0)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @Test
     public void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
@@ -172,10 +172,10 @@ public class MainTest {
         outputCapture.expect(containsString(".war!"));
     }
 
-    @Test
     @CaptureSystemOutput
-    @Execution(ExecutionMode.SAME_THREAD)
     @ExpectSystemExitWithStatus(0)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @Test
     public void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
@@ -218,10 +218,10 @@ public class MainTest {
         }
     }
 
-    @Test
     @CaptureSystemOutput
-    @Execution(ExecutionMode.SAME_THREAD)
     @ExpectSystemExitWithStatus(0)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @Test
     public void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
