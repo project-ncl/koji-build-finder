@@ -22,67 +22,66 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 public class BuildConfig {
-    @JsonProperty("archive-extensions")
+    @JsonAlias("archive-extensions")
     private List<String> archiveExtensions;
 
-    @JsonProperty("archive-types")
+    @JsonAlias("archive-types")
     private List<String> archiveTypes;
 
-    @JsonProperty("build-systems")
+    @JsonAlias("build-systems")
     private List<BuildSystem> buildSystems;
 
-    @JsonProperty("cache-lifespan")
+    @JsonAlias("cache-lifespan")
     private Long cacheLifespan;
 
-    @JsonProperty("cache-max-idle")
+    @JsonAlias("cache-max-idle")
     private Long cacheMaxIdle;
 
-    @JsonProperty("checksum-only")
+    @JsonAlias("checksum-only")
     private Boolean checksumOnly;
 
-    @JsonProperty("checksum-type")
+    @JsonAlias("checksum-type")
     private Set<ChecksumType> checksumTypes;
 
-    @JsonProperty("disable-cache")
+    @JsonAlias("disable-cache")
     private Boolean disableCache;
 
-    @JsonProperty("disable-recursion")
+    @JsonAlias("disable-recursion")
     private Boolean disableRecursion;
 
-    @JsonProperty("excludes")
     private List<Pattern> excludes;
 
-    @JsonProperty("koji-hub-url")
+    @JsonAlias("koji-hub-url")
     private URL kojiHubURL;
 
-    @JsonProperty("koji-multicall-size")
+    @JsonAlias("koji-multicall-size")
     private Integer kojiMulticallSize;
 
-    @JsonProperty("koji-num-threads")
+    @JsonAlias("koji-num-threads")
     private Integer kojiNumThreads;
 
-    @JsonProperty("koji-web-url")
+    @JsonAlias("koji-web-url")
     private URL kojiWebURL;
 
-    @JsonProperty("output-directory")
+    @JsonAlias("output-directory")
     private String outputDirectory;
 
-    @JsonProperty("pnc-partition-size")
+    @JsonAlias("pnc-partition-size")
     private Integer pncPartitionSize;
 
-    @JsonProperty("pnc-url")
+    @JsonAlias("pnc-url")
     private URL pncURL;
 
-    @JsonProperty("use-builds-file")
+    @JsonAlias("use-builds-file")
     private Boolean useBuildsFile;
 
-    @JsonProperty("use-checksums-file")
+    @JsonAlias("use-checksums-file")
     private Boolean useChecksumsFile;
 
     public static BuildConfig load(File file) throws IOException {
