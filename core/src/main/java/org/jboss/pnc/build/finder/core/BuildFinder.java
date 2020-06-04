@@ -1324,7 +1324,8 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         }
 
         if (LOGGER.isInfoEnabled()) {
-            int numBuilds = allBuilds.size() - 1;
+            int size = allBuilds.size();
+            int numBuilds = size >= 1 ? size - 1 : 0;
             Instant endTime = Instant.now();
             Duration duration = Duration.between(startTime, endTime).abs();
 
