@@ -92,6 +92,10 @@ public class BuildConfig {
         return getMapper().readValue(json, BuildConfig.class);
     }
 
+    public static BuildConfig fromString(String json) throws IOException {
+        return load(json);
+    }
+
     public static BuildConfig load(URL url) throws IOException {
         return getMapper().readValue(url, BuildConfig.class);
     }
