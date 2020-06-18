@@ -56,8 +56,13 @@ public class ReportTest {
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
-        String buildsString = FileUtils.readFileToString(buildsFile, "UTF-8").replaceAll("\\s", "");
-        String newBuildsString = FileUtils.readFileToString(newBuildsFile, "UTF-8").replaceAll("\\s", "");
+        String buildsString = FileUtils.readFileToString(buildsFile, "UTF-8");
+
+        if (!System.lineSeparator().equals("\n")) {
+            buildsString = buildsString.replaceAll("\n", System.lineSeparator());
+        }
+
+        String newBuildsString = FileUtils.readFileToString(newBuildsFile, "UTF-8");
 
         assertEquals(newBuildsString, buildsString);
 
