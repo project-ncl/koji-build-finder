@@ -56,6 +56,8 @@ public class PncBuildFinder {
 
     private final BuildFinderUtils buildFinderUtils;
 
+    private BuildFinderListener listener;
+
     public PncBuildFinder(PncClient pncClient, BuildFinderUtils buildFinderUtils) {
         this.pncClient = pncClient;
         this.buildFinderUtils = buildFinderUtils;
@@ -160,6 +162,10 @@ public class PncBuildFinder {
                         checksum,
                         fileNames);
                 artifacts.add(enhancedArtifact);
+
+                if (listener != null && enhancedArtifact.getArtifact().isPresent()) {
+                    listener.buildChecked(new BuildCheckedEvent(checksum, BuildSystem.pnc));
+                }
             } catch (RemoteResourceException e) {
                 exceptionWrapper.setException(e);
             }
@@ -355,5 +361,9 @@ public class PncBuildFinder {
         public synchronized void setException(RemoteResourceException exception) {
             this.exception = exception;
         }
+    }
+
+    public void setListener(BuildFinderListener listener) {
+        this.listener = listener;
     }
 }

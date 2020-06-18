@@ -100,6 +100,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private Set<String> filesInError;
 
+    private DistributionAnalyzerListener listener;
+
     public DistributionAnalyzer(List<File> files, BuildConfig config) {
         this(files, config, null);
     }
@@ -193,9 +195,15 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
                                 it.remove();
 
+                                int size = localMap.size();
+
+                                if (listener != null) {
+                                    listener.checksumsComputed(new ChecksumsComputedEvent(size));
+                                }
+
                                 LOGGER.info(
                                         "Loaded {} checksums for file: {} (checksum: {}) from cache",
-                                        green(localMap.size()),
+                                        green(size),
                                         green(file.getName()),
                                         green(value));
                             } else {
@@ -263,6 +271,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 green(numChecksums),
                 green(duration),
                 green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0D));
+
+        if (listener != null) {
+            listener.checksumsComputed(new ChecksumsComputedEvent(numChecksums));
+        }
 
         return Collections.unmodifiableMap(map);
     }
@@ -467,5 +479,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public BlockingQueue<Checksum> getQueue() {
         return queue;
+    }
+
+    public void setListener(DistributionAnalyzerListener listener) {
+        this.listener = listener;
     }
 }
