@@ -34,29 +34,25 @@ import org.junit.jupiter.api.TestMethodOrder;
  */
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
 public class HashMapCachingClientTest {
-    private HashMapCachingPncClient cachingPncClient;
+    private static final DummyPncClient DUMMY_PNC_CLIENT = new DummyPncClient();
 
-    private DummyPncClient dummyPncClient;
-
-    {
-        dummyPncClient = new DummyPncClient();
-        cachingPncClient = new HashMapCachingPncClient(dummyPncClient);
-    }
+    private static final HashMapCachingPncClient HASH_MAP_CACHING_PNC_CLIENT = new HashMapCachingPncClient(
+            DUMMY_PNC_CLIENT);
 
     @Test
     public void m1ShouldGetArtifactsByMd5FromClient() throws RemoteResourceException {
-        cachingPncClient.getArtifactsByMd5("md5");
-        assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
+        HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
+        assertEquals(1, DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter());
     }
 
     @Test
     public void m2ShouldGetArtifactsByMd5FromCache() throws RemoteResourceException {
-        cachingPncClient.getArtifactsByMd5("md5");
-        assertEquals(1, dummyPncClient.getGetArtifactsByMd5Counter());
+        HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
+        assertEquals(1, DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter());
     }
 
-    private class DummyPncClient implements PncClient {
-        private Collection<Artifact> artifacts;
+    private static class DummyPncClient implements PncClient {
+        private final Collection<Artifact> artifacts;
 
         private int getArtifactsByMd5Counter = 0;
 

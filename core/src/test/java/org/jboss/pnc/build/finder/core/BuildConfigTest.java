@@ -46,18 +46,18 @@ public class BuildConfigTest {
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
     public void verifyUserHomeQuestionMark() {
-        assertThrows(RuntimeException.class, () -> userHome());
+        assertThrows(RuntimeException.class, this::userHome);
     }
 
     @ClearSystemProperty(key = "user.home")
     @Test
     public void verifyUserHomeNull() {
-        assertThrows(RuntimeException.class, () -> userHome());
+        assertThrows(RuntimeException.class, this::userHome);
     }
 
     @Test
     public void verifyUserHome() {
-        assertDoesNotThrow(() -> userHome());
+        assertDoesNotThrow(this::userHome);
     }
 
     @Test

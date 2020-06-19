@@ -169,9 +169,7 @@ public class PncBuildFinderTest {
     private StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
         List<Artifact> artifactList = new ArrayList<>();
 
-        for (Artifact artifact : artifacts) {
-            artifactList.add(artifact);
-        }
+        Collections.addAll(artifactList, artifacts);
 
         return new StaticRemoteCollection<>(artifactList);
     }

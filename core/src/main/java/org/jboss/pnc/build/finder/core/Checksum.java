@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ import org.eclipse.packager.rpm.parse.RpmInputStream;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Checksum {
+public class Checksum implements Serializable {
+    private static final long serialVersionUID = -7347509034711302799L;
+
     private static final int BUFFER_SIZE = 1024;
 
     private ChecksumType type;

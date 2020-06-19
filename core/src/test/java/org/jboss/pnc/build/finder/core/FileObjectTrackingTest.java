@@ -89,6 +89,7 @@ public class FileObjectTrackingTest {
 
         BuildConfig config = new BuildConfig();
 
+        config.setOutputDirectory(folder.getAbsolutePath());
         config.setArchiveExtensions(Collections.emptyList());
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);

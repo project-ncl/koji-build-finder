@@ -16,6 +16,10 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,7 +57,8 @@ public class DistributionAnalyzerTest {
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
-        da.checksumFiles();
+        Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
+        map.forEach((k, v) -> assertThat(v.asMap(), is((anEmptyMap()))));
     }
 
     // XXX: Disabled for performance
@@ -66,11 +71,11 @@ public class DistributionAnalyzerTest {
 
         try (RandomAccessFile f = new RandomAccessFile(test, "rw")) {
             f.setLength(FileUtils.ONE_GB * 2);
-
             BuildConfig config = new BuildConfig();
             config.setArchiveExtensions(Collections.emptyList());
             DistributionAnalyzer da = new DistributionAnalyzer(af, config);
-            da.checksumFiles();
+            Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
+            map.forEach((k, v) -> assertThat(v.asMap().values(), hasSize(1)));
         }
     }
 
@@ -87,7 +92,8 @@ public class DistributionAnalyzerTest {
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
-        da.checksumFiles();
+        Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
+        map.forEach((k, v) -> assertThat(v.asMap(), is((anEmptyMap()))));
     }
 
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>

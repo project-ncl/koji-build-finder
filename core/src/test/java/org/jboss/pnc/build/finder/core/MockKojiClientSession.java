@@ -47,9 +47,9 @@ import com.redhat.red.build.koji.model.xmlrpc.messages.ListArchivesResponse;
 import com.redhat.red.build.koji.model.xmlrpc.messages.ListTagsResponse;
 
 public class MockKojiClientSession implements ClientSession {
-    private RWXMapper rwxMapper;
+    private final RWXMapper rwxMapper;
 
-    private String resourcePath;
+    private final String resourcePath;
 
     public MockKojiClientSession(String resourcePath) {
         Registry.setInstance(new Model_Registry());
@@ -141,7 +141,7 @@ public class MockKojiClientSession implements ClientSession {
                     "getTaskRequest-" + taskId + ".xml");
             return new KojiTaskRequest(response.getTaskRequestInfo());
         } catch (Exception e) {
-            throw new KojiClientException("getTaskReqest(" + taskId + ") failed", e);
+            throw new KojiClientException("getTaskRequest(" + taskId + ") failed", e);
         }
     }
 
@@ -151,7 +151,7 @@ public class MockKojiClientSession implements ClientSession {
             ListTagsResponse response = parseCapturedMessage(ListTagsResponse.class, "listTags-" + id + ".xml");
             return response.getTags();
         } catch (Exception e) {
-            throw new KojiClientException("getTaskReqest(" + id + ") failed", e);
+            throw new KojiClientException("getTaskRequest(" + id + ") failed", e);
         }
     }
 
