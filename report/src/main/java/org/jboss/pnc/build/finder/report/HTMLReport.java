@@ -87,12 +87,12 @@ public class HTMLReport extends Report {
 
     public HTMLReport(
             File outputDirectory,
-            Collection<File> files,
+            Collection<String> files,
             List<KojiBuild> builds,
             URL kojiwebUrl,
             URL pncUrl,
             List<Report> reports) {
-        setName("Build Report for " + files.stream().map(File::getName).collect(Collectors.joining(", ")));
+        setName("Build Report for " + files.stream().collect(Collectors.joining(", ")));
         setDescription("List of analyzed artifacts whether or not they were found in a Koji build");
         setBaseFilename("output");
         setOutputDirectory(outputDirectory);

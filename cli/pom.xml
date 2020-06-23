@@ -116,6 +116,12 @@
                   </includes>
                 </filter>
                 <filter>
+                  <artifact>org.apache.httpcomponents.client5:httpclient5</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
                   <artifact>org.infinispan:infinispan-commons</artifact>
                   <includes>
                     <include>**</include>

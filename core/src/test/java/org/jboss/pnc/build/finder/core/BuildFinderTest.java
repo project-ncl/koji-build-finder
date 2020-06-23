@@ -31,13 +31,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 public class BuildFinderTest {
-    private static List<File> files;
+    private static List<String> files;
 
     @BeforeAll
     public static void setTarget() throws IOException {
         File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
         assertTrue(target.canRead());
-        files = Collections.singletonList(target);
+        files = Collections.singletonList(target.getPath());
     }
 
     @Test

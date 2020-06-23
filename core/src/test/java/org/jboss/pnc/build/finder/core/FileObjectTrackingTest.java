@@ -85,11 +85,11 @@ public class FileObjectTrackingTest {
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
     public void verifyObjectCreation(@TempDir File folder) throws IOException {
-        List<File> target = Collections.singletonList(TestUtils.loadFile("nested.zip"));
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
 
         BuildConfig config = new BuildConfig();
 
-        config.setOutputDirectory(folder.getAbsolutePath());
+        config.setOutputDirectory(folder.getPath());
         config.setArchiveExtensions(Collections.emptyList());
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);

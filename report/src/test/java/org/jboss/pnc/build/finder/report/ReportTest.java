@@ -206,7 +206,7 @@ public class ReportTest {
 
     @Test
     public void verifyHTMLReport(@TempDir File folder) throws IOException {
-        List<File> files = Collections.unmodifiableList(Collections.emptyList());
+        List<String> files = Collections.unmodifiableList(Collections.emptyList());
 
         List<Report> reports = new ArrayList<>(3);
         reports.add(new BuildStatisticsReport(folder, builds));

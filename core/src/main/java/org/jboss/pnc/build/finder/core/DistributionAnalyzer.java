@@ -20,6 +20,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+import org.apache.commons.vfs2.provider.http5.Http5FileProvider;
 import org.infinispan.Cache;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
@@ -74,7 +76,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
-    private final List<File> files;
+    private final List<String> files;
 
     private Map<ChecksumType, MultiValuedMap<String, String>> map;
 
@@ -102,11 +104,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private DistributionAnalyzerListener listener;
 
-    public DistributionAnalyzer(List<File> files, BuildConfig config) {
+    public DistributionAnalyzer(List<String> files, BuildConfig config) {
         this(files, config, null);
     }
 
-    public DistributionAnalyzer(List<File> files, BuildConfig config, EmbeddedCacheManager cacheManager) {
+    public DistributionAnalyzer(List<String> files, BuildConfig config, EmbeddedCacheManager cacheManager) {
         this.files = files;
         this.config = config;
         this.checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
@@ -148,8 +150,31 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         try {
             sfs.init();
 
-            for (File file : files) {
-                fo = sfs.resolveFile(file.getAbsolutePath());
+            if (!sfs.hasProvider("http")) {
+                sfs.addProvider("http", new Http5FileProvider());
+            }
+
+            if (!sfs.hasProvider("https")) {
+                sfs.addProvider("https", new Http5FileProvider());
+            }
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(
+                        "Initialized file system manager {} with schemes: {}",
+                        green(sfs.getClass().getSimpleName()),
+                        green(Arrays.asList(sfs.getSchemes())));
+            }
+
+            for (String file : files) {
+                try {
+                    URI uri = URI.create(file);
+                    fo = sfs.resolveFile(uri);
+                } catch (IllegalArgumentException | FileSystemException e) {
+                    fo = sfs.resolveFile(new File(file).toURI());
+                }
+
+                LOGGER.info("Analyzing: {}", green(fo.getPublicURIString()));
+
                 root = fo.getName()
                         .getFriendlyURI()
                         .substring(0, fo.getName().getFriendlyURI().indexOf(fo.getName().getBaseName()));
@@ -204,12 +229,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                 LOGGER.info(
                                         "Loaded {} checksums for file: {} (checksum: {}) from cache",
                                         green(size),
-                                        green(file.getName()),
+                                        green(fo.getName()),
                                         green(value));
                             } else {
                                 LOGGER.info(
                                         "File: {} (checksum: {}) not found in cache",
-                                        green(file.getName()),
+                                        green(fo.getName()),
                                         green(value));
                             }
                         }
@@ -225,7 +250,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                             checksumTypesToCheck.stream()
                                                     .map(String::valueOf)
                                                     .collect(Collectors.toSet()))),
-                            green(file.getName()));
+                            green(fo.getName()));
 
                     listChildren(fo);
 

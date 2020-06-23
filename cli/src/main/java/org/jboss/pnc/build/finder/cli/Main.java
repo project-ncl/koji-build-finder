@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.io.FileUtils;
 import org.infinispan.commons.util.Version;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -216,7 +215,7 @@ public final class Main implements Callable<Void> {
     private List<Pattern> excludes = ConfigDefaults.EXCLUDES;
 
     @Parameters(arity = "1..*", paramLabel = "FILE", description = "One or more files.")
-    private List<File> files;
+    private List<String> files;
 
     public static void main(String... args) {
         Main main = new Main();
@@ -224,8 +223,8 @@ public final class Main implements Callable<Void> {
         try {
             Ansi ansi = System.getProperty("picocli.ansi") == null ? Ansi.ON
                     : Boolean.getBoolean("picocli.ansi") ? Ansi.ON : Ansi.OFF;
-            CommandLine cmd = new CommandLine(main).setColorScheme(Help.defaultColorScheme(ansi));
-            int exitCode = cmd.execute(args);
+            CommandLine commandLine = new CommandLine(main).setColorScheme(Help.defaultColorScheme(ansi));
+            int exitCode = commandLine.execute(args);
             System.exit(exitCode);
         } catch (picocli.CommandLine.ExecutionException e) {
             LOGGER.error("Error: {}", boldRed(e.getMessage()), e);
@@ -494,27 +493,6 @@ public final class Main implements Callable<Void> {
         }
     }
 
-    private List<File> createFileList(List<File> files) {
-        List<File> inputs = new ArrayList<>();
-
-        for (File file : files) {
-            if (!file.canRead()) {
-                LOGGER.warn("Could not read file: {}", file.getPath());
-                continue;
-            }
-
-            if (file.isDirectory()) {
-                LOGGER.debug("Adding all files in directory: {}", file.getPath());
-                inputs.addAll(FileUtils.listFiles(file, null, true));
-            } else {
-                LOGGER.info("Adding file: {}", file.getPath());
-                inputs.add(file);
-            }
-        }
-
-        return inputs;
-    }
-
     @Override
     public Void call() throws Exception {
         if (quiet.booleanValue()) {
@@ -576,8 +554,6 @@ public final class Main implements Callable<Void> {
 
         writeConfiguration(configFile, config);
 
-        List<File> inputs = createFileList(files);
-
         boolean ret = outputDirectory.mkdirs();
 
         LOGGER.debug("mkdirs returned {}", ret);
@@ -631,7 +607,7 @@ public final class Main implements Callable<Void> {
 
                 pool = Executors.newFixedThreadPool(checksumTypes.size());
 
-                DistributionAnalyzer analyzer = new DistributionAnalyzer(inputs, config, cacheManager);
+                DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
 
                 try {
@@ -716,7 +692,7 @@ public final class Main implements Callable<Void> {
                         LOGGER.info("Using anonymous Koji session");
                     }
 
-                    DistributionAnalyzer analyzer = new DistributionAnalyzer(inputs, config, cacheManager);
+                    DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
 
                     analyzer.setChecksums(checksums);
 
@@ -750,7 +726,7 @@ public final class Main implements Callable<Void> {
 
                 pool = Executors.newFixedThreadPool(1 + checksumTypes.size());
 
-                DistributionAnalyzer analyzer = new DistributionAnalyzer(inputs, config, cacheManager);
+                DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
 
                 boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null

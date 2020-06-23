@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +29,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
@@ -63,11 +61,6 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL);
 
-        final URL url = new URL(URL);
-        final File file = new File(folder1, url.getPath());
-
-        FileUtils.copyURLToFile(url, file, CONNECTION_TIMEOUT, READ_TIMEOUT);
-
         final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
         final Timer.Context context = timer.time();
@@ -81,7 +74,7 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
         final Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 
         try {
-            analyzer = new DistributionAnalyzer(Collections.singletonList(file), getConfig());
+            analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
         } finally {
             context.stop();
