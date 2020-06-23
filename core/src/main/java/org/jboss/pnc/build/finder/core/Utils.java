@@ -89,13 +89,13 @@ public final class Utils {
             }
         }
 
-        Object value = properties.get(name);
+        String value = properties.getProperty(name);
 
         if (value == null) {
             return unknown;
         }
 
-        return String.valueOf(value);
+        return value;
     }
 
     public static String getUserHome() {
