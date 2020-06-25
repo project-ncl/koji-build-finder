@@ -37,7 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
 
-    private void userHome() {
+    private static void userHome() {
         String userHome = Utils.getUserHome();
 
         LOGGER.debug("user.home={}", userHome);
@@ -46,18 +46,18 @@ public class BuildConfigTest {
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
     public void verifyUserHomeQuestionMark() {
-        assertThrows(RuntimeException.class, this::userHome);
+        assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
     @ClearSystemProperty(key = "user.home")
     @Test
     public void verifyUserHomeNull() {
-        assertThrows(RuntimeException.class, this::userHome);
+        assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
     @Test
     public void verifyUserHome() {
-        assertDoesNotThrow(this::userHome);
+        assertDoesNotThrow(BuildConfigTest::userHome);
     }
 
     @Test
