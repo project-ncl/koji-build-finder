@@ -60,7 +60,7 @@ public class MainTest {
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
     public void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
-        String[] args = new String[] { "--help" };
+        String[] args = { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -76,7 +76,7 @@ public class MainTest {
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
     public void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
-        String[] args = new String[] { "--version" };
+        String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
         assertTrue(parseResult.hasMatchedOption("--version"));
@@ -103,11 +103,11 @@ public class MainTest {
         String krbPrincipal = "test@TEST.ABC";
         String krbService = "testService";
 
-        String[] args = new String[] { "-o", folder.toString(), "-c", configFile.toString(), "--disable-cache", "-k",
-                "-t", "sha256", "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(),
-                "--koji-web-url", webURL.toString(), "--krb-ccache", krbCcache.toString(), "--krb-keytab",
-                krbKeytab.toString(), "--krb-principal", krbPrincipal, "--krb-service", krbService, "--krb-password",
-                krbPassword, inputFile.toString() };
+        String[] args = { "-o", folder.toString(), "-c", configFile.toString(), "--disable-cache", "-k", "-t", "sha256",
+                "-x", "", "-a", "jar", "-e", "jar", "--koji-hub-url", hubURL.toString(), "--koji-web-url",
+                webURL.toString(), "--krb-ccache", krbCcache.toString(), "--krb-keytab", krbKeytab.toString(),
+                "--krb-principal", krbPrincipal, "--krb-service", krbService, "--krb-password", krbPassword,
+                inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -150,8 +150,8 @@ public class MainTest {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
-        String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
-                "--disable-cache", "--checksum-only", "--checksum-type", "sha256", inputFile.toString() };
+        String[] args = { "--output-directory", folder.toString(), "--config", configFile.toString(), "--disable-cache",
+                "--checksum-only", "--checksum-type", "sha256", inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -235,7 +235,7 @@ public class MainTest {
 
             assertTrue(root.isEnabledFor(Level.INFO));
 
-            String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
+            String[] args = { "--output-directory", folder.toString(), "--config", configFile.toString(),
                     "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--quiet", inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
