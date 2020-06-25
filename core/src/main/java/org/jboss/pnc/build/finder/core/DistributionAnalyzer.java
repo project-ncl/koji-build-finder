@@ -295,7 +295,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 "Total number of checksums: {}, time: {}, average: {}",
                 green(numChecksums),
                 green(duration),
-                green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0D));
+                green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0.0D));
 
         if (listener != null) {
             listener.checksumsComputed(new ChecksumsComputedEvent(numChecksums));

@@ -48,10 +48,10 @@ public final class Utils {
         pool.shutdown();
 
         try {
-            if (!pool.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
+            if (!pool.awaitTermination(10000L, TimeUnit.MILLISECONDS)) {
                 pool.shutdownNow();
 
-                if (!pool.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
+                if (!pool.awaitTermination(10000L, TimeUnit.MILLISECONDS)) {
                     LOGGER.error("Pool did not terminate");
                 }
             }
@@ -74,16 +74,14 @@ public final class Utils {
         final String unknown = "unknown";
 
         if (properties == null) {
-            try {
-                try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-                    if (is == null) {
-                        return unknown;
-                    }
-
-                    properties = new Properties();
-
-                    properties.load(is);
+            try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+                if (is == null) {
+                    return unknown;
                 }
+
+                properties = new Properties();
+
+                properties.load(is);
             } catch (IOException e) {
                 return unknown;
             }
