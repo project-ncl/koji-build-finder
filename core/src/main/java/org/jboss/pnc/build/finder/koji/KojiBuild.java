@@ -340,12 +340,12 @@ public class KojiBuild {
         @Override
         public void writeObject(ObjectOutput output, KojiBuild build) throws IOException {
             output.writeInt(VERSION);
-            output.writeObject(build.buildInfo);
-            output.writeObject(build.taskInfo);
-            output.writeObject(build.remoteArchives);
-            output.writeObject(build.tags);
-            output.writeObject(build.types);
-            output.writeObject(build.remoteRpms);
+            output.writeObject(build.getBuildInfo());
+            output.writeObject(build.getTaskInfo());
+            output.writeObject(build.getRemoteArchives());
+            output.writeObject(build.getTags());
+            output.writeObject(build.getTypes());
+            output.writeObject(build.getRemoteRpms());
         }
 
         @SuppressWarnings("unchecked")
