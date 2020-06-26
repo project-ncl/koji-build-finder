@@ -16,11 +16,12 @@ Additionally, it writes various reports about the builds.
 
 | Name    | Description           | Badge                                                                                                                                                                                                          |
 |:--------|:----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| License | License               | [![GitHub](https://img.shields.io/github/license/project-ncl/build-finder)](https://raw.githubusercontent.com/project-ncl/build-finder/master/LICENSE)                                                         |
 | Maven   | Latest Release        | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.redhat.red.build/koji-build-finder) |
 | CI      | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)          |
 | Codecov | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                             |
 | Snyk    | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                               |
-| Dependabot | Dependencies          | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)
+| Dependabot | Dependencies       | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)                                                                             |
 
 ## Development
 
