@@ -29,21 +29,16 @@ import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 public class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testMultiCall(final int chunkSize) throws KojiClientException {
-        final Timer timer = REGISTRY.timer(
+        Timer timer = REGISTRY.timer(
                 MetricRegistry.name(KojiMultiCallPerformanceIT.class, String.format("multiCall-%03d", chunkSize)));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             List<List<Integer>> chunks = ListUtils.partition(getBuilds(), chunkSize);
 
-            final Timer.Context context = timer.time();
-
-            try {
+            try (Timer.Context context = timer.time()) {
                 for (List<Integer> chunk : chunks) {
                     getKojiClientSession().multiCall(Constants.GET_BUILD, (List) chunk, KojiBuildInfo.class, null);
                 }
-
-            } finally {
-                context.stop();
             }
         }
     }
@@ -52,9 +47,9 @@ public class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
     public void testMultiCall() throws KojiClientException {
         final int min = 5;
         final int size = BUILD_IDS.size();
-        final int doubleSize = size * 2;
+        final int doubleSize = size << 1;
 
-        for (int i = min; i <= doubleSize; i *= 2) {
+        for (int i = min; i <= doubleSize; i <<= 1) {
             testMultiCall(Math.min(i, size));
         }
     }

@@ -222,13 +222,13 @@ public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
     public void setup() throws IOException, KojiClientException {
         super.setup();
 
-        this.builds = new ArrayList<>(BUILD_IDS);
+        builds = new ArrayList<>(BUILD_IDS);
 
         Collections.shuffle(this.builds);
 
         LOGGER.debug(
                 "IT parameters: list size: {}, number of loops: {}, max number of connections/multiCall chunk size: {}",
-                this.builds.size(),
+                builds.size(),
                 NUM_LOOPS,
                 MAX_CONNECTIONS);
     }

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -55,15 +54,12 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
     private static final int READ_TIMEOUT = 900000;
 
     @Test
-    public void testChecksumsAndFindBuilds(@TempDir File folder1, @TempDir File folder2)
-            throws IOException, ExecutionException {
+    public void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
         assertNotNull(
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL);
 
         final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
-
-        final Timer.Context context = timer.time();
 
         final Map<ChecksumType, MultiValuedMap<String, String>> map;
 
@@ -73,21 +69,17 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
 
         final Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 
-        try {
+        try (Timer.Context context = timer.time()) {
             analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
-        } finally {
-            context.stop();
         }
 
         final Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "builds"));
 
-        final Timer.Context context2 = timer2.time();
-
-        try {
+        try (Timer.Context context2 = timer2.time()) {
             final ClientSession session = getKojiClientSession();
             final BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder2);
+            finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             map = futureChecksum.get();
@@ -99,8 +91,6 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
             LOGGER.info("Builds size: {}", builds.size());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } finally {
-            context2.stop();
         }
     }
 }
