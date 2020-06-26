@@ -35,6 +35,16 @@ public final class Utils {
 
     private static Properties properties;
 
+    static {
+        properties = new Properties();
+
+        try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+            properties.load(is);
+        } catch (IOException | NullPointerException e) {
+            LOGGER.error("Failed to load file: {}", PROPERTIES_FILE, e);
+        }
+    }
+
     private Utils() {
 
     }
@@ -71,27 +81,7 @@ public final class Utils {
     }
 
     private static String getProperty(String name) {
-        final String unknown = "unknown";
-
-        if (properties == null) {
-            properties = new Properties();
-
-            try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-                if (is != null) {
-                    properties.load(is);
-                }
-            } catch (IOException e) {
-                return unknown;
-            }
-        }
-
-        String value = properties.getProperty(name);
-
-        if (value == null) {
-            return unknown;
-        }
-
-        return value;
+        return properties.getProperty(name, "unknown");
     }
 
     public static String getUserHome() {
