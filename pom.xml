@@ -68,14 +68,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
-    <version.com.fasterxml.jackson.core>2.11.1</version.com.fasterxml.jackson.core>
+    <version.com.fasterxml.jackson>2.11.1</version.com.fasterxml.jackson>
     <version.com.ginsberg.junit5-system-exit>1.0.0</version.com.ginsberg.junit5-system-exit>
     <version.com.github.blindpirate>0.1.2</version.com.github.blindpirate>
     <version.com.github.ekryd.sortpom>2.11.0</version.com.github.ekryd.sortpom>
     <version.com.github.spotbugs>4.0.4</version.com.github.spotbugs>
     <version.com.google.guava>29.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
-    <version.com.mycila>3.0</version.com.mycila>
+    <version.com.mycila>4.0.rc1</version.com.mycila>
     <version.com.puppycrawl.tools>8.33</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.12</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.14</version.commons-codec>
@@ -148,26 +148,6 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
         <version>${version.ch.qos.logback}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
       </dependency>
       <!-- Required dependency for packager-rpm -->
       <dependency>
@@ -425,6 +405,13 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${version.org.slf4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${version.com.fasterxml.jackson}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.ginsberg</groupId>
