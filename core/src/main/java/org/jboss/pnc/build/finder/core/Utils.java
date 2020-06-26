@@ -33,13 +33,13 @@ public final class Utils {
 
     private static final String PROPERTIES_FILE = "build-finder.properties";
 
-    private static Properties properties;
+    private static final Properties PROPERTIES;
 
     static {
-        properties = new Properties();
+        PROPERTIES = new Properties();
 
         try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-            properties.load(is);
+            PROPERTIES.load(is);
         } catch (IOException | NullPointerException e) {
             LOGGER.error("Failed to load file: {}", PROPERTIES_FILE, e);
         }
@@ -81,7 +81,7 @@ public final class Utils {
     }
 
     private static String getProperty(String name) {
-        return properties.getProperty(name, "unknown");
+        return PROPERTIES.getProperty(name, "unknown");
     }
 
     public static String getUserHome() {
