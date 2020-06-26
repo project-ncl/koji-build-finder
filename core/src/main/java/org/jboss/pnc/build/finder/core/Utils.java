@@ -74,14 +74,12 @@ public final class Utils {
         final String unknown = "unknown";
 
         if (properties == null) {
+            properties = new Properties();
+
             try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-                if (is == null) {
-                    return unknown;
+                if (is != null) {
+                    properties.load(is);
                 }
-
-                properties = new Properties();
-
-                properties.load(is);
             } catch (IOException e) {
                 return unknown;
             }
