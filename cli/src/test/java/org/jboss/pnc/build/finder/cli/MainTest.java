@@ -48,7 +48,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
-public class MainTest {
+class MainTest {
     private static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
         CommandLine cmd = new CommandLine(command);
 
@@ -59,7 +59,7 @@ public class MainTest {
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
+    void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -75,7 +75,7 @@ public class MainTest {
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
+    void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -91,7 +91,7 @@ public class MainTest {
     }
 
     @Test
-    public void verifyParsing(@TempDir File folder) throws IOException {
+    void verifyParsing(@TempDir File folder) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -146,7 +146,7 @@ public class MainTest {
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -176,7 +176,7 @@ public class MainTest {
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -189,7 +189,7 @@ public class MainTest {
 
             assertFalse(root.isDebugEnabled());
 
-            String[] args = new String[] { "--output-directory", folder.toString(), "--config", configFile.toString(),
+            String[] args = { "--output-directory", folder.toString(), "--config", configFile.toString(),
                     "--disable-cache", "--checksum-only", "--checksum-type", "md5", "--debug", inputFile.toString() };
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -222,7 +222,7 @@ public class MainTest {
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 

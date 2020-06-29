@@ -30,9 +30,9 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Jakub Bartecek
  */
-public class PncClientImplIT extends AbstractKojiIT {
+class PncClientImplIT extends AbstractKojiIT {
     @Test
-    public void shouldGetArtifactByMd5() throws RemoteResourceException {
+    void shouldGetArtifactByMd5() throws RemoteResourceException {
         // given
         String checksum = "7538cd62a04a378d4c1944e26c793164";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -46,7 +46,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldGetArtifactBySha1() throws RemoteResourceException {
+    void shouldGetArtifactBySha1() throws RemoteResourceException {
         // given
         String checksum = "6f488e461188496c62e161f32160b3465ce5901e";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -60,7 +60,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldGetArtifactBySha256() throws RemoteResourceException {
+    void shouldGetArtifactBySha256() throws RemoteResourceException {
         // given
         String checksum = "cfdf0057b2d2a416d48b873afe5a2bf8d848aabbba07636149fcbb622c5952d7";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -74,7 +74,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldNotGetArtifactBySha256() throws RemoteResourceException {
+    void shouldNotGetArtifactBySha256() throws RemoteResourceException {
         // given
         String checksum = "invalid sha 256";
 
@@ -86,7 +86,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldNotGetBuildPushResult() {
+    void shouldNotGetBuildPushResult() {
         assertThrows(
                 RemoteResourceNotFoundException.class,
                 () -> {
@@ -99,7 +99,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldGetProductVersion() throws RemoteResourceException {
+    void shouldGetProductVersion() throws RemoteResourceException {
         // given
         String buildId = "100";
 
@@ -112,7 +112,7 @@ public class PncClientImplIT extends AbstractKojiIT {
     }
 
     @Test
-    public void shouldNotGetProductVersion() {
+    void shouldNotGetProductVersion() {
         assertThrows(
                 RemoteResourceNotFoundException.class,
                 () -> {

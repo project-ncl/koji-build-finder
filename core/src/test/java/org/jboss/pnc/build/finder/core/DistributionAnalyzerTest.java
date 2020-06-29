@@ -50,9 +50,9 @@ import org.junit.jupiter.api.parallel.Resources;
 
 import com.github.blindpirate.extensions.CaptureSystemOutput;
 
-public class DistributionAnalyzerTest {
+class DistributionAnalyzerTest {
     @Test
-    public void verifyEmptyList() throws IOException {
+    void verifyEmptyList() throws IOException {
         List<String> af = Collections.emptyList();
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -64,7 +64,7 @@ public class DistributionAnalyzerTest {
     // XXX: Disabled for performance
     @Disabled
     @Test
-    public void verifySize(@TempDir File folder) throws IOException {
+    void verifySize(@TempDir File folder) throws IOException {
         List<String> af = new ArrayList<>();
         File test = new File(folder, "verify-size");
         af.add(test.getPath());
@@ -80,7 +80,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void verifyType(@TempDir File folder) throws IOException {
+    void verifyType(@TempDir File folder) throws IOException {
         List<String> af = new ArrayList<>();
         String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
 
@@ -99,7 +99,7 @@ public class DistributionAnalyzerTest {
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
     @DisabledOnOs(OS.WINDOWS)
     @Test
-    public void verifyCacheClearance(@TempDir File folder) throws IOException {
+    void verifyCacheClearance(@TempDir File folder) throws IOException {
         Collection<File> ls = FileUtils.listFiles(folder, null, true);
         assertTrue(ls.isEmpty());
 
@@ -114,7 +114,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedZip() throws IOException {
+    void loadNestedZip() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -125,7 +125,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedWar() throws IOException {
+    void loadNestedWar() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -138,7 +138,7 @@ public class DistributionAnalyzerTest {
     @CaptureSystemOutput
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
     @Test
-    public void loadManPageZip(CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void loadManPageZip(CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -150,7 +150,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedZipMultiThreaded() throws IOException {
+    void loadNestedZipMultiThreaded() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -161,7 +161,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
+    void loadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -200,7 +200,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedZipNoRecursion() throws IOException {
+    void loadNestedZipNoRecursion() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -212,7 +212,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNested2ZipNoRecursion() throws IOException {
+    void loadNested2ZipNoRecursion() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested2.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -224,7 +224,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedWarNoRecusion() throws IOException {
+    void loadNestedWarNoRecusion() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -236,7 +236,7 @@ public class DistributionAnalyzerTest {
     }
 
     @Test
-    public void loadNestedTarGzNoRecusion() throws IOException {
+    void loadNestedTarGzNoRecusion() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.tar.gz").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());

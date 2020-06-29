@@ -22,11 +22,11 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UtilsTest {
+class UtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsTest.class);
 
     @Test
-    public void verifyBuildFinderVersion() {
+    void verifyBuildFinderVersion() {
         String version = Utils.getBuildFinderVersion();
 
         assertNotNull(version);
@@ -36,7 +36,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void verifyBuildFinderScmRevision() {
+    void verifyBuildFinderScmRevision() {
         String scmRevision = Utils.getBuildFinderScmRevision();
 
         assertNotNull(scmRevision);

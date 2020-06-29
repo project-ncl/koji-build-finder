@@ -56,7 +56,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * @author Jakub Bartecek
  */
 @ExtendWith(MockitoExtension.class)
-public class PncBuildFinderTest {
+class PncBuildFinderTest {
     @Mock
     private BuildConfig buildConfig;
 
@@ -64,7 +64,7 @@ public class PncBuildFinderTest {
     private KojiClientSession kojiClientSession;
 
     @Test
-    public void shouldReturnEmptyResult() throws RemoteResourceException {
+    void shouldReturnEmptyResult() throws RemoteResourceException {
         // given
         PncClient pncClient = Mockito.mock(PncClient.class);
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
@@ -79,7 +79,7 @@ public class PncBuildFinderTest {
     }
 
     @Test
-    public void shouldFindOneBuildInPnc() throws RemoteResourceException {
+    void shouldFindOneBuildInPnc() throws RemoteResourceException {
         // given
         String md5 = "md5-checksum";
         String filename = "empty.jar";
@@ -138,7 +138,7 @@ public class PncBuildFinderTest {
     }
 
     @Test
-    public void shouldNotFindABuildInPnc() throws RemoteResourceException {
+    void shouldNotFindABuildInPnc() throws RemoteResourceException {
         // given
         String givenMd5 = "md5-different";
         String filename = "empty.jar";

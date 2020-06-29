@@ -29,9 +29,9 @@ import org.junit.jupiter.api.Test;
 
 import com.redhat.red.build.koji.KojiClientException;
 
-public class EmptyBuildsTest {
+class EmptyBuildsTest {
     @Test
-    public void verifyEmptyChecksums() throws IOException, KojiClientException {
+    void verifyEmptyChecksums() throws IOException, KojiClientException {
         BuildConfig config = new BuildConfig();
         DistributionAnalyzer da = new DistributionAnalyzer(Collections.emptyList(), config);
 
@@ -43,7 +43,7 @@ public class EmptyBuildsTest {
     }
 
     @Test
-    public void verifyEmptyBuilds() throws KojiClientException {
+    void verifyEmptyBuilds() throws KojiClientException {
         final String checksum = "abc";
         final List<String> filenames = Collections.unmodifiableList(Collections.singletonList("test.abc"));
         MockKojiClientSession session = new MockKojiClientSession("empty-builds-test");

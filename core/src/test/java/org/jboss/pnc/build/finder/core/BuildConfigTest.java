@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-public class BuildConfigTest {
+class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
 
     private static void userHome() {
@@ -45,23 +45,23 @@ public class BuildConfigTest {
 
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
-    public void verifyUserHomeQuestionMark() {
+    void verifyUserHomeQuestionMark() {
         assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
     @ClearSystemProperty(key = "user.home")
     @Test
-    public void verifyUserHomeNull() {
+    void verifyUserHomeNull() {
         assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
     @Test
-    public void verifyUserHome() {
+    void verifyUserHome() {
         assertDoesNotThrow(BuildConfigTest::userHome);
     }
 
     @Test
-    public void verifyDefaults() throws JsonProcessingException {
+    void verifyDefaults() throws JsonProcessingException {
         BuildConfig bc = new BuildConfig();
 
         String s = JSONUtils.dumpString(bc);
@@ -79,7 +79,7 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifyMapping() throws IOException {
+    void verifyMapping() throws IOException {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
@@ -89,7 +89,7 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifyMappingWithDefaults() throws IOException {
+    void verifyMappingWithDefaults() throws IOException {
         String json = "{\"koji-hub-url\":\"https://my.url.com/hub\",\"koji-web-url\":\"https://my.url.com/web\"}";
 
         BuildConfig bc = BuildConfig.load(json);
@@ -100,7 +100,7 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifyIgnoreUnknownProperties() throws IOException {
+    void verifyIgnoreUnknownProperties() throws IOException {
         String json = "{\"foo\":\"bar\"}";
 
         BuildConfig bc = BuildConfig.load(json);
@@ -109,7 +109,7 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifySave(@TempDir File folder) throws IOException {
+    void verifySave(@TempDir File folder) throws IOException {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
@@ -123,7 +123,7 @@ public class BuildConfigTest {
     }
 
     @Test
-    public void verifyLoadFromClassPath() throws IOException {
+    void verifyLoadFromClassPath() throws IOException {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"sha256\","
                 + "\"koji-hub-url\":\"https://my.url.com/hub\"," + "\"koji-web-url\":\"https://my.url.com/web\"}";

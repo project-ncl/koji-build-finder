@@ -30,18 +30,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class BuildFinderTest {
+class BuildFinderTest {
     private static List<String> files;
 
     @BeforeAll
-    public static void setTarget() throws IOException {
+    static void setTarget() throws IOException {
         File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
         assertTrue(target.canRead());
         files = Collections.singletonList(target.getPath());
     }
 
     @Test
-    public void verifyDirectory(@TempDir File folder) throws IOException {
+    void verifyDirectory(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.sha1;
         BuildConfig config = new BuildConfig();
 
@@ -59,7 +59,7 @@ public class BuildFinderTest {
     }
 
     @Test
-    public void verifyloadChecksumsFile(@TempDir File folder) throws IOException {
+    void verifyloadChecksumsFile(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.md5;
         BuildConfig config = new BuildConfig();
 

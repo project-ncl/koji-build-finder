@@ -33,7 +33,7 @@ import org.junit.jupiter.api.io.TempDir;
 @WithByteman
 // Uncomment this to get byteman logging!
 // @BMUnitConfig(bmunitVerbose=true, debug=true, verbose = true)
-public class FileObjectTrackingTest {
+class FileObjectTrackingTest {
     @BMRules(
             rules = {
                     // DefaultFileSystemManager / StandardFileSystemManager
@@ -84,7 +84,7 @@ public class FileObjectTrackingTest {
                             targetMethod = "getAbstractFileObjectCounter",
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
-    public void verifyObjectCreation(@TempDir File folder) throws IOException {
+    void verifyObjectCreation(@TempDir File folder) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
 
         BuildConfig config = new BuildConfig();

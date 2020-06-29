@@ -51,7 +51,7 @@ public class MockKojiClientSession implements ClientSession {
 
     private final String resourcePath;
 
-    public MockKojiClientSession(String resourcePath) {
+    MockKojiClientSession(String resourcePath) {
         Registry.setInstance(new Model_Registry());
         this.rwxMapper = new RWXMapper();
         this.resourcePath = resourcePath;

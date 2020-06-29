@@ -30,18 +30,18 @@ import org.junit.jupiter.api.Test;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 
-public class DeletedBuildTest {
+class DeletedBuildTest {
     private BuildFinder finder;
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockKojiClientSession session = new MockKojiClientSession("deleted-build-test");
         BuildConfig config = new BuildConfig();
         this.finder = new BuildFinder(session, config);
     }
 
     @Test
-    public void verifyDeletedBuild() throws KojiClientException {
+    void verifyDeletedBuild() throws KojiClientException {
         Map<String, Collection<String>> checksumTable = new HashMap<>(2);
 
         checksumTable.put(
@@ -59,7 +59,7 @@ public class DeletedBuildTest {
     }
 
     @Test
-    public void verifyCompletedBuilds() throws KojiClientException {
+    void verifyCompletedBuilds() throws KojiClientException {
         Map<String, Collection<String>> checksumTable = new HashMap<>(2);
 
         checksumTable.put(
@@ -80,7 +80,7 @@ public class DeletedBuildTest {
     }
 
     @Test
-    public void verifyDeletedAndCompleteBuilds() throws KojiClientException {
+    void verifyDeletedAndCompleteBuilds() throws KojiClientException {
         Map<String, Collection<String>> checksumTable = new HashMap<>(3);
 
         checksumTable.put(
