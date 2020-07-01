@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.eclipse.packager.rpm.RpmSignatureTag;
 import org.eclipse.packager.rpm.parse.RpmInputStream;
@@ -61,7 +63,7 @@ public class Checksum implements Serializable {
         this.filename = filename;
     }
 
-    public static Set<Checksum> checksum(FileObject fo, Set<ChecksumType> checksumTypes, String root)
+    public static Set<Checksum> checksum(FileObject fo, Collection<ChecksumType> checksumTypes, String root)
             throws IOException {
         Map<ChecksumType, MessageDigest> mds = new EnumMap<>(ChecksumType.class);
 
@@ -74,44 +76,13 @@ public class Checksum implements Serializable {
         }
 
         int checksumTypesSize = checksumTypes.size();
-        List<CompletableFuture<Void>> futures = new ArrayList<>(checksumTypesSize);
+        Collection<CompletableFuture<Void>> futures = new ArrayList<>(checksumTypesSize);
         Map<ChecksumType, CompletableFuture<Checksum>> futures2 = new EnumMap<>(ChecksumType.class);
 
-        if (!fo.getName().getExtension().equals("rpm")) {
-            int len1;
-            InputStream input = fo.getContent().getInputStream();
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            while ((len1 = input.read(buffer)) > 0) {
-                final int len = len1;
-
-                for (ChecksumType checksumType : checksumTypes) {
-                    CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-                        MessageDigest md = mds.get(checksumType);
-                        md.update(buffer, 0, len);
-                        return null;
-                    });
-
-                    futures.add(future);
-                }
-
-                for (CompletableFuture<Void> future : futures) {
-                    future.join();
-                }
-
-                futures.clear();
-            }
-
-            for (ChecksumType checksumType : checksumTypes) {
-                CompletableFuture<Checksum> future = CompletableFuture.supplyAsync(() -> {
-                    MessageDigest md = mds.get(checksumType);
-                    return new Checksum(checksumType, Hex.encodeHexString(md.digest()), Utils.normalizePath(fo, root));
-                });
-
-                futures2.put(checksumType, future);
-            }
-        } else {
-            try (RpmInputStream in = new RpmInputStream(new BufferedInputStream(fo.getContent().getInputStream()))) {
+        if ("rpm".equals(fo.getName().getExtension())) {
+            try (FileContent fc = fo.getContent();
+                    InputStream is = fc.getInputStream();
+                    RpmInputStream in = new RpmInputStream(new BufferedInputStream(is))) {
                 for (ChecksumType checksumType : checksumTypes) {
                     CompletableFuture<Checksum> future;
 
@@ -123,7 +94,7 @@ public class Checksum implements Serializable {
                                 throw new IOException("Missing MD5 for " + fo);
                             }
 
-                            final String sigmd5 = Hex.encodeHexString((byte[]) md5);
+                            String sigmd5 = Hex.encodeHexString((byte[]) md5);
 
                             future = CompletableFuture.supplyAsync(
                                     () -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root)));
@@ -137,7 +108,7 @@ public class Checksum implements Serializable {
                                 break;
                             }
 
-                            final String sigsha1 = Hex.encodeHexString((byte[]) sha1);
+                            String sigsha1 = Hex.encodeHexString((byte[]) sha1);
 
                             future = CompletableFuture.supplyAsync(
                                     () -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root)));
@@ -151,7 +122,7 @@ public class Checksum implements Serializable {
                                 break;
                             }
 
-                            final String sigsha256 = Hex.encodeHexString((byte[]) sha256);
+                            String sigsha256 = Hex.encodeHexString((byte[]) sha256);
 
                             future = CompletableFuture.supplyAsync(
                                     () -> new Checksum(checksumType, sigsha256, Utils.normalizePath(fo, root)));
@@ -161,6 +132,40 @@ public class Checksum implements Serializable {
                         default:
                     }
                 }
+            }
+        } else {
+            try (FileContent fc = fo.getContent(); InputStream input = fc.getInputStream()) {
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int read;
+
+                while ((read = input.read(buffer)) > 0) {
+                    int len = read;
+
+                    for (ChecksumType checksumType : checksumTypes) {
+                        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+                            MessageDigest md = mds.get(checksumType);
+                            md.update(buffer, 0, len);
+                            return null;
+                        });
+
+                        futures.add(future);
+                    }
+
+                    for (CompletableFuture<Void> future : futures) {
+                        future.join();
+                    }
+
+                    futures.clear();
+                }
+            }
+
+            for (ChecksumType checksumType : checksumTypes) {
+                CompletableFuture<Checksum> future = CompletableFuture.supplyAsync(() -> {
+                    MessageDigest md = mds.get(checksumType);
+                    return new Checksum(checksumType, Hex.encodeHexString(md.digest()), Utils.normalizePath(fo, root));
+                });
+
+                futures2.put(checksumType, future);
             }
         }
 
@@ -179,19 +184,21 @@ public class Checksum implements Serializable {
         return results;
     }
 
-    public static Optional<Checksum> findByType(Set<Checksum> checksums, ChecksumType type) {
+    static Optional<Checksum> findByType(Collection<Checksum> checksums, ChecksumType type) {
+        Optional<Checksum> checksumOptional;
         List<Checksum> list = checksums.stream()
-                .filter(checksum -> checksum.getType().equals(type))
+                .filter(checksum -> checksum.getType() == type)
                 .collect(Collectors.toList());
         int size = list.size();
 
         if (size == 0) {
-            return Optional.empty();
+            checksumOptional = Optional.empty();
+        } else {
+            Checksum checksum = list.get(0);
+            checksumOptional = Optional.of(checksum);
         }
 
-        Checksum checksum = list.get(0);
-
-        return Optional.of(checksum);
+        return checksumOptional;
     }
 
     public ChecksumType getType() {
