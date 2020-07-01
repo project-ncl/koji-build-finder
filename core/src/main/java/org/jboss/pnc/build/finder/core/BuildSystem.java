@@ -18,7 +18,7 @@ package org.jboss.pnc.build.finder.core;
 public enum BuildSystem {
     none(0), koji(1), pnc(2);
 
-    private int value;
+    private final int value;
 
     BuildSystem(int value) {
         this.value = value;
@@ -36,5 +36,10 @@ public enum BuildSystem {
 
     public int getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildSystem{" + "value=" + value + '}';
     }
 }

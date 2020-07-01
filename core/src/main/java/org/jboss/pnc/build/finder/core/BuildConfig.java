@@ -101,13 +101,14 @@ public class BuildConfig {
     }
 
     public static BuildConfig load(ClassLoader cl) throws IOException {
+        BuildConfig config = null;
         URL url = cl.getResource(ConfigDefaults.CONFIG_FILE);
 
         if (url != null) {
-            return load(url);
+            config = load(url);
         }
 
-        return null;
+        return config;
     }
 
     public static BuildConfig merge(BuildConfig config, File file) throws IOException {
@@ -368,15 +369,13 @@ public class BuildConfig {
 
     @Override
     public String toString() {
-        return "BuildConfig{" + "\n\tarchiveExtensions=" + getArchiveExtensions() + ", \n\tarchiveTypes="
-                + getArchiveTypes() + ", \n\tbuildSystems=" + getBuildSystems() + ", \n\tcacheLifespan="
-                + getCacheLifespan() + ", \n\tcacheMaxIdle=" + getCacheMaxIdle() + ", \n\tchecksumOnly="
-                + getChecksumOnly() + ", \n\tchecksumTypes=" + getChecksumTypes() + ", \n\tdisableCache="
-                + getDisableCache() + ", \n\texcludes=" + getExcludes() + ", \n\tkojiHubURL=" + getKojiHubURL()
-                + ", \n\tkojiMulticallSize=" + getKojiMulticallSize() + ", \n\tkojiNumThreads=" + getKojiNumThreads()
-                + ", \n\tkojiWebURL=" + getKojiWebURL() + ", \n\toutputDirectory=" + getOutputDirectory()
-                + ", \n\tpncPartitionSize=" + getPncPartitionSize() + ", \n\tpncURL=" + getPncURL()
-                + ", \n\tuseBuildsFile=" + getUseBuildsFile() + ", \n\tuseChecksumsFile='" + getUseChecksumsFile()
-                + "}";
+        return "BuildConfig{" + "archiveExtensions=" + archiveExtensions + ", archiveTypes=" + archiveTypes
+                + ", buildSystems=" + buildSystems + ", cacheLifespan=" + cacheLifespan + ", cacheMaxIdle="
+                + cacheMaxIdle + ", checksumOnly=" + checksumOnly + ", checksumTypes=" + checksumTypes
+                + ", disableCache=" + disableCache + ", disableRecursion=" + disableRecursion + ", excludes=" + excludes
+                + ", kojiHubURL=" + kojiHubURL + ", kojiMulticallSize=" + kojiMulticallSize + ", kojiNumThreads="
+                + kojiNumThreads + ", kojiWebURL=" + kojiWebURL + ", outputDirectory='" + outputDirectory + '\''
+                + ", pncPartitionSize=" + pncPartitionSize + ", pncURL=" + pncURL + ", useBuildsFile=" + useBuildsFile
+                + ", useChecksumsFile=" + useChecksumsFile + '}';
     }
 }
