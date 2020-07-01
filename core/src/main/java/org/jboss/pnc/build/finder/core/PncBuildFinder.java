@@ -50,7 +50,7 @@ public class PncBuildFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncBuildFinder.class);
 
     // TODO: make the parallelismThreashold configurable
-    private static final int CONCURRENT_MAP_PARALLELISM_THRESHOLD = 10;
+    private static final long CONCURRENT_MAP_PARALLELISM_THRESHOLD = 10L;
 
     private final PncClient pncClient;
 
@@ -82,7 +82,7 @@ public class PncBuildFinder {
     private FindBuildsResult convertPncBuildsToKojiBuilds(Map<String, PncBuild> pncBuilds) {
         FindBuildsResult findBuildsResult = new FindBuildsResult();
 
-        pncBuilds.values().forEach((pncBuild -> {
+        pncBuilds.values().forEach(pncBuild -> {
             if (isBuildZero(pncBuild)) {
                 KojiBuild kojiBuild = convertPncBuildZeroToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds().put(new BuildSystemInteger(0, BuildSystem.none), kojiBuild);
@@ -96,7 +96,7 @@ public class PncBuildFinder {
                 findBuildsResult.getFoundBuilds()
                         .put(new BuildSystemInteger(kojiBuild.getBuildInfo().getId(), BuildSystem.pnc), kojiBuild);
             }
-        }));
+        });
 
         return findBuildsResult;
     }
@@ -146,7 +146,7 @@ public class PncBuildFinder {
     private Set<EnhancedArtifact> lookupArtifactsInPnc(ConcurrentHashMap<Checksum, Collection<String>> checksumTable)
             throws RemoteResourceException {
         Set<EnhancedArtifact> artifacts = new ConcurrentHashSet<>();
-        final RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
+        RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
         checksumTable.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (checksum, fileNames) -> {
             if (LOGGER.isDebugEnabled()) {
@@ -347,23 +347,26 @@ public class PncBuildFinder {
      * @param pncBuild A PncBuild
      * @return False if the build has ID 0 otherwise true
      */
-    private boolean isBuildZero(PncBuild pncBuild) {
+    private static boolean isBuildZero(PncBuild pncBuild) {
         return "0".equals(pncBuild.getBuild().getId());
     }
 
-    private class RemoteResourceExceptionWrapper {
+    private static class RemoteResourceExceptionWrapper {
         private RemoteResourceException exception;
 
-        public synchronized RemoteResourceException getException() {
+        RemoteResourceExceptionWrapper() {
+        }
+
+        synchronized RemoteResourceException getException() {
             return exception;
         }
 
-        public synchronized void setException(RemoteResourceException exception) {
+        synchronized void setException(RemoteResourceException exception) {
             this.exception = exception;
         }
     }
 
-    public void setListener(BuildFinderListener listener) {
+    void setListener(BuildFinderListener listener) {
         this.listener = listener;
     }
 }
