@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
-public class BuildFinderObjectMapper extends KojiObjectMapper {
+public final class BuildFinderObjectMapper extends KojiObjectMapper {
     private static final long serialVersionUID = -1683456434414665536L;
 
     public BuildFinderObjectMapper() {

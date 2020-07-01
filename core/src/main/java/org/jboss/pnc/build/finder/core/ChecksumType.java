@@ -18,8 +18,8 @@ package org.jboss.pnc.build.finder.core;
 public enum ChecksumType {
     md5(0, "MD5"), sha1(1, "SHA-1"), sha256(2, "SHA-256");
 
-    private Integer value;
-    private String algorithm;
+    private final Integer value;
+    private final String algorithm;
 
     ChecksumType(int value, String algorithm) {
         this.value = value;
@@ -42,5 +42,10 @@ public enum ChecksumType {
 
     public String getAlgorithm() {
         return algorithm;
+    }
+
+    @Override
+    public String toString() {
+        return "ChecksumType{" + "value=" + value + ", algorithm='" + algorithm + '\'' + '}';
     }
 }

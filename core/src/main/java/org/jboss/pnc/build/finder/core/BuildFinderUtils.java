@@ -54,9 +54,9 @@ public class BuildFinderUtils {
 
     private List<String> archiveExtensions;
 
-    private DistributionAnalyzer distributionAnalyzer;
+    private final DistributionAnalyzer distributionAnalyzer;
 
-    private Map<ChecksumType, String> emptyDigests;
+    private final Map<ChecksumType, String> emptyDigests;
 
     public BuildFinderUtils(BuildConfig config, DistributionAnalyzer distributionAnalyzer, ClientSession session) {
         this.distributionAnalyzer = distributionAnalyzer;

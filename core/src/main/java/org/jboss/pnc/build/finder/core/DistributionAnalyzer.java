@@ -86,21 +86,21 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private String root;
 
-    private BuildConfig config;
+    private final BuildConfig config;
 
     private BlockingQueue<Checksum> queue;
 
-    private Map<ChecksumType, Cache<String, MultiValuedMap<String, String>>> fileCaches;
+    private final Map<ChecksumType, Cache<String, MultiValuedMap<String, String>>> fileCaches;
 
-    private EmbeddedCacheManager cacheManager;
+    private final EmbeddedCacheManager cacheManager;
 
-    private AtomicInteger level;
+    private final AtomicInteger level;
 
-    private ExecutorService pool;
+    private final ExecutorService pool;
 
-    private Set<ChecksumType> checksumTypesToCheck;
+    private final Set<ChecksumType> checksumTypesToCheck;
 
-    private Set<String> filesInError;
+    private final Set<String> filesInError;
 
     private DistributionAnalyzerListener listener;
 
@@ -109,30 +109,30 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     public DistributionAnalyzer(List<String> files, BuildConfig config, EmbeddedCacheManager cacheManager) {
-        this.files = files;
+        this.files = Collections.unmodifiableList(files);
         this.config = config;
-        this.checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
-        this.map = new EnumMap<>(ChecksumType.class);
+        checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
+        map = new EnumMap<>(ChecksumType.class);
 
         for (ChecksumType checksumType : checksumTypesToCheck) {
-            this.map.put(checksumType, new HashSetValuedHashMap<>());
+            map.put(checksumType, new HashSetValuedHashMap<>());
         }
 
-        this.inverseMap = new HashSetValuedHashMap<>();
+        inverseMap = new HashSetValuedHashMap<>();
 
         this.cacheManager = cacheManager;
 
-        this.fileCaches = new EnumMap<>(ChecksumType.class);
+        fileCaches = new EnumMap<>(ChecksumType.class);
 
         for (ChecksumType checksumType : checksumTypesToCheck) {
             if (cacheManager != null) {
-                this.fileCaches.put(checksumType, cacheManager.getCache("files-" + checksumType));
+                fileCaches.put(checksumType, cacheManager.getCache("files-" + checksumType));
             }
         }
 
-        this.level = new AtomicInteger();
-        this.pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        this.filesInError = new HashSet<>();
+        level = new AtomicInteger();
+        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        filesInError = new HashSet<>();
     }
 
     private static boolean isJar(FileObject fo) {
@@ -204,7 +204,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                             new Checksum(checksumType, entry.getKey(), entry.getValue()));
                                 }
 
-                                if (queue != null && checksumType.equals(ChecksumType.md5)) {
+                                if (queue != null && checksumType == ChecksumType.md5) {
                                     for (Map.Entry<String, String> entry : entries) {
                                         try {
                                             Checksum checksum = new Checksum(
@@ -310,7 +310,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private boolean shouldListArchive(FileObject fo) throws FileSystemException {
-        if (!config.getDisableRecursion().booleanValue()) {
+        if (Boolean.FALSE.equals(config.getDisableRecursion())) {
             return true;
         }
 
@@ -417,11 +417,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             for (FileObject file : localFiles) {
                 if (file.isFile()) {
                     if (includeFile(file)) {
-                        if (!file.getName().getScheme().equals("tar")) {
-                            tasks.add(checksumTask(file));
-                        } else {
+                        if (file.getName().getScheme().equals("tar")) {
                             Future<Set<Checksum>> future = pool.submit(checksumTask(file));
                             handleFutureChecksum(future);
+                        } else {
+                            tasks.add(checksumTask(file));
                         }
                     }
 

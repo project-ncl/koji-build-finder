@@ -17,7 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-public class BuildFinderModule extends SimpleModule {
+public final class BuildFinderModule extends SimpleModule {
     private static final long serialVersionUID = -6942252955714718422L;
 
     public BuildFinderModule() {
