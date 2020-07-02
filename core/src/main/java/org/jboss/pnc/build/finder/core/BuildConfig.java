@@ -23,11 +23,22 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public class BuildConfig {
+    private static final ObjectMapper MAPPER = new BuildFinderObjectMapper();
+
+    static {
+        MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
     @JsonAlias("archive-extensions")
     private List<String> archiveExtensions;
 
@@ -85,11 +96,11 @@ public class BuildConfig {
     private Boolean useChecksumsFile;
 
     public static BuildConfig load(File file) throws IOException {
-        return getMapper().readValue(file, BuildConfig.class);
+        return MAPPER.readValue(file, BuildConfig.class);
     }
 
     public static BuildConfig load(String json) throws IOException {
-        return getMapper().readValue(json, BuildConfig.class);
+        return MAPPER.readValue(json, BuildConfig.class);
     }
 
     public static BuildConfig fromString(String json) throws IOException {
@@ -97,7 +108,7 @@ public class BuildConfig {
     }
 
     public static BuildConfig load(URL url) throws IOException {
-        return getMapper().readValue(url, BuildConfig.class);
+        return MAPPER.readValue(url, BuildConfig.class);
     }
 
     public static BuildConfig load(ClassLoader cl) throws IOException {
@@ -112,31 +123,22 @@ public class BuildConfig {
     }
 
     public static BuildConfig merge(BuildConfig config, File file) throws IOException {
-        ObjectReader reader = getMapper().readerForUpdating(config);
+        ObjectReader reader = MAPPER.readerForUpdating(config);
         return reader.readValue(file);
     }
 
     public static BuildConfig merge(BuildConfig config, String json) throws IOException {
-        ObjectReader reader = getMapper().readerForUpdating(config);
+        ObjectReader reader = MAPPER.readerForUpdating(config);
         return reader.readValue(json);
     }
 
     public static BuildConfig merge(BuildConfig config, URL url) throws IOException {
-        ObjectReader reader = getMapper().readerForUpdating(config);
+        ObjectReader reader = MAPPER.readerForUpdating(config);
         return reader.readValue(url);
     }
 
-    private static ObjectMapper getMapper() {
-        ObjectMapper mapper = new BuildFinderObjectMapper();
-
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        return mapper;
-    }
-
     public void save(File file) throws IOException {
-        JSONUtils.dumpObjectToFile(this, file);
+        JSONUtils.dumpObjectToFile(this, file, MAPPER);
     }
 
     public List<String> getArchiveExtensions() {

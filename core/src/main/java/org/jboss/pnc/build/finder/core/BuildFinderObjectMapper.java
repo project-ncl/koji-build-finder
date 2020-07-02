@@ -15,8 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
@@ -27,7 +25,5 @@ public final class BuildFinderObjectMapper extends KojiObjectMapper {
         enable(SerializationFeature.INDENT_OUTPUT);
         enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         registerModule(new BuildFinderModule());
-        setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 }

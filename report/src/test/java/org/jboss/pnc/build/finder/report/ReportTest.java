@@ -23,11 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
@@ -41,6 +43,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class ReportTest {
+    private static final Pattern PATTERN = Pattern.compile("\n");
+
     private static List<KojiBuild> builds;
 
     @BeforeAll
@@ -50,27 +54,35 @@ class ReportTest {
 
         assertEquals(6, buildMap.size());
 
+        List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
+
+        buildList.sort(Comparator.comparingInt(KojiBuild::getId));
+
+        builds = Collections.unmodifiableList(buildList);
+
+        assertEquals(buildMap.size(), buildList.size());
+
+        verifyLoad(folder);
+    }
+
+    private static void verifyLoad(File folder) throws IOException {
+        File buildsFile = TestUtils.loadFile("report-test/builds.json");
+        Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
         File newBuildsFile = new File(folder, "builds.json");
 
         assertNotNull(newBuildsFile);
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
-        String buildsString = FileUtils.readFileToString(buildsFile, "UTF-8");
+        String buildsString = FileUtils.readFileToString(buildsFile, StandardCharsets.UTF_8);
 
-        if (!System.lineSeparator().equals("\n")) {
-            buildsString = buildsString.replaceAll("\n", System.lineSeparator());
+        if (!"\n".equals(System.lineSeparator())) {
+            buildsString = PATTERN.matcher(buildsString).replaceAll(System.lineSeparator());
         }
 
-        String newBuildsString = FileUtils.readFileToString(newBuildsFile, "UTF-8");
+        String newBuildsString = FileUtils.readFileToString(newBuildsFile, StandardCharsets.UTF_8);
 
-        assertEquals(newBuildsString, buildsString);
-
-        List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
-        buildList.sort(Comparator.comparingInt(b -> b.getBuildInfo().getId()));
-        builds = Collections.unmodifiableList(buildList);
-
-        assertEquals(buildMap.size(), buildList.size());
+        assertEquals(buildsString, newBuildsString);
     }
 
     @Test
@@ -131,13 +143,13 @@ class ReportTest {
         final String nvrExpected = "artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6\n"
                 + "commons-beanutils-commons-beanutils-1.9.2.redhat_1-1\ncommons-lang-commons-lang-2.6-1\n"
                 + "commons-lang-commons-lang-2.6-2\norg.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1";
-        NVRReport nvrReport = new NVRReport(folder, builds);
-        assertEquals(nvrExpected, nvrReport.renderText());
-        nvrReport.outputText();
+        NVRReport report = new NVRReport(folder, builds);
+        assertEquals(nvrExpected, report.renderText());
+        report.outputText();
         assertEquals(
                 nvrExpected,
                 FileUtils.readFileToString(
-                        new File(nvrReport.getOutputDirectory(), nvrReport.getBaseFilename() + ".txt"),
+                        new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
                         "UTF-8"));
     }
 
@@ -146,72 +158,73 @@ class ReportTest {
         final String gavExpected = "commons-beanutils:commons-beanutils:1.9.2.redhat-1\n"
                 + "commons-lang:commons-lang:2.6\norg.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1\n"
                 + "org.wildfly.swarm:config-api:1.1.0.Final-redhat-14";
-        GAVReport gavReport = new GAVReport(folder, builds);
-        assertEquals(gavExpected, gavReport.renderText());
-        gavReport.outputText();
+        GAVReport report = new GAVReport(folder, builds);
+        assertEquals(gavExpected, report.renderText());
+        report.outputText();
         assertEquals(
                 gavExpected,
                 FileUtils.readFileToString(
-                        new File(gavReport.getOutputDirectory(), gavReport.getBaseFilename() + ".txt"),
+                        new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
                         "UTF-8"));
     }
 
     @Test
     void verifyBuildStatisticsReport(@TempDir File folder) throws IOException {
-        BuildStatisticsReport buildStatisticsReport = new BuildStatisticsReport(folder, builds);
-        buildStatisticsReport.outputText();
-        assertEquals(builds.size() - 1, buildStatisticsReport.getBuildStatistics().getNumberOfBuilds());
-        assertEquals(2, buildStatisticsReport.getBuildStatistics().getNumberOfImportedBuilds());
-        assertEquals(5, buildStatisticsReport.getBuildStatistics().getNumberOfArchives());
-        assertEquals(2, buildStatisticsReport.getBuildStatistics().getNumberOfImportedArchives());
+        BuildStatisticsReport report = new BuildStatisticsReport(folder, builds);
+        report.outputText();
+        assertEquals(builds.size() - 1, report.getBuildStatistics().getNumberOfBuilds());
+        assertEquals(2L, report.getBuildStatistics().getNumberOfImportedBuilds());
+        assertEquals(5L, report.getBuildStatistics().getNumberOfArchives());
+        assertEquals(2L, report.getBuildStatistics().getNumberOfImportedArchives());
         assertEquals(
                 ((double) 2 / (double) 5) * 100.00,
-                buildStatisticsReport.getBuildStatistics().getPercentOfBuildsImported(),
-                0);
+                report.getBuildStatistics().getPercentOfBuildsImported(),
+                0.0D);
         assertEquals(
                 ((double) 2 / (double) 5) * 100.00,
-                buildStatisticsReport.getBuildStatistics().getPercentOfArchivesImported(),
-                0);
+                report.getBuildStatistics().getPercentOfArchivesImported(),
+                0.0D);
     }
 
     @Test
     void verifyBuildStatisticsReportEmptyBuilds(@TempDir File folder) throws IOException {
-        BuildStatisticsReport buildStatisticsReport = new BuildStatisticsReport(folder, Collections.emptyList());
-        buildStatisticsReport.outputText();
-        assertEquals(0, buildStatisticsReport.getBuildStatistics().getNumberOfBuilds());
-        assertEquals(0, buildStatisticsReport.getBuildStatistics().getNumberOfImportedBuilds());
-        assertEquals(0, buildStatisticsReport.getBuildStatistics().getNumberOfArchives());
-        assertEquals(0, buildStatisticsReport.getBuildStatistics().getNumberOfImportedArchives());
-        assertEquals(0.00D, buildStatisticsReport.getBuildStatistics().getPercentOfBuildsImported(), 0);
-        assertEquals(0.00D, buildStatisticsReport.getBuildStatistics().getPercentOfArchivesImported(), 0);
+        BuildStatisticsReport report = new BuildStatisticsReport(folder, Collections.emptyList());
+        report.outputText();
+        assertEquals(0L, report.getBuildStatistics().getNumberOfBuilds());
+        assertEquals(0L, report.getBuildStatistics().getNumberOfImportedBuilds());
+        assertEquals(0L, report.getBuildStatistics().getNumberOfArchives());
+        assertEquals(0L, report.getBuildStatistics().getNumberOfImportedArchives());
+        assertEquals(0.00D, report.getBuildStatistics().getPercentOfBuildsImported(), 0);
+        assertEquals(0.00D, report.getBuildStatistics().getPercentOfArchivesImported(), 0);
     }
 
     @Test
     void verifyProductReport(@TempDir File folder) throws IOException {
-        ProductReport productReport = new ProductReport(folder, builds);
-        productReport.outputText();
+        ProductReport report = new ProductReport(folder, builds);
+        report.outputText();
 
-        assertEquals(2, productReport.getProductMap().size());
-        assertTrue(productReport.getProductMap().containsKey("JBoss EAP 7.0"));
-        assertTrue(productReport.getProductMap().containsKey("JBoss AMQ 7"));
+        assertEquals(2, report.getProductMap().size());
+        assertTrue(report.getProductMap().containsKey("JBoss EAP 7.0"));
+        assertTrue(report.getProductMap().containsKey("JBoss AMQ 7"));
         assertTrue(
-                productReport.getProductMap()
+                report.getProductMap()
                         .get("JBoss EAP 7.0")
                         .contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
         assertTrue(
-                productReport.getProductMap()
+                report.getProductMap()
                         .get("JBoss AMQ 7")
                         .contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
     }
 
     @Test
     void verifyHTMLReport(@TempDir File folder) throws IOException {
-        List<String> files = Collections.unmodifiableList(Collections.emptyList());
+        List<String> files = Collections.emptyList();
 
         List<Report> reports = new ArrayList<>(3);
         reports.add(new BuildStatisticsReport(folder, builds));
         reports.add(new NVRReport(folder, builds));
         reports.add(new GAVReport(folder, builds));
+        reports.add(new ProductReport(folder, builds));
 
         HTMLReport htmlReport = new HTMLReport(
                 folder,

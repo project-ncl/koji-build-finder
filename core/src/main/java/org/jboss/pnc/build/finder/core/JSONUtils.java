@@ -28,29 +28,29 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class JSONUtils {
+    private static final ObjectMapper MAPPER = new BuildFinderObjectMapper();
+
     private JSONUtils() {
 
     }
 
     public static String dumpString(Object obj) throws JsonProcessingException {
-        ObjectMapper mapper = new BuildFinderObjectMapper();
-
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+        return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     }
 
     public static void dumpObjectToFile(Object obj, File file) throws IOException {
-        ObjectMapper mapper = new BuildFinderObjectMapper();
+        dumpObjectToFile(obj, file, MAPPER);
+    }
 
+    public static void dumpObjectToFile(Object obj, File file, ObjectMapper mapper) throws IOException {
         mapper.writerWithDefaultPrettyPrinter().writeValue(file, obj);
-
         FileUtils.writeLines(file, Collections.singletonList(null), true);
     }
 
     public static Map<String, Collection<String>> loadChecksumsFile(File file) throws IOException {
-        ObjectMapper mapper = new BuildFinderObjectMapper();
         TypeReference<Map<String, Collection<String>>> typeRef = new TypeReference<Map<String, Collection<String>>>() {
         };
 
-        return mapper.readValue(file, typeRef);
+        return MAPPER.readValue(file, typeRef);
     }
 }

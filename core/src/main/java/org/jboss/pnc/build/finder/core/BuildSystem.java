@@ -37,9 +37,4 @@ public enum BuildSystem {
     public int getValue() {
         return value;
     }
-
-    @Override
-    public String toString() {
-        return "BuildSystem{" + "value=" + value + '}';
-    }
 }

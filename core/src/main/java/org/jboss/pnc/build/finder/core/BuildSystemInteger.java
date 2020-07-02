@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 
 public class BuildSystemInteger implements Comparable<Object> {
-    private Integer value;
+    private final Integer value;
 
-    private BuildSystem buildSystem;
+    private final BuildSystem buildSystem;
 
     public BuildSystemInteger(int value) {
         this.value = value;
@@ -58,7 +58,7 @@ public class BuildSystemInteger implements Comparable<Object> {
             result = false;
         } else {
             BuildSystemInteger other = (BuildSystemInteger) obj;
-            result = buildSystem.equals(other.buildSystem) && value.equals(other.value);
+            result = buildSystem == other.getBuildSystem() && value.equals(other.getValue());
         }
 
         return result;
@@ -82,10 +82,10 @@ public class BuildSystemInteger implements Comparable<Object> {
         BuildSystemInteger other = (BuildSystemInteger) obj;
         int result;
 
-        if (buildSystem.equals(other.buildSystem)) {
-            result = value.compareTo(other.value);
+        if (buildSystem.equals(other.getBuildSystem())) {
+            result = value.compareTo(other.getValue());
         } else {
-            result = buildSystem.compareTo(other.buildSystem);
+            result = buildSystem.compareTo(other.getBuildSystem());
         }
 
         return result;
@@ -93,8 +93,8 @@ public class BuildSystemInteger implements Comparable<Object> {
 
     public static class Deserializer extends KeyDeserializer {
         @Override
-        public Object deserializeKey(String key, DeserializationContext ctxt) {
-            String[] t = key.split(", ");
+        public Object deserializeKey(String s, DeserializationContext deserializationContext) {
+            String[] t = s.split(", ");
             int value = Integer.parseInt(t[0]);
             BuildSystem buildSystem = BuildSystem.valueOf(t[1]);
 
