@@ -48,6 +48,7 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfigurationChildBuilder;
 import org.infinispan.jboss.marshalling.commons.GenericJBossMarshaller;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
@@ -134,7 +135,7 @@ public final class Main implements Callable<Void> {
     private File configFile = new File(ConfigDefaults.CONFIG);
 
     @Option(names = { "-d", "--debug" }, description = "Enable debug logging.")
-    private Boolean debug = Boolean.FALSE;
+    private boolean debug = false;
 
     @Option(names = { "--disable-cache" }, description = "Disable local cache.")
     private Boolean disableCache = ConfigDefaults.DISABLE_CACHE;
@@ -194,7 +195,7 @@ public final class Main implements Callable<Void> {
     private URL pncURL = ConfigDefaults.PNC_URL;
 
     @Option(names = { "-q", "--quiet" }, description = "Disable all logging.")
-    private Boolean quiet = Boolean.FALSE;
+    private boolean quiet = false;
 
     @Option(
             names = { "-t", "--checksum-type" },
@@ -221,8 +222,15 @@ public final class Main implements Callable<Void> {
         Main main = new Main();
 
         try {
-            Ansi ansi = System.getProperty("picocli.ansi") == null ? Ansi.ON
-                    : Boolean.getBoolean("picocli.ansi") ? Ansi.ON : Ansi.OFF;
+            Ansi ansi;
+            String property = System.getProperty("picocli.ansi");
+
+            if (property == null) {
+                ansi = Ansi.ON;
+            } else {
+                ansi = Boolean.getBoolean(property) ? Ansi.ON : Ansi.OFF;
+            }
+
             CommandLine commandLine = new CommandLine(main).setColorScheme(Help.defaultColorScheme(ansi));
             int exitCode = commandLine.execute(args);
             System.exit(exitCode);
@@ -412,7 +420,7 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         KojiBuild.KojiBuildExternalizer externalizer = new KojiBuild.KojiBuildExternalizer();
-        GlobalConfigurationBuilder globalConfig = new GlobalConfigurationBuilder();
+        GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
         String location = new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
 
         globalConfig.globalState()
@@ -454,27 +462,23 @@ public final class Main implements Callable<Void> {
     }
 
     private void closeCaches() {
-        if (cacheManager == null) {
-            return;
-        }
-
-        try {
-            cacheManager.close();
-        } catch (IOException e) {
-            LOGGER.warn("Error closing cache manager: {}", red(e.getMessage()));
-            LOGGER.debug("Error", e);
+        if (cacheManager != null) {
+            try {
+                cacheManager.close();
+            } catch (IOException e) {
+                LOGGER.warn("Error closing cache manager: {}", red(e.getMessage()));
+                LOGGER.debug("Error", e);
+            }
         }
     }
 
     private void shutdownPool() {
-        if (pool == null) {
-            return;
+        if (pool != null) {
+            Utils.shutdownAndAwaitTermination(pool);
         }
-
-        Utils.shutdownAndAwaitTermination(pool);
     }
 
-    private void writeConfiguration(File configFile, BuildConfig config) {
+    private static void writeConfiguration(File configFile, BuildConfig config) {
         if (!configFile.exists()) {
             File configDir = configFile.getParentFile();
 
@@ -495,9 +499,9 @@ public final class Main implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
-        if (quiet.booleanValue()) {
+        if (quiet) {
             disableLogging();
-        } else if (debug.booleanValue()) {
+        } else if (debug) {
             enableDebugLogging();
         }
 
@@ -540,7 +544,7 @@ public final class Main implements Callable<Void> {
 
         LOGGER.debug("{}", config);
 
-        if (!config.getChecksumOnly().booleanValue()) {
+        if (Boolean.FALSE.equals(config.getChecksumOnly())) {
             if (config.getKojiHubURL() == null) {
                 LOGGER.error("Must set koji-hub-url");
                 System.exit(1);
@@ -562,9 +566,9 @@ public final class Main implements Callable<Void> {
                 "Checksum type: {}",
                 green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
 
-        final Map<ChecksumType, MultiValuedMap<String, String>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
+        Map<ChecksumType, MultiValuedMap<String, String>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
 
-        if (config.getUseChecksumsFile().booleanValue()) {
+        if (Boolean.TRUE.equals(config.getUseChecksumsFile())) {
             for (ChecksumType checksumType : checksumTypes) {
                 File checksumFile = new File(outputDirectory, BuildFinder.getChecksumFilename(checksumType));
 
@@ -599,8 +603,8 @@ public final class Main implements Callable<Void> {
 
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = checksumsFromFile;
 
-        if (checksumOnly.booleanValue()) {
-            if (!config.getUseChecksumsFile().booleanValue()) {
+        if (Boolean.TRUE.equals(checksumOnly)) {
+            if (Boolean.FALSE.equals(config.getUseChecksumsFile())) {
                 if (cacheManager == null && !config.getDisableCache()) {
                     initCaches(config);
                 }
@@ -652,7 +656,7 @@ public final class Main implements Callable<Void> {
         Map<BuildSystemInteger, KojiBuild> builds = null;
         File buildsFile = new File(outputDirectory, BuildFinder.getBuildsFilename());
 
-        if (config.getUseBuildsFile().booleanValue()) {
+        if (Boolean.TRUE.equals(config.getUseBuildsFile())) {
             if (buildsFile.exists()) {
                 LOGGER.info("Loading builds from file: {}", green(buildsFile.getPath()));
 
@@ -673,7 +677,7 @@ public final class Main implements Callable<Void> {
                 System.exit(1);
             }
 
-            if (config.getUseChecksumsFile().booleanValue()) {
+            if (Boolean.TRUE.equals(config.getUseChecksumsFile())) {
                 boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null
                         || krbCCache != null || krbKeytab != null;
 
@@ -862,10 +866,6 @@ public final class Main implements Callable<Void> {
     }
 
     static class ManifestVersionProvider implements IVersionProvider {
-        ManifestVersionProvider() {
-
-        }
-
         @Override
         public String[] getVersion() {
             return new String[] { Utils.getBuildFinderVersion() + " (SHA: " + Utils.getBuildFinderScmRevision() + ")" };
@@ -873,9 +873,11 @@ public final class Main implements Callable<Void> {
     }
 
     static class FilenameConverter implements ITypeConverter<String> {
+        private static final Pattern PATTERN = Pattern.compile(".*[/:\"*?<>|]+.*");
+
         @Override
         public String convert(String value) {
-            if (value.matches(".*[/:\"*?<>|]+.*")) {
+            if (PATTERN.matcher(value).matches()) {
                 throw new IllegalArgumentException("Invalid name");
             }
 

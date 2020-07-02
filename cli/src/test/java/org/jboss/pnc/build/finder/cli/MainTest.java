@@ -45,11 +45,10 @@ import com.github.blindpirate.extensions.CaptureSystemOutput;
 
 import ch.qos.logback.classic.Level;
 import picocli.CommandLine;
-import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
 class MainTest {
-    private static ParseResult parseCommandLine(Object command, String[] args) throws ParameterException {
+    private static ParseResult parseCommandLine(Object command, String[] args) {
         CommandLine cmd = new CommandLine(command);
 
         return cmd.parseArgs(args);
@@ -111,9 +110,9 @@ class MainTest {
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
+        File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(folder, parsedOutputDirectory);
+        assertEquals(folder, outputDirectory);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
@@ -155,9 +154,9 @@ class MainTest {
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
+        File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(folder, parsedOutputDirectory);
+        assertEquals(folder, outputDirectory);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
@@ -194,9 +193,9 @@ class MainTest {
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
-            File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
+            File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(folder, parsedOutputDirectory);
+            assertEquals(folder, outputDirectory);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
@@ -240,9 +239,9 @@ class MainTest {
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
-            File parsedOutputDirectory = parseResult.matchedOption("--output-directory").getValue();
+            File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(folder, parsedOutputDirectory);
+            assertEquals(folder, outputDirectory);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
