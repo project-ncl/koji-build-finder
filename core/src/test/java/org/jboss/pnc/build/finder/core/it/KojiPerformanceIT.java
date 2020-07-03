@@ -28,20 +28,16 @@ import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 
-public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
+class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     @Test
-    public void testSequential() throws KojiClientException {
-        final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "sequential"));
+    void testSequential() throws KojiClientException {
+        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "sequential"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            final Timer.Context context = timer.time();
-
-            try {
+            try (Timer.Context context = timer.time()) {
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {
-                    getKojiClientSession().getBuildInfo(getBuilds().get(j), null);
+                    getSession().getBuildInfo(getBuilds().get(j), null);
                 }
-            } finally {
-                context.stop();
             }
         }
 
@@ -49,21 +45,19 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    public void testThreads() {
-        final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "threads"));
+    void testThreads() {
+        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "threads"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            final Timer.Context context = timer.time();
-
-            try {
+            try (Timer.Context context = timer.time()) {
                 Thread[] threads = new Thread[MAX_CONNECTIONS];
 
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {
-                    final int buildId = getBuilds().get(j);
+                    int buildId = getBuilds().get(j);
 
                     threads[j] = new Thread(() -> {
                         try {
-                            getKojiClientSession().getBuildInfo(buildId, null);
+                            getSession().getBuildInfo(buildId, null);
                         } catch (KojiClientException e) {
                             throw new RuntimeException(e);
                         }
@@ -79,8 +73,6 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                         Thread.currentThread().interrupt();
                     }
                 }
-            } finally {
-                context.stop();
             }
         }
 
@@ -88,22 +80,18 @@ public class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    public void testMultiCall() throws KojiClientException {
-        final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "multiCall"));
+    void testMultiCall() throws KojiClientException {
+        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "multiCall"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            final Timer.Context context = timer.time();
-
-            try {
+            try (Timer.Context context = timer.time()) {
                 List<Object> args = new ArrayList<>(MAX_CONNECTIONS);
 
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {
                     args.add(getBuilds().get(j));
                 }
 
-                getKojiClientSession().multiCall(Constants.GET_BUILD, args, KojiBuildInfo.class, null);
-            } finally {
-                context.stop();
+                getSession().multiCall(Constants.GET_BUILD, args, KojiBuildInfo.class, null);
             }
         }
 

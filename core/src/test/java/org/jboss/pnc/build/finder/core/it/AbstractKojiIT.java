@@ -41,38 +41,45 @@ import com.redhat.red.build.koji.config.SimpleKojiConfig;
 import com.redhat.red.build.koji.config.SimpleKojiConfigBuilder;
 
 public abstract class AbstractKojiIT {
-    protected static final int MAX_CONNECTIONS = 20;
-    protected static final MetricRegistry REGISTRY = new MetricRegistry();
+    static final int MAX_CONNECTIONS = 20;
+
+    static final MetricRegistry REGISTRY = new MetricRegistry();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiIT.class);
+
     private static final int DEFAULT_THREAD_COUNT = 1;
+
     private ScheduledReporter reporter;
+
     private KojiClientSession session;
+
     private BuildConfig config;
+
     private PncClientImpl pncclient;
 
     @BeforeEach
     public void setup() throws IOException, KojiClientException {
-        final Path configPath = Paths.get(ConfigDefaults.CONFIG);
-        final File configFile = configPath.toFile();
+        Path configPath = Paths.get(ConfigDefaults.CONFIG);
+        File configFile = configPath.toFile();
 
         if (!configFile.exists()) {
             throw new IOException("File not found: " + configFile.getAbsolutePath());
         }
 
         this.config = BuildConfig.load(configFile);
-        final URL kojiHubURL = config.getKojiHubURL();
+        URL kojiHubURL = config.getKojiHubURL();
 
         if (kojiHubURL == null) {
             throw new IOException("You must set koji-hub-url in: " + configFile.getAbsolutePath());
         }
 
-        final URL pncURL = config.getPncURL();
+        URL pncURL = config.getPncURL();
 
         if (pncURL == null) {
             throw new IOException("You must set pnc-url in: " + configFile.getAbsolutePath());
         }
 
-        final SimpleKojiConfig kojiConfig = new SimpleKojiConfigBuilder().withKojiURL(kojiHubURL.toExternalForm())
+        SimpleKojiConfig kojiConfig = new SimpleKojiConfigBuilder().withKojiURL(kojiHubURL.toExternalForm())
                 .withMaxConnections(MAX_CONNECTIONS)
                 .build();
         this.session = new KojiClientSession(
@@ -90,16 +97,16 @@ public abstract class AbstractKojiIT {
         reporter.start(600, TimeUnit.SECONDS);
     }
 
-    public KojiClientSession getKojiClientSession() {
+    KojiClientSession getSession() {
         return session;
+    }
+
+    protected PncClientImpl getPncClient() {
+        return pncclient;
     }
 
     public BuildConfig getConfig() {
         return config;
-    }
-
-    public PncClientImpl getPncClient() {
-        return pncclient;
     }
 
     @AfterEach

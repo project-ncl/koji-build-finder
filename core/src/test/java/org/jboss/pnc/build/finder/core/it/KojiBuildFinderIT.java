@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-public class KojiBuildFinderIT extends AbstractKojiIT {
+class KojiBuildFinderIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(KojiBuildFinderIT.class);
 
     private static final String PROPERTY = "distribution.url";
@@ -54,31 +54,31 @@ public class KojiBuildFinderIT extends AbstractKojiIT {
     private static final int READ_TIMEOUT = 900000;
 
     @Test
-    public void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
         assertNotNull(
-                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
-                URL);
+                URL,
+                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with");
 
-        final Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
+        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
-        final Map<ChecksumType, MultiValuedMap<String, String>> map;
+        Map<ChecksumType, MultiValuedMap<String, String>> map;
 
-        final ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+        ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
 
-        final DistributionAnalyzer analyzer;
+        DistributionAnalyzer analyzer;
 
-        final Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
+        Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 
         try (Timer.Context context = timer.time()) {
             analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
         }
 
-        final Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "builds"));
 
         try (Timer.Context context2 = timer2.time()) {
-            final ClientSession session = getKojiClientSession();
-            final BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
+            ClientSession session = getSession();
+            BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();

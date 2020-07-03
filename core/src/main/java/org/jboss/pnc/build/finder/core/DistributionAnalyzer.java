@@ -390,7 +390,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             if (queue != null && config.getChecksumTypes().contains(ChecksumType.md5)) {
                 try {
                     for (Checksum checksum : checksums) {
-                        if (checksum.getType().equals(ChecksumType.md5)) {
+                        if (checksum.getType() == ChecksumType.md5) {
                             queue.put(checksum);
                         }
                     }
@@ -411,13 +411,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         try {
             fo.findFiles(new AllFileSelector(), true, localFiles);
             int numChildren = localFiles.size();
-            Collection<Future<Set<Checksum>>> futures = new ArrayList<>(numChildren);
-            List<Callable<Set<Checksum>>> tasks = new ArrayList<>(numChildren);
+            Iterable<Future<Set<Checksum>>> futures = new ArrayList<>(numChildren);
+            Collection<Callable<Set<Checksum>>> tasks = new ArrayList<>(numChildren);
 
             for (FileObject file : localFiles) {
                 if (file.isFile()) {
                     if (includeFile(file)) {
-                        if (file.getName().getScheme().equals("tar")) {
+                        if ("tar".equals(file.getName().getScheme())) {
                             Future<Set<Checksum>> future = pool.submit(checksumTask(file));
                             handleFutureChecksum(future);
                         } else {
@@ -469,10 +469,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public MultiValuedMap<String, Checksum> getFiles() {
         return MultiMapUtils.unmodifiableMultiValuedMap(inverseMap);
-    }
-
-    public void setFiles(MultiValuedMap<String, Checksum> inverseMap) {
-        this.inverseMap = inverseMap;
     }
 
     public void setChecksums(Map<ChecksumType, MultiValuedMap<String, String>> map) {

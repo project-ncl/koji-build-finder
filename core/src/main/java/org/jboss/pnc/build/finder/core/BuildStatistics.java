@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class BuildStatistics {
 
     }
 
-    public BuildStatistics(List<KojiBuild> builds) {
+    public BuildStatistics(Collection<KojiBuild> builds) {
         for (KojiBuild build : builds) {
             boolean isImport = build.isImport();
             List<KojiLocalArchive> archives = build.getArchives();

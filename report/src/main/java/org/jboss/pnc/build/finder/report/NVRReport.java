@@ -27,6 +27,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,10 +38,10 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 
 import j2html.tags.ContainerTag;
 
-public class NVRReport extends Report {
-    private List<String> nvrs;
+public final class NVRReport extends Report {
+    private final List<String> nvrs;
 
-    public NVRReport(File outputDirectory, List<KojiBuild> builds) {
+    public NVRReport(File outputDirectory, Collection<KojiBuild> builds) {
         setName("Koji builds");
         setDescription("List of builds in standard Koji <name>-<version>-<release> format");
         setBaseFilename("nvr");
@@ -66,6 +67,6 @@ public class NVRReport extends Report {
                 attrs("#table-" + getBaseFilename()),
                 caption(text(getName())),
                 thead(tr(th(text("<name>-<version>-<release>")))),
-                tbody(each(nvrs, i -> tr(td(text(i))))));
+                tbody(each(nvrs, nvr -> tr(td(text(nvr))))));
     }
 }

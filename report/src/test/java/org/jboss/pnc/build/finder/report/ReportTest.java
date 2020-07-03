@@ -18,7 +18,6 @@ package org.jboss.pnc.build.finder.report;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -88,52 +87,56 @@ class ReportTest {
     @Test
     void verifyBuilds() {
         assertTrue(builds.get(0).isImport());
-        assertNull(builds.get(0).getScmSourcesZip());
-        assertNull(builds.get(0).getPatchesZip());
-        assertNull(builds.get(0).getProjectSourcesTgz());
+        assertFalse(builds.get(0).getScmSourcesZip().isPresent());
+        assertFalse(builds.get(0).getPatchesZip().isPresent());
+        assertFalse(builds.get(0).getProjectSourcesTgz().isPresent());
         assertTrue(builds.get(0).getDuplicateArchives().isEmpty());
         assertNotNull(builds.get(0).toString());
 
         assertTrue(builds.get(1).isImport());
-        assertNull(builds.get(1).getScmSourcesZip());
-        assertNull(builds.get(1).getPatchesZip());
-        assertNull(builds.get(1).getProjectSourcesTgz());
+        assertFalse(builds.get(1).getScmSourcesZip().isPresent());
+        assertFalse(builds.get(1).getPatchesZip().isPresent());
+        assertFalse(builds.get(1).getProjectSourcesTgz().isPresent());
         assertEquals(1, builds.get(1).getDuplicateArchives().size());
         assertNotNull(builds.get(1).toString());
 
         assertTrue(builds.get(2).isImport());
-        assertNull(builds.get(2).getScmSourcesZip());
-        assertNull(builds.get(2).getPatchesZip());
-        assertNull(builds.get(2).getProjectSourcesTgz());
+        assertFalse(builds.get(2).getScmSourcesZip().isPresent());
+        assertFalse(builds.get(2).getPatchesZip().isPresent());
+        assertFalse(builds.get(2).getProjectSourcesTgz().isPresent());
         assertEquals(1, builds.get(2).getDuplicateArchives().size());
         assertNotNull(builds.get(2).toString());
         assertNotNull(builds.get(2).getDuplicateArchives().get(0));
 
         assertTrue(builds.get(3).isMaven());
         assertTrue(builds.get(3).getTypes().contains("maven"));
-        assertNotNull(builds.get(3).getSource());
-        assertNotNull(builds.get(3).getScmSourcesZip());
-        assertNotNull(builds.get(3).getPatchesZip());
-        assertNotNull(builds.get(3).getProjectSourcesTgz());
+        assertTrue(builds.get(3).getSource().isPresent());
+        assertFalse(builds.get(3).getSource().get().isEmpty());
+        assertTrue(builds.get(3).getScmSourcesZip().isPresent());
+        assertTrue(builds.get(3).getPatchesZip().isPresent());
+        assertTrue(builds.get(3).getProjectSourcesTgz().isPresent());
         assertNotNull(builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties());
         assertTrue(builds.get(3).getDuplicateArchives().isEmpty());
         assertNotNull(builds.get(3).toString());
 
         assertTrue(builds.get(4).isMaven());
-        assertNotNull(builds.get(4).getSource());
-        assertNull(builds.get(4).getScmSourcesZip());
-        assertNull(builds.get(4).getPatchesZip());
-        assertNotNull(builds.get(4).getProjectSourcesTgz());
+        assertTrue(builds.get(4).getSource().isPresent());
+        assertFalse(builds.get(3).getSource().get().isEmpty());
+        assertFalse(builds.get(4).getScmSourcesZip().isPresent());
+        assertFalse(builds.get(4).getPatchesZip().isPresent());
+        assertTrue(builds.get(4).getProjectSourcesTgz().isPresent());
         assertNotNull(builds.get(4).getBuildInfo().getExtra());
-        assertEquals("PNC", builds.get(4).getMethod());
+        assertTrue(builds.get(4).getMethod().isPresent());
+        assertEquals("PNC", builds.get(4).getMethod().get());
         assertTrue(builds.get(4).getDuplicateArchives().isEmpty());
         assertNotNull(builds.get(4).toString());
 
         assertFalse(builds.get(5).isMaven());
-        assertNotNull(builds.get(5).getSource());
-        assertNull(builds.get(5).getScmSourcesZip());
-        assertNull(builds.get(5).getPatchesZip());
-        assertNull(builds.get(5).getProjectSourcesTgz());
+        assertTrue(builds.get(5).getSource().isPresent());
+        assertFalse(builds.get(3).getSource().get().isEmpty());
+        assertFalse(builds.get(5).getScmSourcesZip().isPresent());
+        assertFalse(builds.get(5).getPatchesZip().isPresent());
+        assertFalse(builds.get(5).getProjectSourcesTgz().isPresent());
         assertTrue(builds.get(5).getDuplicateArchives().isEmpty());
         assertNotNull(builds.get(5).toString());
     }
@@ -238,7 +241,7 @@ class ReportTest {
                 FileUtils
                         .readFileToString(
                                 new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"),
-                                "UTF-8")
+                                StandardCharsets.UTF_8)
                         .contains("<html>"));
     }
 }

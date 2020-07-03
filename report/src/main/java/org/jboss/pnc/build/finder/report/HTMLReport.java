@@ -45,11 +45,10 @@ import static java.lang.String.join;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -63,7 +62,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 
-public class HTMLReport extends Report {
+public final class HTMLReport extends Report {
     private static final String NAME = "Koji Build Finder";
 
     private static final String HTML_STYLE = ""
@@ -77,13 +76,13 @@ public class HTMLReport extends Report {
             + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top;"
             + "font-size: small; }\n" + "footer { font-size: smaller; }";
 
-    private URL kojiwebUrl;
+    private final URL kojiwebUrl;
 
-    private URL pncUrl;
+    private final URL pncUrl;
 
-    private List<KojiBuild> builds;
+    private final List<KojiBuild> builds;
 
-    private List<Report> reports;
+    private final List<Report> reports;
 
     public HTMLReport(
             File outputDirectory,
@@ -92,7 +91,7 @@ public class HTMLReport extends Report {
             URL kojiwebUrl,
             URL pncUrl,
             List<Report> reports) {
-        setName("Build Report for " + files.stream().collect(Collectors.joining(", ")));
+        setName("Build Report for " + String.join(", ", files));
         setDescription("List of analyzed artifacts whether or not they were found in a Koji build");
         setBaseFilename("output");
         setOutputDirectory(outputDirectory);
@@ -207,8 +206,8 @@ public class HTMLReport extends Report {
         return li(a().withHref(kojiwebUrl + "/taginfo?tagID=" + id).with(text(name)));
     }
 
-    private Tag<?> linkSource(KojiBuild build) {
-        String source = build.getSource();
+    private static Tag<?> linkSource(KojiBuild build) {
+        String source = build.getSource().orElse("");
         return span(source);
     }
 
@@ -293,25 +292,27 @@ public class HTMLReport extends Report {
                                                                                                 tag -> linkTag(b, tag)))
                                                                                         : text("")),
                                                                         td(
-                                                                                b.getMethod() != null
-                                                                                        ? text(b.getMethod())
+                                                                                b.getMethod().isPresent()
+                                                                                        ? text(b.getMethod().get())
                                                                                         : b.getId() > 0 ? errorText(
                                                                                                 "imported build")
                                                                                                 : text("")),
                                                                         td(
-                                                                                b.getScmSourcesZip() != null
+                                                                                b.getScmSourcesZip().isPresent()
                                                                                         ? linkArchive(
                                                                                                 b,
-                                                                                                b.getScmSourcesZip())
+                                                                                                b.getScmSourcesZip()
+                                                                                                        .get())
                                                                                         : text("")),
                                                                         td(
-                                                                                b.getPatchesZip() != null
+                                                                                b.getPatchesZip().isPresent()
                                                                                         ? linkArchive(
                                                                                                 b,
-                                                                                                b.getPatchesZip())
+                                                                                                b.getPatchesZip().get())
                                                                                         : text("")),
                                                                         td(
-                                                                                b.getSource() != null ? linkSource(b)
+                                                                                b.getSource().isPresent()
+                                                                                        ? linkSource(b)
                                                                                         : b.getId() == 0 ? text("")
                                                                                                 : errorText(
                                                                                                         "missing URL")),
@@ -363,7 +364,7 @@ public class HTMLReport extends Report {
                                 footer().attr(Attr.CLASS, "footer")
                                         .attr(Attr.ID, "footer")
                                         .with(
-                                                text("Created: " + new Date() + " by "),
+                                                text("Created: " + LocalDate.now() + " by "),
                                                 a().withHref(
                                                         "https://github.com/release-engineering/koji-build-finder/")
                                                         .with(text(NAME)),

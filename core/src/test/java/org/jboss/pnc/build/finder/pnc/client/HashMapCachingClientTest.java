@@ -36,8 +36,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 class HashMapCachingClientTest {
     private static final DummyPncClient DUMMY_PNC_CLIENT = new DummyPncClient();
 
-    private static final HashMapCachingPncClient HASH_MAP_CACHING_PNC_CLIENT = new HashMapCachingPncClient(
-            DUMMY_PNC_CLIENT);
+    private static final PncClient HASH_MAP_CACHING_PNC_CLIENT = new HashMapCachingPncClient(DUMMY_PNC_CLIENT);
 
     @Test
     void m1ShouldGetArtifactsByMd5FromClient() throws RemoteResourceException {

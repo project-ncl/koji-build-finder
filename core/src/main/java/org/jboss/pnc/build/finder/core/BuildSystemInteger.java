@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
@@ -78,11 +79,11 @@ public class BuildSystemInteger implements Comparable<Object> {
     }
 
     @Override
-    public int compareTo(Object obj) {
-        BuildSystemInteger other = (BuildSystemInteger) obj;
+    public int compareTo(Object o) {
+        BuildSystemInteger other = (BuildSystemInteger) o;
         int result;
 
-        if (buildSystem.equals(other.getBuildSystem())) {
+        if (buildSystem == other.getBuildSystem()) {
             result = value.compareTo(other.getValue());
         } else {
             result = buildSystem.compareTo(other.getBuildSystem());
@@ -92,9 +93,11 @@ public class BuildSystemInteger implements Comparable<Object> {
     }
 
     public static class Deserializer extends KeyDeserializer {
+        private static final Pattern PATTERN = Pattern.compile(", ");
+
         @Override
         public Object deserializeKey(String s, DeserializationContext deserializationContext) {
-            String[] t = s.split(", ");
+            String[] t = PATTERN.split(s);
             int value = Integer.parseInt(t[0]);
             BuildSystem buildSystem = BuildSystem.valueOf(t[1]);
 

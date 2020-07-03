@@ -27,9 +27,9 @@ import org.jboss.pnc.build.finder.koji.KojiBuild;
  * @author Jakub Bartecek
  */
 public class FindBuildsResult {
-    private Map<BuildSystemInteger, KojiBuild> foundBuilds;
+    private final Map<BuildSystemInteger, KojiBuild> foundBuilds;
 
-    private Map<Checksum, Collection<String>> notFoundChecksums;
+    private final Map<Checksum, Collection<String>> notFoundChecksums;
 
     public FindBuildsResult() {
         this.foundBuilds = new HashMap<>();

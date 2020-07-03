@@ -103,7 +103,7 @@ public class PncBuildFinder {
 
     private void populatePncBuildsMetadata(ConcurrentHashMap<String, PncBuild> pncBuilds)
             throws RemoteResourceException {
-        final RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
+        RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
         pncBuilds.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (buildId, pncBuild) -> {
             if (LOGGER.isDebugEnabled()) {
@@ -184,7 +184,7 @@ public class PncBuildFinder {
      * @param artifacts All found artifacts
      * @return A map pncBuildId,pncBuild
      */
-    private ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Set<EnhancedArtifact> artifacts) {
+    private static ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Iterable<EnhancedArtifact> artifacts) {
         ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>();
         Build buildZero = Build.builder().id("0").build();
 
@@ -253,12 +253,12 @@ public class PncBuildFinder {
 
             default:
                 throw new IllegalArgumentException(
-                        "Unsupported checksum type requested! " + "Checksum type " + checksum.getType()
+                        "Unsupported checksum type requested! Checksum type " + checksum.getType()
                                 + " is not supported.");
         }
     }
 
-    private int getArtifactQuality(Object obj) {
+    private static int getArtifactQuality(Object obj) {
         Artifact a = (Artifact) obj;
         ArtifactQuality quality = a.getArtifactQuality();
 
@@ -283,7 +283,7 @@ public class PncBuildFinder {
         }
     }
 
-    private Optional<Artifact> getBestPncArtifact(Collection<Artifact> artifacts) {
+    private static Optional<Artifact> getBestPncArtifact(Collection<Artifact> artifacts) {
         if (artifacts == null || artifacts.isEmpty()) {
             throw new IllegalArgumentException("No artifacts provided!");
         }
@@ -293,7 +293,7 @@ public class PncBuildFinder {
         } else {
             return Optional.of(
                     artifacts.stream()
-                            .sorted(Comparator.comparing(this::getArtifactQuality).reversed())
+                            .sorted(Comparator.comparing(PncBuildFinder::getArtifactQuality).reversed())
                             .filter(artifact -> artifact.getBuild() != null)
                             .findFirst()
                             .orElse(artifacts.iterator().next()));
@@ -327,7 +327,7 @@ public class PncBuildFinder {
     }
 
     private KojiBuild convertPncBuildZeroToKojiBuild(PncBuild pncBuild) {
-        KojiBuild buildZero = buildFinderUtils.createKojiBuildZero();
+        KojiBuild buildZero = BuildFinderUtils.createKojiBuildZero();
 
         pncBuild.getArtifacts()
                 .forEach(

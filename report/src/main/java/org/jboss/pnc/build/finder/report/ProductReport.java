@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -48,10 +49,18 @@ import org.slf4j.LoggerFactory;
 
 import j2html.tags.ContainerTag;
 
-public class ProductReport extends Report {
+public final class ProductReport extends Report {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductReport.class);
 
-    private Map<String, List<String>> productMap;
+    private static final Pattern NAME_VER_PATTERN = Pattern.compile("([a-z\\-]+)([0-9.?]+)?(.*)");
+
+    private static final Pattern SPACE_PATTERN = Pattern.compile("-+");
+
+    private static final Pattern JBOSS_PATTERN = Pattern.compile("(jb|jboss)");
+
+    public static final int PRODUCT_NAME_LENGTH = 120;
+
+    private final Map<String, List<String>> productMap;
 
     public ProductReport(File outputDirectory, List<KojiBuild> builds) {
         setName("Products");
@@ -60,17 +69,17 @@ public class ProductReport extends Report {
         setOutputDirectory(outputDirectory);
 
         List<String> targets = builds.stream()
-                .filter(b -> b.getBuildInfo() != null && b.getBuildInfo().getId() > 0)
+                .filter(build -> build.getBuildInfo() != null && build.getBuildInfo().getId() > 0)
                 .filter(
-                        b -> b.getTaskRequest() != null && b.getTaskRequest().asBuildRequest() != null
-                                && b.getTaskRequest().asBuildRequest().getTarget() != null)
-                .map(b -> b.getTaskRequest().asBuildRequest().getTarget())
+                        build -> build.getTaskRequest() != null && build.getTaskRequest().asBuildRequest() != null
+                                && build.getTaskRequest().asBuildRequest().getTarget() != null)
+                .map(build -> build.getTaskRequest().asBuildRequest().getTarget())
                 .collect(Collectors.toList());
         Map<String, Long> map = targets.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        List<Map.Entry<String, Long>> countList = map.entrySet()
+        List<Entry<String, Long>> countList = map.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue())
+                .sorted(Entry.comparingByValue())
                 .collect(Collectors.toList());
         Collections.reverse(countList);
 
@@ -105,7 +114,7 @@ public class ProductReport extends Report {
             String target = entry.getKey();
             Collection<KojiBuild> prodBuilds = entry.getValue();
             List<String> buildList = prodBuilds.stream()
-                    .map(b -> b.getBuildInfo().getNvr())
+                    .map(build -> build.getBuildInfo().getNvr())
                     .collect(Collectors.toList());
 
             if (LOGGER.isDebugEnabled()) {
@@ -116,13 +125,13 @@ public class ProductReport extends Report {
         }
     }
 
-    private static String targetToProduct(String tagName) {
-        String prodName = tagName.replaceAll("([a-z\\-]+)([0-9.?]+)?(.*)", "$1-$2")
-                .replaceAll("-+", " ")
-                .replaceAll("(jb|jboss)", "JBoss");
+    private static String targetToProduct(CharSequence tagName) {
+        String prodName = JBOSS_PATTERN
+                .matcher(SPACE_PATTERN.matcher(NAME_VER_PATTERN.matcher(tagName).replaceAll("$1-$2")).replaceAll(" "))
+                .replaceAll("JBoss");
         Iterator<String> it = Arrays.asList(prodName.split(" ")).iterator();
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(PRODUCT_NAME_LENGTH);
 
         while (it.hasNext()) {
             String word = it.next();
@@ -141,7 +150,7 @@ public class ProductReport extends Report {
         return sb.toString();
     }
 
-    public Map<String, List<String>> getProductMap() {
+    Map<String, List<String>> getProductMap() {
         return Collections.unmodifiableMap(productMap);
     }
 

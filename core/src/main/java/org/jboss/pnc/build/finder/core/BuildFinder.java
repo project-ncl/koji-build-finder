@@ -178,7 +178,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     private void initBuilds() {
         builds = new HashMap<>();
 
-        KojiBuild build = buildFinderUtils.createKojiBuildZero();
+        KojiBuild build = BuildFinderUtils.createKojiBuildZero();
         builds.put(new BuildSystemInteger(0), build);
     }
 
@@ -633,9 +633,9 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         Set<Entry<Checksum, Collection<String>>> entries = checksumTable.entrySet();
         int numEntries = entries.size();
         List<Entry<Checksum, Collection<String>>> checksums = new ArrayList<>(numEntries);
-        List<Entry<Checksum, Collection<String>>> cachedChecksums = new ArrayList<>(numEntries);
-        List<List<KojiArchiveInfo>> cachedArchiveInfos = new ArrayList<>(numEntries);
-        List<Entry<Checksum, Collection<String>>> rpmEntries = new ArrayList<>(numEntries);
+        Collection<Entry<Checksum, Collection<String>>> cachedChecksums = new ArrayList<>(numEntries);
+        Collection<List<KojiArchiveInfo>> cachedArchiveInfos = new ArrayList<>(numEntries);
+        Collection<Entry<Checksum, Collection<String>>> rpmEntries = new ArrayList<>(numEntries);
 
         for (Entry<Checksum, Collection<String>> entry : entries) {
             Checksum checksum = entry.getKey();
@@ -680,20 +680,20 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             }
         }
 
-        final int numThreads = config.getKojiNumThreads();
+        int numThreads = config.getKojiNumThreads();
         ExecutorService pool = Executors.newFixedThreadPool(numThreads);
         int numChecksums = checksums.size();
         List<List<KojiArchiveInfo>> archives = new ArrayList<>(numChecksums);
-        final int chunkSize = config.getKojiMulticallSize();
+        int chunkSize = config.getKojiMulticallSize();
         List<List<Entry<Checksum, Collection<String>>>> chunks = ListUtils.partition(checksums, chunkSize);
         int numChunks = chunks.size();
-        List<KojiArchiveQuery> allQueries = new ArrayList<>(numChecksums);
+        Collection<KojiArchiveQuery> allQueries = new ArrayList<>(numChecksums);
 
         if (numChecksums > 0) {
             LOGGER.debug("Looking up {} checksums", green(numChecksums));
             LOGGER.debug("Using {} chunks of size {}", green(numChunks), green(chunkSize));
 
-            List<Callable<List<List<KojiArchiveInfo>>>> tasks = new ArrayList<>(numChecksums);
+            Collection<Callable<List<List<KojiArchiveInfo>>>> tasks = new ArrayList<>(numChecksums);
 
             for (int i = 0; i < numChunks; i++) {
                 int chunkNumber = i + 1;
@@ -856,7 +856,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
                 // XXX: Only works for md5, and we can't lookup RPMs by checksum
                 // XXX: We can use other APIs to get other checksums, but they are not cached as part of this object
-                if (checksum.getType().equals(ChecksumType.md5)) {
+                if (checksum.getType() == ChecksumType.md5) {
                     String actual = rpm.getPayloadhash();
 
                     if (!checksum.getValue().equals(actual)) {
@@ -888,11 +888,11 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
                 buildZero.getArchives()
                         .removeIf(
-                                a -> a.getChecksums()
+                                localArchive -> localArchive.getChecksums()
                                         .stream()
                                         .anyMatch(
-                                                c -> c.getType().equals(checksum.getType())
-                                                        && c.getValue().equals(checksum.getValue())));
+                                                cksum -> cksum.getType() == checksum.getType()
+                                                        && cksum.getValue().equals(checksum.getValue())));
             }
 
             Integer id = build.getBuildInfo().getId();
@@ -962,8 +962,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
                 if (futureTaskInfos != null) {
                     taskInfos = futureTaskInfos.get();
-                } else {
-                    taskInfos = Collections.emptyList();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -1003,11 +1001,19 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
             List<KojiArchiveInfo> archivesToUpdate = new ArrayList<>(3 * archiveBuilds.size());
 
-            for (KojiBuild build : allKojiBuilds.values()) {
-                for (KojiArchiveInfo source : Arrays
-                        .asList(build.getScmSourcesZip(), build.getProjectSourcesTgz(), build.getPatchesZip())) {
-                    if (KojiLocalArchive.isMissingBuildTypeInfo(source)) {
-                        archivesToUpdate.add(source);
+            Collection<KojiBuild> values = allKojiBuilds.values();
+
+            for (KojiBuild build : values) {
+                List<Optional<KojiArchiveInfo>> sources = Arrays
+                        .asList(build.getScmSourcesZip(), build.getProjectSourcesTgz(), build.getPatchesZip());
+
+                for (Optional<KojiArchiveInfo> optional : sources) {
+                    if (optional.isPresent()) {
+                        KojiArchiveInfo source = optional.get();
+
+                        if (KojiLocalArchive.isMissingBuildTypeInfo(source)) {
+                            archivesToUpdate.add(source);
+                        }
                     }
                 }
             }
@@ -1069,11 +1075,11 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
                             buildZero.getArchives()
                                     .removeIf(
-                                            a -> a.getChecksums()
+                                            localArchive -> localArchive.getChecksums()
                                                     .stream()
                                                     .anyMatch(
-                                                            c -> c.getType().equals(checksum.getType())
-                                                                    && c.getValue().equals(checksum.getValue())));
+                                                            cksum -> cksum.getType() == checksum.getType()
+                                                                    && cksum.getValue().equals(checksum.getValue())));
                         }
                     }
 
@@ -1145,11 +1151,11 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
                         buildZero.getArchives()
                                 .removeIf(
-                                        a -> a.getChecksums()
+                                        localArchive -> localArchive.getChecksums()
                                                 .stream()
                                                 .anyMatch(
-                                                        c -> c.getType().equals(checksum.getType())
-                                                                && c.getValue().equals(checksum.getValue())));
+                                                        cksum -> cksum.getType() == checksum.getType()
+                                                                && cksum.getValue().equals(checksum.getValue())));
                     }
 
                     addArchiveToBuild(build, archive, filenames);
@@ -1275,7 +1281,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     public Map<BuildSystemInteger, KojiBuild> call() throws KojiClientException {
         Instant startTime = Instant.now();
         MultiValuedMap<Checksum, String> localchecksumMap = new ArrayListValuedHashMap<>();
-        Set<Checksum> checksums = new HashSet<>();
+        Collection<Checksum> checksums = new HashSet<>();
         Checksum checksum = null;
         boolean finished = false;
         Map<BuildSystemInteger, KojiBuild> allBuilds = new HashMap<>();
@@ -1303,7 +1309,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 if (value == null) {
                     finished = true;
                 } else {
-                    if (cksum.getType().equals(ChecksumType.md5)) {
+                    if (cksum.getType() == ChecksumType.md5) {
                         String filename = cksum.getFilename();
                         localchecksumMap.put(cksum, filename);
                     }

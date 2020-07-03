@@ -49,7 +49,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
  *
  * @author Jakub Bartecek
  */
-public class BuildFinderUtils {
+public final class BuildFinderUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildFinderUtils.class);
 
     private List<String> archiveExtensions;
@@ -60,11 +60,15 @@ public class BuildFinderUtils {
 
     public BuildFinderUtils(BuildConfig config, DistributionAnalyzer distributionAnalyzer, ClientSession session) {
         this.distributionAnalyzer = distributionAnalyzer;
+
         loadArchiveExtensions(config, session);
+
         LOGGER.debug("Archive extensions: {}", green(archiveExtensions));
 
         emptyDigests = new EnumMap<>(ChecksumType.class);
-        emptyDigests.replaceAll((k, v) -> Hex.encodeHexString(DigestUtils.getDigest(k.getAlgorithm()).digest()));
+        emptyDigests.replaceAll(
+                (checksumType, checksum) -> Hex
+                        .encodeHexString(DigestUtils.getDigest(checksumType.getAlgorithm()).digest()));
 
     }
 
@@ -74,7 +78,8 @@ public class BuildFinderUtils {
             return true;
         }
 
-        List<String> newArchiveExtensions = new ArrayList<>(archiveExtensions.size() + 1);
+        Collection<String> newArchiveExtensions = new ArrayList<>(archiveExtensions.size() + 1);
+
         newArchiveExtensions.addAll(archiveExtensions);
         newArchiveExtensions.add("rpm");
 
@@ -135,10 +140,11 @@ public class BuildFinderUtils {
         Optional<KojiLocalArchive> matchingArchive = buildZero.getArchives()
                 .stream()
                 .filter(
-                        a -> a.getArchive()
+                        localArchive -> localArchive.getArchive()
                                 .getChecksumType()
-                                .equals(KojiChecksumType.valueOf(checksum.getType().getAlgorithm().toLowerCase()))
-                                && a.getArchive().getChecksum().equals(checksum.getValue()))
+                                .name()
+                                .equals(checksum.getType().name())
+                                && localArchive.getArchive().getChecksum().equals(checksum.getValue()))
                 .findFirst();
 
         if (matchingArchive.isPresent()) {
@@ -157,7 +163,7 @@ public class BuildFinderUtils {
             tmpArchive.setBuildId(0);
             tmpArchive.setFilename("not found");
             tmpArchive.setChecksum(checksum.getValue());
-            tmpArchive.setChecksumType(KojiChecksumType.valueOf(checksum.getType().getAlgorithm().toLowerCase()));
+            tmpArchive.setChecksumType(KojiChecksumType.valueOf(checksum.getType().name()));
 
             tmpArchive.setArchiveId(-1 * (buildZero.getArchives().size() + 1));
 
@@ -180,7 +186,7 @@ public class BuildFinderUtils {
         }
     }
 
-    public KojiBuild createKojiBuildZero() {
+    public static KojiBuild createKojiBuildZero() {
         KojiBuildInfo buildInfo = new KojiBuildInfo();
 
         buildInfo.setId(0);
@@ -208,6 +214,7 @@ public class BuildFinderUtils {
 
     public void loadArchiveExtensions(BuildConfig config, ClientSession session) {
         LOGGER.debug("Asking server for archive extensions");
+
         try {
             archiveExtensions = getArchiveExtensionsFromKoji(config, session);
         } catch (KojiClientException e) {
@@ -221,7 +228,7 @@ public class BuildFinderUtils {
         return archiveExtensions;
     }
 
-    private List<String> getArchiveExtensionsFromKoji(BuildConfig config, ClientSession session)
+    private static List<String> getArchiveExtensionsFromKoji(BuildConfig config, ClientSession session)
             throws KojiClientException {
         Map<String, KojiArchiveType> allArchiveTypesMap = session.getArchiveTypeMap();
 
@@ -253,30 +260,22 @@ public class BuildFinderUtils {
                 .map(KojiArchiveType::getExtensions)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        List<String> localArchiveExtensions = config.getArchiveExtensions();
-        List<String> archiveExtensionsToCheck;
+        List<String> extensions = config.getArchiveExtensions();
+        List<String> extensionsToCheck;
 
-        if (localArchiveExtensions != null && !localArchiveExtensions.isEmpty()) {
-            LOGGER.debug(
-                    "There are {} supplied Koji archive extensions: {}",
-                    localArchiveExtensions.size(),
-                    localArchiveExtensions);
-            archiveExtensionsToCheck = localArchiveExtensions.stream()
-                    .filter(allArchiveExtensions::contains)
-                    .collect(Collectors.toList());
-            LOGGER.debug(
-                    "There are {} valid supplied Koji archive extensions: {}",
-                    localArchiveExtensions.size(),
-                    localArchiveExtensions);
+        if (extensions != null && !extensions.isEmpty()) {
+            LOGGER.debug("There are {} supplied Koji archive extensions: {}", extensions.size(), extensions);
+            extensionsToCheck = extensions.stream().filter(allArchiveExtensions::contains).collect(Collectors.toList());
+            LOGGER.debug("There are {} valid supplied Koji archive extensions: {}", extensions.size(), extensions);
         } else {
             LOGGER.debug(
                     "There are {} known Koji archive extensions: {}",
                     allArchiveExtensions.size(),
                     allArchiveExtensions.size());
             LOGGER.warn("Supplied archive extensions list is empty; defaulting to all known archive extensions");
-            archiveExtensionsToCheck = allArchiveExtensions;
+            extensionsToCheck = allArchiveExtensions;
         }
 
-        return archiveExtensionsToCheck;
+        return extensionsToCheck;
     }
 }

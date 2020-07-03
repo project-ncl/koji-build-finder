@@ -498,7 +498,7 @@ public final class Main implements Callable<Void> {
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void call() throws KojiClientException {
         if (quiet) {
             disableLogging();
         } else if (debug) {
@@ -620,6 +620,9 @@ public final class Main implements Callable<Void> {
                     LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("Error", e);
                     System.exit(1);
+                } catch (InterruptedException e) {
+                    LOGGER.warn("Thread interrupted while getting checksums", e);
+                    Thread.currentThread().interrupt();
                 }
 
                 Set<ChecksumType> keySet = checksums.keySet();
@@ -768,6 +771,9 @@ public final class Main implements Callable<Void> {
                         LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()), e);
                         LOGGER.debug("Error", e);
                         System.exit(1);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn("Thread interrupted while getting checksums", e);
+                        Thread.currentThread().interrupt();
                     }
 
                     Set<ChecksumType> keySet = checksums.keySet();
@@ -792,6 +798,9 @@ public final class Main implements Callable<Void> {
                         LOGGER.error("Error getting builds {}", boldRed(e.getMessage()), e);
                         LOGGER.debug("Error", e);
                         System.exit(1);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn("Thread interrupted while getting builds", e);
+                        Thread.currentThread().interrupt();
                     }
 
                     JSONUtils.dumpObjectToFile(builds, buildsFile);

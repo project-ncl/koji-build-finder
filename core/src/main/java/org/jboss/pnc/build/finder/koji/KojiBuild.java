@@ -21,6 +21,7 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.infinispan.commons.marshall.AdvancedExternalizer;
@@ -105,7 +106,7 @@ public class KojiBuild {
             return -1;
         }
 
-        return Integer.valueOf(buildInfo.getId());
+        return buildInfo.getId();
     }
 
     public KojiBuildInfo getBuildInfo() {
@@ -207,57 +208,51 @@ public class KojiBuild {
     }
 
     @JsonIgnore
-    public KojiArchiveInfo getProjectSourcesTgz() {
+    public Optional<KojiArchiveInfo> getProjectSourcesTgz() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
         KojiArchiveInfo sourcesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-project-sources.tar.gz";
-            sourcesZip = remoteArchives.stream()
+            return remoteArchives.stream()
                     .filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename))
-                    .findFirst()
-                    .orElse(null);
-            return sourcesZip;
+                    .findFirst();
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @JsonIgnore
-    public KojiArchiveInfo getScmSourcesZip() {
+    public Optional<KojiArchiveInfo> getScmSourcesZip() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
         KojiArchiveInfo sourcesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-scm-sources.zip";
-            sourcesZip = remoteArchives.stream()
+            return remoteArchives.stream()
                     .filter(sArchive -> sArchive.getFilename().equals(sourcesZipFilename))
-                    .findFirst()
-                    .orElse(null);
-            return sourcesZip;
+                    .findFirst();
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @JsonIgnore
-    public KojiArchiveInfo getPatchesZip() {
+    public Optional<KojiArchiveInfo> getPatchesZip() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
         KojiArchiveInfo patchesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String patchesZipFilename = mavenArtifactId + "-" + mavenVersion + "-patches.zip";
-            patchesZip = remoteArchives.stream()
+            return remoteArchives.stream()
                     .filter(pArchive -> pArchive.getFilename().equals(patchesZipFilename))
-                    .findFirst()
-                    .orElse(null);
-            return patchesZip;
+                    .findFirst();
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @JsonIgnore
@@ -276,50 +271,53 @@ public class KojiBuild {
     }
 
     @JsonIgnore
-    public String getSource() {
-        if (buildInfo != null) {
-            String source = buildInfo.getSource();
+    public Optional<String> getSource() {
+        String source = null;
 
-            if (source != null) {
-                return source;
-            }
+        if (buildInfo != null) {
+            source = buildInfo.getSource();
         }
 
-        if (getTaskRequest() != null) {
+        if (source == null && getTaskRequest() != null) {
             KojiBuildRequest buildRequest = taskRequest.asBuildRequest();
 
             if (buildRequest != null) {
-                return buildRequest.getSource();
+                source = buildRequest.getSource();
             }
         }
 
-        return null;
+        return source != null ? Optional.of(source) : Optional.empty();
     }
 
     @JsonIgnore
-    public String getMethod() {
+    public Optional<String> getMethod() {
         if (taskInfo != null) {
-            return taskInfo.getMethod();
+            String method = taskInfo.getMethod();
+
+            if (method != null) {
+                return Optional.of(method);
+            }
         }
 
-        if (buildInfo == null) {
-            return null;
+        if (buildInfo != null) {
+            Map<String, Object> extra = buildInfo.getExtra();
+
+            if (extra != null) {
+                String buildSystem = (String) extra.get(KojiJsonConstants.BUILD_SYSTEM);
+
+                if (buildSystem != null) {
+                    String version = (String) extra.get(KEY_VERSION);
+
+                    if (version != null) {
+                        buildSystem += " " + version;
+                    }
+
+                    return Optional.of(buildSystem);
+                }
+            }
         }
 
-        Map<String, Object> extra = buildInfo.getExtra();
-
-        if (extra == null) {
-            return null;
-        }
-
-        String buildSystem = (String) extra.get(KojiJsonConstants.BUILD_SYSTEM);
-        String version = (String) extra.get(KEY_VERSION);
-
-        if (buildSystem != null && version != null) {
-            buildSystem += " " + version;
-        }
-
-        return buildSystem;
+        return Optional.empty();
     }
 
     @Override

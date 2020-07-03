@@ -27,6 +27,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,22 +35,23 @@ import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
 
-public class GAVReport extends Report {
-    private List<String> gavs;
+public final class GAVReport extends Report {
+    private final List<String> gavs;
 
-    public GAVReport(File outputDirectory, List<KojiBuild> builds) {
+    public GAVReport(File outputDirectory, Collection<KojiBuild> builds) {
         setName("Maven artifacts");
         setDescription("List of Maven artifacts in standard Maven <groupId>:<artifactId>:<version> format");
         setBaseFilename("gav");
         setOutputDirectory(outputDirectory);
 
         this.gavs = builds.stream()
-                .filter(b -> b.getBuildInfo().getId() > 0)
-                .filter(b -> b.getTypes() != null && b.getTypes().contains("maven"))
-                .flatMap(b -> b.getArchives().stream())
+                .filter(build -> build.getBuildInfo().getId() > 0)
+                .filter(build -> build.getTypes() != null && build.getTypes().contains("maven"))
+                .flatMap(build -> build.getArchives().stream())
                 .map(
-                        a -> a.getArchive().getGroupId() + ":" + a.getArchive().getArtifactId() + ":"
-                                + a.getArchive().getVersion())
+                        localArchive -> localArchive.getArchive().getGroupId() + ":"
+                                + localArchive.getArchive().getArtifactId() + ":"
+                                + localArchive.getArchive().getVersion())
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
@@ -66,6 +68,6 @@ public class GAVReport extends Report {
                 attrs("#table-" + getBaseFilename()),
                 caption(text(getName())),
                 thead(tr(th(text("<groupId>-<artifactId>-<version>")))),
-                tbody(each(gavs, i -> tr(td(text(i))))));
+                tbody(each(gavs, gav -> tr(td(text(gav))))));
     }
 }

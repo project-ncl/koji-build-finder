@@ -34,8 +34,8 @@ import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
 
-public class BuildStatisticsReport extends Report {
-    private BuildStatistics buildStatistics;
+public final class BuildStatisticsReport extends Report {
+    private final BuildStatistics buildStatistics;
 
     public BuildStatisticsReport(File outputDirectory, List<KojiBuild> builds) {
         setOutputDirectory(outputDirectory);
