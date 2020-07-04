@@ -45,7 +45,7 @@ import static java.lang.String.join;
 
 import java.io.File;
 import java.net.URL;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -364,7 +364,7 @@ public final class HTMLReport extends Report {
                                 footer().attr(Attr.CLASS, "footer")
                                         .attr(Attr.ID, "footer")
                                         .with(
-                                                text("Created: " + LocalDate.now() + " by "),
+                                                text("Created: " + LocalDateTime.now() + " by "),
                                                 a().withHref(
                                                         "https://github.com/release-engineering/koji-build-finder/")
                                                         .with(text(NAME)),
