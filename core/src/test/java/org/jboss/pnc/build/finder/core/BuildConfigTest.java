@@ -66,7 +66,7 @@ class BuildConfigTest {
 
         String s = JSONUtils.dumpString(bc);
 
-        LOGGER.debug("Default configuration:\n{}", s);
+        LOGGER.debug("Default configuration: {}", s);
 
         assertNotNull(s);
 
@@ -85,7 +85,7 @@ class BuildConfigTest {
         BuildConfig bc = BuildConfig.load(json);
 
         assertTrue(bc.getChecksumOnly());
-        assertTrue(bc.getArchiveTypes().size() == 1 && bc.getArchiveTypes().get(0).equals("jar"));
+        assertTrue(bc.getArchiveTypes().size() == 1 && "jar".equals(bc.getArchiveTypes().get(0)));
     }
 
     @Test
@@ -139,8 +139,8 @@ class BuildConfigTest {
         BuildConfig merged = BuildConfig.merge(bc, json);
 
         assertTrue(merged.getChecksumOnly());
-        assertTrue(merged.getArchiveTypes().size() == 1 && merged.getArchiveTypes().get(0).equals("jar"));
-        assertTrue(merged.getArchiveExtensions().size() == 14 && merged.getArchiveExtensions().get(0).equals("dll"));
+        assertTrue(merged.getArchiveTypes().size() == 1 && "jar".equals(merged.getArchiveTypes().get(0)));
+        assertTrue(merged.getArchiveExtensions().size() == 14 && "dll".equals(merged.getArchiveExtensions().get(0)));
         assertEquals(ChecksumType.sha256, merged.getChecksumTypes().iterator().next());
         assertEquals("https://my.url.com/hub", bc.getKojiHubURL().toExternalForm());
         assertEquals("https://my.url.com/web", bc.getKojiWebURL().toExternalForm());

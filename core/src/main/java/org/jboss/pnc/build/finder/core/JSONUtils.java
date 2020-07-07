@@ -48,9 +48,14 @@ public final class JSONUtils {
     }
 
     public static Map<String, Collection<String>> loadChecksumsFile(File file) throws IOException {
-        TypeReference<Map<String, Collection<String>>> typeRef = new TypeReference<Map<String, Collection<String>>>() {
-        };
+        TypeReference<Map<String, Collection<String>>> typeReference = new MapTypeReference();
 
-        return MAPPER.readValue(file, typeRef);
+        return MAPPER.readValue(file, typeReference);
+    }
+
+    private static class MapTypeReference extends TypeReference<Map<String, Collection<String>>> {
+        MapTypeReference() {
+
+        }
     }
 }

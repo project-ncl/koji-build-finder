@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
@@ -116,7 +117,7 @@ class PncBuildFinderTest {
 
         when(pncClient.getArtifactsByMd5(md5)).thenReturn(createArtifactsRemoteCollection(artifact));
         when(pncClient.getBuildPushResult(buildId))
-                .thenThrow(new RemoteResourceNotFoundException(new ClientErrorException(404)));
+                .thenThrow(new RemoteResourceNotFoundException(new ClientErrorException(Response.Status.NOT_FOUND)));
 
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
         PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils);
@@ -166,8 +167,8 @@ class PncBuildFinderTest {
         assertTrue(findBuildsResult.getNotFoundChecksums().containsKey(checksum));
     }
 
-    private StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
-        List<Artifact> artifactList = new ArrayList<>();
+    private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
+        List<Artifact> artifactList = new ArrayList<>(artifacts.length);
 
         Collections.addAll(artifactList, artifacts);
 

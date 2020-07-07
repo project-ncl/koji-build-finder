@@ -99,8 +99,8 @@ public final class PncUtils {
         buildInfo.setVersion(getBrewBuildVersionOrZero(record));
         buildInfo.setRelease("1");
         buildInfo.setNvr(
-                buildInfo.getName() + "-" + buildInfo.getVersion().replace("-", "_") + "-"
-                        + buildInfo.getRelease().replace("-", "_"));
+                buildInfo.getName() + "-" + buildInfo.getVersion().replace('-', '_') + "-"
+                        + buildInfo.getRelease().replace('-', '_'));
         buildInfo.setCreationTime(Date.from(record.getStartTime()));
         buildInfo.setCompletionTime(Date.from(record.getEndTime()));
         buildInfo.setBuildState(KojiBuildState.COMPLETE);
@@ -217,9 +217,9 @@ public final class PncUtils {
         String buildVersion = buildInfo.getVersion();
         String version = archiveInfo.getVersion();
 
-        if (buildVersion == null || buildVersion.equals("0")) {
+        if (buildVersion == null || "0".equals(buildVersion)) {
             buildInfo.setVersion(version);
-            buildInfo.setNvr(buildInfo.getName() + "-" + 0 + "-" + buildInfo.getRelease().replace("-", "_"));
+            buildInfo.setNvr(buildInfo.getName() + "-" + 0 + "-" + buildInfo.getRelease().replace('-', '_'));
         }
     }
 }

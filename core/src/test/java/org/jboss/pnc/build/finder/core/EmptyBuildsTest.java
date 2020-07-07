@@ -44,8 +44,8 @@ class EmptyBuildsTest {
 
     @Test
     void verifyEmptyBuilds() throws KojiClientException {
-        final String checksum = "abc";
-        final List<String> filenames = Collections.unmodifiableList(Collections.singletonList("test.abc"));
+        String checksum = "abc";
+        List<String> filenames = Collections.unmodifiableList(Collections.singletonList("test.abc"));
         MockKojiClientSession session = new MockKojiClientSession("empty-builds-test");
         BuildConfig config = new BuildConfig();
         BuildFinder finder = new BuildFinder(session, config);

@@ -17,7 +17,6 @@ package org.jboss.pnc.build.finder.pnc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -65,7 +64,7 @@ public class EnhancedArtifact {
         return fileNames;
     }
 
-    public void setFilenames(List<String> filenames) {
+    public void setFilenames(Collection<String> filenames) {
         this.fileNames = filenames;
     }
 }

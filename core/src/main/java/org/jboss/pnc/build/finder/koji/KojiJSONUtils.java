@@ -30,11 +30,17 @@ public final class KojiJSONUtils {
 
     }
 
+    private static class MapTypeReference extends TypeReference<Map<BuildSystemInteger, KojiBuild>> {
+        MapTypeReference() {
+
+        }
+    }
+
     public static Map<BuildSystemInteger, KojiBuild> loadBuildsFile(File file) throws IOException {
         ObjectMapper mapper = new BuildFinderObjectMapper();
-        TypeReference<Map<BuildSystemInteger, KojiBuild>> r = new TypeReference<Map<BuildSystemInteger, KojiBuild>>() {
-        };
+        TypeReference<Map<BuildSystemInteger, KojiBuild>> typeReference = new MapTypeReference();
 
-        return mapper.readValue(file, r);
+        return mapper.readValue(file, typeReference);
     }
+
 }

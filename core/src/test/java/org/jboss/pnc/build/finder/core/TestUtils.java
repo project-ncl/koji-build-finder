@@ -26,8 +26,8 @@ public final class TestUtils {
         throw new AssertionError();
     }
 
-    static File resolveFileResource(final String resourceBase, final String resourceName) throws IOException {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource(resourceBase + resourceName);
+    static File resolveFileResource(String resourceBase, String resourceName) throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(resourceBase + resourceName);
 
         if (resource == null) {
             throw new IOException("Unable to locate resource for: " + resourceBase + resourceName);

@@ -94,7 +94,7 @@ public abstract class AbstractKojiIT {
                 .convertDurationsTo(TimeUnit.SECONDS)
                 .build();
 
-        reporter.start(600, TimeUnit.SECONDS);
+        reporter.start(600L, TimeUnit.SECONDS);
     }
 
     KojiClientSession getSession() {

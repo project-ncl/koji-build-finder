@@ -34,15 +34,15 @@ import org.jboss.pnc.dto.ProductVersion;
 public class HashMapCachingPncClient implements PncClient {
     private final PncClient pncClient;
 
-    private Map<String, StaticRemoteCollection<Artifact>> md5Cache = new HashMap<>();
+    private final Map<String, StaticRemoteCollection<Artifact>> md5Cache = new HashMap<>();
 
-    private Map<String, StaticRemoteCollection<Artifact>> sha1Cache = new HashMap<>();
+    private final Map<String, StaticRemoteCollection<Artifact>> sha1Cache = new HashMap<>();
 
-    private Map<String, StaticRemoteCollection<Artifact>> sha256Cache = new HashMap<>();
+    private final Map<String, StaticRemoteCollection<Artifact>> sha256Cache = new HashMap<>();
 
-    private Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>();
+    private final Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>();
 
-    private Map<String, ProductVersion> getProductVersionCache = new HashMap<>();
+    private final Map<String, ProductVersion> getProductVersionCache = new HashMap<>();
 
     public HashMapCachingPncClient(BuildConfig config) {
         this.pncClient = new PncClientImpl(config);

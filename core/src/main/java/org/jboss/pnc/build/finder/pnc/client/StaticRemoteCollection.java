@@ -27,7 +27,7 @@ import org.jboss.pnc.client.RemoteCollection;
  * @author Jakub Bartecek
  */
 public class StaticRemoteCollection<T> implements RemoteCollection<T> {
-    private Collection<T> staticCollection;
+    private final Collection<T> staticCollection;
 
     public StaticRemoteCollection(RemoteCollection<T> remoteCollection) {
         this.staticCollection = Collections.unmodifiableCollection(remoteCollection.getAll());

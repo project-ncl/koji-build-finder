@@ -65,7 +65,7 @@ class DistributionAnalyzerTest {
     @Disabled
     @Test
     void verifySize(@TempDir File folder) throws IOException {
-        List<String> af = new ArrayList<>();
+        List<String> af = new ArrayList<>(1);
         File test = new File(folder, "verify-size");
         af.add(test.getPath());
 
@@ -81,8 +81,8 @@ class DistributionAnalyzerTest {
 
     @Test
     void verifyType(@TempDir File folder) throws IOException {
-        List<String> af = new ArrayList<>();
         String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
+        List<String> af = new ArrayList<>(types.length);
 
         for (String type : types) {
             File test = new File(folder, "verify-type-" + type);
@@ -109,8 +109,8 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         da.checksumFiles();
 
-        ls = FileUtils.listFiles(folder, null, true);
-        assertTrue(ls.isEmpty());
+        Collection<File> files = FileUtils.listFiles(folder, null, true);
+        assertTrue(files.isEmpty());
     }
 
     @Test

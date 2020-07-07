@@ -80,7 +80,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private Map<ChecksumType, MultiValuedMap<String, String>> map;
 
-    private MultiValuedMap<String, Checksum> inverseMap;
+    private final MultiValuedMap<String, Checksum> inverseMap;
 
     private StandardFileSystemManager sfs;
 
@@ -137,9 +137,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static boolean isJar(FileObject fo) {
         String ext = fo.getName().getExtension();
+        List<String> exts = Arrays
+                .asList("jar", "war", "rar", "ear", "sar", "kar", "jdocbook", "jdocbook-style", "plugin");
 
-        return ext.equals("jar") || ext.equals("war") || ext.equals("rar") || ext.equals("ear") || ext.equals("sar")
-                || ext.equals("kar") || ext.equals("jdocbook") || ext.equals("jdocbook-style") || ext.equals("plugin");
+        return exts.contains(ext);
     }
 
     public Map<ChecksumType, MultiValuedMap<String, String>> checksumFiles() throws IOException {
@@ -295,7 +296,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 "Total number of checksums: {}, time: {}, average: {}",
                 green(numChecksums),
                 green(duration),
-                green(numChecksums > 0D ? duration.dividedBy(numChecksums) : 0.0D));
+                green((double) numChecksums > 0.0D ? duration.dividedBy((long) numChecksums) : 0.0D));
 
         if (listener != null) {
             listener.checksumsComputed(new ChecksumsComputedEvent(numChecksums));
@@ -480,7 +481,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     public Collection<String> getFilesInError() {
-        return filesInError;
+        return Collections.unmodifiableSet(filesInError);
     }
 
     @Override

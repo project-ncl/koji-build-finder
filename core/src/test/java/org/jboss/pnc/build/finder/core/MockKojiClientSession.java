@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.commonjava.rwx.api.RWXMapper;
 import org.commonjava.rwx.core.Registry;
+import org.commonjava.rwx.error.XmlRpcException;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 
 import com.redhat.red.build.koji.KojiClientException;
@@ -64,10 +66,10 @@ public class MockKojiClientSession implements ClientSession {
         return FileUtils.readFileToString(file, "UTF-8");
     }
 
-    private <T> T parseCapturedMessage(Class<T> type, String filename) throws Exception {
+    private <T> T parseCapturedMessage(Class<T> type, String filename) throws IOException, XmlRpcException {
         String source = readResource(filename);
 
-        return rwxMapper.parse(new ByteArrayInputStream(source.getBytes()), type);
+        return rwxMapper.parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)), type);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class MockKojiClientSession implements ClientSession {
                     ListArchivesResponse.class,
                     "listArchives-" + id + ".xml");
             return response.getArchives();
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("listArchives(" + query + ") failed", e);
         }
     }
@@ -96,8 +98,8 @@ public class MockKojiClientSession implements ClientSession {
             GetArchiveTypesResponse response = parseCapturedMessage(
                     GetArchiveTypesResponse.class,
                     "getArchiveTypes-all.xml");
-            Map<String, KojiArchiveType> types = new HashMap<>();
             List<KojiArchiveType> archiveTypes = response.getArchiveTypes();
+            Map<String, KojiArchiveType> types = new HashMap<>(archiveTypes.size());
 
             for (KojiArchiveType at : archiveTypes) {
                 List<String> extensions = at.getExtensions();
@@ -108,7 +110,7 @@ public class MockKojiClientSession implements ClientSession {
             }
 
             return types;
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("getArchiveTypesMap() failed", e);
         }
     }
@@ -118,7 +120,7 @@ public class MockKojiClientSession implements ClientSession {
         try {
             GetBuildResponse response = parseCapturedMessage(GetBuildResponse.class, "getBuild-" + buildId + ".xml");
             return response.getBuildInfo();
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("getBuild(" + buildId + ") failed", e);
         }
     }
@@ -128,7 +130,7 @@ public class MockKojiClientSession implements ClientSession {
         try {
             GetTaskResponse response = parseCapturedMessage(GetTaskResponse.class, "getTaskInfo-" + taskId + ".xml");
             return response.getTaskInfo();
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("getTaskInfo(" + taskId + ", " + request + ") failed", e);
         }
     }
@@ -140,7 +142,7 @@ public class MockKojiClientSession implements ClientSession {
                     GetTaskRequestResponse.class,
                     "getTaskRequest-" + taskId + ".xml");
             return new KojiTaskRequest(response.getTaskRequestInfo());
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("getTaskRequest(" + taskId + ") failed", e);
         }
     }
@@ -150,7 +152,7 @@ public class MockKojiClientSession implements ClientSession {
         try {
             ListTagsResponse response = parseCapturedMessage(ListTagsResponse.class, "listTags-" + id + ".xml");
             return response.getTags();
-        } catch (Exception e) {
+        } catch (IOException | XmlRpcException e) {
             throw new KojiClientException("getTaskRequest(" + id + ") failed", e);
         }
     }

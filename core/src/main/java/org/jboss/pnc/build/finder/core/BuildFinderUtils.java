@@ -225,7 +225,7 @@ public final class BuildFinderUtils {
     }
 
     public List<String> getArchiveExtensions() {
-        return archiveExtensions;
+        return Collections.unmodifiableList(archiveExtensions);
     }
 
     private static List<String> getArchiveExtensionsFromKoji(BuildConfig config, ClientSession session)
@@ -276,6 +276,6 @@ public final class BuildFinderUtils {
             extensionsToCheck = allArchiveExtensions;
         }
 
-        return extensionsToCheck;
+        return Collections.unmodifiableList(extensionsToCheck);
     }
 }

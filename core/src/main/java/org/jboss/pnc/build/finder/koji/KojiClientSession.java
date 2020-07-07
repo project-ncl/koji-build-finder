@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.koji;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class KojiClientSession extends KojiClient implements ClientSession {
 
     private KojiSessionInfo session;
 
-    private KojiClientHelper helper;
+    private final KojiClientHelper helper;
 
     public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService)
             throws KojiClientException {
@@ -226,7 +227,7 @@ public class KojiClientSession extends KojiClient implements ClientSession {
         List<Object> args = new ArrayList<>(taskIdsSize);
 
         for (int i = 0; i < taskIdsSize; i++) {
-            List<Object> req = new ArrayList<>(2);
+            Collection<Object> req = new ArrayList<>(2);
 
             req.add(taskIds.get(i));
             req.add(requests.get(i));

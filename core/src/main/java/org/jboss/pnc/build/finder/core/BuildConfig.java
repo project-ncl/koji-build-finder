@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -146,7 +147,7 @@ public class BuildConfig {
             archiveExtensions = ConfigDefaults.ARCHIVE_EXTENSIONS;
         }
 
-        return archiveExtensions;
+        return Collections.unmodifiableList(archiveExtensions);
     }
 
     public void setArchiveExtensions(List<String> archiveExtensions) {
@@ -158,7 +159,7 @@ public class BuildConfig {
             archiveTypes = ConfigDefaults.ARCHIVE_TYPES;
         }
 
-        return archiveTypes;
+        return Collections.unmodifiableList(archiveTypes);
     }
 
     public void setArchiveTypes(List<String> archiveTypes) {
@@ -170,7 +171,7 @@ public class BuildConfig {
             buildSystems = ConfigDefaults.BUILD_SYSTEMS;
         }
 
-        return buildSystems;
+        return Collections.unmodifiableList(buildSystems);
     }
 
     public void setBuildSystems(List<BuildSystem> buildSystems) {
@@ -218,7 +219,7 @@ public class BuildConfig {
             checksumTypes = ConfigDefaults.CHECKSUM_TYPES;
         }
 
-        return checksumTypes;
+        return Collections.unmodifiableSet(checksumTypes);
     }
 
     public void setChecksumTypes(Set<ChecksumType> checksumTypes) {
@@ -254,7 +255,7 @@ public class BuildConfig {
             excludes = ConfigDefaults.EXCLUDES;
         }
 
-        return excludes;
+        return Collections.unmodifiableList(excludes);
     }
 
     public void setExcludes(List<Pattern> excludes) {

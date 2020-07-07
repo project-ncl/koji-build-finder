@@ -69,7 +69,7 @@ public class BuildStatistics {
                 if (!isImport && !archive.isBuiltFromSource()) {
                     int unmatchedFilenamesCount = archive.getUnmatchedFilenames().size();
 
-                    numberOfImportedArchives += unmatchedFilenamesCount;
+                    numberOfImportedArchives += (long) unmatchedFilenamesCount;
 
                     LOGGER.warn(
                             "Built archive {} with {} unmatched files: {}",
@@ -79,10 +79,10 @@ public class BuildStatistics {
                 }
             }
 
-            numberOfArchives += archiveCount;
+            numberOfArchives += (long) archiveCount;
 
             if (isImport) {
-                numberOfImportedArchives += archiveCount;
+                numberOfImportedArchives += (long) archiveCount;
 
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn(

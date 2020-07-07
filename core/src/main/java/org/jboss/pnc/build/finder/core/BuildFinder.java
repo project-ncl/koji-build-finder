@@ -78,9 +78,9 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
-    private ClientSession session;
+    private final ClientSession session;
 
-    private BuildConfig config;
+    private final BuildConfig config;
 
     private Map<BuildSystemInteger, KojiBuild> builds;
 
@@ -88,13 +88,13 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
     private List<KojiBuild> buildsFoundList;
 
-    private Map<Integer, KojiBuild> allKojiBuilds;
+    private final Map<Integer, KojiBuild> allKojiBuilds;
 
     private File outputDirectory;
 
-    private MultiValuedMap<String, Integer> checksumMap;
+    private final MultiValuedMap<String, Integer> checksumMap;
 
-    private DistributionAnalyzer analyzer;
+    private final DistributionAnalyzer analyzer;
 
     private Map<ChecksumType, Cache<String, List<KojiArchiveInfo>>> checksumCaches;
 
@@ -102,15 +102,15 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
     private Map<ChecksumType, Cache<String, KojiBuild>> rpmCaches;
 
-    private EmbeddedCacheManager cacheManager;
+    private final EmbeddedCacheManager cacheManager;
 
-    private PncBuildFinder pncBuildFinder;
+    private final PncBuildFinder pncBuildFinder;
 
-    private Map<Checksum, Collection<String>> foundChecksums;
+    private final Map<Checksum, Collection<String>> foundChecksums;
 
-    private Map<Checksum, Collection<String>> notFoundChecksums;
+    private final Map<Checksum, Collection<String>> notFoundChecksums;
 
-    private BuildFinderUtils buildFinderUtils;
+    private final BuildFinderUtils buildFinderUtils;
 
     private BuildFinderListener listener;
 
@@ -369,11 +369,11 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 .collect(Collectors.toList());
 
         if (!cachedBuilds.isEmpty()) {
-            KojiBuild b = cachedBuilds.get(cachedBuilds.size() - 1);
+            KojiBuild build = cachedBuilds.get(cachedBuilds.size() - 1);
 
-            LOGGER.debug("Found suitable cached build id {}", b.getBuildInfo().getId());
+            LOGGER.debug("Found suitable cached build id {}", build.getBuildInfo().getId());
 
-            return b;
+            return build;
         }
 
         List<KojiBuild> completedBuilds = candidates.stream()
@@ -387,43 +387,43 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 .collect(Collectors.toList());
 
         if (!completedTaggedBuiltBuilds.isEmpty()) {
-            KojiBuild b = completedTaggedBuiltBuilds.get(completedTaggedBuiltBuilds.size() - 1);
+            KojiBuild build = completedTaggedBuiltBuilds.get(completedTaggedBuiltBuilds.size() - 1);
 
             LOGGER.debug(
                     "Found suitable completed non-import tagged build {} for checksum {}",
-                    b.getBuildInfo().getId(),
+                    build.getBuildInfo().getId(),
                     checksum);
 
-            return b;
+            return build;
         }
 
         if (!completedTaggedBuilds.isEmpty()) {
-            KojiBuild b = completedTaggedBuilds.get(completedTaggedBuilds.size() - 1);
+            KojiBuild build = completedTaggedBuilds.get(completedTaggedBuilds.size() - 1);
 
             LOGGER.debug(
                     "Found suitable completed tagged build {} for checksum {}",
-                    b.getBuildInfo().getId(),
+                    build.getBuildInfo().getId(),
                     checksum);
 
-            return b;
+            return build;
         }
 
         if (!completedBuilds.isEmpty()) {
-            KojiBuild b = completedBuilds.get(completedBuilds.size() - 1);
+            KojiBuild build = completedBuilds.get(completedBuilds.size() - 1);
 
-            LOGGER.debug("Found suitable completed build {} for checksum {}", b.getBuildInfo().getId(), checksum);
+            LOGGER.debug("Found suitable completed build {} for checksum {}", build.getBuildInfo().getId(), checksum);
 
-            return b;
+            return build;
         }
 
-        KojiBuild b = candidates.get(candidatesSize - 1);
+        KojiBuild build = candidates.get(candidatesSize - 1);
 
         LOGGER.warn(
                 "Could not find suitable build for checksum {} for build id {}. Keeping latest",
                 red(checksum),
-                red(b.getBuildInfo().getId()));
+                red(build.getBuildInfo().getId()));
 
-        return b;
+        return build;
     }
 
     /**
@@ -486,7 +486,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                     List<KojiLocalArchive> matchingArchives = build.getArchives()
                             .stream()
                             .filter(
-                                    a -> a != null && a.getArchive().getChecksumType().equals(KojiChecksumType.md5)
+                                    a -> a != null && a.getArchive().getChecksumType() == KojiChecksumType.md5
                                             && a.getArchive().getChecksum().equals(checksum))
                             .collect(Collectors.toList());
 
@@ -589,8 +589,9 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
         for (KojiBuild build : builds.values()) {
             List<KojiLocalArchive> as = build.getArchives();
-            final String needle = parentFilename;
-            Optional<KojiLocalArchive> a = as.stream().filter(ar -> ar.getFilenames().contains(needle)).findFirst();
+            Optional<KojiLocalArchive> a = as.stream()
+                    .filter(ar -> ar.getFilenames().contains(parentFilename))
+                    .findFirst();
 
             if (a.isPresent()) {
                 KojiLocalArchive matchedArchive = a.get();
@@ -1353,7 +1354,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                     "Found {} builds in {} (average: {})",
                     green(numBuilds),
                     green(duration),
-                    green(numBuilds > 0 ? duration.dividedBy(numBuilds) : 0));
+                    green(numBuilds > 0 ? duration.dividedBy((long) numBuilds) : 0));
         }
 
         return allBuilds;
