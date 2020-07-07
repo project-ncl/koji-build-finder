@@ -175,7 +175,7 @@ class ReportTest {
     void verifyBuildStatisticsReport(@TempDir File folder) throws IOException {
         BuildStatisticsReport report = new BuildStatisticsReport(folder, builds);
         report.outputText();
-        assertEquals(builds.size() - 1, report.getBuildStatistics().getNumberOfBuilds());
+        assertEquals((long) builds.size() - 1L, report.getBuildStatistics().getNumberOfBuilds());
         assertEquals(2L, report.getBuildStatistics().getNumberOfImportedBuilds());
         assertEquals(5L, report.getBuildStatistics().getNumberOfArchives());
         assertEquals(2L, report.getBuildStatistics().getNumberOfImportedArchives());

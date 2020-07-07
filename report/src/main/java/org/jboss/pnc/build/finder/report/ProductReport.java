@@ -58,11 +58,11 @@ public final class ProductReport extends Report {
 
     private static final Pattern JBOSS_PATTERN = Pattern.compile("(jb|jboss)");
 
-    public static final int PRODUCT_NAME_LENGTH = 120;
+    private static final int PRODUCT_NAME_LENGTH = 120;
 
     private final Map<String, List<String>> productMap;
 
-    public ProductReport(File outputDirectory, List<KojiBuild> builds) {
+    public ProductReport(File outputDirectory, Collection<KojiBuild> builds) {
         setName("Products");
         setDescription("List of builds partitioned by product (build target)");
         setBaseFilename("products");

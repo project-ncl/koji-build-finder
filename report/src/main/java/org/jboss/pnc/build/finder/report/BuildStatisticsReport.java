@@ -27,7 +27,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 
 import org.jboss.pnc.build.finder.core.BuildStatistics;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -37,7 +37,7 @@ import j2html.tags.ContainerTag;
 public final class BuildStatisticsReport extends Report {
     private final BuildStatistics buildStatistics;
 
-    public BuildStatisticsReport(File outputDirectory, List<KojiBuild> builds) {
+    public BuildStatisticsReport(File outputDirectory, Collection<KojiBuild> builds) {
         setOutputDirectory(outputDirectory);
         setName("Statistics");
         setDescription("Number of builds/artifacts built from source");
@@ -73,7 +73,7 @@ public final class BuildStatisticsReport extends Report {
                                                                 - buildStatistics.getNumberOfImportedBuilds()))),
                                 td(text(String.valueOf(buildStatistics.getNumberOfImportedBuilds()))),
                                 td(text(String.valueOf(buildStatistics.getNumberOfBuilds()))),
-                                td(text((100.00 - buildStatistics.getPercentOfBuildsImported()) + "%")),
+                                td(text((100.00D - buildStatistics.getPercentOfBuildsImported()) + "%")),
                                 td(text(buildStatistics.getPercentOfBuildsImported() + "%"))),
                         tr(
                                 td(strong(text("Archives"))),
@@ -84,7 +84,7 @@ public final class BuildStatisticsReport extends Report {
                                                                 - buildStatistics.getNumberOfImportedArchives()))),
                                 td(text(String.valueOf(buildStatistics.getNumberOfImportedArchives()))),
                                 td(text(String.valueOf(buildStatistics.getNumberOfArchives()))),
-                                td(text((100.00 - buildStatistics.getPercentOfArchivesImported()) + "%")),
+                                td(text((100.00D - buildStatistics.getPercentOfArchivesImported()) + "%")),
                                 td(text(buildStatistics.getPercentOfArchivesImported() + "%")))));
     }
 }

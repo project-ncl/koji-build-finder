@@ -86,7 +86,7 @@ public final class HTMLReport extends Report {
 
     public HTMLReport(
             File outputDirectory,
-            Collection<String> files,
+            Iterable<String> files,
             List<KojiBuild> builds,
             URL kojiwebUrl,
             URL pncUrl,
