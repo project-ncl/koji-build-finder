@@ -1,0 +1,24 @@
+{
+  "id" : "718c17f2-8ea2-45a3-9d6d-09be86b68014",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3289140</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3289153</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3289159</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3289165</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3289169</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>3290066</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3289140</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3289153</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3289159</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3289165</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3289169</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>3290066</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.infinispan</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>infinispan-bom</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>9.4.16.Final-redhat-00001</string></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Thu, 09 Jul 2020 01:40:09 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=97",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "718c17f2-8ea2-45a3-9d6d-09be86b68014",
+  "persistent" : true,
+  "insertionIndex" : 4
+}

@@ -38,21 +38,27 @@ import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 
 @ExtendWith(WiremockExtension.class)
-class DeletedBuildTest {
+class DeletedAndCompletedBuildTest {
     @Wiremock
     private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("deleted-build-test"));
+            WireMockConfiguration.options().usingFilesUnderClasspath("completed-and-deleted-build-test"));
 
     @Test
-    void verifyDeletedBuild() throws KojiClientException, MalformedURLException {
-        Checksum checksum = new Checksum(
+    void verifyDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
+        Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
-                "a8c05c0ff2b61c3e205fb21010581bbe",
-                "infinispan-bom-9.4.16.Final-redhat-00001.pom");
-        Collection<String> filenames = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
+                "59ef4fa1ef35fc0fc074dbfab196c0cd",
+                "wildfly-core-security-7.5.9.Final-redhat-2.jar");
+        Checksum checksum2 = new Checksum(
+                ChecksumType.md5,
+                "36f95ca365830463f581d576eb2f1f84",
+                "wildfly-core-security-7.5.9.Final-redhat-2.pom");
+        Collection<String> filenames1 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
+        Collection<String> filenames2 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.pom");
         Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
 
-        checksumTable.put(checksum, filenames);
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
 
         BuildConfig config = new BuildConfig();
 
@@ -64,10 +70,10 @@ class DeletedBuildTest {
 
             assertEquals(2, builds.size());
             assertTrue(builds.containsKey(new BuildSystemInteger(0)));
-            assertTrue(builds.containsKey(new BuildSystemInteger(966480, BuildSystem.koji)));
+            assertTrue(builds.containsKey(new BuildSystemInteger(500366, BuildSystem.koji)));
             assertEquals(
-                    KojiBuildState.DELETED,
-                    builds.get(new BuildSystemInteger(966480, BuildSystem.koji)).getBuildInfo().getBuildState());
+                    KojiBuildState.COMPLETE,
+                    builds.get(new BuildSystemInteger(500366, BuildSystem.koji)).getBuildInfo().getBuildState());
         }
     }
 }

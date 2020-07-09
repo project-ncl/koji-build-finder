@@ -1,0 +1,24 @@
+{
+  "id" : "6e065337-e3ac-45b7-8974-f60679d656ce",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>listTags</string></value></member><member><name>params</name><value><array><data><value><int>700821</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven_support</name>\n<value><boolean>1</boolean></value>\n</member>\n<member>\n<name>locked</name>\n<value><boolean>0</boolean></value>\n</member>\n<member>\n<name>name</name>\n<value><string>jb-eap-7.2.0.beta-maven-deps</string></value>\n</member>\n<member>\n<name>perm</name>\n<value><nil/></value></member>\n<member>\n<name>perm_id</name>\n<value><nil/></value></member>\n<member>\n<name>arches</name>\n<value><nil/></value></member>\n<member>\n<name>maven_include_all</name>\n<value><boolean>1</boolean></value>\n</member>\n<member>\n<name>id</name>\n<value><int>17340</int></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 23:35:17 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=100",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "6e065337-e3ac-45b7-8974-f60679d656ce",
+  "persistent" : true,
+  "insertionIndex" : 6
+}

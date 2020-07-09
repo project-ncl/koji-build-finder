@@ -1,0 +1,24 @@
+{
+  "id" : "b603058c-59f2-42ea-b584-c8b609ee82d4",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getBuildType</string></value></member><member><name>params</name><value><array><data><value><int>500366</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getBuildType</string></value></member><member><name>params</name><value><array><data><value><int>505412</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven</name>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>500366</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.jboss.as</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>jboss-as-parent</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>7.5.9.Final-redhat-2</string></value>\n</member>\n</struct></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven</name>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>505412</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>org.jboss.as</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>jboss-as-parent</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>7.5.9.Final-redhat-2</string></value>\n</member>\n</struct></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Thu, 09 Jul 2020 04:21:26 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=99",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "b603058c-59f2-42ea-b584-c8b609ee82d4",
+  "persistent" : true,
+  "insertionIndex" : 7
+}

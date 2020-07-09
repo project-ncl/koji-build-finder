@@ -1,0 +1,24 @@
+{
+  "id" : "770b42ad-4af4-45c2-9021-9e5fc1a731fc",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>getAPIVersion</methodName><params></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><int>1</int></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 23:33:53 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=100",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "770b42ad-4af4-45c2-9021-9e5fc1a731fc",
+  "persistent" : true,
+  "insertionIndex" : 1
+}

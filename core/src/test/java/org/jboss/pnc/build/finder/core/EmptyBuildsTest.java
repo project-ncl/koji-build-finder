@@ -19,40 +19,72 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.github.sparkmuse.wiremock.Wiremock;
+import com.github.sparkmuse.wiremock.WiremockExtension;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.redhat.red.build.koji.KojiClientException;
 
+@ExtendWith(WiremockExtension.class)
 class EmptyBuildsTest {
+    @Wiremock
+    private final WireMockServer server = new WireMockServer(
+            WireMockConfiguration.options().usingFilesUnderClasspath("empty-builds-test"));
+
     @Test
     void verifyEmptyChecksums() throws IOException, KojiClientException {
         BuildConfig config = new BuildConfig();
+
+        config.setKojiHubURL(new URL(server.baseUrl()));
+
         DistributionAnalyzer da = new DistributionAnalyzer(Collections.emptyList(), config);
 
         da.checksumFiles();
 
-        MockKojiClientSession session = new MockKojiClientSession("empty-builds-test");
-        BuildFinder finder = new BuildFinder(session, config);
-        finder.findBuildsSlow(Collections.emptyMap());
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinder finder = new BuildFinder(session, config);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(Collections.emptyMap());
+
+            assertEquals(0, builds.size());
+        }
     }
 
     @Test
-    void verifyEmptyBuilds() throws KojiClientException {
-        String checksum = "abc";
-        List<String> filenames = Collections.unmodifiableList(Collections.singletonList("test.abc"));
-        MockKojiClientSession session = new MockKojiClientSession("empty-builds-test");
-        BuildConfig config = new BuildConfig();
-        BuildFinder finder = new BuildFinder(session, config);
-        Map<String, Collection<String>> checksumTable = Collections.singletonMap(checksum, filenames);
-        Map<BuildSystemInteger, KojiBuild> builds = finder.findBuildsSlow(checksumTable);
+    void verifyEmptyBuilds() throws KojiClientException, MalformedURLException {
+        Checksum checksum1 = new Checksum(
+                ChecksumType.md5,
+                "ca5330166ccd4e2b205bed4b88f924b0",
+                "random.jar!random.jar");
+        Checksum checksum2 = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", "random.jar");
+        Collection<String> filenames1 = Collections.singletonList("random.jar!random.jar");
+        Collection<String> filenames2 = Collections.singletonList("random.jar");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
 
-        assertEquals(1, builds.size());
-        assertTrue(builds.containsKey(new BuildSystemInteger(0)));
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
+
+        BuildConfig config = new BuildConfig();
+
+        config.setKojiHubURL(new URL(server.baseUrl()));
+
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinder finder = new BuildFinder(session, config);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
+
+            assertEquals(1, builds.size());
+            assertTrue(builds.containsKey(new BuildSystemInteger(0)));
+        }
     }
 }

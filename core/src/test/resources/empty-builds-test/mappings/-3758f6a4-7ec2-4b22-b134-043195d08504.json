@@ -1,0 +1,24 @@
+{
+  "id" : "3758f6a4-7ec2-4b22-b134-043195d08504",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>listArchives</string></value></member><member><name>params</name><value><array><data><value><struct><member><name>__starstar</name><value><boolean>1</boolean></value></member><member><name>checksum</name><value><string>ca5330166ccd4e2b205bed4b88f924b0</string></value></member></struct></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>listArchives</string></value></member><member><name>params</name><value><array><data><value><struct><member><name>__starstar</name><value><boolean>1</boolean></value></member><member><name>checksum</name><value><string>b3ba80c13aa555c3eb428dbf62e2c48e</string></value></member></struct></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><array><data>\n</data></array></value>\n</data></array></value>\n<value><array><data>\n<value><array><data>\n</data></array></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 06:11:51 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=98",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "3758f6a4-7ec2-4b22-b134-043195d08504",
+  "persistent" : true,
+  "insertionIndex" : 3
+}

@@ -1,0 +1,24 @@
+{
+  "id" : "85817d06-f09e-43f6-9af2-5f62f54055f9",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getBuildType</string></value></member><member><name>params</name><value><array><data><value><int>228994</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getBuildType</string></value></member><member><name>params</name><value><array><data><value><int>232417</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getBuildType</string></value></member><member><name>params</name><value><array><data><value><int>251444</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven</name>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>228994</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>apache-commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>apache-commons-lang-repolib</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-3.redhat_2.ep6.el6</string></value>\n</member>\n</struct></value>\n</member>\n<member>\n<name>rpm</name>\n<value><nil/></value></member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven</name>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>232417</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>apache-commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>apache-commons-lang-repolib</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-3.redhat_2.ep6.el5</string></value>\n</member>\n</struct></value>\n</member>\n<member>\n<name>rpm</name>\n<value><nil/></value></member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>maven</name>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>251444</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 20:06:59 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=99",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "85817d06-f09e-43f6-9af2-5f62f54055f9",
+  "persistent" : true,
+  "insertionIndex" : 8
+}

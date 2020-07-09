@@ -1,0 +1,24 @@
+{
+  "id" : "0297f009-45e3-4cdb-b345-35ced20b764f",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getTaskInfo</string></value></member><member><name>params</name><value><array><data><value><int>16481812</int></value><value><boolean>1</boolean></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>weight</name>\n<value><double>0.2</double></value>\n</member>\n<member>\n<name>parent</name>\n<value><nil/></value></member>\n<member>\n<name>completion_time</name>\n<value><string>2018-05-28 06:01:21.872977</string></value>\n</member>\n<member>\n<name>request</name>\n<value><array><data>\n<value><string>git+https://gerrit/gerrit/hibernate/hibernate-validator.git#eff6fd91ac77145b74d0aae4ab84fcaebd5a73c3</string></value>\n<value><string>jb-eap-7.2-oracle-8-maven-candidate</string></value>\n<value><struct>\n<member>\n<name>packages</name>\n<value><array><data>\n<value><string>java-1.8.0-oracle-javafx</string></value>\n</data></array></value>\n</member>\n<member>\n<name>goals</name>\n<value><array><data>\n<value><string>install</string></value>\n<value><string>javadoc:aggregate-jar</string></value>\n<value><string>deploy</string></value>\n</data></array></value>\n</member>\n<member>\n<name>properties</name>\n<value><struct>\n<member>\n<name>skipITs</name>\n<value><nil/></value></member>\n<member>\n<name>forbiddenapis.skip</name>\n<value><string>true</string></value>\n</member>\n<member>\n<name>disableDistributionBuild</name>\n<value><nil/></value></member>\n<member>\n<name>license.failIfMissing</name>\n<value><string>false</string></value>\n</member>\n<member>\n<name>maven.test.failure.ignore</name>\n<value><nil/></value></member>\n</struct></value>\n</member>\n</struct></value>\n</data></array></value>\n</member>\n<member>\n<name>start_time</name>\n<value><string>2018-05-28 05:17:16.438205</string></value>\n</member>\n<member>\n<name>start_ts</name>\n<value><double>1527484636.43821</double></value>\n</member>\n<member>\n<name>waiting</name>\n<value><boolean>0</boolean></value>\n</member>\n<member>\n<name>awaited</name>\n<value><nil/></value></member>\n<member>\n<name>label</name>\n<value><nil/></value></member>\n<member>\n<name>priority</name>\n<value><int>20</int></value>\n</member>\n<member>\n<name>channel_id</name>\n<value><int>4</int></value>\n</member>\n<member>\n<name>state</name>\n<value><int>2</int></value>\n</member>\n<member>\n<name>create_time</name>\n<value><string>2018-05-28 05:17:07.566077</string></value>\n</member>\n<member>\n<name>create_ts</name>\n<value><double>1527484627.56608</double></value>\n</member>\n<member>\n<name>owner</name>\n<value><int>1538</int></value>\n</member>\n<member>\n<name>host_id</name>\n<value><int>150</int></value>\n</member>\n<member>\n<name>method</name>\n<value><string>maven</string></value>\n</member>\n<member>\n<name>completion_ts</name>\n<value><double>1527487281.87298</double></value>\n</member>\n<member>\n<name>arch</name>\n<value><string>noarch</string></value>\n</member>\n<member>\n<name>id</name>\n<value><int>16481812</int></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 23:35:17 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=94",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "0297f009-45e3-4cdb-b345-35ced20b764f",
+  "persistent" : true,
+  "insertionIndex" : 8
+}

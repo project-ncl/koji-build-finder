@@ -1,0 +1,24 @@
+{
+  "id" : "dc6ff53e-3466-4c9c-b27f-2ee525ac7aee",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getBuild</string></value></member><member><name>params</name><value><array><data><value><int>700821</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>cg_id</name>\n<value><nil/></value></member>\n<member>\n<name>package_name</name>\n<value><string>org.hibernate.validator-hibernate-validator-parent</string></value>\n</member>\n<member>\n<name>extra</name>\n<value><nil/></value></member>\n<member>\n<name>creation_time</name>\n<value><string>2018-05-28 05:59:36.140866</string></value>\n</member>\n<member>\n<name>completion_time</name>\n<value><string>2018-05-28 05:59:37.768415</string></value>\n</member>\n<member>\n<name>package_id</name>\n<value><int>66640</int></value>\n</member>\n<member>\n<name>cg_name</name>\n<value><nil/></value></member>\n<member>\n<name>id</name>\n<value><int>700821</int></value>\n</member>\n<member>\n<name>build_id</name>\n<value><int>700821</int></value>\n</member>\n<member>\n<name>epoch</name>\n<value><nil/></value></member>\n<member>\n<name>source</name>\n<value><nil/></value></member>\n<member>\n<name>state</name>\n<value><int>1</int></value>\n</member>\n<member>\n<name>version</name>\n<value><string>6.0.10.Final_redhat_1</string></value>\n</member>\n<member>\n<name>completion_ts</name>\n<value><double>1527487177.76841</double></value>\n</member>\n<member>\n<name>owner_id</name>\n<value><int>1538</int></value>\n</member>\n<member>\n<name>owner_name</name>\n<value><string>vdosoudi</string></value>\n</member>\n<member>\n<name>nvr</name>\n<value><string>org.hibernate.validator-hibernate-validator-parent-6.0.10.Final_redhat_1-1</string></value>\n</member>\n<member>\n<name>start_time</name>\n<value><string>2018-05-28 05:59:36.140866</string></value>\n</member>\n<member>\n<name>creation_event_id</name>\n<value><int>19746371</int></value>\n</member>\n<member>\n<name>start_ts</name>\n<value><double>1527487176.14087</double></value>\n</member>\n<member>\n<name>volume_id</name>\n<value><int>8</int></value>\n</member>\n<member>\n<name>creation_ts</name>\n<value><double>1527487176.14087</double></value>\n</member>\n<member>\n<name>name</name>\n<value><string>org.hibernate.validator-hibernate-validator-parent</string></value>\n</member>\n<member>\n<name>task_id</name>\n<value><int>16481812</int></value>\n</member>\n<member>\n<name>volume_name</name>\n<value><string>rhel-7</string></value>\n</member>\n<member>\n<name>release</name>\n<value><string>1</string></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 23:35:17 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=96",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "dc6ff53e-3466-4c9c-b27f-2ee525ac7aee",
+  "persistent" : true,
+  "insertionIndex" : 5
+}

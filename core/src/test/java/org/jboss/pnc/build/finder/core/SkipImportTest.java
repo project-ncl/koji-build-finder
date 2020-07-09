@@ -19,31 +19,62 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import com.github.sparkmuse.wiremock.Wiremock;
+import com.github.sparkmuse.wiremock.WiremockExtension;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.redhat.red.build.koji.KojiClientException;
 
+@ExtendWith(WiremockExtension.class)
 class SkipImportTest {
-    @Test
-    void verifyMultiImportsKeepEarliest() throws KojiClientException {
-        String checksum = "2e7e85f0ee97afde716231a6c792492a";
-        List<String> filenames = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
-        ClientSession session = new MockKojiClientSession("skip-import-test");
-        BuildConfig config = new BuildConfig();
-        BuildFinder finder = new BuildFinder(session, config);
-        Map<String, Collection<String>> checksumTable = Collections.singletonMap(checksum, filenames);
-        Map<BuildSystemInteger, KojiBuild> builds = finder.findBuildsSlow(checksumTable);
+    @Wiremock
+    private final WireMockServer server = new WireMockServer(
+            WireMockConfiguration.options().usingFilesUnderClasspath("skip-import-test"));
 
-        assertEquals(2, builds.size());
-        assertTrue(builds.containsKey(new BuildSystemInteger(0)));
-        assertTrue(builds.containsKey(new BuildSystemInteger(228994, BuildSystem.koji)));
-        assertFalse(builds.containsKey(new BuildSystemInteger(251444, BuildSystem.koji)));
+    @Test
+    void verifyMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
+        Checksum checksum1 = new Checksum(
+                ChecksumType.md5,
+                "2e7e85f0ee97afde716231a6c792492a",
+                "commons-lang-2.6-redhat-2.jar");
+        Checksum checksum2 = new Checksum(
+                ChecksumType.md5,
+                "3b6a309e0dd4f488fd0cce429b44d067",
+                "commons-lang-2.6-redhat-2.pom");
+        List<Checksum> checksums = Arrays.asList(checksum1, checksum2);
+        List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
+        List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
+
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
+
+        BuildConfig config = new BuildConfig();
+
+        config.setKojiHubURL(new URL(server.baseUrl()));
+
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinder finder = new BuildFinder(session, config);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
+
+            assertEquals(2, builds.size());
+            assertTrue(builds.containsKey(new BuildSystemInteger(0)));
+            assertTrue(builds.containsKey(new BuildSystemInteger(228994, BuildSystem.koji)));
+            assertFalse(builds.containsKey(new BuildSystemInteger(251444, BuildSystem.koji)));
+        }
     }
 }

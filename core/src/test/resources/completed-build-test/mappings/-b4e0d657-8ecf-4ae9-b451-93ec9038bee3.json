@@ -1,0 +1,24 @@
+{
+  "id" : "b4e0d657-8ecf-4ae9-b451-93ec9038bee3",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>listArchives</string></value></member><member><name>params</name><value><array><data><value><struct><member><name>__starstar</name><value><boolean>1</boolean></value></member><member><name>checksum</name><value><string>46148535be98c75c900837ecea491c71</string></value></member></struct></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>listArchives</string></value></member><member><name>params</name><value><array><data><value><struct><member><name>__starstar</name><value><boolean>1</boolean></value></member><member><name>checksum</name><value><string>c723630b4a215ffa05106e5c8555871c</string></value></member></struct></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>700821</int></value>\n</member>\n<member>\n<name>type_description</name>\n<value><string>Maven Project Object Management file</string></value>\n</member>\n<member>\n<name>extra</name>\n<value><nil/></value></member>\n<member>\n<name>checksum</name>\n<value><string>46148535be98c75c900837ecea491c71</string></value>\n</member>\n<member>\n<name>type_id</name>\n<value><int>3</int></value>\n</member>\n<member>\n<name>filename</name>\n<value><string>hibernate-validator-6.0.10.Final-redhat-1.pom</string></value>\n</member>\n<member>\n<name>type_name</name>\n<value><string>pom</string></value>\n</member>\n<member>\n<name>metadata_only</name>\n<value><boolean>0</boolean></value>\n</member>\n<member>\n<name>type_extensions</name>\n<value><string>pom</string></value>\n</member>\n<member>\n<name>btype</name>\n<value><string>maven</string></value>\n</member>\n<member>\n<name>checksum_type</name>\n<value><int>0</int></value>\n</member>\n<member>\n<name>btype_id</name>\n<value><int>2</int></value>\n</member>\n<member>\n<name>buildroot_id</name>\n<value><nil/></value></member>\n<member>\n<name>id</name>\n<value><int>2516566</int></value>\n</member>\n<member>\n<name>size</name>\n<value><int>19544</int></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>build_id</name>\n<value><int>700821</int></value>\n</member>\n<member>\n<name>type_description</name>\n<value><string>Maven Project Object Management file</string></value>\n</member>\n<member>\n<name>extra</name>\n<value><nil/></value></member>\n<member>\n<name>checksum</name>\n<value><string>c723630b4a215ffa05106e5c8555871c</string></value>\n</member>\n<member>\n<name>type_id</name>\n<value><int>3</int></value>\n</member>\n<member>\n<name>filename</name>\n<value><string>hibernate-validator-cdi-6.0.10.Final-redhat-1.pom</string></value>\n</member>\n<member>\n<name>type_name</name>\n<value><string>pom</string></value>\n</member>\n<member>\n<name>metadata_only</name>\n<value><boolean>0</boolean></value>\n</member>\n<member>\n<name>type_extensions</name>\n<value><string>pom</string></value>\n</member>\n<member>\n<name>btype</name>\n<value><string>maven</string></value>\n</member>\n<member>\n<name>checksum_type</name>\n<value><int>0</int></value>\n</member>\n<member>\n<name>btype_id</name>\n<value><int>2</int></value>\n</member>\n<member>\n<name>buildroot_id</name>\n<value><nil/></value></member>\n<member>\n<name>id</name>\n<value><int>2516573</int></value>\n</member>\n<member>\n<name>size</name>\n<value><int>8591</int></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 23:33:54 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=98",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "b4e0d657-8ecf-4ae9-b451-93ec9038bee3",
+  "persistent" : true,
+  "insertionIndex" : 3
+}

@@ -1,0 +1,24 @@
+{
+  "id" : "568e6667-4430-49b5-ae27-770b70aa00b1",
+  "name" : "",
+  "request" : {
+    "url" : "/",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToXml" : "<?xml version=\"1.0\" ?><methodCall><methodName>multiCall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>238496</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>292531</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>238497</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>248754</int></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>getMavenArchive</string></value></member><member><name>params</name><value><array><data><value><int>292532</int></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "<?xml version='1.0'?>\n<methodResponse>\n<params>\n<param>\n<value><array><data>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>238496</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>292531</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>238497</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>248754</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</data></array></value>\n<value><array><data>\n<value><struct>\n<member>\n<name>archive_id</name>\n<value><int>292532</int></value>\n</member>\n<member>\n<name>group_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>artifact_id</name>\n<value><string>commons-lang</string></value>\n</member>\n<member>\n<name>version</name>\n<value><string>2.6-redhat-2</string></value>\n</member>\n</struct></value>\n</data></array></value>\n</data></array></value>\n</param>\n</params>\n</methodResponse>\n",
+    "headers" : {
+      "Date" : "Wed, 08 Jul 2020 20:06:59 GMT",
+      "Server" : "Apache",
+      "Keep-Alive" : "timeout=5, max=97",
+      "Content-Type" : "text/xml"
+    }
+  },
+  "uuid" : "568e6667-4430-49b5-ae27-770b70aa00b1",
+  "persistent" : true,
+  "insertionIndex" : 4
+}

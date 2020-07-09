@@ -78,17 +78,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private final List<String> files;
 
-    private Map<ChecksumType, MultiValuedMap<String, String>> map;
-
     private final MultiValuedMap<String, Checksum> inverseMap;
 
-    private StandardFileSystemManager sfs;
-
-    private String root;
-
     private final BuildConfig config;
-
-    private BlockingQueue<Checksum> queue;
 
     private final Map<ChecksumType, Cache<String, MultiValuedMap<String, String>>> fileCaches;
 
@@ -101,6 +93,14 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private final Set<ChecksumType> checksumTypesToCheck;
 
     private final Set<String> filesInError;
+
+    private Map<ChecksumType, MultiValuedMap<String, String>> map;
+
+    private StandardFileSystemManager sfs;
+
+    private String root;
+
+    private BlockingQueue<Checksum> queue;
 
     private DistributionAnalyzerListener listener;
 
@@ -310,13 +310,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 && Stream.of(sfs.getSchemes()).anyMatch(s -> s.equals(fo.getName().getExtension()));
     }
 
-    private boolean shouldListArchive(FileObject fo) throws FileSystemException {
-        if (Boolean.FALSE.equals(config.getDisableRecursion())) {
-            return true;
-        }
+    private boolean isDistributionArchive(FileObject fo) {
+        return level.intValue() == 1 && !isJar(fo);
+    }
 
-        return !isJar(fo) && level.intValue() == 1 || level.intValue() == 2 && fo.getParent().isFolder()
-                && fo.getParent().getName().toString().endsWith("!/") && fo.getParent().getChildren().length == 1;
+    private boolean isTarArchive(FileObject fo) throws FileSystemException {
+        FileObject parent = fo.getParent();
+
+        return level.intValue() == 2 && parent.isFolder() && parent.getName().getFriendlyURI().endsWith("!/")
+                && parent.getChildren().length == 1;
+    }
+
+    private boolean shouldListArchive(FileObject fo) throws FileSystemException {
+        return Boolean.FALSE.equals(config.getDisableRecursion()) || isDistributionArchive(fo) || isTarArchive(fo);
     }
 
     private void listArchive(FileObject fo) {
