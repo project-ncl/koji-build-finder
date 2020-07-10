@@ -53,7 +53,7 @@ class HashMapCachingClientTest {
     private static class DummyPncClient implements PncClient {
         private final Collection<Artifact> artifacts;
 
-        private int getArtifactsByMd5Counter = 0;
+        private int getArtifactsByMd5Counter;
 
         DummyPncClient() {
             artifacts = new ArrayList<>(1);

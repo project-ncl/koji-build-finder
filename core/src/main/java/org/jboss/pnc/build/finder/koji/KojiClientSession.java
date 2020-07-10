@@ -107,43 +107,43 @@ public class KojiClientSession extends KojiClient implements ClientSession {
                         .build(),
                 new MemoryPasswordManager(),
                 Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
-        session = super.login();
+        session = login();
         helper = new KojiClientHelper(this);
     }
 
     @Override
     public List<KojiArchiveInfo> listArchives(KojiArchiveQuery query) throws KojiClientException {
-        return super.listArchives(query, session);
+        return listArchives(query, session);
     }
 
     @Override
     public Map<String, KojiArchiveType> getArchiveTypeMap() throws KojiClientException {
-        return super.getArchiveTypeMap(session);
+        return getArchiveTypeMap(session);
     }
 
     @Override
     public KojiBuildInfo getBuild(int buildId) throws KojiClientException {
-        return super.getBuildInfo(buildId, session);
+        return getBuildInfo(buildId, session);
     }
 
     @Override
     public KojiTaskInfo getTaskInfo(int taskId, boolean request) throws KojiClientException {
-        return super.getTaskInfo(taskId, request, session);
+        return getTaskInfo(taskId, request, session);
     }
 
     @Override
     public KojiTaskRequest getTaskRequest(int taskId) throws KojiClientException {
-        return super.getTaskRequest(taskId, session);
+        return getTaskRequest(taskId, session);
     }
 
     @Override
     public List<KojiTagInfo> listTags(int id) throws KojiClientException {
-        return super.listTags(id, session);
+        return listTags(id, session);
     }
 
     @Override
     public void enrichArchiveTypeInfo(List<KojiArchiveInfo> archiveInfos) throws KojiClientException {
-        super.enrichArchiveTypeInfo(archiveInfos, session);
+        enrichArchiveTypeInfo(archiveInfos, session);
     }
 
     @Override
@@ -169,13 +169,13 @@ public class KojiClientSession extends KojiClient implements ClientSession {
             }
         }
 
-        List<KojiBuildInfo> buildInfos = super.multiCall(Constants.GET_BUILD, args, KojiBuildInfo.class, session);
+        List<KojiBuildInfo> buildInfos = multiCall(Constants.GET_BUILD, args, KojiBuildInfo.class, session);
 
         if (buildInfos.isEmpty()) {
             return buildInfos;
         }
 
-        List<KojiBuildTypeInfo> buildTypeInfos = super.multiCall(
+        List<KojiBuildTypeInfo> buildTypeInfos = multiCall(
                 Constants.GET_BUILD_TYPE,
                 args,
                 KojiBuildTypeInfo.class,
@@ -213,7 +213,7 @@ public class KojiClientSession extends KojiClient implements ClientSession {
             }
         }
 
-        return super.multiCall(Constants.GET_RPM, args, KojiRpmInfo.class, session);
+        return multiCall(Constants.GET_RPM, args, KojiRpmInfo.class, session);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class KojiClientSession extends KojiClient implements ClientSession {
             args.add(req);
         }
 
-        return super.multiCall(Constants.GET_TASK_INFO, args, KojiTaskInfo.class, session);
+        return multiCall(Constants.GET_TASK_INFO, args, KojiTaskInfo.class, session);
     }
 
     @Override
