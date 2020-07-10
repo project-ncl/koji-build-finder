@@ -1003,7 +1003,7 @@ limitations under the License.]]></inlineHeader>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
 junit.jupiter.execution.parallel.mode.default=concurrent
 junit.jupiter.execution.parallel.mode.classes.default=concurrent
 junit.jupiter.execution.parallel.config.strategy=dynamic
@@ -1040,7 +1040,7 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <properties>
-            <configurationParameters>junit.jupiter.execution.parallel.enabled=true
+            <configurationParameters>junit.jupiter.execution.parallel.enabled=false
 junit.jupiter.execution.parallel.mode.default=concurrent
 junit.jupiter.execution.parallel.mode.classes.default=concurrent
 junit.jupiter.execution.parallel.config.strategy=dynamic

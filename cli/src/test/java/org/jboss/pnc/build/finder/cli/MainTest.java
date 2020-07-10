@@ -57,6 +57,7 @@ class MainTest {
     @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
     @Test
     void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = { "--help" };
@@ -73,6 +74,7 @@ class MainTest {
     @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
     @Test
     void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
         String[] args = { "--version" };
@@ -144,6 +146,7 @@ class MainTest {
     @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
     @Test
     void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
@@ -174,6 +177,7 @@ class MainTest {
     @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
     @Test
     void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
@@ -220,6 +224,7 @@ class MainTest {
     @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
     @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
     @Test
     void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
         File configFile = TestUtils.loadFile("config.json");

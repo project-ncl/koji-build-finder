@@ -52,11 +52,11 @@ import j2html.tags.ContainerTag;
 public final class ProductReport extends Report {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductReport.class);
 
-    private static final Pattern NAME_VER_PATTERN = Pattern.compile("([a-z\\-]+)([0-9.?]+)?(.*)");
+    private static final Pattern NAME_VER_PATTERN = Pattern.compile("(?<name>[a-z\\-]+)(?<version>[0-9.?]+)?.*");
 
     private static final Pattern SPACE_PATTERN = Pattern.compile("-+");
 
-    private static final Pattern JBOSS_PATTERN = Pattern.compile("(jb|jboss)");
+    private static final Pattern JBOSS_PATTERN = Pattern.compile("(?:jb|jboss)");
 
     private static final int PRODUCT_NAME_LENGTH = 120;
 
@@ -127,7 +127,9 @@ public final class ProductReport extends Report {
 
     private static String targetToProduct(CharSequence tagName) {
         String prodName = JBOSS_PATTERN
-                .matcher(SPACE_PATTERN.matcher(NAME_VER_PATTERN.matcher(tagName).replaceAll("$1-$2")).replaceAll(" "))
+                .matcher(
+                        SPACE_PATTERN.matcher(NAME_VER_PATTERN.matcher(tagName).replaceAll("${name}-${version}"))
+                                .replaceAll(" "))
                 .replaceAll("JBoss");
         Iterator<String> it = Arrays.asList(prodName.split(" ")).iterator();
 
