@@ -41,7 +41,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 class DeletedBuildTest {
     @Wiremock
     private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("deleted-build-test"));
+            WireMockConfiguration.options().usingFilesUnderClasspath("deleted-build-test").dynamicPort());
 
     @Test
     void verifyDeletedBuild() throws KojiClientException, MalformedURLException {

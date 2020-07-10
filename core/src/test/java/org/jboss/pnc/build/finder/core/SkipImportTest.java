@@ -43,7 +43,7 @@ import com.redhat.red.build.koji.KojiClientException;
 class SkipImportTest {
     @Wiremock
     private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("skip-import-test"));
+            WireMockConfiguration.options().usingFilesUnderClasspath("skip-import-test").dynamicPort());
 
     @Test
     void verifyMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {

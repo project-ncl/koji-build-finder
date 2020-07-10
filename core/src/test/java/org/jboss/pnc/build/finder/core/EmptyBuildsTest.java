@@ -41,7 +41,7 @@ import com.redhat.red.build.koji.KojiClientException;
 class EmptyBuildsTest {
     @Wiremock
     private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("empty-builds-test"));
+            WireMockConfiguration.options().usingFilesUnderClasspath("empty-builds-test").dynamicPort());
 
     @Test
     void verifyEmptyChecksums() throws IOException, KojiClientException {
