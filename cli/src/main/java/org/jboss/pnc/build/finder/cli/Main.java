@@ -125,22 +125,22 @@ public final class Main implements Callable<Void> {
             description = "Add a build system (${COMPLETION-CANDIDATES}).")
     private List<BuildSystem> buildSystems = ConfigDefaults.BUILD_SYSTEMS;
 
-    @Option(names = { "--cache-lifespan" }, paramLabel = "LONG", description = "Specify cache lifespan.")
+    @Option(names = "--cache-lifespan", paramLabel = "LONG", description = "Specify cache lifespan.")
     private Long cacheLifespan = ConfigDefaults.CACHE_LIFESPAN;
 
-    @Option(names = { "--cache-max-idle" }, paramLabel = "LONG", description = "Specify cache maximum idle time.")
+    @Option(names = "--cache-max-idle", paramLabel = "LONG", description = "Specify cache maximum idle time.")
     private Long cacheMaxIdle = ConfigDefaults.CACHE_MAX_IDLE;
 
     @Option(names = { "-c", "--config" }, paramLabel = "FILE", description = "Specify configuration file to use.")
     private File configFile = new File(ConfigDefaults.CONFIG);
 
     @Option(names = { "-d", "--debug" }, description = "Enable debug logging.")
-    private boolean debug = false;
+    private boolean debug;
 
-    @Option(names = { "--disable-cache" }, description = "Disable local cache.")
+    @Option(names = "--disable-cache", description = "Disable local cache.")
     private Boolean disableCache = ConfigDefaults.DISABLE_CACHE;
 
-    @Option(names = { "--disable-recursion" }, description = "Disable recursion.")
+    @Option(names = "--disable-recursion", description = "Disable recursion.")
     private Boolean disableRecursion = ConfigDefaults.DISABLE_RECURSION;
 
     @Option(
@@ -153,49 +153,49 @@ public final class Main implements Callable<Void> {
     @Option(names = { "-k", "--checksum-only" }, description = "Only checksum files and do not find builds.")
     private Boolean checksumOnly = ConfigDefaults.CHECKSUM_ONLY;
 
-    @Option(names = { "--koji-hub-url" }, paramLabel = "URL", description = "Set Koji hub URL.")
+    @Option(names = "--koji-hub-url", paramLabel = "URL", description = "Set Koji hub URL.")
     private URL kojiHubURL = ConfigDefaults.KOJI_HUB_URL;
 
-    @Option(names = { "--koji-multicall-size" }, paramLabel = "INT", description = "Set Koji multicall size.")
+    @Option(names = "--koji-multicall-size", paramLabel = "INT", description = "Set Koji multicall size.")
     private Integer kojiMulticallSize = ConfigDefaults.KOJI_MULTICALL_SIZE;
 
-    @Option(names = { "--koji-num-threads" }, paramLabel = "INT", description = "Set Koji num threads.")
+    @Option(names = "--koji-num-threads", paramLabel = "INT", description = "Set Koji num threads.")
     private Integer kojiNumThreads = ConfigDefaults.KOJI_NUM_THREADS;
 
-    @Option(names = { "--koji-web-url" }, paramLabel = "URL", description = "Set Koji web URL.")
+    @Option(names = "--koji-web-url", paramLabel = "URL", description = "Set Koji web URL.")
     private URL kojiWebURL = ConfigDefaults.KOJI_WEB_URL;
 
-    @Option(names = { "--krb-ccache" }, paramLabel = "FILE", description = "Set location of Kerberos credential cache.")
+    @Option(names = "--krb-ccache", paramLabel = "FILE", description = "Set location of Kerberos credential cache.")
     private File krbCCache;
 
-    @Option(names = { "--krb-keytab" }, paramLabel = "FILE", description = "Set location of Kerberos keytab.")
+    @Option(names = "--krb-keytab", paramLabel = "FILE", description = "Set location of Kerberos keytab.")
     private File krbKeytab;
 
     @Option(
-            names = { "--krb-password" },
+            names = "--krb-password",
             paramLabel = "STRING",
             description = "Set Kerberos password.",
             arity = "0..1",
             interactive = true)
     private String krbPassword;
 
-    @Option(names = { "--krb-principal" }, paramLabel = "STRING", description = "Set Kerberos client principal.")
+    @Option(names = "--krb-principal", paramLabel = "STRING", description = "Set Kerberos client principal.")
     private String krbPrincipal;
 
-    @Option(names = { "--krb-service" }, paramLabel = "STRING", description = "Set Kerberos client service.")
+    @Option(names = "--krb-service", paramLabel = "STRING", description = "Set Kerberos client service.")
     private String krbService;
 
     @Option(names = { "-o", "--output-directory" }, paramLabel = "FILE", description = "Set output directory.")
     private File outputDirectory = new File(ConfigDefaults.OUTPUT_DIR);
 
-    @Option(names = { "--pnc-partition-size" }, paramLabel = "INT", description = "Set Pnc partition size.")
+    @Option(names = "--pnc-partition-size", paramLabel = "INT", description = "Set Pnc partition size.")
     private Integer pncPartitionSize = ConfigDefaults.PNC_PARTITION_SIZE;
 
-    @Option(names = { "--pnc-url" }, paramLabel = "URL", description = "Set Pnc URL.")
+    @Option(names = "--pnc-url", paramLabel = "URL", description = "Set Pnc URL.")
     private URL pncURL = ConfigDefaults.PNC_URL;
 
     @Option(names = { "-q", "--quiet" }, description = "Disable all logging.")
-    private boolean quiet = false;
+    private boolean quiet;
 
     @Option(
             names = { "-t", "--checksum-type" },
@@ -203,10 +203,10 @@ public final class Main implements Callable<Void> {
             description = "Add a checksum type (${COMPLETION-CANDIDATES}).")
     private Set<ChecksumType> checksumTypes = ConfigDefaults.CHECKSUM_TYPES;
 
-    @Option(names = { "--use-builds-file" }, description = "Use builds file.")
+    @Option(names = "--use-builds-file", description = "Use builds file.")
     private Boolean useBuildsFile = ConfigDefaults.USE_BUILDS_FILE;
 
-    @Option(names = { "--use-checksums-file" }, description = "Use checksums file.")
+    @Option(names = "--use-checksums-file", description = "Use checksums file.")
     private Boolean useChecksumsFile = ConfigDefaults.USE_CHECKSUMS_FILE;
 
     @Option(
