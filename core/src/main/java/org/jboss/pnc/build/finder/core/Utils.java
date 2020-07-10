@@ -87,7 +87,7 @@ public final class Utils {
     public static String getUserHome() {
         String userHome = FileUtils.getUserDirectoryPath();
 
-        if (userHome == null || userHome.equals("?")) {
+        if (userHome == null || "?".equals(userHome)) {
             LOGGER.error("Got bogus user.home value: {}", red(userHome));
 
             throw new RuntimeException("Invalid user.home: " + userHome);

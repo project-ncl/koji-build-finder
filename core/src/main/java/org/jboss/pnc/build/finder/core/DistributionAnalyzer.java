@@ -355,7 +355,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private boolean includeFile(FileObject fo) {
         boolean excludeExtension = config.getArchiveExtensions() != null && !config.getArchiveExtensions().isEmpty()
                 && config.getArchiveExtensions().stream().noneMatch(x -> x.equals(fo.getName().getExtension()))
-                && !fo.getName().getExtension().equals("rpm");
+                && !"rpm".equals(fo.getName().getExtension());
         boolean excludeFile = false;
 
         if (!excludeExtension) {

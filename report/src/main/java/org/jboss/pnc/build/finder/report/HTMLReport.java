@@ -42,6 +42,7 @@ import static j2html.TagCreator.title;
 import static j2html.TagCreator.tr;
 import static j2html.TagCreator.ul;
 import static java.lang.String.join;
+import static java.lang.String.valueOf;
 
 import java.io.File;
 import java.net.URL;
@@ -91,7 +92,7 @@ public final class HTMLReport extends Report {
             URL kojiwebUrl,
             URL pncUrl,
             List<Report> reports) {
-        setName("Build Report for " + String.join(", ", files));
+        setName("Build Report for " + join(", ", files));
         setDescription("List of analyzed artifacts whether or not they were found in a Koji build");
         setBaseFilename("output");
         setOutputDirectory(outputDirectory);
@@ -264,8 +265,7 @@ public final class HTMLReport extends Report {
                                                                         td(
                                                                                 b.getId() > 0 ? linkBuild(b)
                                                                                         : errorText(
-                                                                                                String.valueOf(
-                                                                                                        b.getId()))),
+                                                                                                valueOf(b.getId()))),
                                                                         td(b.getId() > 0 ? linkPkg(b) : text("")),
                                                                         td(
                                                                                 b.getId() > 0 ? text(
@@ -320,9 +320,9 @@ public final class HTMLReport extends Report {
                                                                                 b.getTaskInfo() != null
                                                                                         && b.getTaskInfo()
                                                                                                 .getMethod() != null
-                                                                                        && b.getTaskInfo()
-                                                                                                .getMethod()
-                                                                                                .equals("maven")
+                                                                                        && "maven".equals(
+                                                                                                b.getTaskInfo()
+                                                                                                        .getMethod())
                                                                                         && b.getTaskRequest() != null
                                                                                         && b.getTaskRequest()
                                                                                                 .asMavenBuildRequest()
