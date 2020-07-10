@@ -335,32 +335,6 @@
         <version>${version.org.fusesource.jansi}</version>
       </dependency>
       <dependency>
-        <groupId>org.infinispan</groupId>
-        <artifactId>infinispan-commons</artifactId>
-        <version>${version.org.infinispan}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan</groupId>
-        <artifactId>infinispan-component-annotations</artifactId>
-        <version>${version.org.infinispan}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan</groupId>
-        <artifactId>infinispan-core</artifactId>
-        <version>${version.org.infinispan}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-commons</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan</groupId>
-        <artifactId>infinispan-jboss-marshalling</artifactId>
-        <version>${version.org.infinispan}</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.logmanager</groupId>
         <artifactId>jboss-logmanager</artifactId>
         <version>${version.org.jboss.logmanager}</version>
@@ -411,6 +385,13 @@
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${version.com.fasterxml.jackson}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-bom</artifactId>
+        <version>${version.org.infinispan}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
