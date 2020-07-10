@@ -27,6 +27,9 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.ResourceAccessMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 import org.junitpioneer.jupiter.SetSystemProperty;
 import org.slf4j.Logger;
@@ -43,18 +46,21 @@ class BuildConfigTest {
         LOGGER.debug("user.home={}", userHome);
     }
 
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
     void verifyUserHomeQuestionMark() {
         assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @ClearSystemProperty(key = "user.home")
     @Test
     void verifyUserHomeNull() {
         assertThrows(RuntimeException.class, BuildConfigTest::userHome);
     }
 
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)
     @Test
     void verifyUserHome() {
         assertDoesNotThrow(BuildConfigTest::userHome);
