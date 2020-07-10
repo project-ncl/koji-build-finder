@@ -97,7 +97,7 @@
     <version.org.apache.maven.plugins.maven-assembly-plugin>3.3.0</version.org.apache.maven.plugins.maven-assembly-plugin>
     <version.org.apache.maven.plugins.maven-checkstyle-plugin>3.1.1</version.org.apache.maven.plugins.maven-checkstyle-plugin>
     <version.org.apache.maven.plugins.maven-clean-plugin>3.1.0</version.org.apache.maven.plugins.maven-clean-plugin>
-    <version.org.apache.maven.plugins.maven-compiler-plugin>3.8.1-jboss-1</version.org.apache.maven.plugins.maven-compiler-plugin>
+    <version.org.apache.maven.plugins.maven-compiler-plugin>3.8.1</version.org.apache.maven.plugins.maven-compiler-plugin>
     <version.org.apache.maven.plugins.maven-dependency-plugin>3.1.2</version.org.apache.maven.plugins.maven-dependency-plugin>
     <version.org.apache.maven.plugins.maven-deploy-plugin>3.0.0-M1</version.org.apache.maven.plugins.maven-deploy-plugin>
     <version.org.apache.maven.plugins.maven-enforcer-plugin>3.0.0-M3</version.org.apache.maven.plugins.maven-enforcer-plugin>
@@ -663,6 +663,9 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${version.org.apache.maven.plugins.maven-compiler-plugin}</version>
+          <configuration>
+            <release>8</release>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -731,6 +734,10 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${version.org.apache.maven.plugins.maven-javadoc-plugin}</version>
           <configuration>
+            <additionalOptions>
+              <additionalOption>-html5</additionalOption>
+            </additionalOptions>
+            <source>8</source>
             <sourceFileExcludes>
               <sourceFileExclude>org/jboss/pnc/build/finder/cli/MainTest.java</sourceFileExclude>
               <sourceFileExclude>org/jboss/pnc/build/finder/report/ReportTest.java</sourceFileExclude>
@@ -992,6 +999,9 @@ limitations under the License.]]></inlineHeader>
             </goals>
             <configuration>
               <rules>
+                <requireJavaVersion>
+                  <version>[11,)</version>
+                </requireJavaVersion>
                 <requireMavenVersion>
                   <version>${mavenVersion}</version>
                 </requireMavenVersion>
@@ -1141,6 +1151,12 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <additionalOptions>
+            <additionalOption>-html5</additionalOption>
+          </additionalOptions>
+          <source>8</source>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1173,72 +1189,4 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
       </plugin>
     </plugins>
   </reporting>
-
-  <profiles>
-    <profile>
-      <id>jdk8</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>1.8</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>module-info.java</exclude>
-              </excludes>
-              <showDeprecation>true</showDeprecation>
-              <source>1.8</source>
-              <target>1.8</target>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>jdk9</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <jdk>[9,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <release>8</release>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <additionalOptions>
-                <additionalOption>-html5</additionalOption>
-              </additionalOptions>
-              <source>1.8</source>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-      <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <additionalOptions>
-                <additionalOption>-html5</additionalOption>
-              </additionalOptions>
-              <source>1.8</source>
-            </configuration>
-          </plugin>
-        </plugins>
-      </reporting>
-    </profile>
-  </profiles>
 </project>
