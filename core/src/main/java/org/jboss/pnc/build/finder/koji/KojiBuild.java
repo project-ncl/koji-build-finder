@@ -211,7 +211,6 @@ public class KojiBuild {
     public Optional<KojiArchiveInfo> getProjectSourcesTgz() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
-        KojiArchiveInfo sourcesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-project-sources.tar.gz";
@@ -227,7 +226,6 @@ public class KojiBuild {
     public Optional<KojiArchiveInfo> getScmSourcesZip() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
-        KojiArchiveInfo sourcesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String sourcesZipFilename = mavenArtifactId + "-" + mavenVersion + "-scm-sources.zip";
@@ -243,7 +241,6 @@ public class KojiBuild {
     public Optional<KojiArchiveInfo> getPatchesZip() {
         String mavenArtifactId = buildInfo.getMavenArtifactId();
         String mavenVersion = buildInfo.getMavenVersion();
-        KojiArchiveInfo patchesZip;
 
         if (remoteArchives != null && mavenArtifactId != null && mavenVersion != null) {
             String patchesZipFilename = mavenArtifactId + "-" + mavenVersion + "-patches.zip";
