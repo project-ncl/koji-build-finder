@@ -28,6 +28,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.WithByteman;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 @WithByteman
@@ -84,6 +85,7 @@ class FileObjectTrackingTest {
                             targetMethod = "getAbstractFileObjectCounter",
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
+    @Test
     void verifyObjectCreation(@TempDir File folder) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
 
