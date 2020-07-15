@@ -29,9 +29,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class PncBuild {
     private Build build;
 
-    private Optional<BuildPushResult> buildPushResult;
+    private BuildPushResult buildPushResult;
 
-    private Optional<ProductVersion> productVersion;
+    private ProductVersion productVersion;
 
     private List<EnhancedArtifact> artifacts;
 
@@ -42,14 +42,12 @@ public class PncBuild {
     public PncBuild(Build build) {
         this.build = build;
         this.artifacts = new ArrayList<>();
-        this.buildPushResult = Optional.empty();
-        this.productVersion = Optional.empty();
     }
 
     public PncBuild(
             Build build,
-            Optional<BuildPushResult> buildPushResult,
-            Optional<ProductVersion> productVersion,
+            BuildPushResult buildPushResult,
+            ProductVersion productVersion,
             List<EnhancedArtifact> artifacts) {
         this.build = build;
         this.buildPushResult = buildPushResult;
@@ -85,18 +83,18 @@ public class PncBuild {
     }
 
     public Optional<BuildPushResult> getBuildPushResult() {
-        return buildPushResult;
+        return Optional.ofNullable(buildPushResult);
     }
 
-    public void setBuildPushResult(Optional<BuildPushResult> buildPushResult) {
+    public void setBuildPushResult(BuildPushResult buildPushResult) {
         this.buildPushResult = buildPushResult;
     }
 
     public Optional<ProductVersion> getProductVersion() {
-        return productVersion;
+        return Optional.ofNullable(productVersion);
     }
 
-    public void setProductVersion(Optional<ProductVersion> productVersion) {
+    public void setProductVersion(ProductVersion productVersion) {
         this.productVersion = productVersion;
     }
 

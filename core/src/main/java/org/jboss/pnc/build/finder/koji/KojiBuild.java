@@ -283,7 +283,7 @@ public class KojiBuild {
             }
         }
 
-        return source != null ? Optional.of(source) : Optional.empty();
+        return Optional.ofNullable(source);
     }
 
     @JsonIgnore

@@ -28,7 +28,7 @@ import org.jboss.pnc.dto.Artifact;
  * @author Jakub Bartecek
  */
 public class EnhancedArtifact {
-    private Optional<Artifact> artifact;
+    private Artifact artifact;
 
     private Checksum checksum;
 
@@ -38,17 +38,17 @@ public class EnhancedArtifact {
         fileNames = new ArrayList<>();
     }
 
-    public EnhancedArtifact(Optional<Artifact> artifact, Checksum checksum, Collection<String> fileNames) {
+    public EnhancedArtifact(Artifact artifact, Checksum checksum, Collection<String> fileNames) {
         this.artifact = artifact;
         this.checksum = checksum;
         this.fileNames = fileNames;
     }
 
     public Optional<Artifact> getArtifact() {
-        return artifact;
+        return Optional.ofNullable(artifact);
     }
 
-    public void setArtifact(Optional<Artifact> artifact) {
+    public void setArtifact(Artifact artifact) {
         this.artifact = artifact;
     }
 

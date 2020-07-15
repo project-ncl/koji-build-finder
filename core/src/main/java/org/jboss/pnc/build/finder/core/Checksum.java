@@ -185,20 +185,16 @@ public class Checksum implements Serializable {
     }
 
     static Optional<Checksum> findByType(Collection<Checksum> checksums, ChecksumType type) {
-        Optional<Checksum> checksumOptional;
         List<Checksum> list = checksums.stream()
                 .filter(checksum -> checksum.getType() == type)
                 .collect(Collectors.toList());
-        int size = list.size();
+        Checksum checksum = null;
 
-        if (size == 0) {
-            checksumOptional = Optional.empty();
-        } else {
-            Checksum checksum = list.get(0);
-            checksumOptional = Optional.of(checksum);
+        if (!list.isEmpty()) {
+            checksum = list.get(0);
         }
 
-        return checksumOptional;
+        return Optional.ofNullable(checksum);
     }
 
     public ChecksumType getType() {

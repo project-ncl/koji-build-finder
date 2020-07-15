@@ -119,8 +119,7 @@ public class PncBuildFinder {
             if (!isBuildZero(pncBuild)) {
                 try {
                     if (build.getProductMilestone() != null) {
-                        pncBuild.setProductVersion(
-                                Optional.of(pncClient.getProductVersion(build.getProductMilestone().getId())));
+                        pncBuild.setProductVersion(pncClient.getProductVersion(build.getProductMilestone().getId()));
                     }
                 } catch (RemoteResourceNotFoundException e) {
                     // NOOP - keep the field empty
@@ -129,7 +128,7 @@ public class PncBuildFinder {
                 }
 
                 try {
-                    pncBuild.setBuildPushResult(Optional.of(pncClient.getBuildPushResult(build.getId())));
+                    pncBuild.setBuildPushResult(pncClient.getBuildPushResult(build.getId()));
                 } catch (RemoteResourceNotFoundException e) {
                     // NOOP - keep the field empty
                 } catch (RemoteResourceException e) {
@@ -158,7 +157,7 @@ public class PncBuildFinder {
 
             try {
                 EnhancedArtifact enhancedArtifact = new EnhancedArtifact(
-                        findArtifactInPnc(checksum, fileNames),
+                        findArtifactInPnc(checksum, fileNames).orElse(null),
                         checksum,
                         fileNames);
                 artifacts.add(enhancedArtifact);
