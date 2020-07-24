@@ -343,7 +343,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
             filesInError.add(filename);
 
-            LOGGER.warn("Unable to process archive/compressed file: {}: {}", red(filename), red(e.getMessage()));
+            LOGGER.warn(
+                    "Unable to process archive/compressed file: {}: {} ({})",
+                    red(filename),
+                    red(e.getMessage()),
+                    red(e.getCause() != null ? e.getCause().getMessage() : ""));
             LOGGER.debug("Error", e);
         } finally {
             if (fs != null) {
