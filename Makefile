@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-IMAGE_NAME := koji-build-finder
+IMAGE_NAME := build-finder
 
 build:
 	docker build --tag=$(IMAGE_NAME) .
