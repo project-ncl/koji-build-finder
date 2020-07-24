@@ -55,8 +55,6 @@ public class BuildStatistics {
                 numberOfBuilds++;
 
                 if (isImport) {
-                    LOGGER.warn("Imported build: {}", red(build.getBuildInfo().getName()));
-
                     numberOfImportedBuilds++;
                 }
             }
