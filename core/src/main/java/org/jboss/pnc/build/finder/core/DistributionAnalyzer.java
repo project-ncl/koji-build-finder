@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private final Set<ChecksumType> checksumTypesToCheck;
 
-    private final Set<String> filesInError;
+    private final List<FileError> fileErrors;
 
     private Map<ChecksumType, MultiValuedMap<String, String>> map;
 
@@ -132,7 +131,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         level = new AtomicInteger();
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        filesInError = new HashSet<>();
+        fileErrors = new ArrayList<>();
     }
 
     private static boolean isJar(FileObject fo) {
@@ -340,14 +339,25 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             listChildren(layered);
         } catch (IOException e) {
             String filename = Utils.normalizePath(fo, root);
+            String message = e.getMessage();
 
-            filesInError.add(filename);
+            if (message == null) {
+                message = "";
+            }
 
-            LOGGER.warn(
-                    "Unable to process archive/compressed file: {}: {} ({})",
-                    red(filename),
-                    red(e.getMessage()),
-                    red(e.getCause() != null ? e.getCause().getMessage() : ""));
+            Throwable cause = e.getCause();
+
+            if (cause != null) {
+                String causeMessage = cause.getMessage();
+
+                if (causeMessage != null) {
+                    message += " (" + causeMessage + ")";
+                }
+            }
+
+            fileErrors.add(new FileError(filename, message));
+
+            LOGGER.warn("Unable to process archive/compressed file: {}: {}", red(filename), red(message));
             LOGGER.debug("Error", e);
         } finally {
             if (fs != null) {
@@ -490,8 +500,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Collections.unmodifiableMap(map.get(checksumType).asMap());
     }
 
-    public Collection<String> getFilesInError() {
-        return Collections.unmodifiableSet(filesInError);
+    public Collection<FileError> getFileErrors() {
+        return Collections.unmodifiableList(fileErrors);
     }
 
     @Override

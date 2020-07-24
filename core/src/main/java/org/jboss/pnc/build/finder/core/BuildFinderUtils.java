@@ -201,13 +201,16 @@ public final class BuildFinderUtils {
 
     public void addFilesInError(KojiBuild buildZero) {
         if (distributionAnalyzer != null) {
-            for (String fileInError : distributionAnalyzer.getFilesInError()) {
+            for (FileError fileError : distributionAnalyzer.getFileErrors()) {
                 Optional<Checksum> checksum = Checksum.findByType(
-                        MultiMapUtils.getValuesAsSet(distributionAnalyzer.getFiles(), fileInError),
+                        MultiMapUtils.getValuesAsSet(distributionAnalyzer.getFiles(), fileError.getFilename()),
                         ChecksumType.md5);
 
                 checksum.ifPresent(
-                        cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(fileInError)));
+                        cksum -> addArchiveWithoutBuild(
+                                buildZero,
+                                cksum,
+                                Collections.singletonList(fileError.getFilename())));
             }
         }
     }
