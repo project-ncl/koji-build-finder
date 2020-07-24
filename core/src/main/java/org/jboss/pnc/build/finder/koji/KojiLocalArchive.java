@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.koji;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -40,6 +41,7 @@ public class KojiLocalArchive {
 
     public KojiLocalArchive() {
         this.filenames = new TreeSet<>();
+        this.checksums = new HashSet<>();
         this.unmatchedFilenames = new TreeSet<>();
     }
 
