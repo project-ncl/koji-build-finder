@@ -116,6 +116,12 @@
                   </includes>
                 </filter>
                 <filter>
+                  <artifact>org.jboss.pnc.build.finder:cli</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
                   <artifact>org.jgroups:jgroups</artifact>
                   <includes>
                     <include>**</include>
