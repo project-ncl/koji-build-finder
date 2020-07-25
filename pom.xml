@@ -47,6 +47,7 @@
   </licenses>
 
   <modules>
+    <module>build-finder</module>
     <module>cli</module>
     <module>core</module>
     <module>report</module>
@@ -1074,6 +1075,7 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
           <excludes>
             <exclude>.cache/*</exclude>
             <exclude>.vs*/*</exclude>
+            <exclude>*.bak</exclude>
           </excludes>
         </configuration>
         <executions>
