@@ -131,7 +131,7 @@
     <version.org.jboss.logmanager>2.1.17.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.0.0-SNAPSHOT</version.org.jboss.pnc>
     <version.org.json.json>20200518</version.org.json.json>
-    <version.org.junit-pioneer>0.7.0</version.org.junit-pioneer>
+    <version.org.junit-pioneer>0.8.0</version.org.junit-pioneer>
     <version.org.junit.jupiter>5.6.2</version.org.junit.jupiter>
     <version.org.mockito>3.4.6</version.org.mockito>
     <version.org.ow2.asm>8.0.1</version.org.ow2.asm>
