@@ -19,12 +19,17 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,5 +99,49 @@ public final class Utils {
         }
 
         return userHome;
+    }
+
+    public static String byteCountToDisplaySize(long bytes) {
+        if (bytes < 1024L) {
+            return Long.toString(bytes);
+        }
+
+        String units = " KMGTPE";
+        int z = (63 - Long.numberOfLeadingZeros(bytes)) / 10;
+        char u = units.charAt(z);
+        double number = (double) bytes / (double) (1L << (z * 10));
+        int i = (int) number;
+        double d = number - (double) i;
+
+        if (d > 0.99D) {
+            if (i == 1023) {
+                number = 1.0D;
+                u = units.charAt(z + 1);
+            } else {
+                number = (double) (i + 1);
+            }
+        }
+
+        DecimalFormat format;
+
+        if (number > 9.9D) {
+            format = new DecimalFormat("0");
+        } else {
+            format = new DecimalFormat("0.0");
+        }
+
+        format.setRoundingMode(RoundingMode.UP);
+
+        StringBuffer sb = new StringBuffer(5);
+
+        format.format(number, sb, new FieldPosition(0));
+
+        return sb.append(u).toString();
+    }
+
+    public static Object byteCountToDisplaySize(FileObject fo) throws FileSystemException {
+        try (FileContent fc = fo.getContent()) {
+            return byteCountToDisplaySize(fc.getSize());
+        }
     }
 }

@@ -15,8 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -29,19 +31,41 @@ class UtilsTest {
     void verifyBuildFinderVersion() {
         String version = Utils.getBuildFinderVersion();
 
-        assertNotNull(version);
-        assertFalse(version.isEmpty());
+        LOGGER.debug("Version is: '{}'", version);
 
-        LOGGER.debug("Version is {}", version);
+        assertThat(version, is(not(emptyOrNullString())));
     }
 
     @Test
     void verifyBuildFinderScmRevision() {
         String scmRevision = Utils.getBuildFinderScmRevision();
 
-        assertNotNull(scmRevision);
-        assertFalse(scmRevision.isEmpty());
+        LOGGER.debug("SCM Revision is: '{}'", scmRevision);
 
-        LOGGER.debug("SCM Revision is {}", scmRevision);
+        assertThat(scmRevision, is(not(emptyOrNullString())));
+    }
+
+    @Test
+    void verifyByteCountToDisplaySize() {
+        assertThat(Utils.byteCountToDisplaySize(1023L), is("1023"));
+        assertThat(Utils.byteCountToDisplaySize(1024L), is("1.0K"));
+        assertThat(Utils.byteCountToDisplaySize(1025L), is("1.1K"));
+        assertThat(Utils.byteCountToDisplaySize(10137L), is("9.9K"));
+        assertThat(Utils.byteCountToDisplaySize(10138L), is("10K"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1023L), is("1023K"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L), is("1.0M"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1025L), is("1.1M"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1023L), is("1023M"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L), is("1.0G"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1025L), is("1.1G"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L), is("2.0G"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L - 1L), is("2.0G"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L), is("1.0T"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L), is("1.0P"));
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L * 1024L), is("1.0E"));
+        assertThat(Utils.byteCountToDisplaySize(Long.MAX_VALUE), is("8.0E"));
+        assertThat(Utils.byteCountToDisplaySize((long) Character.MAX_VALUE), is("64K"));
+        assertThat(Utils.byteCountToDisplaySize((long) Short.MAX_VALUE), is("32K"));
+        assertThat(Utils.byteCountToDisplaySize((long) Integer.MAX_VALUE), is("2.0G"));
     }
 }

@@ -173,7 +173,15 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     fo = sfs.resolveFile(new File(file).toURI());
                 }
 
-                LOGGER.info("Analyzing: {}", green(fo.getPublicURIString()));
+                if (LOGGER.isInfoEnabled()) {
+                    String filename = fo.getPublicURIString();
+
+                    if (fo.isFile()) {
+                        LOGGER.info("Analyzing: {} ({})", green(filename), green(Utils.byteCountToDisplaySize(fo)));
+                    } else {
+                        LOGGER.info("Analyzing: {}", green(filename));
+                    }
+                }
 
                 root = fo.getName()
                         .getFriendlyURI()
