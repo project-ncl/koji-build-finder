@@ -108,7 +108,7 @@ public final class Utils {
 
         String units = " KMGTPE";
         int z = (63 - Long.numberOfLeadingZeros(bytes)) / 10;
-        char u = units.charAt(z);
+        char unit = units.charAt(z);
         double number = (double) bytes / (double) (1L << (z * 10));
         int i = (int) number;
         double d = number - (double) i;
@@ -116,27 +116,23 @@ public final class Utils {
         if (d > 0.99D) {
             if (i == 1023) {
                 number = 1.0D;
-                u = units.charAt(z + 1);
+                unit = units.charAt(z + 1);
             } else {
                 number = (double) (i + 1);
             }
         }
 
-        DecimalFormat format;
+        DecimalFormat format = new DecimalFormat();
 
-        if (number > 9.9D) {
-            format = new DecimalFormat("0");
-        } else {
-            format = new DecimalFormat("0.0");
-        }
-
+        format.setGroupingUsed(false);
         format.setRoundingMode(RoundingMode.UP);
 
-        StringBuffer sb = new StringBuffer(5);
+        int digits = number > 9.9D ? 0 : 1;
 
-        format.format(number, sb, new FieldPosition(0));
+        format.setMinimumFractionDigits(digits);
+        format.setMaximumFractionDigits(digits);
 
-        return sb.append(u).toString();
+        return format.format(number, new StringBuffer(5), new FieldPosition(0)).append(unit).toString();
     }
 
     public static Object byteCountToDisplaySize(FileObject fo) throws FileSystemException {
