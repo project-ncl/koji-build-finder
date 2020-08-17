@@ -77,7 +77,7 @@
     <version.com.github.spotbugs>4.0.4</version.com.github.spotbugs>
     <version.com.google.guava>29.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
-    <version.com.mycila>4.0.rc1</version.com.mycila>
+    <version.com.mycila>4.0.rc2</version.com.mycila>
     <version.com.puppycrawl.tools>8.35</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.12</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.14</version.commons-codec>
