@@ -19,7 +19,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
@@ -168,7 +169,7 @@ class PncBuildFinderTest {
 
         // Verify that the artifact is in the notFoundChecksums collection
         assertThat(findBuildsResult.getNotFoundChecksums(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getNotFoundChecksums(), hasKey(checksum));
+        assertThat(findBuildsResult.getNotFoundChecksums(), hasEntry(is(checksum), contains(filename)));
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {

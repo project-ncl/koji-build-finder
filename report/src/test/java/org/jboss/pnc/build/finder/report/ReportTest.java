@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.io.File;
@@ -209,14 +209,12 @@ class ReportTest {
         report.outputText();
 
         assertThat(report.getProductMap(), is(aMapWithSize(2)));
-        assertThat(report.getProductMap(), hasKey("JBoss EAP 7.0"));
-        assertThat(report.getProductMap(), hasKey("JBoss AMQ 7"));
         assertThat(
-                report.getProductMap().get("JBoss EAP 7.0"),
-                contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
+                report.getProductMap(),
+                hasEntry(is("JBoss EAP 7.0"), contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1")));
         assertThat(
-                report.getProductMap().get("JBoss AMQ 7"),
-                contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
+                report.getProductMap(),
+                hasEntry(is("JBoss AMQ 7"), contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6")));
     }
 
     @Test

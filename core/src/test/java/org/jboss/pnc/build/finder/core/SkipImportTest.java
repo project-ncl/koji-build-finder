@@ -19,7 +19,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -74,8 +76,10 @@ class SkipImportTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasKey(new BuildSystemInteger(0)));
-            assertThat(builds, hasKey(new BuildSystemInteger(228994, BuildSystem.koji)));
+            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
+            assertThat(
+                    builds,
+                    hasEntry(is(new BuildSystemInteger(228994, BuildSystem.koji)), hasProperty("id", is(228994))));
             assertThat(builds, not(hasKey(new BuildSystemInteger(251444, BuildSystem.koji))));
         }
     }
