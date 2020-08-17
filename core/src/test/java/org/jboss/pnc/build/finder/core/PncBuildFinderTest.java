@@ -15,8 +15,12 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -75,8 +79,8 @@ class PncBuildFinderTest {
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(new HashMap<>());
 
         // then
-        assertEquals(0, findBuildsResult.getFoundBuilds().size());
-        assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
+        assertThat(findBuildsResult.getFoundBuilds(), is(anEmptyMap()));
+        assertThat(findBuildsResult.getNotFoundChecksums(), is(anEmptyMap()));
     }
 
     @Test
@@ -128,14 +132,14 @@ class PncBuildFinderTest {
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(requestMap);
 
         // then
-        assertEquals(1, findBuildsResult.getFoundBuilds().size());
-        assertEquals(0, findBuildsResult.getNotFoundChecksums().size());
+        assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
+        assertThat(findBuildsResult.getNotFoundChecksums(), is(anEmptyMap()));
 
         KojiBuild foundBuild = findBuildsResult.getFoundBuilds().get(new BuildSystemInteger(100, BuildSystem.pnc));
         List<KojiLocalArchive> foundArchives = foundBuild.getArchives();
 
-        assertEquals(1, foundArchives.size());
-        assertEquals(md5, foundArchives.get(0).getArchive().getChecksum());
+        assertThat(foundArchives, hasSize(1));
+        assertThat(foundArchives.get(0).getArchive().getChecksum(), is(md5));
     }
 
     @Test
@@ -159,12 +163,12 @@ class PncBuildFinderTest {
 
         // then
         // Verify that only BuildZero is returned
-        assertEquals(1, findBuildsResult.getFoundBuilds().size());
-        assertEquals(Integer.valueOf(0), findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue());
+        assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
+        assertThat(findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue(), is(0));
 
         // Verify that the artifact is in the notFoundChecksums collection
-        assertEquals(1, findBuildsResult.getNotFoundChecksums().size());
-        assertTrue(findBuildsResult.getNotFoundChecksums().containsKey(checksum));
+        assertThat(findBuildsResult.getNotFoundChecksums(), is(aMapWithSize(1)));
+        assertThat(findBuildsResult.getNotFoundChecksums(), hasKey(checksum));
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {

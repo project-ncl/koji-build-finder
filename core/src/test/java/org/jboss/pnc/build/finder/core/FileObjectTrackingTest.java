@@ -15,8 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,19 +99,19 @@ class FileObjectTrackingTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(25, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
 
         Object sCounter = getFileSystemCounter();
 
-        assertNotNull(sCounter);
+        assertThat(sCounter, is(not(nullValue())));
 
         int sCount = (Integer) sCounter;
 
-        assertEquals(0, sCount);
+        assertThat(sCount, is(0));
 
         Object fCounter = getAbstractFileObjectCounter();
 
-        assertEquals(0, fCounter);
+        assertThat(fCounter, is(0));
     }
 
     /**

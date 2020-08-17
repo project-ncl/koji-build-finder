@@ -15,9 +15,12 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import java.io.File;
 import java.util.Collections;
@@ -55,9 +58,10 @@ class KojiBuildFinderIT extends AbstractKojiIT {
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
-        assertNotNull(
+        assertThat(
+                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL,
-                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with");
+                is(not(nullValue())));
 
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
@@ -84,8 +88,8 @@ class KojiBuildFinderIT extends AbstractKojiIT {
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             map = futureChecksum.get();
 
-            assertEquals(3, map.size());
-            assertTrue(builds.size() >= 1);
+            assertThat(map, is(aMapWithSize(3)));
+            assertThat(builds, is(aMapWithSize(greaterThanOrEqualTo(1))));
 
             LOGGER.info("Map size: {}", map.size());
             LOGGER.info("Builds size: {}", builds.size());

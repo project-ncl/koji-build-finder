@@ -15,8 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.hasKey;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -57,7 +60,7 @@ class EmptyBuildsTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(Collections.emptyMap());
 
-            assertEquals(0, builds.size());
+            assertThat(builds, is(anEmptyMap()));
         }
     }
 
@@ -83,8 +86,8 @@ class EmptyBuildsTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertEquals(1, builds.size());
-            assertTrue(builds.containsKey(new BuildSystemInteger(0)));
+            assertThat(builds, is(aMapWithSize(1)));
+            assertThat(builds, hasKey(new BuildSystemInteger(0)));
         }
     }
 }

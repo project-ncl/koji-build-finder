@@ -19,9 +19,9 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +70,7 @@ class DistributionAnalyzerTest {
         af.add(test.getPath());
 
         try (RandomAccessFile f = new RandomAccessFile(test, "rw")) {
-            f.setLength(FileUtils.ONE_GB * 2);
+            f.setLength(FileUtils.ONE_GB << 1);
             BuildConfig config = new BuildConfig();
             config.setArchiveExtensions(Collections.emptyList());
             DistributionAnalyzer da = new DistributionAnalyzer(af, config);
@@ -101,7 +101,7 @@ class DistributionAnalyzerTest {
     @Test
     void verifyCacheClearance(@TempDir File folder) throws IOException {
         Collection<File> ls = FileUtils.listFiles(folder, null, true);
-        assertTrue(ls.isEmpty());
+        assertThat(ls, is(empty()));
 
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
@@ -110,7 +110,7 @@ class DistributionAnalyzerTest {
         da.checksumFiles();
 
         Collection<File> files = FileUtils.listFiles(folder, null, true);
-        assertTrue(files.isEmpty());
+        assertThat(files, is(empty()));
     }
 
     @Test
@@ -121,7 +121,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(25, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
     }
 
     @Test
@@ -132,7 +132,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(7, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(7));
     }
 
     @CaptureSystemOutput
@@ -145,7 +145,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(4, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(4));
         outputCapture.expect(containsString("Unable to process archive/compressed file"));
     }
 
@@ -157,7 +157,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.call();
 
-        assertEquals(25, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
     }
 
     @Test
@@ -167,21 +167,21 @@ class DistributionAnalyzerTest {
         config.setArchiveExtensions(Collections.emptyList());
         config.setChecksumTypes(EnumSet.allOf(ChecksumType.class));
 
-        assertEquals(3, config.getChecksumTypes().size());
+        assertThat(config.getChecksumTypes(), hasSize(3));
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.call();
 
-        assertEquals(config.getChecksumTypes().size(), checksums.keySet().size());
+        assertThat(checksums.keySet().size(), is(config.getChecksumTypes().size()));
 
-        assertTrue(config.getChecksumTypes().contains(ChecksumType.md5));
-        assertTrue(config.getChecksumTypes().contains(ChecksumType.sha1));
-        assertTrue(config.getChecksumTypes().contains(ChecksumType.sha256));
+        assertThat(
+                config.getChecksumTypes(),
+                containsInAnyOrder(ChecksumType.md5, ChecksumType.sha1, ChecksumType.sha256));
 
         Set<ChecksumType> checksumTypes = config.getChecksumTypes();
 
         for (ChecksumType checksumType : checksumTypes) {
-            assertEquals(25, checksums.get(checksumType).size());
+            assertThat(checksums.get(checksumType).size(), is(25));
 
             for (Entry<String, String> entry : checksums.get(checksumType).entries()) {
                 String checksum = entry.getKey();
@@ -189,14 +189,16 @@ class DistributionAnalyzerTest {
                 Set<Checksum> set = MultiMapUtils.getValuesAsSet(da.getFiles(), filename);
                 Optional<Checksum> cksum = Checksum.findByType(set, checksumType);
 
-                assertEquals(checksum, cksum.map(Checksum::getValue).orElse(null));
-                assertEquals(checksumType, cksum.map(Checksum::getType).orElse(null));
+                assertThat(cksum.map(Checksum::getValue).orElse(null), is(checksum));
+                assertThat(cksum.map(Checksum::getType).orElse(null), is(checksumType));
             }
 
         }
 
-        assertEquals(3, checksums.values().size());
-        assertEquals(25 * checksums.values().size(), checksums.values().stream().mapToInt(MultiValuedMap::size).sum());
+        assertThat(checksums.values(), hasSize(3));
+        assertThat(
+                checksums.values().stream().mapToInt(MultiValuedMap::size).sum(),
+                is(25 * checksums.values().size()));
     }
 
     @Test
@@ -208,7 +210,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(3, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(3));
     }
 
     @Test
@@ -220,7 +222,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(2, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(2));
     }
 
     @Test
@@ -232,7 +234,7 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(1, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(1));
     }
 
     @Test
@@ -244,6 +246,6 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
-        assertEquals(4, checksums.get(ChecksumType.md5).size());
+        assertThat(checksums.get(ChecksumType.md5).size(), is(4));
     }
 }

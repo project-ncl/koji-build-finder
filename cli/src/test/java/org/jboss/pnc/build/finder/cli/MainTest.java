@@ -16,16 +16,16 @@
 package org.jboss.pnc.build.finder.cli;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -64,7 +64,7 @@ class MainTest {
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        assertTrue(parseResult.hasMatchedOption("--help"));
+        assertThat(parseResult.hasMatchedOption("--help"), is(true));
 
         Main.main(args);
 
@@ -80,7 +80,7 @@ class MainTest {
         String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        assertTrue(parseResult.hasMatchedOption("--version"));
+        assertThat(parseResult.hasMatchedOption("--version"), is(true));
 
         Main.main(args);
 
@@ -139,33 +139,33 @@ class MainTest {
 
         File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(folder, outputDirectory);
+        assertThat(outputDirectory, is(folder));
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-        assertEquals(configFile, parsedConfigFile);
+        assertThat(parsedConfigFile, is(configFile));
 
-        assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
+        assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
 
-        assertEquals(EnumSet.of(ChecksumType.sha256), parseResult.matchedOption("--checksum-type").getValue());
+        assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.sha256));
 
         List<Pattern> excludes = parseResult.matchedOption("--exclude").getValue();
 
-        assertEquals(1, excludes.size());
+        assertThat(excludes, hasSize(1));
 
         List<String> archiveTypes = parseResult.matchedOption("--archive-type").getValue();
 
-        assertEquals(1, archiveTypes.size());
+        assertThat(archiveTypes, hasSize(1));
 
         List<String> archiveExtensions = parseResult.matchedOption("--archive-extension").getValue();
 
-        assertEquals(1, archiveExtensions.size());
+        assertThat(archiveExtensions, hasSize(1));
 
-        assertEquals(krbCcache, parseResult.matchedOption("--krb-ccache").getValue());
-        assertEquals(krbKeytab, parseResult.matchedOption("--krb-keytab").getValue());
-        assertEquals(krbPassword, parseResult.matchedOption("--krb-password").getValue());
-        assertEquals(krbPrincipal, parseResult.matchedOption("--krb-principal").getValue());
-        assertEquals(krbService, parseResult.matchedOption("--krb-service").getValue());
+        assertThat(parseResult.matchedOption("--krb-ccache").getValue(), is(krbCcache));
+        assertThat(parseResult.matchedOption("--krb-keytab").getValue(), is(krbKeytab));
+        assertThat(parseResult.matchedOption("--krb-password").getValue(), is(krbPassword));
+        assertThat(parseResult.matchedOption("--krb-principal").getValue(), is(krbPrincipal));
+        assertThat(parseResult.matchedOption("--krb-service").getValue(), is(krbService));
     }
 
     @CaptureSystemOutput
@@ -192,15 +192,15 @@ class MainTest {
 
         File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertEquals(folder, outputDirectory);
+        assertThat(outputDirectory, is(folder));
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-        assertEquals(configFile, parsedConfigFile);
+        assertThat(parsedConfigFile, is(configFile));
 
-        assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
+        assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
 
-        assertEquals(EnumSet.of(ChecksumType.sha256), parseResult.matchedOption("--checksum-type").getValue());
+        assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.sha256));
 
         Main.main(args);
 
@@ -223,7 +223,7 @@ class MainTest {
         try {
             root.setLevel(Level.INFO);
 
-            assertFalse(root.isDebugEnabled());
+            assertThat(root.isDebugEnabled(), is(false));
 
             String[] args = {
                     "--output-directory",
@@ -241,21 +241,21 @@ class MainTest {
 
             File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(folder, outputDirectory);
+            assertThat(outputDirectory, is(folder));
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-            assertEquals(configFile, parsedConfigFile);
+            assertThat(parsedConfigFile, is(configFile));
 
-            assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
+            assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
 
-            assertEquals(EnumSet.of(ChecksumType.md5), parseResult.matchedOption("--checksum-type").getValue());
+            assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.md5));
 
-            assertEquals(Boolean.TRUE, parseResult.matchedOption("--debug").getValue());
+            assertThat(parseResult.matchedOption("--debug").getValue(), is(Boolean.TRUE));
 
             Main.main(args);
 
-            assertTrue(root.isDebugEnabled());
+            assertThat(root.isDebugEnabled(), is(true));
 
             outputCapture.expect(containsString("DEBUG"));
         } finally {
@@ -279,7 +279,7 @@ class MainTest {
         try {
             root.setLevel(Level.INFO);
 
-            assertTrue(root.isEnabledFor(Level.INFO));
+            assertThat(root.isEnabledFor(Level.INFO), is(true));
 
             String[] args = {
                     "--output-directory",
@@ -297,21 +297,21 @@ class MainTest {
 
             File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertEquals(folder, outputDirectory);
+            assertThat(outputDirectory, is(folder));
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-            assertEquals(configFile, parsedConfigFile);
+            assertThat(parsedConfigFile, is(configFile));
 
-            assertEquals(Boolean.TRUE, parseResult.matchedOption("--checksum-only").getValue());
+            assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
 
-            assertEquals(EnumSet.of(ChecksumType.md5), parseResult.matchedOption("--checksum-type").getValue());
+            assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.md5));
 
-            assertEquals(Boolean.TRUE, parseResult.matchedOption("--quiet").getValue());
+            assertThat(parseResult.matchedOption("--quiet").getValue(), is(Boolean.TRUE));
 
             Main.main(args);
 
-            assertTrue(root.isEnabledFor(Level.OFF));
+            assertThat(root.isEnabledFor(Level.OFF), is(true));
 
             outputCapture.expect(emptyString());
         } finally {

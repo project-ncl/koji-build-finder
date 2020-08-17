@@ -15,10 +15,18 @@
  */
 package org.jboss.pnc.build.finder.report;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +59,7 @@ class ReportTest {
         File buildsFile = TestUtils.loadFile("report-test/builds.json");
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
 
-        assertEquals(6, buildMap.size());
+        assertThat(buildMap, is(aMapWithSize(6)));
 
         List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
 
@@ -59,7 +67,7 @@ class ReportTest {
 
         builds = Collections.unmodifiableList(buildList);
 
-        assertEquals(buildMap.size(), buildList.size());
+        assertThat(buildList.size(), is(buildMap.size()));
 
         verifyLoad(folder);
     }
@@ -69,7 +77,7 @@ class ReportTest {
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
         File newBuildsFile = new File(folder, "builds.json");
 
-        assertNotNull(newBuildsFile);
+        assertThat(newBuildsFile, is(not(nullValue())));
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
@@ -81,64 +89,64 @@ class ReportTest {
 
         String newBuildsString = FileUtils.readFileToString(newBuildsFile, StandardCharsets.UTF_8);
 
-        assertEquals(buildsString, newBuildsString);
+        assertThat(newBuildsString, is(buildsString));
     }
 
     @Test
     void verifyBuilds() {
-        assertTrue(builds.get(0).isImport());
-        assertFalse(builds.get(0).getScmSourcesZip().isPresent());
-        assertFalse(builds.get(0).getPatchesZip().isPresent());
-        assertFalse(builds.get(0).getProjectSourcesTgz().isPresent());
-        assertTrue(builds.get(0).getDuplicateArchives().isEmpty());
-        assertNotNull(builds.get(0).toString());
+        assertThat(builds.get(0).isImport(), is(true));
+        assertThat(builds.get(0).getScmSourcesZip().isPresent(), is(false));
+        assertThat(builds.get(0).getPatchesZip().isPresent(), is(false));
+        assertThat(builds.get(0).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(0).getDuplicateArchives(), is(empty()));
+        assertThat(builds.get(0).toString(), is(not(emptyOrNullString())));
 
-        assertTrue(builds.get(1).isImport());
-        assertFalse(builds.get(1).getScmSourcesZip().isPresent());
-        assertFalse(builds.get(1).getPatchesZip().isPresent());
-        assertFalse(builds.get(1).getProjectSourcesTgz().isPresent());
-        assertEquals(1, builds.get(1).getDuplicateArchives().size());
-        assertNotNull(builds.get(1).toString());
+        assertThat(builds.get(1).isImport(), is(true));
+        assertThat(builds.get(1).getScmSourcesZip().isPresent(), is(false));
+        assertThat(builds.get(1).getPatchesZip().isPresent(), is(false));
+        assertThat(builds.get(1).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(1).getDuplicateArchives(), hasSize(1));
+        assertThat(builds.get(1).toString(), is(not(emptyOrNullString())));
 
-        assertTrue(builds.get(2).isImport());
-        assertFalse(builds.get(2).getScmSourcesZip().isPresent());
-        assertFalse(builds.get(2).getPatchesZip().isPresent());
-        assertFalse(builds.get(2).getProjectSourcesTgz().isPresent());
-        assertEquals(1, builds.get(2).getDuplicateArchives().size());
-        assertNotNull(builds.get(2).toString());
-        assertNotNull(builds.get(2).getDuplicateArchives().get(0));
+        assertThat(builds.get(2).isImport(), is(true));
+        assertThat(builds.get(2).getScmSourcesZip().isPresent(), is(false));
+        assertThat(builds.get(2).getPatchesZip().isPresent(), is(false));
+        assertThat(builds.get(2).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(2).getDuplicateArchives(), hasSize(1));
+        assertThat(builds.get(2).toString(), is(not(emptyOrNullString())));
+        assertThat(builds.get(2).getDuplicateArchives().get(0), is(not(nullValue())));
 
-        assertTrue(builds.get(3).isMaven());
-        assertTrue(builds.get(3).getTypes().contains("maven"));
-        assertTrue(builds.get(3).getSource().isPresent());
-        assertFalse(builds.get(3).getSource().get().isEmpty());
-        assertTrue(builds.get(3).getScmSourcesZip().isPresent());
-        assertTrue(builds.get(3).getPatchesZip().isPresent());
-        assertTrue(builds.get(3).getProjectSourcesTgz().isPresent());
-        assertNotNull(builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties());
-        assertTrue(builds.get(3).getDuplicateArchives().isEmpty());
-        assertNotNull(builds.get(3).toString());
+        assertThat(builds.get(3).isMaven(), is(true));
+        assertThat(builds.get(3).getTypes(), contains("maven"));
+        assertThat(builds.get(3).getSource().isPresent(), is(true));
+        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
+        assertThat(builds.get(3).getScmSourcesZip().isPresent(), is(true));
+        assertThat(builds.get(3).getPatchesZip().isPresent(), is(true));
+        assertThat(builds.get(3).getProjectSourcesTgz().isPresent(), is(true));
+        assertThat(builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties(), is(not(anEmptyMap())));
+        assertThat(builds.get(3).getDuplicateArchives(), is(empty()));
+        assertThat(builds.get(3).toString(), is(not(emptyOrNullString())));
 
-        assertTrue(builds.get(4).isMaven());
-        assertTrue(builds.get(4).getSource().isPresent());
-        assertFalse(builds.get(3).getSource().get().isEmpty());
-        assertFalse(builds.get(4).getScmSourcesZip().isPresent());
-        assertFalse(builds.get(4).getPatchesZip().isPresent());
-        assertTrue(builds.get(4).getProjectSourcesTgz().isPresent());
-        assertNotNull(builds.get(4).getBuildInfo().getExtra());
-        assertTrue(builds.get(4).getMethod().isPresent());
-        assertEquals("PNC", builds.get(4).getMethod().get());
-        assertTrue(builds.get(4).getDuplicateArchives().isEmpty());
-        assertNotNull(builds.get(4).toString());
+        assertThat(builds.get(4).isMaven(), is(true));
+        assertThat(builds.get(4).getSource().isPresent(), is(true));
+        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
+        assertThat(builds.get(4).getScmSourcesZip().isPresent(), is(false));
+        assertThat(builds.get(4).getPatchesZip().isPresent(), is(false));
+        assertThat(builds.get(4).getProjectSourcesTgz().isPresent(), is(true));
+        assertThat(builds.get(4).getBuildInfo().getExtra(), is(not(anEmptyMap())));
+        assertThat(builds.get(4).getMethod().isPresent(), is(true));
+        assertThat(builds.get(4).getMethod().get(), is("PNC"));
+        assertThat(builds.get(4).getDuplicateArchives(), is(empty()));
+        assertThat(builds.get(4).toString(), is(not(emptyOrNullString())));
 
-        assertFalse(builds.get(5).isMaven());
-        assertTrue(builds.get(5).getSource().isPresent());
-        assertFalse(builds.get(3).getSource().get().isEmpty());
-        assertFalse(builds.get(5).getScmSourcesZip().isPresent());
-        assertFalse(builds.get(5).getPatchesZip().isPresent());
-        assertFalse(builds.get(5).getProjectSourcesTgz().isPresent());
-        assertTrue(builds.get(5).getDuplicateArchives().isEmpty());
-        assertNotNull(builds.get(5).toString());
+        assertThat(builds.get(5).isMaven(), is(false));
+        assertThat(builds.get(5).getSource().isPresent(), is(true));
+        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
+        assertThat(builds.get(5).getScmSourcesZip().isPresent(), is(false));
+        assertThat(builds.get(5).getPatchesZip().isPresent(), is(false));
+        assertThat(builds.get(5).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(5).getDuplicateArchives(), is(empty()));
+        assertThat(builds.get(5).toString(), is(not(emptyOrNullString())));
     }
 
     @Test
@@ -147,13 +155,13 @@ class ReportTest {
                 + "commons-beanutils-commons-beanutils-1.9.2.redhat_1-1\ncommons-lang-commons-lang-2.6-1\n"
                 + "commons-lang-commons-lang-2.6-2\norg.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1";
         NVRReport report = new NVRReport(folder, builds);
-        assertEquals(nvrExpected, report.renderText());
+        assertThat(report.renderText(), is(nvrExpected));
         report.outputText();
-        assertEquals(
-                nvrExpected,
+        assertThat(
                 FileUtils.readFileToString(
                         new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
-                        "UTF-8"));
+                        StandardCharsets.UTF_8),
+                is(nvrExpected));
     }
 
     @Test
@@ -162,43 +170,37 @@ class ReportTest {
                 + "commons-lang:commons-lang:2.6\norg.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1\n"
                 + "org.wildfly.swarm:config-api:1.1.0.Final-redhat-14";
         GAVReport report = new GAVReport(folder, builds);
-        assertEquals(gavExpected, report.renderText());
+        assertThat(report.renderText(), is(gavExpected));
         report.outputText();
-        assertEquals(
-                gavExpected,
+        assertThat(
                 FileUtils.readFileToString(
                         new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
-                        "UTF-8"));
+                        StandardCharsets.UTF_8),
+                is(gavExpected));
     }
 
     @Test
     void verifyBuildStatisticsReport(@TempDir File folder) throws IOException {
         BuildStatisticsReport report = new BuildStatisticsReport(folder, builds);
         report.outputText();
-        assertEquals((long) builds.size() - 1L, report.getBuildStatistics().getNumberOfBuilds());
-        assertEquals(2L, report.getBuildStatistics().getNumberOfImportedBuilds());
-        assertEquals(5L, report.getBuildStatistics().getNumberOfArchives());
-        assertEquals(2L, report.getBuildStatistics().getNumberOfImportedArchives());
-        assertEquals(
-                ((double) 2 / (double) 5) * 100.00,
-                report.getBuildStatistics().getPercentOfBuildsImported(),
-                0.0D);
-        assertEquals(
-                ((double) 2 / (double) 5) * 100.00,
-                report.getBuildStatistics().getPercentOfArchivesImported(),
-                0.0D);
+        assertThat(report.getBuildStatistics().getNumberOfBuilds(), is((long) builds.size() - 1L));
+        assertThat(report.getBuildStatistics().getNumberOfImportedBuilds(), is(2L));
+        assertThat(report.getBuildStatistics().getNumberOfArchives(), is(5L));
+        assertThat(report.getBuildStatistics().getNumberOfImportedArchives(), is(2L));
+        assertThat(40.0D, is(report.getBuildStatistics().getPercentOfBuildsImported()));
+        assertThat(40.0D, is(report.getBuildStatistics().getPercentOfArchivesImported()));
     }
 
     @Test
     void verifyBuildStatisticsReportEmptyBuilds(@TempDir File folder) throws IOException {
         BuildStatisticsReport report = new BuildStatisticsReport(folder, Collections.emptyList());
         report.outputText();
-        assertEquals(0L, report.getBuildStatistics().getNumberOfBuilds());
-        assertEquals(0L, report.getBuildStatistics().getNumberOfImportedBuilds());
-        assertEquals(0L, report.getBuildStatistics().getNumberOfArchives());
-        assertEquals(0L, report.getBuildStatistics().getNumberOfImportedArchives());
-        assertEquals(0.00D, report.getBuildStatistics().getPercentOfBuildsImported(), 0);
-        assertEquals(0.00D, report.getBuildStatistics().getPercentOfArchivesImported(), 0);
+        assertThat(report.getBuildStatistics().getNumberOfBuilds(), is(0L));
+        assertThat(report.getBuildStatistics().getNumberOfImportedBuilds(), is(0L));
+        assertThat(report.getBuildStatistics().getNumberOfArchives(), is(0L));
+        assertThat(report.getBuildStatistics().getNumberOfImportedArchives(), is(0L));
+        assertThat(0.00D, is(report.getBuildStatistics().getPercentOfBuildsImported()));
+        assertThat(0.00D, is(report.getBuildStatistics().getPercentOfArchivesImported()));
     }
 
     @Test
@@ -206,17 +208,15 @@ class ReportTest {
         ProductReport report = new ProductReport(folder, builds);
         report.outputText();
 
-        assertEquals(2, report.getProductMap().size());
-        assertTrue(report.getProductMap().containsKey("JBoss EAP 7.0"));
-        assertTrue(report.getProductMap().containsKey("JBoss AMQ 7"));
-        assertTrue(
-                report.getProductMap()
-                        .get("JBoss EAP 7.0")
-                        .contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
-        assertTrue(
-                report.getProductMap()
-                        .get("JBoss AMQ 7")
-                        .contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
+        assertThat(report.getProductMap(), is(aMapWithSize(2)));
+        assertThat(report.getProductMap(), hasKey("JBoss EAP 7.0"));
+        assertThat(report.getProductMap(), hasKey("JBoss AMQ 7"));
+        assertThat(
+                report.getProductMap().get("JBoss EAP 7.0"),
+                contains("commons-beanutils-commons-beanutils-1.9.2.redhat_1-1"));
+        assertThat(
+                report.getProductMap().get("JBoss AMQ 7"),
+                contains("artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6"));
     }
 
     @Test
@@ -237,11 +237,10 @@ class ReportTest {
                 ConfigDefaults.PNC_URL,
                 Collections.unmodifiableList(reports));
         htmlReport.outputHTML();
-        assertTrue(
-                FileUtils
-                        .readFileToString(
-                                new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"),
-                                StandardCharsets.UTF_8)
-                        .contains("<html>"));
+        assertThat(
+                FileUtils.readFileToString(
+                        new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"),
+                        StandardCharsets.UTF_8),
+                containsString("<html>"));
     }
 }

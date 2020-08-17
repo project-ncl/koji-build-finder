@@ -15,9 +15,17 @@
  */
 package org.jboss.pnc.build.finder.pnc.it;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.iterableWithSize;
 
 import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.client.RemoteCollection;
@@ -41,8 +49,8 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsByMd5(checksum);
 
         // then
-        assertEquals(1, remoteArtifacts.size());
-        assertEquals(artifactIdentifier, remoteArtifacts.iterator().next().getIdentifier());
+        assertThat(remoteArtifacts, is(iterableWithSize(1)));
+        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
     }
 
     @Test
@@ -55,8 +63,8 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha1(checksum);
 
         // then
-        assertEquals(1, remoteArtifacts.size());
-        assertEquals(artifactIdentifier, remoteArtifacts.iterator().next().getIdentifier());
+        assertThat(remoteArtifacts, is(iterableWithSize(1)));
+        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
     }
 
     @Test
@@ -69,8 +77,8 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha256(checksum);
 
         // then
-        assertEquals(1, remoteArtifacts.size());
-        assertEquals(artifactIdentifier, remoteArtifacts.iterator().next().getIdentifier());
+        assertThat(remoteArtifacts, is(iterableWithSize(1)));
+        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
     }
 
     @Test
@@ -82,13 +90,12 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha256(checksum);
 
         // then
-        assertEquals(0, remoteArtifacts.size());
+        assertThat(remoteArtifacts, is(emptyIterable()));
     }
 
     @Test
     void shouldNotGetBuildPushResult() {
-        assertThrows(
-                RemoteResourceNotFoundException.class,
+        catchException(
                 () -> {
                     // given
                     String buildId = "-100";
@@ -96,6 +103,13 @@ class PncClientImplIT extends AbstractKojiIT {
                     // when
                     getPncClient().getBuildPushResult(buildId);
                 });
+
+        // then
+        assertThat(
+                caughtException(),
+                allOf(
+                        instanceOf(RemoteResourceNotFoundException.class),
+                        hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
     }
 
     @Test
@@ -107,14 +121,13 @@ class PncClientImplIT extends AbstractKojiIT {
         ProductVersion productVersion = getPncClient().getProductVersion(buildId);
 
         // then
-        assertNotNull(productVersion);
-        assertNotNull(productVersion.getProduct());
+        assertThat(productVersion, is(not(nullValue())));
+        assertThat(productVersion.getProduct(), is(not(nullValue())));
     }
 
     @Test
     void shouldNotGetProductVersion() {
-        assertThrows(
-                RemoteResourceNotFoundException.class,
+        catchException(
                 () -> {
                     // given
                     String buildId = "-100";
@@ -122,5 +135,12 @@ class PncClientImplIT extends AbstractKojiIT {
                     // when
                     getPncClient().getProductVersion(buildId);
                 });
+
+        // then
+        assertThat(
+                caughtException(),
+                allOf(
+                        instanceOf(RemoteResourceNotFoundException.class),
+                        hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
     }
 }

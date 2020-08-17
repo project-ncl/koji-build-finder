@@ -15,17 +15,62 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
+import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasNoCause;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceAccessMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
+import org.junitpioneer.jupiter.ClearSystemProperty;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class UtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsTest.class);
+
+    private static void userHome() {
+        String userHome = Utils.getUserHome();
+
+        LOGGER.debug("user.home={}", userHome);
+    }
+
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
+    @SetSystemProperty(key = "user.home", value = "?")
+    @Test
+    void verifyUserHomeQuestionMark() {
+        catchException(UtilsTest::userHome);
+        assertThat(
+                caughtException(),
+                allOf(instanceOf(RuntimeException.class), hasMessage("Invalid user.home: ?"), hasNoCause()));
+    }
+
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
+    @ClearSystemProperty(key = "user.home")
+    @Test
+    void verifyUserHomeNull() {
+        catchException(UtilsTest::userHome);
+        assertThat(
+                caughtException(),
+                allOf(instanceOf(RuntimeException.class), hasMessage("Invalid user.home: null"), hasNoCause()));
+    }
+
+    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)
+    @Test
+    void verifyUserHome() {
+        catchException(UtilsTest::userHome);
+        assertThat(caughtException(), is(nullValue()));
+    }
 
     @Test
     void verifyBuildFinderVersion() {

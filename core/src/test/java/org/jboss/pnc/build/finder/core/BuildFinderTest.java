@@ -15,8 +15,13 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.arrayWithSize;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +41,7 @@ class BuildFinderTest {
     @BeforeAll
     static void setTarget() throws IOException {
         File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
-        assertTrue(target.canRead());
+        assertThat(target.canRead(), is(true));
         files = Collections.singletonList(target.getPath());
     }
 
@@ -54,8 +59,8 @@ class BuildFinderTest {
 
         File[] file = folder.listFiles();
 
-        assertTrue(file != null && file.length == 1);
-        assertEquals(file[0].getCanonicalPath(), da.getChecksumFile(checksumType).getCanonicalPath());
+        assertThat(file, allOf(is(not(nullValue())), is(arrayWithSize(1))));
+        assertThat(da.getChecksumFile(checksumType).getCanonicalPath(), is(file[0].getCanonicalPath()));
     }
 
     @Test
@@ -72,6 +77,6 @@ class BuildFinderTest {
 
         Map<String, Collection<String>> checksums = JSONUtils.loadChecksumsFile(da.getChecksumFile(checksumType));
 
-        assertEquals(1, checksums.size());
+        assertThat(checksums, is(aMapWithSize(1)));
     }
 }

@@ -15,7 +15,8 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,13 +42,13 @@ class HashMapCachingClientTest {
     @Test
     void m1ShouldGetArtifactsByMd5FromClient() throws RemoteResourceException {
         HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
-        assertEquals(1, DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter());
+        assertThat(DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter(), is(1));
     }
 
     @Test
     void m2ShouldGetArtifactsByMd5FromCache() throws RemoteResourceException {
         HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
-        assertEquals(1, DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter());
+        assertThat(DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter(), is(1));
     }
 
     private static class DummyPncClient implements PncClient {

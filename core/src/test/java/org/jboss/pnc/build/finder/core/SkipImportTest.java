@@ -15,9 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasKey;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,10 +73,10 @@ class SkipImportTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertEquals(2, builds.size());
-            assertTrue(builds.containsKey(new BuildSystemInteger(0)));
-            assertTrue(builds.containsKey(new BuildSystemInteger(228994, BuildSystem.koji)));
-            assertFalse(builds.containsKey(new BuildSystemInteger(251444, BuildSystem.koji)));
+            assertThat(builds, is(aMapWithSize(2)));
+            assertThat(builds, hasKey(new BuildSystemInteger(0)));
+            assertThat(builds, hasKey(new BuildSystemInteger(228994, BuildSystem.koji)));
+            assertThat(builds, not(hasKey(new BuildSystemInteger(251444, BuildSystem.koji))));
         }
     }
 }

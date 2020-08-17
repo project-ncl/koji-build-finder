@@ -15,8 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasKey;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,12 +64,12 @@ class DeletedBuildTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertEquals(2, builds.size());
-            assertTrue(builds.containsKey(new BuildSystemInteger(0)));
-            assertTrue(builds.containsKey(new BuildSystemInteger(966480, BuildSystem.koji)));
-            assertEquals(
-                    KojiBuildState.DELETED,
-                    builds.get(new BuildSystemInteger(966480, BuildSystem.koji)).getBuildInfo().getBuildState());
+            assertThat(builds, is(aMapWithSize(2)));
+            assertThat(builds, hasKey(new BuildSystemInteger(0)));
+            assertThat(builds, hasKey(new BuildSystemInteger(966480, BuildSystem.koji)));
+            assertThat(
+                    builds.get(new BuildSystemInteger(966480, BuildSystem.koji)).getBuildInfo().getBuildState(),
+                    is(KojiBuildState.DELETED));
         }
     }
 }

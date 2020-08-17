@@ -15,7 +15,9 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertNotEquals(0L, timer.getCount());
+        assertThat(timer.getCount(), is(greaterThan(0L)));
     }
 
     @Test
@@ -76,7 +78,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertNotEquals(0L, timer.getCount());
+        assertThat(timer.getCount(), is(greaterThan(0L)));
     }
 
     @Test
@@ -95,6 +97,6 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertNotEquals(0L, timer.getCount());
+        assertThat(timer.getCount(), is(greaterThan(0L)));
     }
 }

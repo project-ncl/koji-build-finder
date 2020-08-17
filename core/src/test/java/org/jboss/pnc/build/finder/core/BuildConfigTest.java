@@ -15,23 +15,21 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.ResourceAccessMode;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.junit.jupiter.api.parallel.Resources;
-import org.junitpioneer.jupiter.ClearSystemProperty;
-import org.junitpioneer.jupiter.SetSystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,48 +38,34 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
 
-    private static void userHome() {
-        String userHome = Utils.getUserHome();
-
-        LOGGER.debug("user.home={}", userHome);
-    }
-
-    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
-    @SetSystemProperty(key = "user.home", value = "?")
-    @Test
-    void verifyUserHomeQuestionMark() {
-        assertThrows(RuntimeException.class, BuildConfigTest::userHome);
-    }
-
-    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
-    @ClearSystemProperty(key = "user.home")
-    @Test
-    void verifyUserHomeNull() {
-        assertThrows(RuntimeException.class, BuildConfigTest::userHome);
-    }
-
-    @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)
-    @Test
-    void verifyUserHome() {
-        assertDoesNotThrow(BuildConfigTest::userHome);
-    }
-
     @Test
     void verifyDefaults() throws JsonProcessingException {
         BuildConfig bc = new BuildConfig();
-
         String s = JSONUtils.dumpString(bc);
+
+        assertThat(s, is(not(nullValue())));
 
         LOGGER.debug("Default configuration: {}", s);
 
-        assertNotNull(s);
-
-        assertEquals(ConfigDefaults.ARCHIVE_TYPES, bc.getArchiveTypes());
-        assertEquals(ConfigDefaults.CHECKSUM_ONLY, bc.getChecksumOnly());
-        assertEquals(ConfigDefaults.CHECKSUM_TYPES, bc.getChecksumTypes());
-        assertEquals(ConfigDefaults.EXCLUDES, bc.getExcludes());
-        assertEquals(ConfigDefaults.KOJI_HUB_URL, bc.getKojiHubURL());
-        assertEquals(ConfigDefaults.KOJI_WEB_URL, bc.getKojiWebURL());
+        assertThat(bc.getArchiveTypes(), is(ConfigDefaults.ARCHIVE_TYPES));
+        assertThat(bc.getArchiveExtensions(), is(ConfigDefaults.ARCHIVE_EXTENSIONS));
+        assertThat(bc.getBuildSystems(), is(ConfigDefaults.BUILD_SYSTEMS));
+        assertThat(bc.getCacheLifespan(), is(ConfigDefaults.CACHE_LIFESPAN));
+        assertThat(bc.getCacheMaxIdle(), is(ConfigDefaults.CACHE_MAX_IDLE));
+        assertThat(bc.getChecksumOnly(), is(ConfigDefaults.CHECKSUM_ONLY));
+        assertThat(bc.getChecksumTypes(), is(ConfigDefaults.CHECKSUM_TYPES));
+        assertThat(bc.getDisableCache(), is(ConfigDefaults.DISABLE_CACHE));
+        assertThat(bc.getDisableRecursion(), is(ConfigDefaults.DISABLE_RECURSION));
+        assertThat(bc.getExcludes(), is(ConfigDefaults.EXCLUDES));
+        assertThat(bc.getKojiHubURL(), is(ConfigDefaults.KOJI_HUB_URL));
+        assertThat(bc.getKojiMulticallSize(), is(ConfigDefaults.KOJI_MULTICALL_SIZE));
+        assertThat(bc.getKojiNumThreads(), is(ConfigDefaults.KOJI_NUM_THREADS));
+        assertThat(bc.getKojiWebURL(), is(ConfigDefaults.KOJI_WEB_URL));
+        assertThat(bc.getOutputDirectory(), is(ConfigDefaults.OUTPUT_DIR));
+        assertThat(bc.getPncPartitionSize(), is(ConfigDefaults.PNC_PARTITION_SIZE));
+        assertThat(bc.getPncURL(), is(ConfigDefaults.PNC_URL));
+        assertThat(bc.getUseBuildsFile(), is(ConfigDefaults.USE_BUILDS_FILE));
+        assertThat(bc.getUseChecksumsFile(), is(ConfigDefaults.USE_CHECKSUMS_FILE));
     }
 
     @Test
@@ -90,8 +74,14 @@ class BuildConfigTest {
                 + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
 
-        assertTrue(bc.getChecksumOnly());
-        assertTrue(bc.getArchiveTypes().size() == 1 && "jar".equals(bc.getArchiveTypes().get(0)));
+        assertThat(bc.getArchiveTypes(), contains("jar"));
+        assertThat(bc.getChecksumOnly(), is(true));
+        assertThat(bc.getChecksumTypes(), contains(ChecksumType.md5));
+
+        List<String> excludes = Collections
+                .unmodifiableList(bc.getExcludes().stream().map(Pattern::pattern).collect(Collectors.toList()));
+
+        assertThat(excludes, contains(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$").pattern()));
     }
 
     @Test
@@ -100,9 +90,8 @@ class BuildConfigTest {
 
         BuildConfig bc = BuildConfig.load(json);
 
-        assertFalse(bc.getChecksumOnly());
-        assertEquals("https://my.url.com/hub", bc.getKojiHubURL().toExternalForm());
-        assertEquals("https://my.url.com/web", bc.getKojiWebURL().toExternalForm());
+        assertThat(bc.getKojiHubURL().toExternalForm(), is("https://my.url.com/hub"));
+        assertThat(bc.getKojiWebURL().toExternalForm(), is("https://my.url.com/web"));
     }
 
     @Test
@@ -111,7 +100,7 @@ class BuildConfigTest {
 
         BuildConfig bc = BuildConfig.load(json);
 
-        assertNotNull(bc);
+        assertThat(bc, is(not(nullValue())));
     }
 
     @Test
@@ -125,7 +114,7 @@ class BuildConfigTest {
 
         BuildConfig bc2 = BuildConfig.load(file);
 
-        assertEquals(bc.toString(), bc2.toString());
+        assertThat(bc2.toString(), is(bc.toString()));
     }
 
     @Test
@@ -134,21 +123,80 @@ class BuildConfigTest {
                 + "\"checksum-only\":true," + "\"checksum-type\":\"sha256\","
                 + "\"koji-hub-url\":\"https://my.url.com/hub\"," + "\"koji-web-url\":\"https://my.url.com/web\"}";
         BuildConfig bc = BuildConfig.load(BuildConfigTest.class.getClassLoader());
+
+        assertThat(bc, is(not(nullValue())));
+        assertThat(bc.getArchiveTypes(), contains("jar", "xml", "pom", "so", "dll", "dylib"));
+        assertThat(
+                bc.getArchiveExtensions(),
+                contains(
+                        "dll",
+                        "dylib",
+                        "ear",
+                        "jar",
+                        "jdocbook",
+                        "jdocbook-style",
+                        "kar",
+                        "plugin",
+                        "pom",
+                        "rar",
+                        "sar",
+                        "so",
+                        "war",
+                        "xml"));
+        assertThat(bc.getChecksumOnly(), is(false));
+        assertThat(bc.getChecksumTypes(), contains(ChecksumType.md5));
+        assertThat(bc.getKojiHubURL(), is(nullValue()));
+        assertThat(bc.getKojiWebURL(), is(nullValue()));
+
         BuildConfig bc2 = BuildConfig.load(json);
 
-        assertNotNull(bc);
-        assertNotNull(bc2);
-
-        assertFalse(bc.getChecksumOnly());
-        assertTrue(bc2.getChecksumOnly());
+        assertThat(bc2, is(not(nullValue())));
+        assertThat(
+                bc2.getArchiveExtensions(),
+                contains(
+                        "dll",
+                        "dylib",
+                        "ear",
+                        "jar",
+                        "jdocbook",
+                        "jdocbook-style",
+                        "kar",
+                        "plugin",
+                        "pom",
+                        "rar",
+                        "sar",
+                        "so",
+                        "war",
+                        "xml"));
+        assertThat(bc2.getArchiveTypes(), contains("jar"));
+        assertThat(bc2.getChecksumOnly(), is(true));
+        assertThat(bc2.getChecksumTypes(), contains(ChecksumType.sha256));
+        assertThat(bc2.getKojiHubURL().toExternalForm(), is("https://my.url.com/hub"));
+        assertThat(bc2.getKojiWebURL().toExternalForm(), is("https://my.url.com/web"));
 
         BuildConfig merged = BuildConfig.merge(bc, json);
 
-        assertTrue(merged.getChecksumOnly());
-        assertTrue(merged.getArchiveTypes().size() == 1 && "jar".equals(merged.getArchiveTypes().get(0)));
-        assertTrue(merged.getArchiveExtensions().size() == 14 && "dll".equals(merged.getArchiveExtensions().get(0)));
-        assertEquals(ChecksumType.sha256, merged.getChecksumTypes().iterator().next());
-        assertEquals("https://my.url.com/hub", bc.getKojiHubURL().toExternalForm());
-        assertEquals("https://my.url.com/web", bc.getKojiWebURL().toExternalForm());
+        assertThat(
+                merged.getArchiveExtensions(),
+                contains(
+                        "dll",
+                        "dylib",
+                        "ear",
+                        "jar",
+                        "jdocbook",
+                        "jdocbook-style",
+                        "kar",
+                        "plugin",
+                        "pom",
+                        "rar",
+                        "sar",
+                        "so",
+                        "war",
+                        "xml"));
+        assertThat(merged.getArchiveTypes(), contains("jar"));
+        assertThat(merged.getChecksumOnly(), is(true));
+        assertThat(merged.getChecksumTypes(), contains(ChecksumType.sha256));
+        assertThat(merged.getKojiHubURL().toExternalForm(), is("https://my.url.com/hub"));
+        assertThat(merged.getKojiWebURL().toExternalForm(), is("https://my.url.com/web"));
     }
 }
