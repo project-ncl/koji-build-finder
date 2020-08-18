@@ -19,8 +19,8 @@ import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -108,7 +108,7 @@ class PncClientImplIT extends AbstractKojiIT {
         assertThat(
                 caughtException(),
                 allOf(
-                        instanceOf(RemoteResourceNotFoundException.class),
+                        isA(RemoteResourceNotFoundException.class),
                         hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
     }
 
@@ -140,7 +140,7 @@ class PncClientImplIT extends AbstractKojiIT {
         assertThat(
                 caughtException(),
                 allOf(
-                        instanceOf(RemoteResourceNotFoundException.class),
+                        isA(RemoteResourceNotFoundException.class),
                         hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
     }
 }

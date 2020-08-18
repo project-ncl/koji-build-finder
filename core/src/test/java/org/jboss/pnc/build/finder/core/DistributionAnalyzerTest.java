@@ -15,12 +15,15 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.io.File;
@@ -189,8 +192,13 @@ class DistributionAnalyzerTest {
                 Set<Checksum> set = MultiMapUtils.getValuesAsSet(da.getFiles(), filename);
                 Optional<Checksum> cksum = Checksum.findByType(set, checksumType);
 
-                assertThat(cksum.map(Checksum::getValue).orElse(null), is(checksum));
-                assertThat(cksum.map(Checksum::getType).orElse(null), is(checksumType));
+                assertThat(
+                        cksum,
+                        is(
+                                optionalWithValue(
+                                        allOf(
+                                                hasProperty("value", is(checksum)),
+                                                hasProperty("type", is(checksumType))))));
             }
 
         }

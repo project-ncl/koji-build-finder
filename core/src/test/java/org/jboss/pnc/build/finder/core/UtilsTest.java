@@ -20,8 +20,8 @@ import static com.googlecode.catchexception.CatchException.caughtException;
 import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
 import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasNoCause;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,7 +52,7 @@ class UtilsTest {
         catchException(UtilsTest::userHome);
         assertThat(
                 caughtException(),
-                allOf(instanceOf(RuntimeException.class), hasMessage("Invalid user.home: ?"), hasNoCause()));
+                allOf(isA(RuntimeException.class), hasMessage("Invalid user.home: ?"), hasNoCause()));
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
@@ -62,7 +62,7 @@ class UtilsTest {
         catchException(UtilsTest::userHome);
         assertThat(
                 caughtException(),
-                allOf(instanceOf(RuntimeException.class), hasMessage("Invalid user.home: null"), hasNoCause()));
+                allOf(isA(RuntimeException.class), hasMessage("Invalid user.home: null"), hasNoCause()));
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)

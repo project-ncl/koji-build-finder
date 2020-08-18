@@ -15,18 +15,24 @@
  */
 package org.jboss.pnc.build.finder.report;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,56 +101,104 @@ class ReportTest {
     @Test
     void verifyBuilds() {
         assertThat(builds.get(0).isImport(), is(true));
-        assertThat(builds.get(0).getScmSourcesZip().isPresent(), is(false));
-        assertThat(builds.get(0).getPatchesZip().isPresent(), is(false));
-        assertThat(builds.get(0).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(0).getScmSourcesZip(), is(emptyOptional()));
+        assertThat(builds.get(0).getPatchesZip(), is(emptyOptional()));
+        assertThat(builds.get(0).getProjectSourcesTgz(), is(emptyOptional()));
         assertThat(builds.get(0).getDuplicateArchives(), is(empty()));
         assertThat(builds.get(0).toString(), is(not(emptyOrNullString())));
 
         assertThat(builds.get(1).isImport(), is(true));
-        assertThat(builds.get(1).getScmSourcesZip().isPresent(), is(false));
-        assertThat(builds.get(1).getPatchesZip().isPresent(), is(false));
-        assertThat(builds.get(1).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(1).getScmSourcesZip(), is(emptyOptional()));
+        assertThat(builds.get(1).getPatchesZip(), is(emptyOptional()));
+        assertThat(builds.get(1).getProjectSourcesTgz(), is(emptyOptional()));
         assertThat(builds.get(1).getDuplicateArchives(), hasSize(1));
         assertThat(builds.get(1).toString(), is(not(emptyOrNullString())));
 
         assertThat(builds.get(2).isImport(), is(true));
-        assertThat(builds.get(2).getScmSourcesZip().isPresent(), is(false));
-        assertThat(builds.get(2).getPatchesZip().isPresent(), is(false));
-        assertThat(builds.get(2).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(builds.get(2).getScmSourcesZip(), is(emptyOptional()));
+        assertThat(builds.get(2).getPatchesZip(), is(emptyOptional()));
+        assertThat(builds.get(2).getProjectSourcesTgz(), is(emptyOptional()));
         assertThat(builds.get(2).getDuplicateArchives(), hasSize(1));
         assertThat(builds.get(2).toString(), is(not(emptyOrNullString())));
         assertThat(builds.get(2).getDuplicateArchives().get(0), is(not(nullValue())));
 
         assertThat(builds.get(3).isMaven(), is(true));
         assertThat(builds.get(3).getTypes(), contains("maven"));
-        assertThat(builds.get(3).getSource().isPresent(), is(true));
-        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
-        assertThat(builds.get(3).getScmSourcesZip().isPresent(), is(true));
-        assertThat(builds.get(3).getPatchesZip().isPresent(), is(true));
-        assertThat(builds.get(3).getProjectSourcesTgz().isPresent(), is(true));
-        assertThat(builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties(), is(not(anEmptyMap())));
+        assertThat(
+                builds.get(3).getSource(),
+                is(
+                        optionalWithValue(
+                                is(
+                                        "svn+http://svn.apache.org/repos/asf/commons/proper/beanutils/tags/BEANUTILS_1_9_2#1598386"))));
+        assertThat(
+                builds.get(3).getScmSourcesZip(),
+                is(optionalWithValue(hasProperty("filename", endsWith("-scm-sources.zip")))));
+        assertThat(
+                builds.get(3).getPatchesZip(),
+                is(optionalWithValue(hasProperty("filename", endsWith("-patches.zip")))));
+        assertThat(
+                builds.get(3).getProjectSourcesTgz(),
+                is(optionalWithValue(hasProperty("filename", endsWith("-project-sources.tar.gz")))));
+        assertThat(
+                builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties(),
+                is(
+                        allOf(
+                                aMapWithSize(2),
+                                hasEntry("version.incremental.suffix", "redhat"),
+                                hasEntry("additionalparam", "-Xdoclint:none"))));
         assertThat(builds.get(3).getDuplicateArchives(), is(empty()));
         assertThat(builds.get(3).toString(), is(not(emptyOrNullString())));
 
         assertThat(builds.get(4).isMaven(), is(true));
-        assertThat(builds.get(4).getSource().isPresent(), is(true));
-        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
-        assertThat(builds.get(4).getScmSourcesZip().isPresent(), is(false));
-        assertThat(builds.get(4).getPatchesZip().isPresent(), is(false));
-        assertThat(builds.get(4).getProjectSourcesTgz().isPresent(), is(true));
-        assertThat(builds.get(4).getBuildInfo().getExtra(), is(not(anEmptyMap())));
-        assertThat(builds.get(4).getMethod().isPresent(), is(true));
-        assertThat(builds.get(4).getMethod().get(), is("PNC"));
+        assertThat(
+                builds.get(4).getSource(),
+                is(optionalWithValue(is("git+ssh://user@localhost:22/wildfly-swarm-prod/wildfly-config-api.git#1.x"))));
+        assertThat(builds.get(4).getScmSourcesZip(), is(emptyOptional()));
+        assertThat(builds.get(4).getPatchesZip(), is(emptyOptional()));
+        assertThat(
+                builds.get(4).getProjectSourcesTgz(),
+                is(optionalWithValue(hasProperty("filename", endsWith("-project-sources.tar.gz")))));
+        assertThat(
+                builds.get(4).getBuildInfo().getExtra(),
+                is(
+                        allOf(
+                                aMapWithSize(4),
+                                hasEntry("build_system", "PNC"),
+                                hasEntry("external_build_id", "985"),
+                                hasEntry("external_build_system", "http://localhost/pnc-web/#/build-records/985"),
+                                hasKey("maven"))));
+
+        Object o = builds.get(4).getBuildInfo().getExtra().get("maven");
+
+        assertThat(o, isA(Map.class));
+
+        if (o instanceof Map<?, ?>) {
+            Map<?, ?> mavenMap = (Map<?, ?>) o;
+
+            assertThat(
+                    mavenMap,
+                    is(
+                            allOf(
+                                    aMapWithSize(3),
+                                    hasEntry("artifact_id", "config-api-parent"),
+                                    hasEntry("group_id", "org.wildfly.swarm"),
+                                    hasEntry("version", "1.1.0.Final-redhat-14"))));
+        }
+
+        assertThat(builds.get(4).getMethod(), is(optionalWithValue(is("PNC"))));
         assertThat(builds.get(4).getDuplicateArchives(), is(empty()));
         assertThat(builds.get(4).toString(), is(not(emptyOrNullString())));
 
         assertThat(builds.get(5).isMaven(), is(false));
-        assertThat(builds.get(5).getSource().isPresent(), is(true));
-        assertThat(builds.get(3).getSource().get(), is(not(emptyOrNullString())));
-        assertThat(builds.get(5).getScmSourcesZip().isPresent(), is(false));
-        assertThat(builds.get(5).getPatchesZip().isPresent(), is(false));
-        assertThat(builds.get(5).getProjectSourcesTgz().isPresent(), is(false));
+        assertThat(
+                builds.get(5).getSource(),
+                is(
+                        optionalWithValue(
+                                is(
+                                        "git://localhost/rpms/artemis-native-linux#eee002a284922bf7c4c6b006dcb62f2c036ef293"))));
+        assertThat(builds.get(5).getScmSourcesZip(), is(emptyOptional()));
+        assertThat(builds.get(5).getPatchesZip(), is(emptyOptional()));
+        assertThat(builds.get(5).getProjectSourcesTgz(), is(emptyOptional()));
         assertThat(builds.get(5).getDuplicateArchives(), is(empty()));
         assertThat(builds.get(5).toString(), is(not(emptyOrNullString())));
     }
