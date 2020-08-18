@@ -58,7 +58,7 @@ class CompletedBuildTest {
                 "hibernate-validator-cdi-6.0.10.Final-redhat-1.pom");
         Collection<String> filenames1 = Collections.singletonList("hibernate-validator-6.0.10.Final-redhat-1.pom");
         Collection<String> filenames2 = Collections.singletonList("hibernate-validator-cdi-6.0.10.Final-redhat-1.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
 
         checksumTable.put(checksum1, filenames1);
         checksumTable.put(checksum2, filenames2);

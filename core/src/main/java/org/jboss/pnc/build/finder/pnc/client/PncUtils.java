@@ -110,7 +110,7 @@ public final class PncUtils {
                         + record.getScmRepository().getInternalUrl()
                         + (record.getScmRevision() != null ? "#" + record.getScmRevision() : ""));
 
-        Map<String, Object> extra = new HashMap<>(5);
+        Map<String, Object> extra = new HashMap<>(8, 1.0f);
 
         extra.put(KojiJsonConstants.BUILD_SYSTEM, "PNC");
         extra.put(KojiJsonConstants.EXTERNAL_BUILD_ID, record.getId());
@@ -160,7 +160,7 @@ public final class PncUtils {
             build.setTaskRequest(taskRequest);
         });
 
-        buildInfo.setExtra(extra);
+        buildInfo.setExtra(Collections.unmodifiableMap(extra));
 
         build.setBuildInfo(buildInfo);
 

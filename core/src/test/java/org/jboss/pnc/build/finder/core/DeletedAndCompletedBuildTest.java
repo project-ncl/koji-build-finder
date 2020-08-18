@@ -58,7 +58,7 @@ class DeletedAndCompletedBuildTest {
                 "wildfly-core-security-7.5.9.Final-redhat-2.pom");
         Collection<String> filenames1 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
         Collection<String> filenames2 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
 
         checksumTable.put(checksum1, filenames1);
         checksumTable.put(checksum2, filenames2);

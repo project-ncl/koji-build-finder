@@ -62,7 +62,7 @@ class SkipImportTest {
         List<Checksum> checksums = Arrays.asList(checksum1, checksum2);
         List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
         List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2);
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
 
         checksumTable.put(checksum1, filenames1);
         checksumTable.put(checksum2, filenames2);
