@@ -1021,7 +1021,8 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
 
-        buildFinderUtils.addFilesInError(buildZero);
+        // XXX: This was meant to be shared between Pnc and Koji, but it appears to add files which are already present
+        // buildFinderUtils.addFilesInError(buildZero);
 
         List<KojiLocalArchive> localArchives = buildZero.getArchives();
 
