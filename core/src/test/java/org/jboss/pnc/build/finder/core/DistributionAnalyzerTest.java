@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.collections4.MultiMapUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Disabled;
@@ -189,8 +188,8 @@ class DistributionAnalyzerTest {
             for (Entry<String, String> entry : checksums.get(checksumType).entries()) {
                 String checksum = entry.getKey();
                 String filename = entry.getValue();
-                Set<Checksum> set = MultiMapUtils.getValuesAsSet(da.getFiles(), filename);
-                Optional<Checksum> cksum = Checksum.findByType(set, checksumType);
+                Collection<Checksum> fileChecksums = da.getFiles().get(filename);
+                Optional<Checksum> cksum = Checksum.findByType(fileChecksums, checksumType);
 
                 assertThat(
                         cksum,

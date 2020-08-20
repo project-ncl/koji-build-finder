@@ -85,7 +85,7 @@ class FileErrorIT extends AbstractKojiIT {
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             Map<BuildSystemInteger, KojiBuild> buildsMap = finder.getBuildsMap();
             Collection<FileError> fileErrors = analyzer.getFileErrors();
-            MultiValuedMap<String, Checksum> files = analyzer.getFiles();
+            Map<String, Collection<Checksum>> files = analyzer.getFiles();
             Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
             Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
             List<KojiBuild> buildsFound = finder.getBuildsFound();
@@ -104,7 +104,7 @@ class FileErrorIT extends AbstractKojiIT {
                                                             is("jboss-jaxb-intros-1.0.2.GA-sources.jar")),
                                                     hasProperty("message", is("Invalid relative file name.")))))));
             assertThat(
-                    files.asMap(),
+                    files,
                     hasEntry(
                             is("jboss-jaxb-intros-1.0.2.GA-sources.jar"),
                             allOf(

@@ -62,6 +62,12 @@
                   </includes>
                 </filter>
                 <filter>
+                  <artifact>com.github.luben:zstd-jni</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
                   <artifact>org.apache.commons:commons-compress</artifact>
                   <includes>
                     <include>**</include>

@@ -15,7 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import java.io.BufferedInputStream;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -23,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,13 +37,18 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.eclipse.packager.rpm.RpmSignatureTag;
 import org.eclipse.packager.rpm.parse.RpmInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Checksum implements Serializable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Checksum.class);
+
     private static final long serialVersionUID = -7347509034711302799L;
 
     private static final int BUFFER_SIZE = 1024;
@@ -78,12 +85,17 @@ public class Checksum implements Serializable {
         int checksumTypesSize = checksumTypes.size();
         Collection<CompletableFuture<Void>> futures = new ArrayList<>(checksumTypesSize);
         Map<ChecksumType, CompletableFuture<Checksum>> futures2 = new EnumMap<>(ChecksumType.class);
+        FileName filename = fo.getName();
 
-        if ("rpm".equals(fo.getName().getExtension())) {
+        if ("rpm".equals(filename.getExtension())) {
             try (FileContent fc = fo.getContent();
                     InputStream is = fc.getInputStream();
-                    RpmInputStream in = new RpmInputStream(new BufferedInputStream(is))) {
+                    RpmInputStream in = new RpmInputStream(is)) {
+                LOGGER.debug("Got RPM: {}", filename);
+
                 for (ChecksumType checksumType : checksumTypes) {
+                    LOGGER.debug("Handle checksum type {} for RPM {}", checksumType.getAlgorithm(), filename);
+
                     CompletableFuture<Checksum> future;
 
                     switch (checksumType) {
@@ -91,7 +103,7 @@ public class Checksum implements Serializable {
                             Object md5 = in.getSignatureHeader().getTag(RpmSignatureTag.MD5);
 
                             if (!(md5 instanceof byte[])) {
-                                throw new IOException("Missing MD5 for " + fo);
+                                throw new IOException("Missing " + checksumType.getAlgorithm() + " for " + fo);
                             }
 
                             String sigmd5 = Hex.encodeHexString((byte[]) md5);
@@ -105,6 +117,7 @@ public class Checksum implements Serializable {
                             Object sha1 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA1HEADER);
 
                             if (!(sha1 instanceof byte[])) {
+                                LOGGER.warn("Missing {} for {}", red(checksumType.getAlgorithm()), red(fo));
                                 break;
                             }
 
@@ -119,6 +132,7 @@ public class Checksum implements Serializable {
                             Object sha256 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA256HEADER);
 
                             if (!(sha256 instanceof byte[])) {
+                                LOGGER.warn("Missing {} for {}", red(checksumType.getAlgorithm()), red(fo));
                                 break;
                             }
 
@@ -130,15 +144,16 @@ public class Checksum implements Serializable {
                             futures2.put(checksumType, future);
                             break;
                         default:
+                            throw new IOException("Unrecognized checksum type: " + checksumType.getAlgorithm());
                     }
                 }
             }
         } else {
-            try (FileContent fc = fo.getContent(); InputStream input = fc.getInputStream()) {
+            try (FileContent fc = fo.getContent(); InputStream is = fc.getInputStream()) {
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int read;
 
-                while ((read = input.read(buffer)) > 0) {
+                while ((read = is.read(buffer)) > 0) {
                     int len = read;
 
                     for (ChecksumType checksumType : checksumTypes) {
@@ -169,11 +184,15 @@ public class Checksum implements Serializable {
             }
         }
 
-        Set<Checksum> results = new HashSet<>(checksumTypesSize);
+        Set<Checksum> results = new HashSet<>(checksumTypesSize, 1.0f);
 
         for (ChecksumType checksumType : checksumTypes) {
             try {
-                results.add(futures2.get(checksumType).get());
+                CompletableFuture<Checksum> future = futures2.get(checksumType);
+
+                if (future != null) {
+                    results.add(future.get());
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
@@ -181,7 +200,7 @@ public class Checksum implements Serializable {
             }
         }
 
-        return results;
+        return Collections.unmodifiableSet(results);
     }
 
     static Optional<Checksum> findByType(Collection<Checksum> checksums, ChecksumType type) {

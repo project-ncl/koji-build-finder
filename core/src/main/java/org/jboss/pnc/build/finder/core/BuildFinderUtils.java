@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections4.MultiMapUtils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -43,6 +42,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveType;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
+import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 
 /**
  * Class providing utility operations for BuildFinder classes
@@ -137,6 +137,14 @@ public final class BuildFinderUtils {
     }
 
     public void addArchiveWithoutBuild(KojiBuild buildZero, Checksum checksum, Collection<String> filenames) {
+        addArchiveWithoutBuild(buildZero, checksum, filenames, null);
+    }
+
+    public void addArchiveWithoutBuild(
+            KojiBuild buildZero,
+            Checksum checksum,
+            Collection<String> filenames,
+            KojiRpmInfo rpm) {
         Optional<KojiLocalArchive> matchingArchive = buildZero.getArchives()
                 .stream()
                 .filter(
@@ -168,10 +176,11 @@ public final class BuildFinderUtils {
             tmpArchive.setArchiveId(-1 * (buildZero.getArchives().size() + 1));
 
             LOGGER.debug(
-                    "Adding not-found checksum {} to new archive id {} with filenames {}",
+                    "Adding not-found checksum {} to new archive id {} with filenames {} and RPM {}",
                     checksum,
                     tmpArchive.getArchiveId(),
-                    filenames);
+                    filenames,
+                    rpm);
 
             KojiLocalArchive localArchive = new KojiLocalArchive(
                     tmpArchive,
@@ -202,15 +211,12 @@ public final class BuildFinderUtils {
     public void addFilesInError(KojiBuild buildZero) {
         if (distributionAnalyzer != null) {
             for (FileError fileError : distributionAnalyzer.getFileErrors()) {
-                Optional<Checksum> checksum = Checksum.findByType(
-                        MultiMapUtils.getValuesAsSet(distributionAnalyzer.getFiles(), fileError.getFilename()),
-                        ChecksumType.md5);
+                String filename = fileError.getFilename();
+                Collection<Checksum> fileChecksums = distributionAnalyzer.getFiles().get(filename);
+                Optional<Checksum> checksum = Checksum.findByType(fileChecksums, ChecksumType.md5);
 
                 checksum.ifPresent(
-                        cksum -> addArchiveWithoutBuild(
-                                buildZero,
-                                cksum,
-                                Collections.singletonList(fileError.getFilename())));
+                        cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(filename)));
             }
         }
     }

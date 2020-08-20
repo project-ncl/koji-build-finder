@@ -46,7 +46,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections4.MultiMapUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.io.FileUtils;
@@ -496,8 +495,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         JSONUtils.dumpObjectToFile(getChecksums(checksumType), getChecksumFile(checksumType));
     }
 
-    public MultiValuedMap<String, Checksum> getFiles() {
-        return MultiMapUtils.unmodifiableMultiValuedMap(inverseMap);
+    public Map<String, Collection<Checksum>> getFiles() {
+        return Collections.unmodifiableMap(inverseMap.asMap());
     }
 
     public void setChecksums(Map<ChecksumType, MultiValuedMap<String, String>> map) {
@@ -510,6 +509,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public Collection<FileError> getFileErrors() {
         return Collections.unmodifiableList(fileErrors);
+    }
+
+    public Map<ChecksumType, MultiValuedMap<String, String>> getChecksums() {
+        return Collections.unmodifiableMap(map);
     }
 
     @Override
