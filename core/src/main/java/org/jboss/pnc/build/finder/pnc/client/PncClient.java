@@ -26,7 +26,7 @@ import org.jboss.pnc.dto.ProductVersion;
  *
  * @author Jakub Bartecek
  */
-public interface PncClient {
+public interface PncClient extends AutoCloseable {
     /**
      * Get a list of artifacts with matching md5. Returns empty list if no matching artifacts
      *

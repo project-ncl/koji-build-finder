@@ -114,4 +114,9 @@ public class HashMapCachingPncClient implements PncClient {
             return foundEntity;
         }
     }
+
+    @Override
+    public void close() throws Exception {
+        pncClient.close();
+    }
 }

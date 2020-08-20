@@ -692,7 +692,8 @@ public final class Main implements Callable<Void> {
                                 krbPassword,
                                 krbCCache,
                                 krbKeytab)
-                        : new KojiClientSession(config.getKojiHubURL())) {
+                        : new KojiClientSession(config.getKojiHubURL());
+                        PncClient pncClient = config.getPncURL() != null ? new HashMapCachingPncClient(config) : null) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
@@ -704,8 +705,7 @@ public final class Main implements Callable<Void> {
                     analyzer.setChecksums(checksums);
 
                     if (config.getPncURL() != null) {
-                        PncClient pncclient = new HashMapCachingPncClient(config);
-                        finder = new BuildFinder(session, config, analyzer, cacheManager, pncclient);
+                        finder = new BuildFinder(session, config, analyzer, cacheManager, pncClient);
                     } else {
                         finder = new BuildFinder(session, config, analyzer, cacheManager);
                     }
@@ -722,9 +722,17 @@ public final class Main implements Callable<Void> {
                         }
                     }
 
-                    finder.findBuilds(newMap);
-
                     finder.setOutputDirectory(outputDirectory);
+
+                    finder.findBuilds(newMap);
+                } catch (KojiClientException e) {
+                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
+                    LOGGER.debug("Error", e);
+                    System.exit(1);
+                } catch (Exception e) {
+                    LOGGER.error("Unknown error finding builds: {}", boldRed(e.getMessage()));
+                    LOGGER.debug("Error", e);
+                    System.exit(1);
                 }
             } else {
                 if (cacheManager == null && !config.getDisableCache()) {
@@ -747,7 +755,8 @@ public final class Main implements Callable<Void> {
                                 krbPassword,
                                 krbCCache,
                                 krbKeytab)
-                        : new KojiClientSession(config.getKojiHubURL())) {
+                        : new KojiClientSession(config.getKojiHubURL());
+                        PncClient pncClient = config.getPncURL() != null ? new HashMapCachingPncClient(config) : null) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
@@ -755,8 +764,7 @@ public final class Main implements Callable<Void> {
                     }
 
                     if (config.getPncURL() != null) {
-                        PncClient pncclient = new HashMapCachingPncClient(config);
-                        finder = new BuildFinder(session, config, analyzer, cacheManager, pncclient);
+                        finder = new BuildFinder(session, config, analyzer, cacheManager, pncClient);
                     } else {
                         finder = new BuildFinder(session, config, analyzer, cacheManager);
                     }
@@ -808,7 +816,7 @@ public final class Main implements Callable<Void> {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("Koji Client Error", e);
                     System.exit(1);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("Error", e);
                     System.exit(1);

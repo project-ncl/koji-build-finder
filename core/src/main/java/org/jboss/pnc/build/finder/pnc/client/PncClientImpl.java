@@ -51,10 +51,10 @@ public class PncClientImpl implements PncClient {
         configurationBuilder.pageSize(config.getPncPartitionSize());
         Configuration clientConfiguration = configurationBuilder.build();
 
+        buildClient = new BuildClient(clientConfiguration);
         artifactClient = new ArtifactClient(clientConfiguration);
         productVersionClient = new ProductVersionClient(clientConfiguration);
         productMilestoneClient = new ProductMilestoneClient(clientConfiguration);
-        buildClient = new BuildClient(clientConfiguration);
     }
 
     @Override
@@ -81,5 +81,13 @@ public class PncClientImpl implements PncClient {
     public ProductVersion getProductVersion(String productMilestoneId) throws RemoteResourceException {
         ProductMilestone productMilestone = productMilestoneClient.getSpecific(productMilestoneId);
         return productVersionClient.getSpecific(productMilestone.getProductVersion().getId());
+    }
+
+    @Override
+    public void close() {
+        buildClient.close();
+        artifactClient.close();
+        productVersionClient.close();
+        productMilestoneClient.close();
     }
 }

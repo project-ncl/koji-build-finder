@@ -90,5 +90,10 @@ class HashMapCachingClientTest {
         public ProductVersion getProductVersion(String productMilestoneId) {
             return null;
         }
+
+        @Override
+        public void close() {
+
+        }
     }
 }
