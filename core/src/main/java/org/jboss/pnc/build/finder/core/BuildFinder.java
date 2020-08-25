@@ -68,7 +68,6 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiNVRA;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTagInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTaskInfo;
-import com.redhat.red.build.koji.model.xmlrpc.KojiTaskRequest;
 
 public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildFinder.class);
@@ -90,8 +89,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     private final Map<Integer, KojiBuild> allKojiBuilds;
 
     private File outputDirectory;
-
-    private final MultiValuedMap<String, Integer> checksumMap;
 
     private final DistributionAnalyzer analyzer;
 
@@ -138,7 +135,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         this.session = session;
         this.config = config;
         this.outputDirectory = new File("");
-        this.checksumMap = new ArrayListValuedHashMap<>();
         this.analyzer = analyzer;
         this.cacheManager = cacheManager;
         this.allKojiBuilds = new HashMap<>();
@@ -179,89 +175,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
         KojiBuild build = BuildFinderUtils.createKojiBuildZero();
         builds.put(new BuildSystemInteger(0), build);
-    }
-
-    private KojiBuild lookupBuild(int buildId, String checksum, KojiArchiveInfo archive, Collection<String> filenames)
-            throws KojiClientException {
-        KojiBuild cachedBuild = builds.get(new BuildSystemInteger(buildId, BuildSystem.koji));
-
-        if (cachedBuild != null) {
-            LOGGER.debug(
-                    "Build id: {} checksum: {} archive: {} filenames: {} is in cache",
-                    buildId,
-                    checksum,
-                    archive.getArchiveId(),
-                    filenames);
-
-            addArchiveToBuild(cachedBuild, archive, filenames);
-
-            return cachedBuild;
-        }
-
-        LOGGER.debug(
-                "Build id: {} checksum: {} archive: {} filenames: {} is not cached",
-                buildId,
-                checksum,
-                archive.getArchiveId(),
-                filenames);
-
-        KojiBuildInfo buildInfo = session.getBuild(buildId);
-
-        if (buildInfo == null) {
-            LOGGER.warn("Build not found for checksum {}. This is never supposed to happen", red(checksum));
-            return null;
-        }
-
-        List<KojiTagInfo> tags = session.listTags(buildInfo.getId());
-        List<KojiArchiveInfo> allArchives = session.listArchives(new KojiArchiveQuery().withBuildId(buildInfo.getId()));
-
-        KojiBuild build = new KojiBuild(buildInfo);
-
-        if (buildInfo.getTaskId() != null) {
-            KojiTaskInfo taskInfo = session.getTaskInfo(buildInfo.getTaskId(), true);
-
-            build.setTaskInfo(taskInfo);
-
-            if (taskInfo != null) {
-                LOGGER.debug(
-                        "Found task info task id {} for build id {} using method {}",
-                        taskInfo.getTaskId(),
-                        buildInfo.getId(),
-                        taskInfo.getMethod());
-
-                List<Object> request = taskInfo.getRequest();
-
-                if (request != null) {
-                    LOGGER.debug("Got task request for build id {}: {}", buildInfo.getId(), request);
-
-                    KojiTaskRequest taskRequest = new KojiTaskRequest(request);
-
-                    build.setTaskRequest(taskRequest);
-                } else {
-                    LOGGER.debug(
-                            "Null task request for build id {} with task id {} and checksum {}",
-                            red(buildInfo.getId()),
-                            red(taskInfo.getTaskId()),
-                            red(checksum));
-                }
-            } else {
-                LOGGER.debug("Task info not found for build id {}", red(buildInfo.getId()));
-            }
-        } else {
-            LOGGER.debug(
-                    "Found import for build id {} with checksum {} and files {}",
-                    red(buildInfo.getId()),
-                    red(checksum),
-                    red(filenames));
-        }
-
-        addArchiveToBuild(build, archive, filenames);
-
-        build.setRemoteArchives(allArchives);
-        build.setTags(tags);
-        build.setTypes(buildInfo.getTypeNames());
-
-        return build;
     }
 
     private void addArchiveWithoutBuild(Checksum checksum, Collection<String> filenames) {
@@ -334,7 +247,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     }
 
     private void handleRPMs(Collection<Entry<Checksum, Collection<String>>> rpmEntries, ExecutorService pool)
-            throws KojiClientException {
+            throws KojiClientException, ExecutionException, InterruptedException {
         List<KojiIdOrName> rpmBuildIdsOrNames = new ArrayList<>(rpmEntries.size());
 
         for (Entry<Checksum, Collection<String>> rpmEntry : rpmEntries) {
@@ -356,8 +269,8 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             }
         }
 
-        List<KojiRpmInfo> rpmInfos = session.getRPM(rpmBuildIdsOrNames);
-
+        Future<List<KojiRpmInfo>> futureRpmInfos = pool.submit(() -> session.getRPM(rpmBuildIdsOrNames));
+        List<KojiRpmInfo> rpmInfos = futureRpmInfos.get();
         // XXX: We can't use sorted()/distinct() here because it will cause the lists to not match up with the RPM
         // entries
         List<KojiIdOrName> rpmBuildIds = rpmInfos.stream()
@@ -366,28 +279,39 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 .filter(Objects::nonNull)
                 .map(KojiIdOrName::getFor)
                 .collect(Collectors.toList());
-        List<KojiBuildInfo> rpmBuildInfos = session.getBuild(rpmBuildIds);
-        List<List<KojiTagInfo>> rpmTagInfos = session.listTags(rpmBuildIds);
-        List<List<KojiRpmInfo>> rpmRpmInfos = session.listBuildRPMs(rpmBuildIds);
-        List<KojiTaskInfo> rpmTaskInfos = Collections.emptyList();
+        Future<List<KojiBuildInfo>> futureRpmBuildInfos = pool.submit(() -> session.getBuild(rpmBuildIds));
+        Future<List<List<KojiTagInfo>>> futureRpmTagInfos = pool.submit(() -> session.listTags(rpmBuildIds));
+        Future<List<List<KojiRpmInfo>>> futureRpmRpmInfos = pool.submit(() -> session.listBuildRPMs(rpmBuildIds));
+        List<KojiBuildInfo> rpmBuildInfos = futureRpmBuildInfos.get();
         List<Integer> taskIds = rpmBuildInfos.stream()
                 .map(KojiBuildInfo::getTaskId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         int taskIdsSize = taskIds.size();
+        List<KojiTaskInfo> rpmTaskInfos = null;
+        Future<List<KojiTaskInfo>> futureRpmTaskInfos = null;
 
         if (taskIdsSize > 0) {
             Boolean[] a = new Boolean[taskIdsSize];
             Arrays.fill(a, Boolean.TRUE);
             List<Boolean> requests = Arrays.asList(a);
-            rpmTaskInfos = session.getTaskInfo(taskIds, requests);
+            futureRpmTaskInfos = pool.submit(() -> session.getTaskInfo(taskIds, requests));
+        } else {
+            rpmTaskInfos = Collections.emptyList();
         }
 
         Iterator<Entry<Checksum, Collection<String>>> it = rpmEntries.iterator();
         Iterator<KojiRpmInfo> itrpm = rpmInfos.iterator();
         Iterator<KojiBuildInfo> itbuilds = rpmBuildInfos.iterator();
+        List<List<KojiTagInfo>> rpmTagInfos = futureRpmTagInfos.get();
         Iterator<List<KojiTagInfo>> ittags = rpmTagInfos.iterator();
+        List<List<KojiRpmInfo>> rpmRpmInfos = futureRpmRpmInfos.get();
         Iterator<List<KojiRpmInfo>> itrpms = rpmRpmInfos.iterator();
+
+        if (futureRpmTaskInfos != null) {
+            rpmTaskInfos = futureRpmTaskInfos.get();
+        }
+
         Iterator<KojiTaskInfo> ittasks = rpmTaskInfos.iterator();
 
         while (it.hasNext()) {
@@ -748,11 +672,14 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                         List<List<KojiArchiveInfo>> archiveFutures = future.get();
                         archives.addAll(archiveFutures);
                     } catch (ExecutionException e) {
+                        Utils.shutdownAndAwaitTermination(pool);
                         throw new KojiClientException("Error getting archive futures", e);
                     }
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                Utils.shutdownAndAwaitTermination(pool);
+                throw new KojiClientException("InterruptedException", e);
             }
         }
 
@@ -814,7 +741,16 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         }
 
         if (!rpmEntries.isEmpty()) {
-            handleRPMs(rpmEntries, pool);
+            try {
+                handleRPMs(rpmEntries, pool);
+            } catch (ExecutionException e) {
+                Utils.shutdownAndAwaitTermination(pool);
+                throw new KojiClientException("Error handling RPMs", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Utils.shutdownAndAwaitTermination(pool);
+                throw new KojiClientException("Error handling RPMs", e);
+            }
         }
 
         if (!buildIds.isEmpty()) {
@@ -829,13 +765,15 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             }
 
             Future<List<List<KojiArchiveInfo>>> futureArchiveInfos = pool.submit(() -> session.listArchives(queries));
-            List<KojiBuildInfo> archiveBuilds = Collections.emptyList();
+            List<KojiBuildInfo> archiveBuilds;
             List<List<KojiArchiveInfo>> archiveInfos = Collections.emptyList();
 
             try {
                 archiveBuilds = futureArchiveBuilds.get();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                Utils.shutdownAndAwaitTermination(pool);
+                throw new KojiClientException("Error getting archive build futures", e);
             } catch (ExecutionException e) {
                 Utils.shutdownAndAwaitTermination(pool);
                 throw new KojiClientException("Error getting archive build futures", e);
@@ -872,6 +810,8 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                Utils.shutdownAndAwaitTermination(pool);
+                throw new KojiClientException("Error getting tag, archive, or taskinfo futures", e);
             } catch (ExecutionException e) {
                 Utils.shutdownAndAwaitTermination(pool);
                 throw new KojiClientException("Error getting tag, archive, or taskinfo futures", e);
@@ -1198,6 +1138,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 checksum = analyzer.getQueue().take();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                throw new KojiClientException("Error taking from queue", e);
             }
 
             if (checksum == null || checksum.getValue() == null) {
