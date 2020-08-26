@@ -18,8 +18,13 @@ package org.jboss.pnc.build.finder.report;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.jboss.pnc.build.finder.core.BuildConfig;
+import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
 
@@ -31,6 +36,33 @@ public abstract class Report {
     private String baseFilename;
 
     private File outputDirectory;
+
+    public static void generateReports(
+            BuildConfig config,
+            List<KojiBuild> buildList,
+            File outputDirectory,
+            List<String> files) throws IOException {
+        List<Report> reports = new ArrayList<>(4);
+
+        reports.add(new BuildStatisticsReport(outputDirectory, buildList));
+        reports.add(new ProductReport(outputDirectory, buildList));
+        reports.add(new NVRReport(outputDirectory, buildList));
+        reports.add(new GAVReport(outputDirectory, buildList));
+
+        for (Report report : reports) {
+            report.outputText();
+        }
+
+        Report report = new HTMLReport(
+                outputDirectory,
+                files,
+                buildList,
+                config.getKojiWebURL(),
+                config.getPncURL(),
+                Collections.unmodifiableList(reports));
+
+        report.outputHTML();
+    }
 
     public String renderText() {
         return null;

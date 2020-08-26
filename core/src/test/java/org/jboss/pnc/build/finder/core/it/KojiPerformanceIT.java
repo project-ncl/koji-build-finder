@@ -47,7 +47,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    void testThreads() {
+    void testThreads() throws InterruptedException {
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "threads"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
@@ -73,6 +73,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                         threads[j].join();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
+                        throw e;
                     }
                 }
             }

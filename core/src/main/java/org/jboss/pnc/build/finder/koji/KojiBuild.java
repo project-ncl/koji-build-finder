@@ -64,8 +64,6 @@ public class KojiBuild {
 
     private transient List<KojiArchiveInfo> duplicateArchives;
 
-    private transient boolean pnc;
-
     public KojiBuild() {
         this.archives = new ArrayList<>();
         this.rpms = new ArrayList<>();
@@ -199,12 +197,8 @@ public class KojiBuild {
 
     @JsonIgnore
     public boolean isPnc() {
-        return pnc;
-    }
-
-    @JsonIgnore
-    public void setPnc(boolean pnc) {
-        this.pnc = pnc;
+        return buildInfo != null && buildInfo.getExtra() != null
+                && "PNC".equals(buildInfo.getExtra().get(KojiJsonConstants.BUILD_SYSTEM));
     }
 
     @JsonIgnore

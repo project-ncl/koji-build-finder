@@ -63,7 +63,7 @@ class FileErrorIT extends AbstractKojiIT {
     private static final int READ_TIMEOUT = 900000;
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
         Timer timer = REGISTRY.timer(MetricRegistry.name(FileErrorIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
         DistributionAnalyzer analyzer;
@@ -135,6 +135,7 @@ class FileErrorIT extends AbstractKojiIT {
             LOGGER.info("File errors: {}", fileErrors.size());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw e;
         }
     }
 }

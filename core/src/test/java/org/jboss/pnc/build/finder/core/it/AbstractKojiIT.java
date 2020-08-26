@@ -43,7 +43,7 @@ import com.redhat.red.build.koji.config.SimpleKojiConfigBuilder;
 public abstract class AbstractKojiIT {
     static final int MAX_CONNECTIONS = 20;
 
-    static final MetricRegistry REGISTRY = new MetricRegistry();
+    protected static final MetricRegistry REGISTRY = new MetricRegistry();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiIT.class);
 
@@ -97,7 +97,7 @@ public abstract class AbstractKojiIT {
         reporter.start(600L, TimeUnit.SECONDS);
     }
 
-    KojiClientSession getSession() {
+    protected KojiClientSession getSession() {
         return session;
     }
 

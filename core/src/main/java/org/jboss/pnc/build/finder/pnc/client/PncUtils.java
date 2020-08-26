@@ -164,8 +164,6 @@ public final class PncUtils {
 
         build.setBuildInfo(buildInfo);
 
-        build.setPnc(true);
-
         return build;
     }
 

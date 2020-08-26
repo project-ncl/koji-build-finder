@@ -57,7 +57,7 @@ class KojiBuildFinderIT extends AbstractKojiIT {
     private static final int READ_TIMEOUT = 900000;
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException {
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
         assertThat(
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL,
@@ -95,6 +95,7 @@ class KojiBuildFinderIT extends AbstractKojiIT {
             LOGGER.info("Builds size: {}", builds.size());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw e;
         }
     }
 }

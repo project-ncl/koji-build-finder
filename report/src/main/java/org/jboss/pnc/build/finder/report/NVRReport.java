@@ -58,7 +58,8 @@ public final class NVRReport extends Report {
 
     @Override
     public String renderText() {
-        return this.nvrs.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining("\n"));
+        return this.nvrs.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining("\n"))
+                + "\n";
     }
 
     @Override

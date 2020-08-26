@@ -59,7 +59,7 @@ public final class GAVReport extends Report {
 
     @Override
     public String renderText() {
-        return this.gavs.stream().map(Object::toString).collect(Collectors.joining("\n"));
+        return this.gavs.stream().map(Object::toString).collect(Collectors.joining("\n")) + "\n";
     }
 
     @Override

@@ -74,7 +74,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
-    private final List<String> files;
+    private final List<String> inputs;
 
     private final MultiValuedMap<String, Checksum> inverseMap;
 
@@ -102,12 +102,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private DistributionAnalyzerListener listener;
 
-    public DistributionAnalyzer(List<String> files, BuildConfig config) {
-        this(files, config, null);
+    public DistributionAnalyzer(List<String> inputs, BuildConfig config) {
+        this(inputs, config, null);
     }
 
-    public DistributionAnalyzer(List<String> files, BuildConfig config, EmbeddedCacheManager cacheManager) {
-        this.files = Collections.unmodifiableList(files);
+    public DistributionAnalyzer(List<String> inputs, BuildConfig config, EmbeddedCacheManager cacheManager) {
+        this.inputs = inputs;
         this.config = config;
         checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
         map = new EnumMap<>(ChecksumType.class);
@@ -164,12 +164,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                         green(Arrays.asList(sfs.getSchemes())));
             }
 
-            for (String file : files) {
+            for (String input : inputs) {
                 try {
-                    URI uri = URI.create(file);
+                    URI uri = URI.create(input);
                     fo = sfs.resolveFile(uri);
                 } catch (IllegalArgumentException | FileSystemException e) {
-                    fo = sfs.resolveFile(new File(file).toURI());
+                    fo = sfs.resolveFile(new File(input).toURI());
                 }
 
                 if (LOGGER.isInfoEnabled()) {
@@ -485,6 +485,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 file.close();
             }
         }
+    }
+
+    public List<String> getInputs() {
+        return Collections.unmodifiableList(inputs);
     }
 
     public File getChecksumFile(ChecksumType checksumType) {

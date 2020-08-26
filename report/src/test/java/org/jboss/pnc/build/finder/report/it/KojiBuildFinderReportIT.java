@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.build.finder.core.it;
+package org.jboss.pnc.build.finder.report.it;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.io.FileMatchers.aReadableFile;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,8 +37,10 @@ import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
+import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.report.Report;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
@@ -38,40 +49,69 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-abstract class AbstractRpmIT extends AbstractKojiIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRpmIT.class);
+class KojiBuildFinderReportIT extends AbstractKojiIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KojiBuildFinderReportIT.class);
+
+    private static final String PROPERTY = "distribution.url";
+
+    private static final String URL = System.getProperty(PROPERTY);
 
     private static final int CONNECTION_TIMEOUT = 300000;
 
     private static final int READ_TIMEOUT = 900000;
 
-    abstract List<String> getFiles();
-
-    abstract void verify(DistributionAnalyzer analyzer, BuildFinder finder);
-
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "checksums"));
+    void testChecksumsAndFindBuildsAndGenerateReports(@TempDir File folder)
+            throws ExecutionException, InterruptedException, IOException {
+        assertThat(
+                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
+                URL,
+                is(not(nullValue())));
+
+        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderReportIT.class, "checksums"));
+
+        Map<ChecksumType, MultiValuedMap<String, String>> map;
+
         ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+
         DistributionAnalyzer analyzer;
+
         Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 
         try (Timer.Context context = timer.time()) {
-            analyzer = new DistributionAnalyzer(getFiles(), getConfig());
+            analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderReportIT.class, "builds"));
 
         try (Timer.Context context2 = timer2.time()) {
             ClientSession session = getSession();
             BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<ChecksumType, MultiValuedMap<String, String>> map = futureChecksum.get();
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
+            map = futureChecksum.get();
 
-            verify(analyzer, finder);
+            assertThat(map, is(aMapWithSize(3)));
+            assertThat(builds, is(aMapWithSize(greaterThanOrEqualTo(1))));
+
+            LOGGER.info("Map size: {}", map.size());
+            LOGGER.info("Builds size: {}", builds.size());
+
+            Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
+
+            File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
+
+            assertThat(nvrTxt, is(aReadableFile()));
+
+            File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
+
+            assertThat(gavTxt, is(aReadableFile()));
+
+            File outputHtml = new File(finder.getOutputDirectory(), "output.html");
+
+            assertThat(outputHtml, is(aReadableFile()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw e;

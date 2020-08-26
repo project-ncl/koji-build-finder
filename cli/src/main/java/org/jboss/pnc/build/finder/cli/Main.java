@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -67,11 +68,6 @@ import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
 import org.jboss.pnc.build.finder.pnc.client.HashMapCachingPncClient;
 import org.jboss.pnc.build.finder.pnc.client.PncClient;
-import org.jboss.pnc.build.finder.report.BuildStatisticsReport;
-import org.jboss.pnc.build.finder.report.GAVReport;
-import org.jboss.pnc.build.finder.report.HTMLReport;
-import org.jboss.pnc.build.finder.report.NVRReport;
-import org.jboss.pnc.build.finder.report.ProductReport;
 import org.jboss.pnc.build.finder.report.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -655,7 +651,7 @@ public final class Main implements Callable<Void> {
             LOGGER.info("Pnc support: {}", green("disabled"));
         }
 
-        BuildFinder finder;
+        BuildFinder finder = null;
         Map<BuildSystemInteger, KojiBuild> builds = null;
         File buildsFile = new File(outputDirectory, BuildFinder.getBuildsFilename());
 
@@ -724,7 +720,7 @@ public final class Main implements Callable<Void> {
 
                     finder.setOutputDirectory(outputDirectory);
 
-                    finder.findBuilds(newMap);
+                    builds = finder.findBuilds(newMap);
                 } catch (KojiClientException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
                     LOGGER.debug("Error", e);
@@ -824,45 +820,23 @@ public final class Main implements Callable<Void> {
             }
         }
 
-        BuildSystemInteger zero = new BuildSystemInteger(0, BuildSystem.none);
+        List<KojiBuild> buildList = builds != null ? new ArrayList<>(builds.values()) : Collections.emptyList();
+        KojiBuild buildZero = builds != null ? buildList.get(0) : null;
+        int buildListSize = buildList.size();
 
-        if (builds != null && builds.containsKey(zero)
-                && (!builds.get(zero).getArchives().isEmpty() || builds.keySet().size() > 1)) {
-            List<KojiBuild> buildList = builds.entrySet()
-                    .stream()
-                    .sorted(Entry.comparingByKey())
-                    .map(Entry::getValue)
-                    .collect(Collectors.toList());
-            List<Report> reports = new ArrayList<>(4);
+        if (buildListSize > 1) {
+            buildList.sort(Comparator.comparingInt(build -> build.getBuildInfo().getId()));
+        }
 
-            reports.add(new BuildStatisticsReport(outputDirectory, buildList));
-            reports.add(new ProductReport(outputDirectory, buildList));
-            reports.add(new NVRReport(outputDirectory, buildList));
-            reports.add(new GAVReport(outputDirectory, buildList));
-
-            LOGGER.info("Generating {} reports", green(reports.size()));
-
-            for (Report report : reports) {
-                try {
-                    report.outputText();
-                } catch (IOException e) {
-                    LOGGER.error("Error writing {} report", boldRed(report.getName()));
-                    LOGGER.debug("Report error", e);
-                }
-            }
-
-            Report report = new HTMLReport(
-                    outputDirectory,
-                    files,
-                    buildList,
-                    config.getKojiWebURL(),
-                    config.getPncURL(),
-                    Collections.unmodifiableList(reports));
-
+        if (buildListSize > 1 || buildZero != null && !buildZero.getArchives().isEmpty()) {
             try {
-                report.outputHTML();
+                Report.generateReports(config, buildList, outputDirectory, files);
             } catch (IOException e) {
-                LOGGER.error("Error writing {} report", boldRed(report.getName()));
+                LOGGER.error(
+                        "Error writing reports for files {} with {} builds to output directory {}",
+                        boldRed(files),
+                        boldRed(buildListSize),
+                        boldRed(outputDirectory));
                 LOGGER.debug("Report error", e);
             }
 
