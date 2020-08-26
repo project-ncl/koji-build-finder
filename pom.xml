@@ -87,7 +87,7 @@
     <version.eu.codearte.catch-exception>2.0</version.eu.codearte.catch-exception>
     <version.info.picocli>4.5.0</version.info.picocli>
     <version.io.dropwizard.metrics>4.1.12.1</version.io.dropwizard.metrics>
-    <version.net.revelc.code.formatter>2.12.1</version.net.revelc.code.formatter>
+    <version.net.revelc.code.formatter>2.12.2</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.4.1</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.26.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
