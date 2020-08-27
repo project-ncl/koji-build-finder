@@ -1064,6 +1064,7 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <configuration>
           <tagNameFormat>@{project.version}</tagNameFormat>
           <autoVersionSubmodules>true</autoVersionSubmodules>
+          <releaseProfiles>gpg-sign</releaseProfiles>
           <stagingRepository>https://oss.sonatype.org/service/local/staging/deploy/maven2/</stagingRepository>
         </configuration>
       </plugin>
