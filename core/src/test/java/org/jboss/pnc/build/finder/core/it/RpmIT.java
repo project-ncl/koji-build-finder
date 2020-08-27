@@ -42,16 +42,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class RpmIT extends AbstractRpmIT {
-    public static final Logger LOGGER = LoggerFactory.getLogger(RpmIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpmIT.class);
 
     @Override
-    List<String> getFiles() {
+    protected List<String> getFiles() {
         return Collections.singletonList(
                 "https://downloads.redhat.com/redhat/rhel/rhel-8-beta/baseos/x86_64/Packages/basesystem-11-5.el8.noarch.rpm");
     }
 
     @Override
-    void verify(DistributionAnalyzer analyzer, BuildFinder finder) {
+    protected void verify(DistributionAnalyzer analyzer, BuildFinder finder) {
         Collection<FileError> fileErrors = analyzer.getFileErrors();
         Map<String, Collection<Checksum>> files = analyzer.getFiles();
         Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
@@ -81,9 +81,10 @@ class RpmIT extends AbstractRpmIT {
                         hasEntry(
                                 hasProperty("value", is("31bc067a6462aacd3b891681bdb27512")),
                                 contains("basesystem-11-5.el8.noarch.rpm"))));
-        assertThat(buildsFound, contains(hasProperty("rpms", contains(hasProperty("name", is("basesystem"))))));
+        assertThat(
+                buildsFound,
+                contains(hasProperty("archives", contains(hasProperty("rpm", hasProperty("name", is("basesystem")))))));
         assertThat(builds.get(new BuildSystemInteger(0)).getArchives(), is(empty()));
-        assertThat(builds.get(new BuildSystemInteger(0)).getRpms(), is(empty()));
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());

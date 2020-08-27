@@ -21,8 +21,7 @@ import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -121,8 +120,8 @@ class PncClientImplIT extends AbstractKojiIT {
         ProductVersion productVersion = getPncClient().getProductVersion(buildId);
 
         // then
-        assertThat(productVersion, is(not(nullValue())));
-        assertThat(productVersion.getProduct(), is(not(nullValue())));
+        assertThat(productVersion, is(notNullValue()));
+        assertThat(productVersion.getProduct(), is(notNullValue()));
     }
 
     @Test

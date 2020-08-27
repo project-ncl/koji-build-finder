@@ -18,7 +18,6 @@ package org.jboss.pnc.build.finder.core.it;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,21 +37,21 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-abstract class AbstractRpmIT extends AbstractKojiIT {
+public abstract class AbstractRpmIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRpmIT.class);
 
     private static final int CONNECTION_TIMEOUT = 300000;
 
     private static final int READ_TIMEOUT = 900000;
 
-    abstract List<String> getFiles();
+    protected abstract List<String> getFiles();
 
-    abstract void verify(DistributionAnalyzer analyzer, BuildFinder finder);
+    protected abstract void verify(DistributionAnalyzer analyzer, BuildFinder finder) throws Exception;
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
         Timer timer = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "checksums"));
-        ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+        ExecutorService pool = Executors.newFixedThreadPool(2);
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 

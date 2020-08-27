@@ -40,6 +40,9 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.eclipse.packager.rpm.RpmSignatureTag;
+import org.eclipse.packager.rpm.RpmTag;
+import org.eclipse.packager.rpm.coding.PayloadCoding;
+import org.eclipse.packager.rpm.parse.InputHeader;
 import org.eclipse.packager.rpm.parse.RpmInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +94,22 @@ public class Checksum implements Serializable {
             try (FileContent fc = fo.getContent();
                     InputStream is = fc.getInputStream();
                     RpmInputStream in = new RpmInputStream(is)) {
-                LOGGER.debug("Got RPM: {}", filename);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Got RPM: {}", filename);
+
+                    InputHeader<RpmTag> payloadHeader = in.getPayloadHeader();
+                    Optional<Object> payloadCodingHeader = payloadHeader.getOptionalTag(RpmTag.PAYLOAD_CODING);
+
+                    if (payloadCodingHeader.isPresent()) {
+                        String payloadCoding = (String) payloadCodingHeader.get();
+                        PayloadCoding coding = PayloadCoding.fromValue(payloadCoding).orElse(PayloadCoding.NONE);
+
+                        LOGGER.debug(
+                                "Payload for RPM {} is compressed using: {}",
+                                in.getLead().getName(),
+                                coding.getValue());
+                    }
+                }
 
                 for (ChecksumType checksumType : checksumTypes) {
                     LOGGER.debug("Handle checksum type {} for RPM {}", checksumType.getAlgorithm(), filename);

@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
@@ -83,7 +83,7 @@ class ReportTest {
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
         File newBuildsFile = new File(folder, "builds.json");
 
-        assertThat(newBuildsFile, is(not(nullValue())));
+        assertThat(newBuildsFile, is(notNullValue()));
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
@@ -120,7 +120,7 @@ class ReportTest {
         assertThat(builds.get(2).getProjectSourcesTgz(), is(emptyOptional()));
         assertThat(builds.get(2).getDuplicateArchives(), hasSize(1));
         assertThat(builds.get(2).toString(), is(not(emptyOrNullString())));
-        assertThat(builds.get(2).getDuplicateArchives().get(0), is(not(nullValue())));
+        assertThat(builds.get(2).getDuplicateArchives().get(0), is(notNullValue()));
 
         assertThat(builds.get(3).isMaven(), is(true));
         assertThat(builds.get(3).getTypes(), contains("maven"));

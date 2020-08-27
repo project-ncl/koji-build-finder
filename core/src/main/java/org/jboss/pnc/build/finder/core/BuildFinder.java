@@ -186,8 +186,6 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
     private void addRpmWithoutBuild(Checksum checksum, Collection<String> filenames, KojiRpmInfo rpm) {
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
 
-        buildZero.getRpms().add(rpm);
-
         buildFinderUtils.addArchiveWithoutBuild(buildZero, checksum, filenames, rpm);
     }
 
@@ -212,26 +210,20 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
         if (matchingArchive.isPresent()) {
             LOGGER.debug(
-                    "Adding existing RPM id {} to build id {} with {} rpms and filenames {}",
+                    "Adding existing RPM id {} to build id {} with filenames {}",
                     rpm.getId(),
                     rpm.getBuildId(),
-                    build.getRpms().size(),
                     filenames);
 
             KojiLocalArchive existingArchive = matchingArchive.get();
 
             existingArchive.getFilenames().addAll(filenames);
-
-            build.getRpms().add(rpm);
         } else {
             LOGGER.debug(
-                    "Adding new rpm id {} to build id {} with {} rpms and filenames {}",
+                    "Adding new rpm id {} to build id {} with filenames {}",
                     rpm.getId(),
                     rpm.getBuildId(),
-                    build.getRpms().size(),
                     filenames);
-
-            build.getRpms().add(rpm);
 
             List<KojiLocalArchive> buildArchives = build.getArchives();
 

@@ -16,7 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -43,7 +43,7 @@ class BuildConfigTest {
         BuildConfig bc = new BuildConfig();
         String s = JSONUtils.dumpString(bc);
 
-        assertThat(s, is(not(nullValue())));
+        assertThat(s, is(notNullValue()));
 
         LOGGER.debug("Default configuration: {}", s);
 
@@ -100,7 +100,7 @@ class BuildConfigTest {
 
         BuildConfig bc = BuildConfig.load(json);
 
-        assertThat(bc, is(not(nullValue())));
+        assertThat(bc, is(notNullValue()));
     }
 
     @Test
@@ -124,7 +124,7 @@ class BuildConfigTest {
                 + "\"koji-hub-url\":\"https://my.url.com/hub\"," + "\"koji-web-url\":\"https://my.url.com/web\"}";
         BuildConfig bc = BuildConfig.load(BuildConfigTest.class.getClassLoader());
 
-        assertThat(bc, is(not(nullValue())));
+        assertThat(bc, is(notNullValue()));
         assertThat(bc.getArchiveTypes(), contains("jar", "xml", "pom", "so", "dll", "dylib"));
         assertThat(
                 bc.getArchiveExtensions(),
@@ -150,7 +150,7 @@ class BuildConfigTest {
 
         BuildConfig bc2 = BuildConfig.load(json);
 
-        assertThat(bc2, is(not(nullValue())));
+        assertThat(bc2, is(notNullValue()));
         assertThat(
                 bc2.getArchiveExtensions(),
                 contains(

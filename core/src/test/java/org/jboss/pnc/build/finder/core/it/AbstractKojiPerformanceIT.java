@@ -28,7 +28,10 @@ import org.slf4j.LoggerFactory;
 import com.redhat.red.build.koji.KojiClientException;
 
 public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiPerformanceIT.class);
+
     static final int NUM_LOOPS = 3;
+
     static final List<Integer> BUILD_IDS = Collections.unmodifiableList(
             Arrays.asList(
                     34280,
@@ -215,7 +218,7 @@ public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
                     543988,
                     553463,
                     457465));
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiPerformanceIT.class);
+
     private List<Integer> builds;
 
     @BeforeEach

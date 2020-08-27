@@ -17,8 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.arrayWithSize;
@@ -59,7 +58,7 @@ class BuildFinderTest {
 
         File[] file = folder.listFiles();
 
-        assertThat(file, allOf(is(not(nullValue())), is(arrayWithSize(1))));
+        assertThat(file, allOf(is(notNullValue()), is(arrayWithSize(1))));
         assertThat(da.getChecksumFile(checksumType).getCanonicalPath(), is(file[0].getCanonicalPath()));
     }
 

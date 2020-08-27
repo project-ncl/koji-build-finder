@@ -58,22 +58,18 @@ public class KojiBuild {
 
     private transient List<String> types;
 
-    private transient List<KojiRpmInfo> rpms;
-
     private List<KojiRpmInfo> remoteRpms;
 
     private transient List<KojiArchiveInfo> duplicateArchives;
 
     public KojiBuild() {
         this.archives = new ArrayList<>();
-        this.rpms = new ArrayList<>();
         this.duplicateArchives = new ArrayList<>();
     }
 
     public KojiBuild(KojiBuildInfo buildInfo) {
         this.buildInfo = buildInfo;
         this.archives = new ArrayList<>();
-        this.rpms = new ArrayList<>();
         this.duplicateArchives = new ArrayList<>();
     }
 
@@ -85,7 +81,6 @@ public class KojiBuild {
             List<KojiArchiveInfo> remoteArchives,
             List<KojiTagInfo> tags,
             List<String> types,
-            List<KojiRpmInfo> rpms,
             List<KojiRpmInfo> remoteRpms) {
         this.buildInfo = buildInfo;
         this.taskInfo = taskInfo;
@@ -94,7 +89,6 @@ public class KojiBuild {
         this.remoteArchives = remoteArchives;
         this.tags = tags;
         this.types = types;
-        this.rpms = rpms;
         this.remoteRpms = remoteRpms;
     }
 
@@ -169,14 +163,6 @@ public class KojiBuild {
 
     public void setTypes(List<String> types) {
         this.types = types;
-    }
-
-    public List<KojiRpmInfo> getRpms() {
-        return rpms;
-    }
-
-    public void setRpms(List<KojiRpmInfo> rpms) {
-        this.rpms = rpms;
     }
 
     public List<KojiRpmInfo> getRemoteRpms() {
@@ -314,8 +300,8 @@ public class KojiBuild {
     @Override
     public String toString() {
         return "KojiBuild [buildInfo=" + buildInfo + ", taskInfo=" + taskInfo + ", taskRequest=" + taskRequest
-                + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags + ", rpms=" + rpms
-                + ", remoteRpms=" + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
+                + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags + ", remoteRpms="
+                + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
     }
 
     public static class KojiBuildExternalizer implements AdvancedExternalizer<KojiBuild> {

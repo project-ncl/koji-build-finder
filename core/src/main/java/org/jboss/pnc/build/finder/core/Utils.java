@@ -15,7 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.cyan;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +49,7 @@ public final class Utils {
         try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
             PROPERTIES.load(is);
         } catch (IOException | NullPointerException e) {
-            LOGGER.error("Failed to load file: {}", PROPERTIES_FILE, e);
+            LOGGER.error("Failed to load file: {}", boldRed(PROPERTIES_FILE), e);
         }
     }
 
@@ -93,7 +96,7 @@ public final class Utils {
         String userHome = FileUtils.getUserDirectoryPath();
 
         if (userHome == null || "?".equals(userHome)) {
-            LOGGER.error("Got bogus user.home value: {}", red(userHome));
+            LOGGER.error("Got bogus user.home value: {}", boldRed(userHome));
 
             throw new RuntimeException("Invalid user.home: " + userHome);
         }
@@ -139,5 +142,34 @@ public final class Utils {
         try (FileContent fc = fo.getContent()) {
             return byteCountToDisplaySize(fc.getSize());
         }
+    }
+
+    public static void printBanner() {
+        LOGGER.info("{}", green("________      .__.__      .___\\__________.__           .___            "));
+        LOGGER.info("{}", green("\\____   \\__ __|__|  |   __| _/ \\_   _____|__| ____   __| _/___________ "));
+        LOGGER.info("{}", green(" |  |  _|  |  |  |  |  / __ |   |    __) |  |/    \\ / __ _/ __ \\_  __ \\"));
+        LOGGER.info("{}", green(" |  |   |  |  |  |  |_/ /_/ |   |     \\  |  |   |  / /_/ \\  ___/|  | \\/)"));
+        LOGGER.info("{}", green(" |____  |____/|__|____\\____ |   \\___  /  |__|___|  \\____ |\\___  |__|   "));
+        LOGGER.info("{}", green("      \\/                   \\/       \\/           \\/     \\/    \\/       "));
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(
+                    "{}{} (SHA: {})",
+                    String.format(
+                            "%" + Math.max(
+                                    0,
+                                    79 - String
+                                            .format(
+                                                    "%s (SHA: %s)",
+                                                    Utils.getBuildFinderVersion(),
+                                                    Utils.getBuildFinderScmRevision())
+                                            .length() - 7)
+                                    + "s",
+                            ""),
+                    boldYellow(Utils.getBuildFinderVersion()),
+                    cyan(Utils.getBuildFinderScmRevision()));
+        }
+
+        LOGGER.info("{}", green(""));
     }
 }

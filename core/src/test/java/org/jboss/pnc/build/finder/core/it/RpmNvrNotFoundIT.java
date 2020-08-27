@@ -42,16 +42,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class RpmNvrNotFoundIT extends AbstractRpmIT {
-    public static final Logger LOGGER = LoggerFactory.getLogger(RpmNvrNotFoundIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpmNvrNotFoundIT.class);
 
     @Override
-    List<String> getFiles() {
+    protected List<String> getFiles() {
         return Collections.singletonList(
                 "https://kojipkgs.fedoraproject.org//packages/java-11-openjdk/11.0.8.10/1.fc33/x86_64/java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm");
     }
 
     @Override
-    void verify(DistributionAnalyzer analyzer, BuildFinder finder) {
+    protected void verify(DistributionAnalyzer analyzer, BuildFinder finder) {
         Collection<FileError> fileErrors = analyzer.getFileErrors();
         Map<String, Collection<Checksum>> files = analyzer.getFiles();
         Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
@@ -92,7 +92,6 @@ class RpmNvrNotFoundIT extends AbstractRpmIT {
                                 hasProperty(
                                         "checksums",
                                         contains(hasProperty("value", is("aa585b870f59ef457f26fa32a0daf923")))))));
-        assertThat(builds.get(new BuildSystemInteger(0)).getRpms(), is(empty()));
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());

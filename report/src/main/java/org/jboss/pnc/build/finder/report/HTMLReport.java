@@ -64,18 +64,18 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 
 public final class HTMLReport extends Report {
-    private static final String NAME = "Koji Build Finder";
+    private static final String NAME = "Build Finder";
 
-    private static final String HTML_STYLE = ""
-            + "body { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 13px; }\n"
-            + "table { width: 100%; border-style: solid; border-width: 1px; border-collapse: collapse; }\n"
-            + "caption { background: lemonchiffon; caption-side: top; font-weight: bold; font-size: larger;"
-            + "text-align: left; margin-top: 50px; }\n"
-            + "th { border-style: solid; border-width: 1px; background-color: darkgrey; text-align: left;"
-            + "font-weight: bold; }\n" + "tr { border-style: solid; border-width: 1px; }\n"
-            + "tr:nth-child(even) { background-color: lightgrey; }\n"
-            + "td { border-style: solid; border-width: 1px; text-align: left; vertical-align: top;"
-            + "font-size: small; }\n" + "footer { font-size: smaller; }";
+    private static final String GITHUB_URL = "https://github.com/project-ncl/build-finder/";
+
+    private static final String HTML_STYLE = "body{font-family:Verdana,Helvetica,Arial,sans-serif;font-size:13px}"
+            + "table{width:100%;border-style:solid;border-width:1px;border-collapse:collapse}"
+            + "caption{background:#FFFACD;caption-side:top;font-weight:700;font-size:larger;text-align:left;"
+            + "margin-top:50px}"
+            + "th{border-style:solid;border-width:1px;background-color:#A9A9A9;text-align:left;font-weight:700}"
+            + "tr{border-style:solid;border-width:1px}tr:nth-child(even){background-color:#D3D3D3}"
+            + "td{border-style:solid;border-width:1px;text-align:left;vertical-align:top;font-size:small}"
+            + "footer{font-size:smaller}";
 
     private final URL kojiwebUrl;
 
@@ -104,7 +104,7 @@ public final class HTMLReport extends Report {
     }
 
     private static ContainerTag errorText(String text) {
-        return span(text).withStyle("color: red; font-weight: bold;");
+        return span(text).withStyle("color:red;font-weight:700");
     }
 
     private Tag<?> linkBuild(KojiBuild build) {
@@ -175,7 +175,8 @@ public final class HTMLReport extends Report {
         Integer id = rpm.getId();
         String href = "/rpminfo?rpmID=" + id;
         boolean error = build.isImport() || id <= 0;
-        return error ? errorText(name) : a().withHref(kojiwebUrl + href).with(text(name));
+        return error ? a().withHref(kojiwebUrl + href).with(errorText(name))
+                : a().withHref(kojiwebUrl + href).with(text(name));
     }
 
     private Tag<?> linkLocAr(KojiBuild build, KojiLocalArchive localArchive) {
@@ -365,13 +366,10 @@ public final class HTMLReport extends Report {
                                         .attr(Attr.ID, "footer")
                                         .with(
                                                 text("Created: " + LocalDateTime.now() + " by "),
-                                                a().withHref(
-                                                        "https://github.com/release-engineering/koji-build-finder/")
-                                                        .with(text(NAME)),
+                                                a().withHref(GITHUB_URL).with(text(NAME)),
                                                 text(" " + Utils.getBuildFinderVersion() + " (SHA: "),
                                                 a().withHref(
-                                                        "https://github.com/release-engineering/koji-build-finder/commit/"
-                                                                + Utils.getBuildFinderScmRevision())
+                                                        GITHUB_URL + "/commit/" + Utils.getBuildFinderScmRevision())
                                                         .with(text(Utils.getBuildFinderScmRevision() + ")"))))));
     }
 

@@ -16,8 +16,7 @@
 package org.jboss.pnc.build.finder.report.it;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -49,8 +48,8 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-class KojiBuildFinderReportIT extends AbstractKojiIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KojiBuildFinderReportIT.class);
+class ReportIT extends AbstractKojiIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportIT.class);
 
     private static final String PROPERTY = "distribution.url";
 
@@ -66,13 +65,13 @@ class KojiBuildFinderReportIT extends AbstractKojiIT {
         assertThat(
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL,
-                is(not(nullValue())));
+                is(notNullValue()));
 
-        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderReportIT.class, "checksums"));
+        Timer timer = REGISTRY.timer(MetricRegistry.name(ReportIT.class, "checksums"));
 
         Map<ChecksumType, MultiValuedMap<String, String>> map;
 
-        ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+        ExecutorService pool = Executors.newFixedThreadPool(2);
 
         DistributionAnalyzer analyzer;
 
@@ -83,7 +82,7 @@ class KojiBuildFinderReportIT extends AbstractKojiIT {
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderReportIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(MetricRegistry.name(ReportIT.class, "builds"));
 
         try (Timer.Context context2 = timer2.time()) {
             ClientSession session = getSession();

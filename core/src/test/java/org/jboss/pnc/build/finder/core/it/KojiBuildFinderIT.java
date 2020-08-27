@@ -16,8 +16,7 @@
 package org.jboss.pnc.build.finder.core.it;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -61,13 +60,13 @@ class KojiBuildFinderIT extends AbstractKojiIT {
         assertThat(
                 "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
                 URL,
-                is(not(nullValue())));
+                is(notNullValue()));
 
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
         Map<ChecksumType, MultiValuedMap<String, String>> map;
 
-        ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+        ExecutorService pool = Executors.newFixedThreadPool(2);
 
         DistributionAnalyzer analyzer;
 

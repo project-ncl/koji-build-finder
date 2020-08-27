@@ -17,7 +17,6 @@ package org.jboss.pnc.build.finder.cli;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.cyan;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
@@ -501,32 +500,7 @@ public final class Main implements Callable<Void> {
             enableDebugLogging();
         }
 
-        LOGGER.info("{}", green("________      .__.__      .___\\__________.__           .___            "));
-        LOGGER.info("{}", green("\\____   \\__ __|__|  |   __| _/ \\_   _____|__| ____   __| _/___________ "));
-        LOGGER.info("{}", green(" |  |  _|  |  |  |  |  / __ |   |    __) |  |/    \\ / __ _/ __ \\_  __ \\"));
-        LOGGER.info("{}", green(" |  |   |  |  |  |  |_/ /_/ |   |     \\  |  |   |  / /_/ \\  ___/|  | \\/)"));
-        LOGGER.info("{}", green(" |____  |____/|__|____\\____ |   \\___  /  |__|___|  \\____ |\\___  |__|   "));
-        LOGGER.info("{}", green("      \\/                   \\/       \\/           \\/     \\/    \\/       "));
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(
-                    "{}{} (SHA: {})",
-                    String.format(
-                            "%" + Math.max(
-                                    0,
-                                    79 - String
-                                            .format(
-                                                    "%s (SHA: %s)",
-                                                    Utils.getBuildFinderVersion(),
-                                                    Utils.getBuildFinderScmRevision())
-                                            .length() - 7)
-                                    + "s",
-                            ""),
-                    boldYellow(Utils.getBuildFinderVersion()),
-                    cyan(Utils.getBuildFinderScmRevision()));
-        }
-
-        LOGGER.info("{}", green(""));
+        Utils.printBanner();
 
         BuildConfig config = null;
 
@@ -605,7 +579,7 @@ public final class Main implements Callable<Void> {
                     initCaches(config);
                 }
 
-                pool = Executors.newFixedThreadPool(checksumTypes.size());
+                pool = Executors.newSingleThreadExecutor();
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
@@ -735,7 +709,7 @@ public final class Main implements Callable<Void> {
                     initCaches(config);
                 }
 
-                pool = Executors.newFixedThreadPool(1 + checksumTypes.size());
+                pool = Executors.newFixedThreadPool(2);
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);

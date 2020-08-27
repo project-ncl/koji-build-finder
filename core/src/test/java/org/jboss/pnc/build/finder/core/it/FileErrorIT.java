@@ -65,7 +65,7 @@ class FileErrorIT extends AbstractKojiIT {
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
         Timer timer = REGISTRY.timer(MetricRegistry.name(FileErrorIT.class, "checksums"));
-        ExecutorService pool = Executors.newFixedThreadPool(1 + getConfig().getChecksumTypes().size());
+        ExecutorService pool = Executors.newFixedThreadPool(2);
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
 

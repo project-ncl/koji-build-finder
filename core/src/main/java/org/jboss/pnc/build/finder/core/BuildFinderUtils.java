@@ -165,6 +165,18 @@ public final class BuildFinderUtils {
                     filenames);
 
             existingArchive.getFilenames().addAll(filenames);
+
+            if (rpm != null) {
+                if (existingArchive.getRpm() != null) {
+                    LOGGER.warn(
+                            "Replacing RPM {} in archive {} with {}",
+                            red(existingArchive.getRpm()),
+                            red(existingArchive.getArchive().getArchiveId()),
+                            red(rpm));
+                }
+
+                existingArchive.setRpm(rpm);
+            }
         } else {
             KojiArchiveInfo tmpArchive = new KojiArchiveInfo();
 
@@ -187,6 +199,11 @@ public final class BuildFinderUtils {
                     filenames,
                     distributionAnalyzer != null ? distributionAnalyzer.getFiles().get(filenames.iterator().next())
                             : Collections.emptySet());
+
+            if (rpm != null) {
+                localArchive.setRpm(rpm);
+            }
+
             List<KojiLocalArchive> buildZeroArchives = buildZero.getArchives();
 
             buildZeroArchives.add(localArchive);
