@@ -28,7 +28,7 @@
   <artifactId>aggregate</artifactId>
   <packaging>pom</packaging>
 
-  <name>Jacoco Aggregate Report</name>
+  <name>Build Finder Aggregate</name>
 
   <dependencies>
     <dependency>
