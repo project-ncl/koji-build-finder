@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -46,11 +47,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.ResourceAccessMode;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.junit.jupiter.api.parallel.Resources;
-
-import com.github.blindpirate.extensions.CaptureSystemOutput;
+import org.junitpioneer.jupiter.StdIo;
+import org.junitpioneer.jupiter.StdOut;
 
 class DistributionAnalyzerTest {
     @Test
@@ -137,10 +135,9 @@ class DistributionAnalyzerTest {
         assertThat(checksums.get(ChecksumType.md5).size(), is(7));
     }
 
-    @CaptureSystemOutput
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
+    @StdIo
     @Test
-    void loadManPageZip(CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void loadManPageZip(StdOut out) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
@@ -148,7 +145,7 @@ class DistributionAnalyzerTest {
         Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
 
         assertThat(checksums.get(ChecksumType.md5).size(), is(4));
-        outputCapture.expect(containsString("Unable to process archive/compressed file"));
+        assertThat(out.capturedLines(), hasItemInArray(containsString("Unable to process archive/compressed file")));
     }
 
     @Test

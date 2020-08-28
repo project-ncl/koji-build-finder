@@ -15,12 +15,14 @@
  */
 package org.jboss.pnc.build.finder.cli;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.io.File;
@@ -34,14 +36,12 @@ import org.jboss.pnc.build.finder.core.TestUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.ResourceAccessMode;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.junit.jupiter.api.parallel.Resources;
+import org.junitpioneer.jupiter.StdIo;
+import org.junitpioneer.jupiter.StdOut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ginsberg.junit.exit.ExpectSystemExitWithStatus;
-import com.github.blindpirate.extensions.CaptureSystemOutput;
 
 import ch.qos.logback.classic.Level;
 import picocli.CommandLine;
@@ -54,12 +54,10 @@ class MainTest {
         return cmd.parseArgs(args);
     }
 
-    @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
+    @StdIo
     @Test
-    void verifyHelp(CaptureSystemOutput.OutputCapture outputCapture) {
+    void verifyHelp(StdOut out) {
         String[] args = { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -68,15 +66,13 @@ class MainTest {
 
         Main.main(args);
 
-        outputCapture.expect(containsString("Usage:"));
+        assertThat(out.capturedLines(), hasItemInArray(containsString("Usage:")));
     }
 
-    @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
+    @StdIo
     @Test
-    void verifyVersion(CaptureSystemOutput.OutputCapture outputCapture) {
+    void verifyVersion(StdOut out) {
         String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
@@ -84,11 +80,13 @@ class MainTest {
 
         Main.main(args);
 
-        outputCapture.expect(containsString(Utils.getBuildFinderVersion()));
-
-        outputCapture.expect(containsString(Utils.getBuildFinderScmRevision()));
-
-        outputCapture.expect(not(containsString("unknown")));
+        assertThat(
+                out.capturedLines(),
+                hasItemInArray(
+                        allOf(
+                                containsString(Utils.getBuildFinderVersion()),
+                                containsString(Utils.getBuildFinderScmRevision()),
+                                not(containsString("unknown")))));
     }
 
     @Test
@@ -168,12 +166,10 @@ class MainTest {
         assertThat(parseResult.matchedOption("--krb-service").getValue(), is(krbService));
     }
 
-    @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
+    @StdIo
     @Test
-    void verifyConfig(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyConfig(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -204,15 +200,13 @@ class MainTest {
 
         Main.main(args);
 
-        outputCapture.expect(containsString(".war!"));
+        assertThat(out.capturedLines(), hasItemInArray(containsString(".war!")));
     }
 
-    @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
+    @StdIo
     @Test
-    void verifyDebug(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyDebug(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -257,18 +251,16 @@ class MainTest {
 
             assertThat(root.isDebugEnabled(), is(true));
 
-            outputCapture.expect(containsString("DEBUG"));
+            assertThat(out.capturedLines(), hasItemInArray(containsString("DEBUG")));
         } finally {
             root.setLevel(level);
         }
     }
 
-    @CaptureSystemOutput
     @ExpectSystemExitWithStatus(0)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_OUT)
-    @ResourceLock(mode = ResourceAccessMode.READ_WRITE, value = Resources.SYSTEM_ERR)
+    @StdIo
     @Test
-    void verifyQuiet(@TempDir File folder, CaptureSystemOutput.OutputCapture outputCapture) throws IOException {
+    void verifyQuiet(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -313,7 +305,7 @@ class MainTest {
 
             assertThat(root.isEnabledFor(Level.OFF), is(true));
 
-            outputCapture.expect(emptyString());
+            assertThat(out.capturedLines(), is(emptyArray()));
         } finally {
             root.setLevel(level);
         }

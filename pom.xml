@@ -62,16 +62,15 @@
   </scm>
 
   <properties>
-    <koji.hub.url />
-    <koji.web.url />
+    <koji.hub.url></koji.hub.url>
+    <koji.web.url></koji.web.url>
     <mavenVersion>3.3.9</mavenVersion>
-    <pnc.url />
+    <pnc.url></pnc.url>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.3</version.ch.qos.logback>
     <version.com.fasterxml.jackson>2.11.2</version.com.fasterxml.jackson>
     <version.com.ginsberg.junit5-system-exit>1.0.0</version.com.ginsberg.junit5-system-exit>
-    <version.com.github.blindpirate>0.1.2</version.com.github.blindpirate>
     <version.com.github.ekryd.sortpom>2.12.0</version.com.github.ekryd.sortpom>
     <version.com.github.luben>1.4.5-6</version.com.github.luben>
     <version.com.github.sparkmuse>1.1.13</version.com.github.sparkmuse>
@@ -411,12 +410,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.github.blindpirate</groupId>
-        <artifactId>junit5-capture-system-output-extension</artifactId>
-        <version>${version.com.github.blindpirate}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>com.github.sparkmuse</groupId>
         <artifactId>wiremock-junit-jupiter</artifactId>
         <version>${version.com.github.sparkmuse}</version>
@@ -485,10 +478,6 @@
     <dependency>
       <groupId>com.ginsberg</groupId>
       <artifactId>junit5-system-exit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.blindpirate</groupId>
-      <artifactId>junit5-capture-system-output-extension</artifactId>
     </dependency>
     <dependency>
       <groupId>com.spotify</groupId>
@@ -1024,7 +1013,7 @@ limitations under the License.]]></inlineHeader>
                 <requireMavenVersion>
                   <version>${mavenVersion}</version>
                 </requireMavenVersion>
-                <requireSameVersions />
+                <requireSameVersions></requireSameVersions>
               </rules>
             </configuration>
           </execution>
