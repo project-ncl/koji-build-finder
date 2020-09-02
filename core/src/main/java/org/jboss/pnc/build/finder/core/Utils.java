@@ -54,7 +54,7 @@ public final class Utils {
     }
 
     private Utils() {
-
+        throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
 
     public static String normalizePath(FileObject fo, String root) {
@@ -161,13 +161,13 @@ public final class Utils {
                                     79 - String
                                             .format(
                                                     "%s (SHA: %s)",
-                                                    Utils.getBuildFinderVersion(),
-                                                    Utils.getBuildFinderScmRevision())
+                                                    getBuildFinderVersion(),
+                                                    getBuildFinderScmRevision())
                                             .length() - 7)
                                     + "s",
                             ""),
-                    boldYellow(Utils.getBuildFinderVersion()),
-                    cyan(Utils.getBuildFinderScmRevision()));
+                    boldYellow(getBuildFinderVersion()),
+                    cyan(getBuildFinderScmRevision()));
         }
 
         LOGGER.info("{}", green(""));

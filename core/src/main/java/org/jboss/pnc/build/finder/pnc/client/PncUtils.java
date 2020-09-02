@@ -43,7 +43,7 @@ public final class PncUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncUtils.class);
 
     private PncUtils() {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
 
     // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew

@@ -313,14 +313,14 @@ public class KojiBuild {
                 | Character.getNumericValue('F');
 
         @Override
-        public void writeObject(ObjectOutput output, KojiBuild build) throws IOException {
+        public void writeObject(ObjectOutput output, KojiBuild object) throws IOException {
             output.writeInt(VERSION);
-            output.writeObject(build.getBuildInfo());
-            output.writeObject(build.getTaskInfo());
-            output.writeObject(build.getRemoteArchives());
-            output.writeObject(build.getTags());
-            output.writeObject(build.getTypes());
-            output.writeObject(build.getRemoteRpms());
+            output.writeObject(object.getBuildInfo());
+            output.writeObject(object.getTaskInfo());
+            output.writeObject(object.getRemoteArchives());
+            output.writeObject(object.getTags());
+            output.writeObject(object.getTypes());
+            output.writeObject(object.getRemoteRpms());
         }
 
         @SuppressWarnings("unchecked")
