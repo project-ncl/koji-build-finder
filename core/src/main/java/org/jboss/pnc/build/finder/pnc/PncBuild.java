@@ -66,12 +66,12 @@ public class PncBuild {
     }
 
     @JsonIgnore
-    public String getSource() {
+    public Optional<String> getSource() {
         if (build != null) {
-            return build.getScmRepository().getInternalUrl();
+            return Optional.of(build.getScmRepository().getInternalUrl());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public Build getBuild() {
@@ -108,6 +108,7 @@ public class PncBuild {
 
     @Override
     public String toString() {
-        return "PncBuild{" + "build=" + build + ", productVersion=" + productVersion + ", artifacts=" + artifacts + '}';
+        return "PncBuild{" + "build=" + build + ", buildPushResult=" + buildPushResult + ", productVersion="
+                + productVersion + ", artifacts=" + artifacts + '}';
     }
 }
