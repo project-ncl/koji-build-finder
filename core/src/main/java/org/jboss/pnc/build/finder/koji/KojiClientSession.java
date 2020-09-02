@@ -49,7 +49,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiTaskInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTaskRequest;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 
-public class KojiClientSession extends KojiClient implements ClientSession {
+public final class KojiClientSession extends KojiClient implements ClientSession {
     private static final int DEFAULT_MAX_CONNECTIONS = 13;
 
     private static final int DEFAULT_THREAD_COUNT = 1;
@@ -70,8 +70,8 @@ public class KojiClientSession extends KojiClient implements ClientSession {
             KojiConfig config,
             PasswordManager passwordManager,
             ExecutorService executorService,
-            MetricRegistry registry) throws KojiClientException {
-        super(config, passwordManager, executorService, registry);
+            MetricRegistry metricRegistry) throws KojiClientException {
+        super(config, passwordManager, executorService, metricRegistry);
         helper = new KojiClientHelper(this);
     }
 
