@@ -493,7 +493,7 @@ public final class Main implements Callable<Void> {
     }
 
     @Override
-    public Void call() throws KojiClientException {
+    public Void call() {
         if (quiet) {
             disableLogging();
         } else if (debug) {
@@ -774,7 +774,7 @@ public final class Main implements Callable<Void> {
                         builds = futureBuilds.get();
                     } catch (ExecutionException e) {
                         LOGGER.error("Error getting builds {}", boldRed(e.getMessage()), e);
-                        LOGGER.debug("Error", e);
+                        LOGGER.debug("ExecutionException", e);
                         System.exit(1);
                     } catch (InterruptedException e) {
                         LOGGER.warn("Thread interrupted while getting builds", e);
@@ -786,9 +786,13 @@ public final class Main implements Callable<Void> {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("Koji Client Error", e);
                     System.exit(1);
+                } catch (IOException e) {
+                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
+                    LOGGER.debug("IOException", e);
+                    System.exit(1);
                 } catch (Exception e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
-                    LOGGER.debug("Error", e);
+                    LOGGER.debug("Exception", e);
                     System.exit(1);
                 }
             }
@@ -841,12 +845,12 @@ public final class Main implements Callable<Void> {
         private static final Pattern PATTERN = Pattern.compile(".*[/:\"*?<>|]+.*");
 
         @Override
-        public String convert(String value) {
-            if (PATTERN.matcher(value).matches()) {
+        public String convert(String s) {
+            if (PATTERN.matcher(s).matches()) {
                 throw new IllegalArgumentException("Invalid name");
             }
 
-            return value;
+            return s;
         }
     }
 }
