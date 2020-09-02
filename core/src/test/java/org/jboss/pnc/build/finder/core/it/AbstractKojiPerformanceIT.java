@@ -221,6 +221,7 @@ public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
 
     private List<Integer> builds;
 
+    @Override
     @BeforeEach
     public void setup() throws IOException, KojiClientException {
         super.setup();
@@ -236,7 +237,7 @@ public abstract class AbstractKojiPerformanceIT extends AbstractKojiIT {
                 MAX_CONNECTIONS);
     }
 
-    public List<Integer> getBuilds() {
+    List<Integer> getBuilds() {
         return Collections.unmodifiableList(builds);
     }
 }

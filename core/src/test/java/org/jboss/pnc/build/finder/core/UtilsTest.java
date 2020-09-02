@@ -98,7 +98,7 @@ class UtilsTest {
         assertThat(Utils.byteCountToDisplaySize(10137L), is("9.9K"));
         assertThat(Utils.byteCountToDisplaySize(10138L), is("10K"));
         assertThat(Utils.byteCountToDisplaySize(1024L * 1023L), is("1023K"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L), is("1.0M"));
+        assertThat(Utils.byteCountToDisplaySize(1024L << 10), is("1.0M"));
         assertThat(Utils.byteCountToDisplaySize(1024L * 1025L), is("1.1M"));
         assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1023L), is("1023M"));
         assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L), is("1.0G"));

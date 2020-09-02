@@ -58,7 +58,7 @@ public abstract class AbstractKojiIT {
     private PncClientImpl pncclient;
 
     @BeforeEach
-    public void setup() throws IOException, KojiClientException {
+    void setup() throws IOException, KojiClientException {
         Path configPath = Paths.get(ConfigDefaults.CONFIG);
         File configFile = configPath.toFile();
 
@@ -105,7 +105,7 @@ public abstract class AbstractKojiIT {
         return pncclient;
     }
 
-    public BuildConfig getConfig() {
+    protected BuildConfig getConfig() {
         return config;
     }
 

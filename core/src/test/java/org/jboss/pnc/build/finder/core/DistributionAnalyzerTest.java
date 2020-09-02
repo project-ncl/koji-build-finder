@@ -58,7 +58,7 @@ class DistributionAnalyzerTest {
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
         Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
-        map.forEach((k, v) -> assertThat(v.asMap(), is((anEmptyMap()))));
+        map.forEach((key, value) -> assertThat(value.asMap(), is((anEmptyMap()))));
     }
 
     // XXX: Disabled for performance
@@ -69,13 +69,13 @@ class DistributionAnalyzerTest {
         File test = new File(folder, "verify-size");
         af.add(test.getPath());
 
-        try (RandomAccessFile f = new RandomAccessFile(test, "rw")) {
-            f.setLength(FileUtils.ONE_GB << 1);
+        try (RandomAccessFile file = new RandomAccessFile(test, "rw")) {
+            file.setLength(FileUtils.ONE_GB << 1);
             BuildConfig config = new BuildConfig();
             config.setArchiveExtensions(Collections.emptyList());
             DistributionAnalyzer da = new DistributionAnalyzer(af, config);
             Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
-            map.forEach((k, v) -> assertThat(v.asMap().values(), hasSize(1)));
+            map.forEach((key, value) -> assertThat(value.asMap().values(), hasSize(1)));
         }
     }
 
@@ -93,7 +93,7 @@ class DistributionAnalyzerTest {
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
         Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
-        map.forEach((k, v) -> assertThat(v.asMap(), is((anEmptyMap()))));
+        map.forEach((key, value) -> assertThat(value.asMap(), is((anEmptyMap()))));
     }
 
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
