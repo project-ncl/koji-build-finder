@@ -66,10 +66,12 @@ public final class BuildFinderUtils {
         LOGGER.debug("Archive extensions: {}", green(archiveExtensions));
 
         emptyDigests = new EnumMap<>(ChecksumType.class);
-        emptyDigests.replaceAll(
-                (checksumType, checksum) -> Hex
-                        .encodeHexString(DigestUtils.getDigest(checksumType.getAlgorithm()).digest()));
 
+        config.getChecksumTypes()
+                .forEach(
+                        checksumType -> emptyDigests.put(
+                                checksumType,
+                                Hex.encodeHexString(DigestUtils.getDigest(ChecksumType.md5.getAlgorithm()).digest())));
     }
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
