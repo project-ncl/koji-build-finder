@@ -47,10 +47,6 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.luben</groupId>
-      <artifactId>zstd-jni</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.redhat.red.build</groupId>
       <artifactId>kojiji</artifactId>
     </dependency>
@@ -103,12 +99,13 @@
       <artifactId>infinispan-jboss-marshalling</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.byteman</groupId>
-      <artifactId>byteman-bmunit5</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>rest-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
@@ -118,6 +115,11 @@
     <dependency>
       <groupId>com.github.sparkmuse</groupId>
       <artifactId>wiremock-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-bmunit5</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

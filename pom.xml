@@ -154,17 +154,6 @@
         <version>${version.ch.qos.logback}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.luben</groupId>
-        <artifactId>zstd-jni</artifactId>
-        <version>${version.com.github.luben}</version>
-      </dependency>
-      <!-- Required dependency for packager-rpm -->
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${version.com.google.guava}</version>
-      </dependency>
-      <dependency>
         <groupId>com.j2html</groupId>
         <artifactId>j2html</artifactId>
         <version>${version.com.j2html}</version>
@@ -217,12 +206,6 @@
         <artifactId>commons-collections4</artifactId>
         <version>${version.org.apache.commons.commons-collections4}</version>
       </dependency>
-      <!-- Required dependency for commons-vfs2 to unpack various types -->
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>${version.org.apache.commons.commons-compress}</version>
-      </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-vfs2</artifactId>
@@ -236,72 +219,8 @@
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpasyncclient</artifactId>
-        <version>${version.org.apache.httpcomponents.httpasyncclient}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${version.org.apache.httpcomponents.httpclient}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore</artifactId>
         <version>${version.org.apache.httpcomponents.httpcore}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore-nio</artifactId>
-        <version>${version.org.apache.httpcomponents.httpcore}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpmime</artifactId>
-        <version>${version.org.apache.httpcomponents.httpclient}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${version.org.apache.httpcomponents.client5}</version>
-      </dependency>
-      <!-- Required dependency for kojiji (jhttpc) -->
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
-        <version>${version.org.bouncycastle}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.commonjava.rwx</groupId>
-        <artifactId>rwx</artifactId>
-        <version>${version.org.commonjava.rwx}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-templates</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.commonjava.util</groupId>
@@ -343,11 +262,6 @@
         <version>${version.org.fusesource.jansi}</version>
       </dependency>
       <dependency>
-        <groupId>org.jboss.logmanager</groupId>
-        <artifactId>jboss-logmanager</artifactId>
-        <version>${version.org.jboss.logmanager}</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-client</artifactId>
         <version>${version.org.jboss.pnc}</version>
@@ -374,20 +288,127 @@
         <version>2.0.1-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>${version.org.json.json}</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${version.org.slf4j}</version>
+      </dependency>
+      <!-- Required dependency for packager-rpm (certain RPMs) -->
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>${version.com.github.luben}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- Required dependency for packager-rpm -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${version.com.google.guava}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- Required dependency for commons-vfs2 to unpack various types -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${version.org.apache.commons.commons-compress}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpasyncclient</artifactId>
+        <version>${version.org.apache.httpcomponents.httpasyncclient}</version>
+        <scope>runtime</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${version.org.apache.httpcomponents.httpclient}</version>
+        <scope>runtime</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore-nio</artifactId>
+        <version>${version.org.apache.httpcomponents.httpcore}</version>
+        <scope>runtime</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${version.org.apache.httpcomponents.httpclient}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- Required dependency for commons-vfs2 to download over HTTP -->
+      <dependency>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${version.org.apache.httpcomponents.client5}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <!-- Required dependency for kojiji (jhttpc) -->
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
+        <version>${version.org.bouncycastle}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.rwx</groupId>
+        <artifactId>rwx</artifactId>
+        <version>${version.org.commonjava.rwx}</version>
+        <scope>runtime</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-templates</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.logmanager</groupId>
+        <artifactId>jboss-logmanager</artifactId>
+        <version>${version.org.jboss.logmanager}</version>
+        <scope>runtime</scope>
       </dependency>
       <!-- Required dependency for commons-vfs2 -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
         <version>${version.org.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${version.org.slf4j}</version>
+        <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
@@ -482,30 +503,6 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.ginsberg</groupId>
-      <artifactId>junit5-system-exit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.spotify</groupId>
-      <artifactId>hamcrest-optional</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>eu.codearte.catch-exception</groupId>
-      <artifactId>catch-exception</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.junit-pioneer</groupId>
-      <artifactId>junit-pioneer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -518,6 +515,36 @@
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.ginsberg</groupId>
+      <artifactId>junit5-system-exit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.spotify</groupId>
+      <artifactId>hamcrest-optional</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.codearte.catch-exception</groupId>
+      <artifactId>catch-exception</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit-pioneer</groupId>
+      <artifactId>junit-pioneer</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

@@ -30,10 +30,6 @@
 
   <name>Build Finder Aggregate</name>
 
-  <properties>
-    <maven.deploy.skip>true</maven.deploy.skip>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc.build.finder</groupId>
@@ -51,6 +47,13 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
