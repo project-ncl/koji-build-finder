@@ -74,7 +74,8 @@
     <version.com.github.ekryd.sortpom>2.12.0</version.com.github.ekryd.sortpom>
     <version.com.github.luben>1.4.5-6</version.com.github.luben>
     <version.com.github.sparkmuse>1.1.13</version.com.github.sparkmuse>
-    <version.com.github.spotbugs>4.0.4</version.com.github.spotbugs>
+    <version.com.github.spotbugs.spotbugs>4.1.2</version.com.github.spotbugs.spotbugs>
+    <version.com.github.spotbugs.spotbugs-maven-plugin>4.0.4</version.com.github.spotbugs.spotbugs-maven-plugin>
     <version.com.google.guava>29.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
     <version.com.mycila>4.0.rc2</version.com.mycila>
@@ -619,7 +620,14 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>${version.com.github.spotbugs}</version>
+          <version>${version.com.github.spotbugs.spotbugs-maven-plugin}</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs</artifactId>
+              <version>${version.com.github.spotbugs.spotbugs}</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>com.mycila</groupId>
@@ -1198,6 +1206,7 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
           <additionalOptions>
             <additionalOption>-html5</additionalOption>
           </additionalOptions>
+          <failOnError>false</failOnError>
           <source>8</source>
         </configuration>
       </plugin>
