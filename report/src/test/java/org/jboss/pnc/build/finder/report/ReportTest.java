@@ -20,6 +20,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -209,7 +210,7 @@ class ReportTest {
                 + "commons-beanutils-commons-beanutils-1.9.2.redhat_1-1\ncommons-lang-commons-lang-2.6-1\n"
                 + "commons-lang-commons-lang-2.6-2\norg.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1\n";
         NVRReport report = new NVRReport(folder, builds);
-        assertThat(report.renderText(), is(nvrExpected));
+        assertThat(report.renderText(), optionalWithValue(equalTo(nvrExpected)));
         report.outputText();
         assertThat(
                 FileUtils.readFileToString(
@@ -224,7 +225,7 @@ class ReportTest {
                 + "commons-lang:commons-lang:2.6\norg.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1\n"
                 + "org.wildfly.swarm:config-api:1.1.0.Final-redhat-14\n";
         GAVReport report = new GAVReport(folder, builds);
-        assertThat(report.renderText(), is(gavExpected));
+        assertThat(report.renderText(), optionalWithValue(equalTo(gavExpected)));
         report.outputText();
         assertThat(
                 FileUtils.readFileToString(

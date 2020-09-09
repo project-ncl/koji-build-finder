@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildConfig;
@@ -64,20 +65,20 @@ public abstract class Report {
         report.outputHTML();
     }
 
-    public String renderText() {
-        return null;
+    public Optional<String> renderText() {
+        return Optional.empty();
     }
 
     public void outputText() throws IOException {
-        String text = renderText();
+        Optional<String> renderText = renderText();
 
-        if (text == null) {
+        if (!renderText.isPresent()) {
             return;
         }
 
         FileUtils.writeStringToFile(
                 new File(outputDirectory, baseFilename + ".txt"),
-                text,
+                renderText.get(),
                 StandardCharsets.UTF_8,
                 false);
     }
@@ -85,15 +86,15 @@ public abstract class Report {
     public abstract ContainerTag toHTML();
 
     public void outputHTML() throws IOException {
-        String html = renderText();
+        Optional<String> renderText = renderText();
 
-        if (html == null) {
+        if (!renderText.isPresent()) {
             return;
         }
 
         FileUtils.writeStringToFile(
                 new File(outputDirectory, baseFilename + ".html"),
-                html,
+                renderText.get(),
                 StandardCharsets.UTF_8,
                 false);
     }

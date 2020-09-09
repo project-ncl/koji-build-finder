@@ -29,6 +29,7 @@ import static j2html.TagCreator.tr;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -58,8 +59,8 @@ public final class GAVReport extends Report {
     }
 
     @Override
-    public String renderText() {
-        return this.gavs.stream().map(Object::toString).collect(Collectors.joining("\n")) + "\n";
+    public Optional<String> renderText() {
+        return Optional.of(this.gavs.stream().map(Object::toString).collect(Collectors.joining("\n")) + "\n");
     }
 
     @Override

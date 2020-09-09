@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -57,9 +58,10 @@ public final class NVRReport extends Report {
     }
 
     @Override
-    public String renderText() {
-        return this.nvrs.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining("\n"))
-                + "\n";
+    public Optional<String> renderText() {
+        return Optional.of(
+                this.nvrs.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining("\n"))
+                        + "\n");
     }
 
     @Override

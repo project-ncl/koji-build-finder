@@ -50,6 +50,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -374,7 +375,7 @@ public final class HTMLReport extends Report {
     }
 
     @Override
-    public String renderText() {
-        return document().render() + toHTML().render();
+    public Optional<String> renderText() {
+        return Optional.of(document().render() + toHTML().render());
     }
 }
