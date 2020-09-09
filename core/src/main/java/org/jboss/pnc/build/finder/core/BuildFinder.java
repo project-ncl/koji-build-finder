@@ -506,7 +506,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         return build;
     }
 
-    private String handleFileNotFound(String filename) {
+    private Optional<String> handleFileNotFound(String filename) {
         LOGGER.debug("Handle file not found: {}", filename);
 
         int index = filename.lastIndexOf("!/");
@@ -538,12 +538,12 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                         filename,
                         matchedArchive.isBuiltFromSource());
 
-                return parentFilename;
+                return Optional.of(parentFilename);
             }
         }
 
         if (index == filename.length()) {
-            return null;
+            return Optional.empty();
         }
 
         return handleFileNotFound(parentFilename);
@@ -1005,9 +1005,9 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
             while (it2.hasNext()) {
                 String filename = it2.next();
-                String parentFilename = handleFileNotFound(filename);
+                Optional<String> optionalParentFilename = handleFileNotFound(filename);
 
-                if (parentFilename != null && parentFilename.contains("!/")) {
+                if (optionalParentFilename.isPresent() && optionalParentFilename.get().contains("!/")) {
                     LOGGER.debug("Removing {} since we found a parent elsewhere", filename);
                     it2.remove();
                 } else {

@@ -303,13 +303,15 @@ public class PncBuildFinder {
         KojiBuild kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild);
 
         for (EnhancedArtifact artifact : pncBuild.getArtifacts()) {
+            Optional<Artifact> optionalArtifact = artifact.getArtifact();
+
             // XXX: Can this ever happen?
-            if (!artifact.getArtifact().isPresent()) {
+            if (!optionalArtifact.isPresent()) {
                 LOGGER.warn("Enhanced artifact with checksum {} has missing artifact", artifact.getChecksum());
                 continue;
             }
 
-            KojiArchiveInfo kojiArchive = PncUtils.artifactToKojiArchiveInfo(pncBuild, artifact.getArtifact().get());
+            KojiArchiveInfo kojiArchive = PncUtils.artifactToKojiArchiveInfo(pncBuild, optionalArtifact.get());
             PncUtils.fixNullVersion(kojibuild, kojiArchive);
             buildFinderUtils.addArchiveToBuild(kojibuild, kojiArchive, artifact.getFilenames());
 
@@ -350,10 +352,15 @@ public class PncBuildFinder {
         return "0".equals(pncBuild.getBuild().getId());
     }
 
+    void setListener(BuildFinderListener listener) {
+        this.listener = listener;
+    }
+
     private static class RemoteResourceExceptionWrapper {
         private RemoteResourceException exception;
 
         RemoteResourceExceptionWrapper() {
+
         }
 
         synchronized RemoteResourceException getException() {
@@ -363,9 +370,5 @@ public class PncBuildFinder {
         synchronized void setException(RemoteResourceException exception) {
             this.exception = exception;
         }
-    }
-
-    void setListener(BuildFinderListener listener) {
-        this.listener = listener;
     }
 }
