@@ -221,6 +221,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                             queue.put(checksum);
                                         } catch (InterruptedException e) {
                                             Thread.currentThread().interrupt();
+                                            throw new IOException(e);
                                         }
                                     }
                                 }
@@ -424,10 +425,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
+                    throw new IOException(e);
                 }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new IOException(e);
         } catch (ExecutionException e) {
             throw new IOException(e);
         }
@@ -439,7 +442,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         try {
             fo.findFiles(new AllFileSelector(), true, localFiles);
             int numChildren = localFiles.size();
-            Iterable<Future<Set<Checksum>>> futures = new ArrayList<>(numChildren);
+            Iterable<Future<Set<Checksum>>> futures;
             Collection<Callable<Set<Checksum>>> tasks = new ArrayList<>(numChildren);
 
             for (FileObject file : localFiles) {
@@ -474,6 +477,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     futures = pool.invokeAll(tasks);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
+                    throw new IOException(e);
                 }
 
                 for (Future<Set<Checksum>> future : futures) {
@@ -529,6 +533,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             queue.put(new Checksum());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new IOException(e);
         }
 
         return Collections.unmodifiableMap(map);
