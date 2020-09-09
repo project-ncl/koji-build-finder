@@ -32,4 +32,9 @@ public class FileError {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String toString() {
+        return "FileError{" + "filename='" + filename + '\'' + ", message='" + message + '\'' + '}';
+    }
 }
