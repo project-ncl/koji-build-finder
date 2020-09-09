@@ -229,7 +229,7 @@ public final class Main implements Callable<Void> {
             CommandLine commandLine = new CommandLine(main).setColorScheme(Help.defaultColorScheme(ansi));
             int exitCode = commandLine.execute(args);
             System.exit(exitCode);
-        } catch (picocli.CommandLine.ExecutionException e) {
+        } catch (CommandLine.ExecutionException e) {
             LOGGER.error("Error: {}", boldRed(e.getMessage()), e);
             System.exit(1);
         } finally {
@@ -697,10 +697,6 @@ public final class Main implements Callable<Void> {
                     builds = finder.findBuilds(newMap);
                 } catch (KojiClientException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
-                    LOGGER.debug("Error", e);
-                    System.exit(1);
-                } catch (Exception e) {
-                    LOGGER.error("Unknown error finding builds: {}", boldRed(e.getMessage()));
                     LOGGER.debug("Error", e);
                     System.exit(1);
                 }

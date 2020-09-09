@@ -375,14 +375,14 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private boolean includeFile(FileObject fo) {
-        boolean excludeExtension = config.getArchiveExtensions() != null && !config.getArchiveExtensions().isEmpty()
+        boolean excludeExtension = !config.getArchiveExtensions().isEmpty()
                 && config.getArchiveExtensions().stream().noneMatch(x -> x.equals(fo.getName().getExtension()))
                 && !"rpm".equals(fo.getName().getExtension());
         boolean excludeFile = false;
 
         if (!excludeExtension) {
             String friendlyURI = fo.getName().getFriendlyURI();
-            excludeFile = config.getExcludes() != null && !config.getExcludes().isEmpty()
+            excludeFile = !config.getExcludes().isEmpty()
                     && config.getExcludes().stream().map(Pattern::pattern).anyMatch(friendlyURI::matches);
         }
 

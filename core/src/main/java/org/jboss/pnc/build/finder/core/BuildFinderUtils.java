@@ -269,7 +269,7 @@ public final class BuildFinderUtils {
 
         LOGGER.debug("Archive types: {}", green(archiveTypes));
 
-        if (archiveTypes != null && !archiveTypes.isEmpty()) {
+        if (!archiveTypes.isEmpty()) {
             LOGGER.debug("There are {} supplied Koji archive types: {}", archiveTypes.size(), archiveTypes);
             archiveTypesToCheck = archiveTypes.stream()
                     .filter(allArchiveTypesMap::containsKey)
@@ -291,7 +291,7 @@ public final class BuildFinderUtils {
         List<String> extensions = config.getArchiveExtensions();
         List<String> extensionsToCheck;
 
-        if (extensions != null && !extensions.isEmpty()) {
+        if (!extensions.isEmpty()) {
             LOGGER.debug("There are {} supplied Koji archive extensions: {}", extensions.size(), extensions);
             extensionsToCheck = extensions.stream().filter(allArchiveExtensions::contains).collect(Collectors.toList());
             LOGGER.debug("There are {} valid supplied Koji archive extensions: {}", extensions.size(), extensions);
