@@ -116,7 +116,7 @@ public class HashMapCachingPncClient implements PncClient {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         pncClient.close();
     }
 }

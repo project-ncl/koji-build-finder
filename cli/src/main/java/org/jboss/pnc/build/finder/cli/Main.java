@@ -790,7 +790,7 @@ public final class Main implements Callable<Void> {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("IOException", e);
                     System.exit(1);
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
                     LOGGER.debug("Exception", e);
                     System.exit(1);

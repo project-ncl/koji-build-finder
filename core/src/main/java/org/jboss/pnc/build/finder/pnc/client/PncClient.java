@@ -74,4 +74,7 @@ public interface PncClient extends AutoCloseable {
      * @throws RemoteResourceException Thrown in case communication with PNC fails
      */
     ProductVersion getProductVersion(String productMilestoneId) throws RemoteResourceException;
+
+    @Override
+    void close();
 }
