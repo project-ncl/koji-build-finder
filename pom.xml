@@ -134,8 +134,8 @@
     <version.org.jboss.logmanager>2.1.17.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.0.0</version.org.jboss.pnc>
     <version.org.json.json>20200518</version.org.json.json>
+    <version.org.junit>5.7.0</version.org.junit>
     <version.org.junit-pioneer>0.9.0</version.org.junit-pioneer>
-    <version.org.junit.jupiter>5.7.0</version.org.junit.jupiter>
     <version.org.mockito>3.5.13</version.org.mockito>
     <version.org.ow2.asm>9.0</version.org.ow2.asm>
     <version.org.slf4j>1.7.30</version.org.slf4j>
@@ -426,6 +426,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.org.junit}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.ginsberg</groupId>
         <artifactId>junit5-system-exit</artifactId>
         <version>${version.com.ginsberg.junit5-system-exit}</version>
@@ -465,18 +472,6 @@
         <groupId>org.junit-pioneer</groupId>
         <artifactId>junit-pioneer</artifactId>
         <version>${version.org.junit-pioneer}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${version.org.junit.jupiter}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${version.org.junit.jupiter}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
