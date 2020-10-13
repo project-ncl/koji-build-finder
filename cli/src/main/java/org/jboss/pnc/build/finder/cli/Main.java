@@ -625,7 +625,7 @@ public final class Main implements Callable<Void> {
             LOGGER.info("Pnc support: {}", green("disabled"));
         }
 
-        BuildFinder finder = null;
+        BuildFinder finder;
         Map<BuildSystemInteger, KojiBuild> builds = null;
         File buildsFile = new File(outputDirectory, BuildFinder.getBuildsFilename());
 

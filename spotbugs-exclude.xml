@@ -18,14 +18,6 @@
 -->
 <FindBugsFilter>
   <Match>
-    <Or>
-      <Class name="org.jboss.pnc.build.finder.cli.Main"/>
-      <Class name="org.jboss.pnc.build.finder.core.Checksum"/>
-      <Class name="org.jboss.pnc.build.finder.core.Utils"/>
-    </Or>
-    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
-  </Match>
-  <Match>
     <Class name="org.jboss.pnc.build.finder.cli.Main"/>
     <Bug pattern="DM_EXIT,RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
   </Match>
