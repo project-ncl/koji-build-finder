@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -49,6 +50,8 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
+
+import com.google.common.io.Files;
 
 class DistributionAnalyzerTest {
     @Test
@@ -86,6 +89,7 @@ class DistributionAnalyzerTest {
 
         for (String type : types) {
             File test = new File(folder, "verify-type-" + type);
+            Files.touch(test);
             af.add(test.getPath());
         }
 
@@ -93,7 +97,7 @@ class DistributionAnalyzerTest {
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
         Map<ChecksumType, MultiValuedMap<String, String>> map = da.checksumFiles();
-        map.forEach((key, value) -> assertThat(value.asMap(), is((anEmptyMap()))));
+        map.forEach((key, value) -> assertThat(value.asMap(), is((aMapWithSize(1)))));
     }
 
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>

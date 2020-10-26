@@ -169,7 +169,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     URI uri = URI.create(input);
                     fo = sfs.resolveFile(uri);
                 } catch (IllegalArgumentException | FileSystemException e) {
-                    fo = sfs.resolveFile(new File(input).toURI());
+                    File file = new File(input);
+
+                    if (!file.exists()) {
+                        throw new IOException("Input file " + file + " does not exist");
+                    }
+
+                    fo = sfs.resolveFile(file.toURI());
                 }
 
                 if (LOGGER.isInfoEnabled()) {
