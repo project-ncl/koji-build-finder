@@ -33,7 +33,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  * @author Jakub Bartecek
  */
-@TestMethodOrder(MethodOrderer.Alphanumeric.class)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 class HashMapCachingClientTest {
     private static final DummyPncClient DUMMY_PNC_CLIENT = new DummyPncClient();
 
