@@ -127,7 +127,7 @@
     <version.org.commonjava.util>1.11</version.org.commonjava.util>
     <version.org.ec4j.maven.editorconfig-maven-plugin>0.1.0</version.org.ec4j.maven.editorconfig-maven-plugin>
     <version.org.eclipse.packager>0.17.0</version.org.eclipse.packager>
-    <version.org.fusesource.jansi>1.18</version.org.fusesource.jansi>
+    <version.org.fusesource.jansi>2.0</version.org.fusesource.jansi>
     <version.org.infinispan>11.0.3.Final</version.org.infinispan>
     <version.org.jacoco>0.8.6</version.org.jacoco>
     <version.org.jboss.byteman>4.0.13</version.org.jboss.byteman>
