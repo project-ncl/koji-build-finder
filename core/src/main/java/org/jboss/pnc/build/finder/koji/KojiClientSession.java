@@ -27,10 +27,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.util.jhttpc.auth.MemoryPasswordManager;
 import org.commonjava.util.jhttpc.auth.PasswordManager;
 
-import com.codahale.metrics.MetricRegistry;
 import com.redhat.red.build.koji.KojiClient;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.KojiClientHelper;
@@ -60,8 +60,11 @@ public final class KojiClientSession extends KojiClient implements ClientSession
 
     private final KojiClientHelper helper;
 
-    public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService)
-            throws KojiClientException {
+    public KojiClientSession(
+            KojiConfig config,
+            PasswordManager passwordManager,
+            ExecutorService executorService,
+            com.codahale.metrics.MetricRegistry registry) throws KojiClientException {
         super(config, passwordManager, executorService);
         helper = new KojiClientHelper(this);
     }
