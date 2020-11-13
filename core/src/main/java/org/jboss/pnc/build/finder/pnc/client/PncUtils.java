@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
+import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -46,44 +47,36 @@ public final class PncUtils {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
 
-    // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
-    private static void setMavenBuildInfoFromBuildRecord(Build record, KojiBuildInfo buildInfo) {
-        String executionRootName = getSafelyExecutionRootName(record);
-        String executionRootVersion = record.getAttributes().get(Attributes.BUILD_BREW_VERSION);
-        String[] ga = executionRootName.split(":", 2);
+    private static void setMavenBuildInfoFromBuildRecord(Build build, Artifact artifact, KojiBuildInfo buildInfo) {
+        Gav gav = buildGav(build, artifact);
 
-        if (ga.length >= 2) {
-            buildInfo.setMavenGroupId(ga[0]);
-            buildInfo.setMavenArtifactId(ga[1]);
-        }
-
-        buildInfo.setMavenVersion(executionRootVersion);
+        buildInfo.setMavenGroupId(gav.getGroupId());
+        buildInfo.setMavenArtifactId(gav.getArtifactId());
+        buildInfo.setMavenVersion(gav.getVersion());
     }
 
-    private static String getSafelyExecutionRootName(Build build) {
+    private static Gav buildGav(Build build, Artifact artifact) {
         String buildBrewName = build.getAttributes().get(Attributes.BUILD_BREW_NAME);
-        if (buildBrewName == null) {
-            return "NO_BUILD_BREW_NAME";
-        } else {
-            return buildBrewName;
-        }
-    }
-
-    private static String getBrewBuildVersionOrZero(Build build) {
         String buildBrewVersion = build.getAttributes().get(Attributes.BUILD_BREW_VERSION);
-        if (buildBrewVersion == null) {
-            return "0";
-        } else {
-            return buildBrewVersion;
+
+        if (buildBrewName != null && buildBrewVersion != null) {
+            String[] ga = buildBrewName.split(":", 2);
+            if (ga.length >= 2) {
+                return new Gav(ga[1], ga[2], buildBrewVersion);
+            }
         }
+
+        /** Unable to read GAV from parameters. Get it from a provided artifact. */
+        return Gav.parse(artifact.getIdentifier());
     }
 
-    public static String getNVRFromBuildRecord(Build record) {
-        return getSafelyExecutionRootName(record).replace(':', '-') + "-"
-                + record.getAttributes().get(Attributes.BUILD_BREW_VERSION) + "-1";
+    public static String getNVRFromBuildRecord(Build build, Artifact artifact) {
+        Gav gav = buildGav(build, artifact);
+
+        return String.format("%s-%s-%s-1", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
     }
 
-    public static KojiBuild pncBuildToKojiBuild(PncBuild pncbuild) {
+    public static KojiBuild pncBuildToKojiBuild(PncBuild pncbuild, Artifact artifact) {
         KojiBuild build = new KojiBuild();
 
         build.setTypes(Collections.singletonList("maven"));
@@ -91,16 +84,16 @@ public final class PncUtils {
         KojiBuildInfo buildInfo = new KojiBuildInfo();
         Build record = pncbuild.getBuild();
 
-        setMavenBuildInfoFromBuildRecord(record, buildInfo);
+        setMavenBuildInfoFromBuildRecord(record, artifact, buildInfo);
 
         buildInfo.setId(Integer.parseInt(record.getId()));
 
-        buildInfo.setName(getSafelyExecutionRootName(record).replace(':', '-'));
-        buildInfo.setVersion(getBrewBuildVersionOrZero(record));
+        Gav gav = buildGav(record, artifact);
+
+        buildInfo.setName(gav.getGroupId() + "-" + gav.getArtifactId());
+        buildInfo.setVersion(gav.getVersion());
         buildInfo.setRelease("1");
-        buildInfo.setNvr(
-                buildInfo.getName() + "-" + buildInfo.getVersion().replace('-', '_') + "-"
-                        + buildInfo.getRelease().replace('-', '_'));
+        buildInfo.setNvr(getNVRFromBuildRecord(record, artifact));
         buildInfo.setCreationTime(Date.from(record.getStartTime()));
         buildInfo.setCompletionTime(Date.from(record.getEndTime()));
         buildInfo.setBuildState(KojiBuildState.COMPLETE);

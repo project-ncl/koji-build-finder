@@ -300,7 +300,7 @@ public class PncBuildFinder {
     }
 
     private KojiBuild convertPncBuildToKojiBuild(PncBuild pncBuild) {
-        KojiBuild kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild);
+        KojiBuild kojibuild = null;
 
         for (EnhancedArtifact artifact : pncBuild.getArtifacts()) {
             Optional<Artifact> optionalArtifact = artifact.getArtifact();
@@ -311,6 +311,11 @@ public class PncBuildFinder {
                 continue;
             }
 
+            if (kojibuild == null) {
+                // Init in the first iteration
+                kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild, optionalArtifact.get());
+            }
+
             KojiArchiveInfo kojiArchive = PncUtils.artifactToKojiArchiveInfo(pncBuild, optionalArtifact.get());
             PncUtils.fixNullVersion(kojibuild, kojiArchive);
             buildFinderUtils.addArchiveToBuild(kojibuild, kojiArchive, artifact.getFilenames());
@@ -318,7 +323,7 @@ public class PncBuildFinder {
             LOGGER.info(
                     "Found build in Pnc: id: {} nvr: {} checksum: ({}) {} archive: {}",
                     green(pncBuild.getBuild().getId()),
-                    green(PncUtils.getNVRFromBuildRecord(pncBuild.getBuild())),
+                    green(PncUtils.getNVRFromBuildRecord(pncBuild.getBuild(), optionalArtifact.get())),
                     green(artifact.getChecksum().getType()),
                     green(artifact.getChecksum().getValue()),
                     green(artifact.getFilenames()));
