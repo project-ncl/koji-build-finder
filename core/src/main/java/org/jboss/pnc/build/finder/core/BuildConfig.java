@@ -138,6 +138,11 @@ public class BuildConfig {
         return reader.readValue(url);
     }
 
+    public static BuildConfig merge(BuildConfig baseConfig, BuildConfig updatingConfig) throws IOException {
+        ObjectReader reader = MAPPER.readerForUpdating(baseConfig);
+        return reader.treeToValue(MAPPER.valueToTree(updatingConfig), BuildConfig.class);
+    }
+
     public void save(File file) throws IOException {
         JSONUtils.dumpObjectToFile(this, file, MAPPER);
     }
