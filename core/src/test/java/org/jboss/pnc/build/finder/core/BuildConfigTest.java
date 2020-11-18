@@ -15,14 +15,18 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -37,6 +41,45 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
+
+    @Test
+    void verifyCopyConfig() throws IOException {
+        // given
+        Pattern fooPattern = Pattern.compile("foo");
+        String fooPatternString = fooPattern.pattern();
+        List<Pattern> excludes = Collections.singletonList(fooPattern);
+        final List<String> baseExtension = Arrays.asList("foo", "bar", "baz");
+
+        BuildConfig base = new BuildConfig();
+        base.setExcludes(excludes);
+        base.setArchiveExtensions(baseExtension);
+
+        assertThat(base.getArchiveTypes(), is(ConfigDefaults.ARCHIVE_TYPES));
+        assertThat(base.getExcludes(), is(not(ConfigDefaults.EXCLUDES)));
+        assertThat(base.getArchiveExtensions(), is(equalTo(baseExtension)));
+
+        // when
+
+        List<String> updatedExtensions = Arrays.asList("jar", "zip");
+        List<String> types = Arrays.asList("good", "bad", "ugly");
+
+        BuildConfig copy = BuildConfig.copy(base);
+        copy.setArchiveExtensions(updatedExtensions);
+        copy.setArchiveTypes(types);
+
+        // then
+        assertThat(copy, is(not(sameInstance(base))));
+
+        assertThat(base.getArchiveTypes(), is(ConfigDefaults.ARCHIVE_TYPES));
+        assertThat(base.getExcludes(), is(not(ConfigDefaults.EXCLUDES)));
+        assertThat(base.getArchiveExtensions(), is(equalTo(baseExtension)));
+
+        assertThat(copy.getExcludes().size(), is(1));
+        Pattern copiedPattern = copy.getExcludes().get(0);
+        assertThat(copiedPattern.pattern(), is(equalTo(fooPatternString)));
+        assertThat(copy.getArchiveExtensions(), is(equalTo(updatedExtensions)));
+        assertThat(copy.getArchiveTypes(), is(equalTo(types)));
+    }
 
     @Test
     void verifyDefaults() throws JsonProcessingException {

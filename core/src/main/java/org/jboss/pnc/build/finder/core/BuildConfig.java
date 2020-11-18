@@ -138,6 +138,10 @@ public class BuildConfig {
         return reader.readValue(url);
     }
 
+    public static BuildConfig copy(BuildConfig baseConfig) throws IOException {
+        return MAPPER.convertValue(baseConfig, BuildConfig.class);
+    }
+
     public void save(File file) throws IOException {
         JSONUtils.dumpObjectToFile(this, file, MAPPER);
     }
