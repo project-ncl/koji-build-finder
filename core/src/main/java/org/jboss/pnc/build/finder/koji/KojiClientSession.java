@@ -78,7 +78,7 @@ public final class KojiClientSession extends KojiClient implements ClientSession
         helper = new KojiClientHelper(this);
     }
 
-    public KojiClientSession(URL url) throws KojiClientException {
+    public KojiClientSession(URL url, ExecutorService executorService) throws KojiClientException {
         super(
                 new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS)
                         .withTimeout(DEFAULT_TIMEOUT)
@@ -86,8 +86,12 @@ public final class KojiClientSession extends KojiClient implements ClientSession
                         .withKojiURL(url.toExternalForm())
                         .build(),
                 new MemoryPasswordManager(),
-                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
+                executorService);
         helper = new KojiClientHelper(this);
+    }
+
+    public KojiClientSession(URL url) throws KojiClientException {
+        this(url, Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
     }
 
     public KojiClientSession(
