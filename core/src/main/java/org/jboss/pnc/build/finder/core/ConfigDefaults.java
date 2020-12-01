@@ -64,6 +64,7 @@ public abstract class ConfigDefaults {
     public static final Integer KOJI_NUM_THREADS = 12;
     public static final URL KOJI_WEB_URL = null;
     public static final String OUTPUT_DIR = ".";
+    public static final Long PNC_NUM_THREADS = 10L;
     public static final Integer PNC_PARTITION_SIZE = 18;
     public static final URL PNC_URL = null;
     public static final Boolean USE_BUILDS_FILE = Boolean.FALSE;

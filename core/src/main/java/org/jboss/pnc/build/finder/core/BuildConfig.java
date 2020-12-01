@@ -84,6 +84,9 @@ public class BuildConfig {
     @JsonAlias("output-directory")
     private String outputDirectory;
 
+    @JsonAlias("pnc-num-threads")
+    private Long pncNumThreads;
+
     @JsonAlias("pnc-partition-size")
     private Integer pncPartitionSize;
 
@@ -332,6 +335,18 @@ public class BuildConfig {
         }
 
         return pncPartitionSize;
+    }
+
+    public Long getPncNumThreads() {
+        if (pncNumThreads == null) {
+            pncNumThreads = ConfigDefaults.PNC_NUM_THREADS;
+        }
+
+        return pncNumThreads;
+    }
+
+    public void setPncNumThreads(Long pncNumThreads) {
+        this.pncNumThreads = pncNumThreads;
     }
 
     public void setPncPartitionSize(Integer pncPartitionSize) {

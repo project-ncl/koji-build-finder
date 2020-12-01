@@ -74,7 +74,7 @@ class PncBuildFinderTest {
         // given
         PncClient pncClient = Mockito.mock(PncClient.class);
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
-        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils);
+        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils, buildConfig);
 
         // when
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(new HashMap<>());
@@ -125,7 +125,7 @@ class PncBuildFinderTest {
                 .thenThrow(new RemoteResourceNotFoundException(new ClientErrorException(Response.Status.NOT_FOUND)));
 
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
-        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils);
+        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils, buildConfig);
 
         // when
         Map<Checksum, Collection<String>> requestMap = Collections
@@ -155,7 +155,7 @@ class PncBuildFinderTest {
         when(pncClient.getArtifactsByMd5(givenMd5)).thenReturn(createArtifactsRemoteCollection());
 
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
-        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils);
+        PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils, buildConfig);
 
         // when
         Map<Checksum, Collection<String>> requestMap = Collections

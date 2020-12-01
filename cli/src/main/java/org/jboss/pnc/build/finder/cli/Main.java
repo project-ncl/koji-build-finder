@@ -183,6 +183,9 @@ public final class Main implements Callable<Void> {
     @Option(names = { "-o", "--output-directory" }, paramLabel = "FILE", description = "Set output directory.")
     private File outputDirectory = new File(ConfigDefaults.OUTPUT_DIR);
 
+    @Option(names = "--pnc-num-threads", paramLabel = "LONG", description = "Set Pnc thread number.")
+    private Long pncNumThreads = ConfigDefaults.PNC_NUM_THREADS;
+
     @Option(names = "--pnc-partition-size", paramLabel = "INT", description = "Set Pnc partition size.")
     private Integer pncPartitionSize = ConfigDefaults.PNC_PARTITION_SIZE;
 
@@ -387,6 +390,10 @@ public final class Main implements Callable<Void> {
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--krb-password")) {
             LOGGER.debug("Read Kerberos password");
+        }
+
+        if (commandSpec.commandLine().getParseResult().hasMatchedOption("--pnc-num-threads")) {
+            config.setPncNumThreads(pncNumThreads);
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--pnc-partition-size")) {

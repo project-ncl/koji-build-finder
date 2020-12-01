@@ -129,6 +129,8 @@ Build Finder version. The options are as follows:
       -o, --output-directory=FILE
                                  Set output directory.
                                    Default: .
+          --pnc-num-threads=LONG Set Pnc thread number.
+                                   Default: 10
           --pnc-partition-size=INT
                                  Set Pnc partition size.
                                    Default: 18
@@ -193,6 +195,7 @@ file, `config.json`, is as follows.
       "koji-multicall-size" : 8,
       "koji-num-threads" : 12,
       "output-directory" : ".",
+      "pnc-num-threads" : 10,
       "pnc-partition-size" : 18,
       "use-builds-file" : false,
       "use-checksums-file" : false
@@ -239,6 +242,9 @@ The `koji-num-threads` option sets the number of Koji threads.
 
 The `koji-hub-url` and `koji-web-url` options must be set to valid URLs
 for your particular network.
+
+The `pnc-num-threads` signifies how many threads will be used to
+communicate with PNC when finding builds.
 
 The `pnc-partition-size` option sets the Pnc partition size.
 

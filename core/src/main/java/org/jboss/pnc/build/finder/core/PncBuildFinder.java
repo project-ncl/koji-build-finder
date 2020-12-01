@@ -49,8 +49,7 @@ import io.vertx.core.impl.ConcurrentHashSet;
 public class PncBuildFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncBuildFinder.class);
 
-    // TODO: make the parallelismThreashold configurable
-    private static final long CONCURRENT_MAP_PARALLELISM_THRESHOLD = 10L;
+    private final long concurrentMapParallelismThreshold;
 
     private final PncClient pncClient;
 
@@ -58,9 +57,10 @@ public class PncBuildFinder {
 
     private BuildFinderListener listener;
 
-    public PncBuildFinder(PncClient pncClient, BuildFinderUtils buildFinderUtils) {
+    public PncBuildFinder(PncClient pncClient, BuildFinderUtils buildFinderUtils, BuildConfig configuration) {
         this.pncClient = pncClient;
         this.buildFinderUtils = buildFinderUtils;
+        this.concurrentMapParallelismThreshold = configuration.getPncNumThreads();
     }
 
     public FindBuildsResult findBuildsPnc(Map<Checksum, Collection<String>> checksumTable)
@@ -105,7 +105,7 @@ public class PncBuildFinder {
             throws RemoteResourceException {
         RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
-        pncBuilds.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (buildId, pncBuild) -> {
+        pncBuilds.forEach(concurrentMapParallelismThreshold, (buildId, pncBuild) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "Parallel execution of populatePncBuildsMetadata using thread {} of build {}",
@@ -147,7 +147,7 @@ public class PncBuildFinder {
         Set<EnhancedArtifact> artifacts = new ConcurrentHashSet<>();
         RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
-        checksumTable.forEach(CONCURRENT_MAP_PARALLELISM_THRESHOLD, (checksum, fileNames) -> {
+        checksumTable.forEach(concurrentMapParallelismThreshold, (checksum, fileNames) -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "Parallel execution of lookupArtifactsInPnc using thread {} of an artifact with checksum {}",

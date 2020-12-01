@@ -140,7 +140,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         this.allKojiBuilds = new HashMap<>();
 
         this.buildFinderUtils = new BuildFinderUtils(config, analyzer, session);
-        this.pncBuildFinder = new PncBuildFinder(pncclient, buildFinderUtils);
+        this.pncBuildFinder = new PncBuildFinder(pncclient, buildFinderUtils, config);
 
         if (cacheManager != null) {
             this.buildCache = cacheManager.getCache("builds");
