@@ -101,7 +101,7 @@ class MainTest {
         String krbPassword = "test";
         String krbPrincipal = "test@TEST.ABC";
         String krbService = "testService";
-        String pncNumThreads = "10";
+        Long pncNumThreads = 10L;
 
         String[] args = {
                 "-o",
@@ -133,7 +133,7 @@ class MainTest {
                 "--krb-password",
                 krbPassword,
                 "--pnc-num-threads",
-                pncNumThreads,
+                String.valueOf(pncNumThreads),
                 inputFile.toString() };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -167,7 +167,7 @@ class MainTest {
         assertThat(parseResult.matchedOption("--krb-password").getValue(), is(krbPassword));
         assertThat(parseResult.matchedOption("--krb-principal").getValue(), is(krbPrincipal));
         assertThat(parseResult.matchedOption("--krb-service").getValue(), is(krbService));
-        assertThat(parseResult.matchedOption("--pnc-num-threads").getValue(), is(Long.parseLong(pncNumThreads)));
+        assertThat(parseResult.matchedOption("--pnc-num-threads").getValue(), is(pncNumThreads));
     }
 
     @ExpectSystemExitWithStatus(0)
