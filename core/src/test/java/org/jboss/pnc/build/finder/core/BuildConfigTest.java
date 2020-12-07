@@ -59,7 +59,6 @@ class BuildConfigTest {
         assertThat(base.getArchiveExtensions(), is(equalTo(baseExtension)));
 
         // when
-
         List<String> updatedExtensions = Arrays.asList("jar", "zip");
         List<String> types = Arrays.asList("good", "bad", "ugly");
 
@@ -105,11 +104,11 @@ class BuildConfigTest {
         assertThat(bc.getKojiNumThreads(), is(ConfigDefaults.KOJI_NUM_THREADS));
         assertThat(bc.getKojiWebURL(), is(ConfigDefaults.KOJI_WEB_URL));
         assertThat(bc.getOutputDirectory(), is(ConfigDefaults.OUTPUT_DIR));
+        assertThat(bc.getPncNumThreads(), is(ConfigDefaults.PNC_NUM_THREADS));
         assertThat(bc.getPncPartitionSize(), is(ConfigDefaults.PNC_PARTITION_SIZE));
         assertThat(bc.getPncURL(), is(ConfigDefaults.PNC_URL));
         assertThat(bc.getUseBuildsFile(), is(ConfigDefaults.USE_BUILDS_FILE));
         assertThat(bc.getUseChecksumsFile(), is(ConfigDefaults.USE_CHECKSUMS_FILE));
-        assertThat(bc.getPncNumThreads(), is(ConfigDefaults.PNC_NUM_THREADS));
     }
 
     @Test
