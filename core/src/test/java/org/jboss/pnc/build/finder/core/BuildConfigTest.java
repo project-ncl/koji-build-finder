@@ -109,6 +109,7 @@ class BuildConfigTest {
         assertThat(bc.getPncURL(), is(ConfigDefaults.PNC_URL));
         assertThat(bc.getUseBuildsFile(), is(ConfigDefaults.USE_BUILDS_FILE));
         assertThat(bc.getUseChecksumsFile(), is(ConfigDefaults.USE_CHECKSUMS_FILE));
+        assertThat(bc.getPncNumThreads(), is(ConfigDefaults.PNC_NUM_THREADS));
     }
 
     @Test
