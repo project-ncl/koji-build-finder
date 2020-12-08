@@ -132,7 +132,7 @@
     <version.org.jacoco>0.8.6</version.org.jacoco>
     <version.org.jboss.byteman>4.0.13</version.org.jboss.byteman>
     <version.org.jboss.logmanager>2.1.17.Final</version.org.jboss.logmanager>
-    <version.org.jboss.pnc>2.0.2</version.org.jboss.pnc>
+    <version.org.jboss.pnc>2.0.3</version.org.jboss.pnc>
     <version.org.json.json>20200518</version.org.json.json>
     <version.org.junit>5.7.0</version.org.junit>
     <version.org.junit-pioneer>1.1.0</version.org.junit-pioneer>
