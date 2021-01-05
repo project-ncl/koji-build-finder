@@ -85,7 +85,7 @@
     <version.commons-codec>1.15</version.commons-codec>
     <version.commons-io>2.8.0</version.commons-io>
     <version.eu.codearte.catch-exception>2.0</version.eu.codearte.catch-exception>
-    <version.info.picocli>4.6.0</version.info.picocli>
+    <version.info.picocli>4.6.1</version.info.picocli>
     <version.io.dropwizard.metrics>4.1.16</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.13.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.4.1</version.net.revelc.code.impsort-maven-plugin>
