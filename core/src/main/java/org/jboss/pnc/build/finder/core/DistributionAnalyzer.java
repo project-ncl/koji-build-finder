@@ -60,7 +60,7 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiValuedMap<String, String>>> {
+public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributionAnalyzer.class);
 
     /**
@@ -80,7 +80,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private final BuildConfig config;
 
-    private final Map<ChecksumType, Cache<String, MultiValuedMap<String, String>>> fileCaches;
+    private final Map<ChecksumType, Cache<String, MultiValuedMap<String, LocalFile>>> fileCaches;
 
     private final EmbeddedCacheManager cacheManager;
 
@@ -92,7 +92,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private final List<FileError> fileErrors;
 
-    private Map<ChecksumType, MultiValuedMap<String, String>> map;
+    private Map<ChecksumType, MultiValuedMap<String, LocalFile>> map;
 
     private StandardFileSystemManager sfs;
 
@@ -141,7 +141,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return exts.contains(ext);
     }
 
-    public Map<ChecksumType, MultiValuedMap<String, String>> checksumFiles() throws IOException {
+    public Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumFiles() throws IOException {
         Instant startTime = Instant.now();
         FileObject fo = null;
         sfs = new StandardFileSystemManager();
@@ -204,21 +204,21 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                 .orElse(null);
 
                         if (value != null) {
-                            MultiValuedMap<String, String> localMap = fileCaches.get(checksumType).get(value);
+                            MultiValuedMap<String, LocalFile> localMap = fileCaches.get(checksumType).get(value);
 
                             if (localMap != null) {
                                 this.map.get(checksumType).putAll(localMap);
 
-                                Collection<Map.Entry<String, String>> entries = localMap.entries();
+                                Collection<Map.Entry<String, LocalFile>> entries = localMap.entries();
 
-                                for (Map.Entry<String, String> entry : entries) {
+                                for (Map.Entry<String, LocalFile> entry : entries) {
                                     inverseMap.put(
-                                            entry.getValue(),
+                                            entry.getValue().getFilename(),
                                             new Checksum(checksumType, entry.getKey(), entry.getValue()));
                                 }
 
                                 if (queue != null && checksumType == ChecksumType.md5) {
-                                    for (Map.Entry<String, String> entry : entries) {
+                                    for (Map.Entry<String, LocalFile> entry : entries) {
                                         try {
                                             Checksum checksum = new Checksum(
                                                     checksumType,
@@ -414,7 +414,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
                 if (optionalChecksum.isPresent()) {
                     Checksum checksum = optionalChecksum.get();
-                    map.get(checksumType).put(checksum.getValue(), checksum.getFilename());
+                    map.get(checksumType)
+                            .put(checksum.getValue(), new LocalFile(checksum.getFilename(), checksum.getFileSize()));
                 }
             }
 
@@ -513,11 +514,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Collections.unmodifiableMap(inverseMap.asMap());
     }
 
-    public void setChecksums(Map<ChecksumType, MultiValuedMap<String, String>> map) {
+    public void setChecksums(Map<ChecksumType, MultiValuedMap<String, LocalFile>> map) {
         this.map = map;
     }
 
-    public Map<String, Collection<String>> getChecksums(ChecksumType checksumType) {
+    public Map<String, Collection<LocalFile>> getChecksums(ChecksumType checksumType) {
         return Collections.unmodifiableMap(map.get(checksumType).asMap());
     }
 
@@ -525,12 +526,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Collections.unmodifiableList(fileErrors);
     }
 
-    public Map<ChecksumType, MultiValuedMap<String, String>> getChecksums() {
+    public Map<ChecksumType, MultiValuedMap<String, LocalFile>> getChecksums() {
         return Collections.unmodifiableMap(map);
     }
 
     @Override
-    public Map<ChecksumType, MultiValuedMap<String, String>> call() throws IOException {
+    public Map<ChecksumType, MultiValuedMap<String, LocalFile>> call() throws IOException {
         queue = new LinkedBlockingQueue<>();
 
         checksumFiles();

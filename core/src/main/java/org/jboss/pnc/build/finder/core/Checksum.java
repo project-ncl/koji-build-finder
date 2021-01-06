@@ -63,14 +63,24 @@ public class Checksum implements Serializable {
     @JsonIgnore
     private String filename;
 
+    private long fileSize;
+
     public Checksum() {
 
     }
 
-    public Checksum(ChecksumType type, String value, String filename) {
+    public Checksum(ChecksumType type, String value, String filename, long fileSize) {
         this.type = type;
         this.value = value;
         this.filename = filename;
+        this.fileSize = fileSize;
+    }
+
+    public Checksum(ChecksumType type, String value, LocalFile localFile) {
+        this.type = type;
+        this.value = value;
+        this.filename = localFile.getFilename();
+        this.fileSize = localFile.getSize();
     }
 
     public static Set<Checksum> checksum(FileObject fo, Collection<ChecksumType> checksumTypes, String root)
@@ -89,6 +99,7 @@ public class Checksum implements Serializable {
         Collection<CompletableFuture<Void>> futures = new ArrayList<>(checksumTypesSize);
         Map<ChecksumType, CompletableFuture<Checksum>> futures2 = new EnumMap<>(ChecksumType.class);
         FileName filename = fo.getName();
+        long fileSize = fo.getContent().getSize();
 
         if ("rpm".equals(filename.getExtension())) {
             try (FileContent fc = fo.getContent();
@@ -127,7 +138,7 @@ public class Checksum implements Serializable {
                             String sigmd5 = Hex.encodeHexString((byte[]) md5);
 
                             future = CompletableFuture.supplyAsync(
-                                    () -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root)));
+                                    () -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root), fileSize));
 
                             futures2.put(checksumType, future);
                             break;
@@ -142,7 +153,7 @@ public class Checksum implements Serializable {
                             String sigsha1 = Hex.encodeHexString((byte[]) sha1);
 
                             future = CompletableFuture.supplyAsync(
-                                    () -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root)));
+                                    () -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root), fileSize));
 
                             futures2.put(checksumType, future);
                             break;
@@ -157,7 +168,11 @@ public class Checksum implements Serializable {
                             String sigsha256 = Hex.encodeHexString((byte[]) sha256);
 
                             future = CompletableFuture.supplyAsync(
-                                    () -> new Checksum(checksumType, sigsha256, Utils.normalizePath(fo, root)));
+                                    () -> new Checksum(
+                                            checksumType,
+                                            sigsha256,
+                                            Utils.normalizePath(fo, root),
+                                            fileSize));
 
                             futures2.put(checksumType, future);
                             break;
@@ -195,7 +210,11 @@ public class Checksum implements Serializable {
             for (ChecksumType checksumType : checksumTypes) {
                 CompletableFuture<Checksum> future = CompletableFuture.supplyAsync(() -> {
                     MessageDigest md = mds.get(checksumType);
-                    return new Checksum(checksumType, Hex.encodeHexString(md.digest()), Utils.normalizePath(fo, root));
+                    return new Checksum(
+                            checksumType,
+                            Hex.encodeHexString(md.digest()),
+                            Utils.normalizePath(fo, root),
+                            fileSize);
                 });
 
                 futures2.put(checksumType, future);
@@ -256,6 +275,14 @@ public class Checksum implements Serializable {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 
     @Override

@@ -47,13 +47,12 @@ public final class JSONUtils {
         FileUtils.writeLines(file, Collections.singletonList(null), true);
     }
 
-    public static Map<String, Collection<String>> loadChecksumsFile(File file) throws IOException {
-        TypeReference<Map<String, Collection<String>>> typeReference = new MapTypeReference();
-
+    public static Map<String, Collection<LocalFile>> loadChecksumsFile(File file) throws IOException {
+        TypeReference<Map<String, Collection<LocalFile>>> typeReference = new MapTypeReference();
         return MAPPER.readValue(file, typeReference);
     }
 
-    private static class MapTypeReference extends TypeReference<Map<String, Collection<String>>> {
+    private static class MapTypeReference extends TypeReference<Map<String, Collection<LocalFile>>> {
         MapTypeReference() {
 
         }

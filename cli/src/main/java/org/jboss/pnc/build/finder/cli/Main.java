@@ -61,6 +61,7 @@ import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.JSONUtils;
+import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
@@ -421,7 +422,8 @@ public final class Main implements Callable<Void> {
     }
 
     private void initCaches(BuildConfig config) {
-        KojiBuild.KojiBuildExternalizer externalizer = new KojiBuild.KojiBuildExternalizer();
+        KojiBuild.KojiBuildExternalizer kojiBuildExternalizer = new KojiBuild.KojiBuildExternalizer();
+        LocalFile.LocalFileExternalizer localFileExternalizer = new LocalFile.LocalFileExternalizer();
         GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
         String location = new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
 
@@ -429,7 +431,8 @@ public final class Main implements Callable<Void> {
                 .persistentLocation(location)
                 .serialization()
                 .marshaller(new GenericJBossMarshaller())
-                .addAdvancedExternalizer(externalizer.getId(), externalizer)
+                .addAdvancedExternalizer(kojiBuildExternalizer.getId(), kojiBuildExternalizer)
+                .addAdvancedExternalizer(localFileExternalizer.getId(), localFileExternalizer)
                 .whiteList()
                 .addRegexp(".*")
                 .create();
@@ -543,7 +546,7 @@ public final class Main implements Callable<Void> {
                 "Checksum type: {}",
                 green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
 
-        Map<ChecksumType, MultiValuedMap<String, String>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
 
         if (Boolean.TRUE.equals(config.getUseChecksumsFile())) {
             for (ChecksumType checksumType : checksumTypes) {
@@ -555,14 +558,14 @@ public final class Main implements Callable<Void> {
                     LOGGER.info("Loading checksums from file: {}", green(checksumFile));
 
                     try {
-                        Map<String, Collection<String>> subChecksums = JSONUtils.loadChecksumsFile(checksumFile);
-                        Set<Entry<String, Collection<String>>> entrySet = subChecksums.entrySet();
+                        Map<String, Collection<LocalFile>> subChecksums = JSONUtils.loadChecksumsFile(checksumFile);
+                        Set<Entry<String, Collection<LocalFile>>> entrySet = subChecksums.entrySet();
 
-                        for (Entry<String, Collection<String>> entry : entrySet) {
+                        for (Entry<String, Collection<LocalFile>> entry : entrySet) {
                             String key = entry.getKey();
-                            Collection<String> values = entry.getValue();
+                            Collection<LocalFile> values = entry.getValue();
 
-                            for (String value : values) {
+                            for (LocalFile value : values) {
                                 checksumsFromFile.get(checksumType).put(key, value);
                             }
                         }
@@ -578,7 +581,7 @@ public final class Main implements Callable<Void> {
             }
         }
 
-        Map<ChecksumType, MultiValuedMap<String, String>> checksums = checksumsFromFile;
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = checksumsFromFile;
 
         if (Boolean.TRUE.equals(checksumOnly)) {
             if (Boolean.FALSE.equals(config.getUseChecksumsFile())) {
@@ -589,7 +592,7 @@ public final class Main implements Callable<Void> {
                 pool = Executors.newSingleThreadExecutor();
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
-                Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
+                Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum = pool.submit(analyzer);
 
                 try {
                     checksums = futureChecksum.get();
@@ -690,11 +693,16 @@ public final class Main implements Callable<Void> {
                     Map<Checksum, Collection<String>> newMap = new HashMap<>();
 
                     for (ChecksumType checksumType : checksumTypes) {
-                        Map<String, Collection<String>> map = checksums.get(checksumType).asMap();
+                        Map<String, Collection<LocalFile>> map = checksums.get(checksumType).asMap();
 
-                        for (Entry<String, Collection<String>> entry : map.entrySet()) {
-                            for (String filename : entry.getValue()) {
-                                newMap.put(new Checksum(checksumType, entry.getKey(), filename), entry.getValue());
+                        for (Entry<String, Collection<LocalFile>> entry : map.entrySet()) {
+                            for (LocalFile filename : entry.getValue()) {
+                                newMap.put(
+                                        new Checksum(checksumType, entry.getKey(), filename),
+                                        entry.getValue()
+                                                .stream()
+                                                .map(LocalFile::getFilename)
+                                                .collect(Collectors.toList()));
                             }
                         }
                     }
@@ -715,7 +723,7 @@ public final class Main implements Callable<Void> {
                 pool = Executors.newFixedThreadPool(2);
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
-                Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum = pool.submit(analyzer);
+                Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum = pool.submit(analyzer);
 
                 boolean isKerberos = krbService != null && krbPrincipal != null && krbPassword != null
                         || krbCCache != null || krbKeytab != null;
