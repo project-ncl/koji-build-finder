@@ -96,7 +96,7 @@ class FileObjectTrackingTest {
         config.setArchiveExtensions(Collections.emptyList());
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
-        Map<ChecksumType, MultiValuedMap<String, String>> checksums = da.checksumFiles();
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
         assertThat(checksums.get(ChecksumType.md5).size(), is(25));
 

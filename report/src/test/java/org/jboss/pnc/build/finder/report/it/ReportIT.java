@@ -36,6 +36,7 @@ import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
+import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -69,13 +70,13 @@ class ReportIT extends AbstractKojiIT {
 
         Timer timer = REGISTRY.timer(MetricRegistry.name(ReportIT.class, "checksums"));
 
-        Map<ChecksumType, MultiValuedMap<String, String>> map;
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> map;
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
         DistributionAnalyzer analyzer;
 
-        Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
+        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
         try (Timer.Context context = timer.time()) {
             analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());

@@ -54,11 +54,13 @@ class SkipImportTest {
         Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
                 "2e7e85f0ee97afde716231a6c792492a",
-                "commons-lang-2.6-redhat-2.jar");
+                "commons-lang-2.6-redhat-2.jar",
+                10L);
         Checksum checksum2 = new Checksum(
                 ChecksumType.md5,
                 "3b6a309e0dd4f488fd0cce429b44d067",
-                "commons-lang-2.6-redhat-2.pom");
+                "commons-lang-2.6-redhat-2.pom",
+                10L);
         List<Checksum> checksums = Arrays.asList(checksum1, checksum2);
         List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
         List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");

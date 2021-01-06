@@ -37,6 +37,7 @@ import org.jboss.pnc.build.finder.core.Checksum;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.FileError;
+import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ class RpmBuildIdNotFoundIT extends AbstractRpmIT {
         Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
         Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
         List<KojiBuild> buildsFound = finder.getBuildsFound();
-        Map<ChecksumType, MultiValuedMap<String, String>> checksums = analyzer.getChecksums();
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
         Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
 
         assertThat(checksums, is(aMapWithSize(3)));

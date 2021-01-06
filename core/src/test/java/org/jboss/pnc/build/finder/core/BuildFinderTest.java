@@ -74,7 +74,7 @@ class BuildFinderTest {
         da.checksumFiles();
         da.outputToFile(checksumType);
 
-        Map<String, Collection<String>> checksums = JSONUtils.loadChecksumsFile(da.getChecksumFile(checksumType));
+        Map<String, Collection<LocalFile>> checksums = JSONUtils.loadChecksumsFile(da.getChecksumFile(checksumType));
 
         assertThat(checksums, is(aMapWithSize(1)));
     }

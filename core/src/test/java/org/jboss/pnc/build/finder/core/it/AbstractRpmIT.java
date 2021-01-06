@@ -27,6 +27,7 @@ import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
+import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
         Timer timer = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
         DistributionAnalyzer analyzer;
-        Future<Map<ChecksumType, MultiValuedMap<String, String>>> futureChecksum;
+        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
         try (Timer.Context context = timer.time()) {
             analyzer = new DistributionAnalyzer(getFiles(), getConfig());
@@ -67,7 +68,7 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
             BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<ChecksumType, MultiValuedMap<String, String>> map = futureChecksum.get();
+            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
 
             verify(analyzer, finder);

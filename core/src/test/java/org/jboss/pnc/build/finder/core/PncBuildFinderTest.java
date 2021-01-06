@@ -88,7 +88,7 @@ class PncBuildFinderTest {
     void shouldFindOneBuildInPnc() throws RemoteResourceException {
         // given
         String md5 = "md5-checksum";
-        String filename = "empty.jar";
+        LocalFile filename = new LocalFile("empty.jar", 10L);
         Checksum checksum = new Checksum(ChecksumType.md5, md5, filename);
         PncClient pncClient = Mockito.mock(PncClient.class);
         String buildId = "100";
@@ -115,8 +115,8 @@ class PncBuildFinderTest {
                 .id("100")
                 .identifier("org.empty:empty")
                 .md5(md5)
-                .size(10L)
-                .filename(filename)
+                .size(filename.getSize())
+                .filename(filename.getFilename())
                 .build(build)
                 .build();
 
@@ -129,7 +129,7 @@ class PncBuildFinderTest {
 
         // when
         Map<Checksum, Collection<String>> requestMap = Collections
-                .singletonMap(checksum, Collections.singletonList(filename));
+                .singletonMap(checksum, Collections.singletonList(filename.getFilename()));
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(requestMap);
 
         // then
@@ -147,7 +147,7 @@ class PncBuildFinderTest {
     void shouldNotFindABuildInPnc() throws RemoteResourceException {
         // given
         String givenMd5 = "md5-different";
-        String filename = "empty.jar";
+        LocalFile filename = new LocalFile("empty.jar", 10L);
         Checksum checksum = new Checksum(ChecksumType.md5, givenMd5, filename);
 
         PncClient pncClient = Mockito.mock(PncClient.class);
@@ -159,7 +159,7 @@ class PncBuildFinderTest {
 
         // when
         Map<Checksum, Collection<String>> requestMap = Collections
-                .singletonMap(checksum, Collections.singletonList(filename));
+                .singletonMap(checksum, Collections.singletonList(filename.getFilename()));
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(requestMap);
 
         // then
@@ -169,7 +169,7 @@ class PncBuildFinderTest {
 
         // Verify that the artifact is in the notFoundChecksums collection
         assertThat(findBuildsResult.getNotFoundChecksums(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getNotFoundChecksums(), hasEntry(is(checksum), contains(filename)));
+        assertThat(findBuildsResult.getNotFoundChecksums(), hasEntry(is(checksum), contains(filename.getFilename())));
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
