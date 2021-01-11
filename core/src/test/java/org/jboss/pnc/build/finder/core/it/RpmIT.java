@@ -66,7 +66,9 @@ class RpmIT extends AbstractRpmIT {
         assertThat(fileErrors, is(empty()));
         assertThat(
                 analyzer.getChecksums(ChecksumType.md5),
-                hasEntry(is("31bc067a6462aacd3b891681bdb27512"), contains("basesystem-11-5.el8.noarch.rpm")));
+                hasEntry(
+                        is("31bc067a6462aacd3b891681bdb27512"),
+                        contains(hasProperty("filename", is("basesystem-11-5.el8.noarch.rpm")))));
         assertThat(
                 files,
                 allOf(

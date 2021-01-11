@@ -75,7 +75,7 @@ class RpmNvrNotFoundIT extends AbstractRpmIT {
                 analyzer.getChecksums(ChecksumType.md5),
                 hasEntry(
                         is("aa585b870f59ef457f26fa32a0daf923"),
-                        contains("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm")));
+                        contains(hasProperty("filename", is("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm")))));
         assertThat(
                 notFoundChecksums,
                 allOf(

@@ -66,7 +66,9 @@ class RpmBuildIdNotFoundIT extends AbstractRpmIT {
         assertThat(fileErrors, is(empty()));
         assertThat(
                 analyzer.getChecksums(ChecksumType.md5),
-                hasEntry(is("84ed0982a77b1c3a0c093409eb19c8ab"), contains("libdnf-0.48.0-4.fc33.x86_64.rpm")));
+                hasEntry(
+                        is("84ed0982a77b1c3a0c093409eb19c8ab"),
+                        contains(hasProperty("filename", is("libdnf-0.48.0-4.fc33.x86_64.rpm")))));
         assertThat(notFoundChecksums, is(anEmptyMap()));
         assertThat(
                 files,

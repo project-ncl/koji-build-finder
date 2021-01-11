@@ -115,17 +115,17 @@ class FileErrorIT extends AbstractKojiIT {
                     analyzer.getChecksums(ChecksumType.md5),
                     hasEntry(
                             is("ac2a6ab1fbf6afba37789e2e88a916a6"),
-                            contains("jboss-jaxb-intros-1.0.2.GA-sources.jar")));
+                            contains(hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")))));
             assertThat(
                     analyzer.getChecksums(ChecksumType.sha1),
                     hasEntry(
                             is("ab2f490dd83035bee3a719d2118cbab90508082f"),
-                            contains("jboss-jaxb-intros-1.0.2.GA-sources.jar")));
+                            contains(hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")))));
             assertThat(
                     analyzer.getChecksums(ChecksumType.sha256),
                     hasEntry(
                             is("987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48"),
-                            contains("jboss-jaxb-intros-1.0.2.GA-sources.jar")));
+                            contains(hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")))));
             assertThat(notFoundChecksums, is(anEmptyMap()));
             assertThat(foundChecksums, is(aMapWithSize(1)));
             assertThat(buildsFound, hasSize(1));
