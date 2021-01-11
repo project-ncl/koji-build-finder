@@ -185,6 +185,7 @@ public final class BuildFinderUtils {
             tmpArchive.setBuildId(0);
             tmpArchive.setFilename("not found");
             tmpArchive.setChecksum(checksum.getValue());
+            tmpArchive.setSize((int) checksum.getFileSize());
             tmpArchive.setChecksumType(KojiChecksumType.valueOf(checksum.getType().name()));
 
             tmpArchive.setArchiveId(-1 * (buildZero.getArchives().size() + 1));
