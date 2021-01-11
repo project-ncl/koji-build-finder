@@ -309,7 +309,7 @@ information between runs in more detail.
 ### Checksums
 
 The `checksum-md5.json` file contains a map where the key is the MD5
-checksum of the file and the value is a list of all files with the
+checksum of the file and the value is a list of all files (and their sizes) with the
 checksum. Note that it is possible to have more than one file with the
 given checksum. For completeness, the `checksum-md5.json` file contains
 every single file found in the input, including any files found by
