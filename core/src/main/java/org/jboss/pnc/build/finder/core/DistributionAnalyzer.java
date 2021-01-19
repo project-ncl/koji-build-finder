@@ -219,7 +219,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                     }
                                 } catch (ClassCastException e) {
                                     LOGGER.error(
-                                            "Error loading cache {}: {}. The cache format has changed and you will have to manually delete the existing cache",
+                                            "Error loading cache {}: {}. The cache format has changed"
+                                                    + " and you will have to manually delete the existing cache",
                                             boldRed(getCacheLocation()),
                                             boldRed(e.getMessage()),
                                             e);
