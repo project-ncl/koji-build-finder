@@ -65,7 +65,7 @@ public class LocalFile {
         @Override
         public void writeObject(ObjectOutput output, LocalFile object) throws IOException {
             output.writeInt(VERSION);
-            output.writeObject(object.getFilename());
+            output.writeUTF(object.getFilename());
             output.writeLong(object.getSize());
         }
 
@@ -73,11 +73,11 @@ public class LocalFile {
         public LocalFile readObject(ObjectInput input) throws IOException, ClassNotFoundException {
             int version = input.readInt();
 
-            if (version != 1) {
+            if (version != VERSION) {
                 throw new IOException("Invalid version: " + version);
             }
 
-            String filename = (String) input.readObject();
+            String filename = input.readUTF();
             long size = input.readLong();
 
             return new LocalFile(filename, size);

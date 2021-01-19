@@ -287,6 +287,7 @@ public class Checksum implements Serializable {
 
     @Override
     public String toString() {
-        return "Checksum{" + "type=" + type + ", value='" + value + '\'' + ", filename='" + filename + '\'' + '}';
+        return "Checksum{" + "type=" + type + ", value='" + value + '\'' + ", filename='" + filename + '\''
+                + ", fileSize='" + fileSize + '\'' + '}';
     }
 }
