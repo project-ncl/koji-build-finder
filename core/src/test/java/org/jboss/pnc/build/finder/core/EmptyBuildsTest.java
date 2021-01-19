@@ -71,8 +71,8 @@ class EmptyBuildsTest {
                 ChecksumType.md5,
                 "ca5330166ccd4e2b205bed4b88f924b0",
                 "random.jar!random.jar",
-                10L);
-        Checksum checksum2 = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", "random.jar", 10L);
+                -1L);
+        Checksum checksum2 = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", "random.jar", -1L);
         Collection<String> filenames1 = Collections.singletonList("random.jar!random.jar");
         Collection<String> filenames2 = Collections.singletonList("random.jar");
         Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);

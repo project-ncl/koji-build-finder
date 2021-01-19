@@ -88,7 +88,7 @@ class PncBuildFinderTest {
     void shouldFindOneBuildInPnc() throws RemoteResourceException {
         // given
         String md5 = "md5-checksum";
-        LocalFile filename = new LocalFile("empty.jar", 10L);
+        LocalFile filename = new LocalFile("empty.jar", -1L);
         Checksum checksum = new Checksum(ChecksumType.md5, md5, filename);
         PncClient pncClient = Mockito.mock(PncClient.class);
         String buildId = "100";
@@ -147,7 +147,7 @@ class PncBuildFinderTest {
     void shouldNotFindABuildInPnc() throws RemoteResourceException {
         // given
         String givenMd5 = "md5-different";
-        LocalFile filename = new LocalFile("empty.jar", 10L);
+        LocalFile filename = new LocalFile("empty.jar", -1L);
         Checksum checksum = new Checksum(ChecksumType.md5, givenMd5, filename);
 
         PncClient pncClient = Mockito.mock(PncClient.class);

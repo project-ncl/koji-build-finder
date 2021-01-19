@@ -52,12 +52,12 @@ class CompletedBuildTest {
                 ChecksumType.md5,
                 "46148535be98c75c900837ecea491c71",
                 "hibernate-validator-6.0.10.Final-redhat-1.pom",
-                10L);
+                19544L);
         Checksum checksum2 = new Checksum(
                 ChecksumType.md5,
                 "c723630b4a215ffa05106e5c8555871c",
                 "hibernate-validator-cdi-6.0.10.Final-redhat-1.pom",
-                10L);
+                8591L);
         Collection<String> filenames1 = Collections.singletonList("hibernate-validator-6.0.10.Final-redhat-1.pom");
         Collection<String> filenames2 = Collections.singletonList("hibernate-validator-cdi-6.0.10.Final-redhat-1.pom");
         Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);

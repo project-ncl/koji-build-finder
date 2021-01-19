@@ -52,7 +52,7 @@ class DeletedBuildTest {
                 ChecksumType.md5,
                 "a8c05c0ff2b61c3e205fb21010581bbe",
                 "infinispan-bom-9.4.16.Final-redhat-00001.pom",
-                10L);
+                23476L);
         Collection<String> filenames = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
         Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
 
