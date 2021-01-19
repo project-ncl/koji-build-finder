@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
@@ -210,11 +211,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                 this.map.get(checksumType).putAll(localMap);
 
                                 Collection<Map.Entry<String, LocalFile>> entries = localMap.entries();
-
-                                for (Map.Entry<String, LocalFile> entry : entries) {
-                                    inverseMap.put(
-                                            entry.getValue().getFilename(),
-                                            new Checksum(checksumType, entry.getKey(), entry.getValue()));
+                                try {
+                                    for (Map.Entry<String, LocalFile> entry : entries) {
+                                        inverseMap.put(
+                                                entry.getValue().getFilename(),
+                                                new Checksum(checksumType, entry.getKey(), entry.getValue()));
+                                    }
+                                } catch (ClassCastException e) {
+                                    LOGGER.error(
+                                            "Error loading cache {}: {}. The cache format has changed and you will have to manually delete the existing cache",
+                                            boldRed(getCacheLocation()),
+                                            boldRed(e.getMessage()),
+                                            e);
+                                    throw e;
                                 }
 
                                 if (queue != null && checksumType == ChecksumType.md5) {
@@ -316,6 +325,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
 
         return Collections.unmodifiableMap(map);
+    }
+
+    private String getCacheLocation() {
+        return new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
     }
 
     private boolean isArchive(FileObject fo) {
