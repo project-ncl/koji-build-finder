@@ -74,7 +74,7 @@
     <version.com.github.ekryd.sortpom>2.13.1</version.com.github.ekryd.sortpom>
     <version.com.github.luben>1.4.8-3</version.com.github.luben>
     <version.com.github.sparkmuse>1.1.15</version.com.github.sparkmuse>
-    <version.com.github.spotbugs.spotbugs>4.2.0</version.com.github.spotbugs.spotbugs>
+    <version.com.github.spotbugs.spotbugs>4.2.1</version.com.github.spotbugs.spotbugs>
     <version.com.github.spotbugs.spotbugs-maven-plugin>4.2.0</version.com.github.spotbugs.spotbugs-maven-plugin>
     <version.com.google.guava>30.0-jre</version.com.google.guava>
     <version.com.j2html>1.4.0</version.com.j2html>
