@@ -56,6 +56,7 @@ public abstract class ConfigDefaults {
     public static final String CONFIG_PATH = USER_HOME + File.separator + ".build-finder";
     public static final String CONFIG = CONFIG_PATH + File.separator + CONFIG_FILE;
     public static final Boolean DISABLE_CACHE = Boolean.FALSE;
+    public static final String CACHE_LOCATION = CONFIG_PATH + File.separator + "cache";
     public static final Boolean DISABLE_RECURSION = Boolean.FALSE;
     public static final List<Pattern> EXCLUDES = Collections
             .singletonList(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$"));

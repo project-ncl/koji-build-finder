@@ -221,7 +221,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                     LOGGER.error(
                                             "Error loading cache {}: {}. The cache format has changed"
                                                     + " and you will have to manually delete the existing cache",
-                                            boldRed(getCacheLocation()),
+                                            boldRed(ConfigDefaults.CACHE_LOCATION),
                                             boldRed(e.getMessage()),
                                             e);
                                     throw e;
@@ -326,10 +326,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
 
         return Collections.unmodifiableMap(map);
-    }
-
-    private String getCacheLocation() {
-        return new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
     }
 
     private boolean isArchive(FileObject fo) {

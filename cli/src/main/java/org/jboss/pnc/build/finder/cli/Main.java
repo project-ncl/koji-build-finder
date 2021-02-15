@@ -425,7 +425,7 @@ public final class Main implements Callable<Void> {
         KojiBuild.KojiBuildExternalizer kojiBuildExternalizer = new KojiBuild.KojiBuildExternalizer();
         LocalFile.LocalFileExternalizer localFileExternalizer = new LocalFile.LocalFileExternalizer();
         GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
-        String location = new File(ConfigDefaults.CONFIG_PATH, "cache").getAbsolutePath();
+        String location = new File(ConfigDefaults.CACHE_LOCATION).getAbsolutePath();
 
         globalConfig.globalState()
                 .persistentLocation(location)
