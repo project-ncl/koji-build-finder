@@ -94,14 +94,13 @@ class PncClientImplIT extends AbstractKojiIT {
 
     @Test
     void shouldNotGetBuildPushResult() {
-        catchException(
-                () -> {
-                    // given
-                    String buildId = "-100";
+        catchException(() -> {
+            // given
+            String buildId = "-100";
 
-                    // when
-                    getPncClient().getBuildPushResult(buildId);
-                });
+            // when
+            getPncClient().getBuildPushResult(buildId);
+        });
 
         // then
         assertThat(
@@ -126,14 +125,13 @@ class PncClientImplIT extends AbstractKojiIT {
 
     @Test
     void shouldNotGetProductVersion() {
-        catchException(
-                () -> {
-                    // given
-                    String buildId = "-100";
+        catchException(() -> {
+            // given
+            String buildId = "-100";
 
-                    // when
-                    getPncClient().getProductVersion(buildId);
-                });
+            // when
+            getPncClient().getProductVersion(buildId);
+        });
 
         // then
         assertThat(
