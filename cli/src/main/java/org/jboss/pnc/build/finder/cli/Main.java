@@ -810,7 +810,7 @@ public final class Main implements Callable<Void> {
         }
 
         List<KojiBuild> buildList = builds != null ? new ArrayList<>(builds.values()) : Collections.emptyList();
-        KojiBuild buildZero = builds != null ? buildList.get(0) : null;
+        KojiBuild buildZero = !buildList.isEmpty() ? buildList.get(0) : null;
         int buildListSize = buildList.size();
 
         if (buildListSize > 1) {
