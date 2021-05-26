@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.isA;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.core.JSONUtils;
@@ -88,13 +88,13 @@ class ReportTest {
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
-        String buildsString = FileUtils.readFileToString(buildsFile, StandardCharsets.UTF_8);
+        String buildsString = new String(Files.readAllBytes(buildsFile.toPath()), StandardCharsets.UTF_8);
 
         if (!"\n".equals(System.lineSeparator())) {
             buildsString = PATTERN.matcher(buildsString).replaceAll(System.lineSeparator());
         }
 
-        String newBuildsString = FileUtils.readFileToString(newBuildsFile, StandardCharsets.UTF_8);
+        String newBuildsString = new String(Files.readAllBytes(newBuildsFile.toPath()), StandardCharsets.UTF_8);
 
         assertThat(newBuildsString, is(buildsString));
     }
@@ -213,8 +213,9 @@ class ReportTest {
         assertThat(report.renderText(), optionalWithValue(equalTo(nvrExpected)));
         report.outputText();
         assertThat(
-                FileUtils.readFileToString(
-                        new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
+                new String(
+                        Files.readAllBytes(
+                                new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt").toPath()),
                         StandardCharsets.UTF_8),
                 is(nvrExpected));
     }
@@ -228,8 +229,9 @@ class ReportTest {
         assertThat(report.renderText(), optionalWithValue(equalTo(gavExpected)));
         report.outputText();
         assertThat(
-                FileUtils.readFileToString(
-                        new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt"),
+                new String(
+                        Files.readAllBytes(
+                                new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt").toPath()),
                         StandardCharsets.UTF_8),
                 is(gavExpected));
     }
@@ -291,8 +293,10 @@ class ReportTest {
                 Collections.unmodifiableList(reports));
         htmlReport.outputHTML();
         assertThat(
-                FileUtils.readFileToString(
-                        new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html"),
+                new String(
+                        Files.readAllBytes(
+                                new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html")
+                                        .toPath()),
                         StandardCharsets.UTF_8),
                 containsString("<html>"));
     }

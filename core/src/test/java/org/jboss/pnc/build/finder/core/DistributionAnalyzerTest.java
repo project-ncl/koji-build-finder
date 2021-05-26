@@ -23,7 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
@@ -31,6 +30,8 @@ import static org.hamcrest.Matchers.hasSize;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,9 +41,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -51,9 +53,11 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
 
-import com.google.common.io.Files;
-
 class DistributionAnalyzerTest {
+    private static final long ONE_GB = 1073741824L;
+
+    private static final String MODE = "rw";
+
     @Test
     void verifyEmptyList() throws IOException {
         List<String> af = Collections.emptyList();
@@ -72,8 +76,8 @@ class DistributionAnalyzerTest {
         File test = new File(folder, "verify-size");
         af.add(test.getPath());
 
-        try (RandomAccessFile file = new RandomAccessFile(test, "rw")) {
-            file.setLength(FileUtils.ONE_GB << 1);
+        try (RandomAccessFile file = new RandomAccessFile(test, MODE)) {
+            file.setLength(ONE_GB << 1L);
             BuildConfig config = new BuildConfig();
             config.setArchiveExtensions(Collections.emptyList());
             DistributionAnalyzer da = new DistributionAnalyzer(af, config);
@@ -89,7 +93,7 @@ class DistributionAnalyzerTest {
 
         for (String type : types) {
             File test = new File(folder, "verify-type-" + type);
-            Files.touch(test);
+            Files.createFile(test.toPath());
             af.add(test.getPath());
         }
 
@@ -104,8 +108,10 @@ class DistributionAnalyzerTest {
     @DisabledOnOs(OS.WINDOWS)
     @Test
     void verifyCacheClearance(@TempDir File folder) throws IOException {
-        Collection<File> ls = FileUtils.listFiles(folder, null, true);
-        assertThat(ls, is(empty()));
+        try (Stream<Path> stream = Files.walk(folder.toPath())) {
+            Collection<Path> ls = stream.collect(Collectors.toList());
+            assertThat(ls, hasSize(1));
+        }
 
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
@@ -113,8 +119,10 @@ class DistributionAnalyzerTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         da.checksumFiles();
 
-        Collection<File> files = FileUtils.listFiles(folder, null, true);
-        assertThat(files, is(empty()));
+        try (Stream<Path> stream = Files.walk(folder.toPath())) {
+            Collection<Path> files = stream.collect(Collectors.toList());
+            assertThat(files, hasSize(1));
+        }
     }
 
     @Test

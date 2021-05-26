@@ -22,6 +22,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -49,7 +50,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
@@ -304,7 +304,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             if (tmpDir != null) {
                 File vfsCacheDir = new File(tmpDir, "vfs_cache");
 
-                FileUtils.deleteQuietly(vfsCacheDir);
+                Files.deleteIfExists(vfsCacheDir.toPath());
             }
 
             Utils.shutdownAndAwaitTermination(pool);

@@ -17,11 +17,11 @@ package org.jboss.pnc.build.finder.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -44,7 +44,7 @@ public final class JSONUtils {
 
     public static void dumpObjectToFile(Object obj, File file, ObjectMapper mapper) throws IOException {
         mapper.writerWithDefaultPrettyPrinter().writeValue(file, obj);
-        FileUtils.writeLines(file, Collections.singletonList(null), true);
+        Files.write(file.toPath(), Collections.singletonList(""), StandardOpenOption.APPEND);
     }
 
     public static Map<String, Collection<LocalFile>> loadChecksumsFile(File file) throws IOException {

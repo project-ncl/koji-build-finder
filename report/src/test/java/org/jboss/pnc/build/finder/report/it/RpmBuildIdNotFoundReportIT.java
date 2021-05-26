@@ -32,13 +32,13 @@ import static org.hamcrest.io.FileMatchers.aReadableFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -128,7 +128,7 @@ class RpmBuildIdNotFoundReportIT extends AbstractRpmIT {
 
         assertThat(outputHtml, is(aReadableFile()));
 
-        String lines = FileUtils.readFileToString(outputHtml, StandardCharsets.UTF_8);
+        String lines = new String(Files.readAllBytes(outputHtml.toPath()), StandardCharsets.UTF_8);
 
         assertThat(
                 lines,

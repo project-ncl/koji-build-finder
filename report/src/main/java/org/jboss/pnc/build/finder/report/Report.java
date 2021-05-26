@@ -18,12 +18,12 @@ package org.jboss.pnc.build.finder.report;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
 import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
@@ -76,11 +76,9 @@ public abstract class Report {
             return;
         }
 
-        FileUtils.writeStringToFile(
-                new File(outputDirectory, baseFilename + ".txt"),
-                renderText.get(),
-                StandardCharsets.UTF_8,
-                false);
+        Files.write(
+                new File(outputDirectory, baseFilename + ".txt").toPath(),
+                renderText.get().getBytes(StandardCharsets.UTF_8));
     }
 
     public abstract ContainerTag toHTML();
@@ -92,11 +90,9 @@ public abstract class Report {
             return;
         }
 
-        FileUtils.writeStringToFile(
-                new File(outputDirectory, baseFilename + ".html"),
-                renderText.get(),
-                StandardCharsets.UTF_8,
-                false);
+        Files.write(
+                new File(outputDirectory, baseFilename + ".html").toPath(),
+                renderText.get().getBytes(StandardCharsets.UTF_8));
     }
 
     public String getName() {

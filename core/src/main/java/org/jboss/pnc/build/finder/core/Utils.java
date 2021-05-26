@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -93,7 +92,7 @@ public final class Utils {
     }
 
     public static String getUserHome() {
-        String userHome = FileUtils.getUserDirectoryPath();
+        String userHome = System.getProperty("user.home");
 
         if (userHome == null || "?".equals(userHome)) {
             LOGGER.error("Got bogus user.home value: {}", boldRed(userHome));
