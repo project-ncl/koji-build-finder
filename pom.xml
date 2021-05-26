@@ -83,7 +83,7 @@
     <version.com.redhat.red.build.kojiji>2.14</version.com.redhat.red.build.kojiji>
     <version.com.spotify.hamcrest>1.2.0</version.com.spotify.hamcrest>
     <version.commons-codec>1.15</version.commons-codec>
-    <version.commons-io>2.8.0</version.commons-io>
+    <version.commons-io>2.9.0</version.commons-io>
     <version.eu.codearte.catch-exception>2.0</version.eu.codearte.catch-exception>
     <version.info.picocli>4.6.1</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.0</version.io.dropwizard.metrics>
