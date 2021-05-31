@@ -89,7 +89,7 @@
     <version.io.dropwizard.metrics>4.2.0</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.15.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.6.2</version.net.revelc.code.impsort-maven-plugin>
-    <version.net.sourceforge.pmd>6.34.0</version.net.sourceforge.pmd>
+    <version.net.sourceforge.pmd>6.35.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
     <version.org.apache.commons.commons-compress>1.20</version.org.apache.commons.commons-compress>
     <version.org.apache.commons.commons-vfs2>2.8.0</version.org.apache.commons.commons-vfs2>
