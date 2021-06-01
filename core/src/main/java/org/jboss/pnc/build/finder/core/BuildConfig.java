@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 
 public class BuildConfig {
     private static final ObjectMapper MAPPER = new BuildFinderObjectMapper();
@@ -36,7 +36,7 @@ public class BuildConfig {
     static {
         MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
