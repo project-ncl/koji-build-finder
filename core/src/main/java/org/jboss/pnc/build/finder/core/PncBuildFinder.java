@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 
-import io.vertx.core.impl.ConcurrentHashSet;
-
 /**
  * Build Finder for PNC
  *
@@ -144,7 +142,7 @@ public class PncBuildFinder {
 
     private Set<EnhancedArtifact> lookupArtifactsInPnc(ConcurrentHashMap<Checksum, Collection<String>> checksumTable)
             throws RemoteResourceException {
-        Set<EnhancedArtifact> artifacts = new ConcurrentHashSet<>();
+        Set<EnhancedArtifact> artifacts = ConcurrentHashMap.newKeySet();
         RemoteResourceExceptionWrapper exceptionWrapper = new RemoteResourceExceptionWrapper();
 
         checksumTable.forEach(concurrentMapParallelismThreshold, (checksum, fileNames) -> {
