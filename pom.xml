@@ -129,7 +129,7 @@
     <version.org.fusesource.jansi>2.3.3</version.org.fusesource.jansi>
     <version.org.infinispan>11.0.11.Final</version.org.infinispan>
     <version.org.jacoco>0.8.7</version.org.jacoco>
-    <version.org.jboss.byteman>4.0.15</version.org.jboss.byteman>
+    <version.org.jboss.byteman>4.0.16</version.org.jboss.byteman>
     <version.org.jboss.logmanager>2.1.18.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.0.3</version.org.jboss.pnc>
     <version.org.json.json>20200518</version.org.json.json>
