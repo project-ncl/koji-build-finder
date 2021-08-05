@@ -57,7 +57,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.http5.Http5FileProvider;
 import org.infinispan.Cache;
-import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.manager.CacheContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private final Map<ChecksumType, Cache<String, MultiValuedMap<String, LocalFile>>> fileCaches;
 
-    private final EmbeddedCacheManager cacheManager;
+    private final CacheContainer cacheManager;
 
     private final AtomicInteger level;
 
@@ -107,7 +107,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         this(inputs, config, null);
     }
 
-    public DistributionAnalyzer(List<String> inputs, BuildConfig config, EmbeddedCacheManager cacheManager) {
+    public DistributionAnalyzer(List<String> inputs, BuildConfig config, CacheContainer cacheManager) {
         this.inputs = inputs;
         this.config = config;
         checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
