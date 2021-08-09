@@ -54,6 +54,7 @@ import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.http5.Http5FileProvider;
 import org.infinispan.commons.api.BasicCache;
@@ -65,10 +66,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributionAnalyzer.class);
 
     /**
-     * Ideally we should be able to use FileSystemManager::canCreateFileSystem but that relies on an accurate extension
-     * map in providers.xml. Either fix that up manually or exclude non-viable archive schemes. Further without
-     * overriding the URLConnection.getFileNameMap the wrong results will be returned for zip/gz which is classified as
-     * application/octet-stream.
+     * Ideally, we should be able to use {@link FileSystemManager#canCreateFileSystem} but that relies on an accurate
+     * extension map in {@code providers.xml}. Either fix that up manually or exclude non-viable archive schemes.
+     * Further, without overriding the {@link java.net.URLConnection#getFileNameMap} the wrong results will be returned
+     * for {@code zip}/{@code gz} which is classified as {@code application/octet-stream}.
      */
     private static final List<String> NON_ARCHIVE_SCHEMES = Collections
             .unmodifiableList(Arrays.asList("tmp", "res", "ram", "file"));
@@ -143,12 +144,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     public Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumFiles() throws IOException {
         Instant startTime = Instant.now();
 
-        try (StandardFileSystemManager sfs = createStandardFileSystemManager()) {
-
+        try (FileSystemManager manager = createManager()) {
             for (String input : inputs) {
 
-                try (FileObject fo = getFileObjectOfFile(input, sfs)) {
-
+                try (FileObject fo = getFileObjectOfFile(manager, input)) {
                     root = fo.getName()
                             .getFriendlyURI()
                             .substring(0, fo.getName().getFriendlyURI().indexOf(fo.getName().getBaseName()));
@@ -237,7 +236,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                                         .collect(Collectors.toSet()))),
                                 green(fo.getName()));
 
-                        listChildren(fo, sfs);
+                        listChildren(fo);
 
                         if (fileChecksums != null) {
                             for (ChecksumType checksumType : checksumTypesToCheck) {
@@ -287,9 +286,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
     }
 
-    private StandardFileSystemManager createStandardFileSystemManager() throws FileSystemException {
-
+    private FileSystemManager createManager() throws FileSystemException {
         StandardFileSystemManager sfs = new StandardFileSystemManager();
+
         sfs.init();
 
         if (!sfs.hasProvider("http")) {
@@ -310,13 +309,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return sfs;
     }
 
-    private FileObject getFileObjectOfFile(String input, StandardFileSystemManager sfs) throws IOException {
-
-        FileObject fo = null;
+    private FileObject getFileObjectOfFile(FileSystemManager manager, String input) throws IOException {
+        FileObject fo;
 
         try {
             URI uri = URI.create(input);
-            fo = sfs.resolveFile(uri);
+            fo = manager.resolveFile(uri);
         } catch (IllegalArgumentException | FileSystemException e) {
             File file = new File(input);
 
@@ -324,7 +322,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 throw new IOException("Input file " + file + " does not exist");
             }
 
-            fo = sfs.resolveFile(file.toURI());
+            fo = manager.resolveFile(file.toURI());
         }
 
         if (LOGGER.isInfoEnabled()) {
@@ -340,9 +338,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return fo;
     }
 
-    private boolean isArchive(FileObject fo, StandardFileSystemManager sfs) {
+    private boolean isArchive(FileObject fo) {
+        FileSystemManager manager = fo.getFileSystem().getFileSystemManager();
+
         return !NON_ARCHIVE_SCHEMES.contains(fo.getName().getExtension())
-                && Stream.of(sfs.getSchemes()).anyMatch(s -> s.equals(fo.getName().getExtension()));
+                && Stream.of(manager.getSchemes()).anyMatch(s -> s.equals(fo.getName().getExtension()));
     }
 
     private boolean isDistributionArchive(FileObject fo) {
@@ -360,19 +360,20 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Boolean.FALSE.equals(config.getDisableRecursion()) || isDistributionArchive(fo) || isTarArchive(fo);
     }
 
-    private void listArchive(FileObject fo, StandardFileSystemManager sfs) {
+    private void listArchive(FileObject fo) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Creating file system for: {}", Utils.normalizePath(fo, root));
         }
 
+        FileSystemManager manager = fo.getFileSystem().getFileSystemManager();
         FileObject layered;
         FileSystem fs = null;
 
         try {
-            layered = sfs.createFileSystem(fo.getName().getExtension(), fo);
+            layered = manager.createFileSystem(fo.getName().getExtension(), fo);
             fs = layered.getFileSystem();
 
-            listChildren(layered, sfs);
+            listChildren(layered);
         } catch (IOException e) {
             String filename = Utils.normalizePath(fo, root);
             String message = e.getMessage();
@@ -397,7 +398,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             LOGGER.debug("Error", e);
         } finally {
             if (fs != null) {
-                sfs.closeFileSystem(fs);
+                manager.closeFileSystem(fs);
             }
         }
     }
@@ -465,7 +466,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
     }
 
-    private void listChildren(FileObject fo, StandardFileSystemManager sfs) throws IOException {
+    private void listChildren(FileObject fo) throws IOException {
         List<FileObject> localFiles = new ArrayList<>();
 
         try {
@@ -485,11 +486,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                         }
                     }
 
-                    if (isArchive(file, sfs)) {
+                    if (isArchive(file)) {
                         level.incrementAndGet();
 
                         if (shouldListArchive(file)) {
-                            listArchive(file, sfs);
+                            listArchive(file);
                         }
 
                         level.decrementAndGet();
