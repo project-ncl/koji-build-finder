@@ -22,10 +22,14 @@
   </Match>
   <Match>
     <Class name="org.jboss.pnc.build.finder.cli.Main"/>
-    <Bug pattern="DM_EXIT,RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    <Bug pattern="DM_EXIT"/>
   </Match>
   <Match>
     <Class name="org.jboss.pnc.build.finder.core.DistributionAnalyzer"/>
-    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE,RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+  </Match>
+  <Match>
+    <Class name="org.jboss.pnc.build.finder.core.Utils"/>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
   </Match>
 </FindBugsFilter>
