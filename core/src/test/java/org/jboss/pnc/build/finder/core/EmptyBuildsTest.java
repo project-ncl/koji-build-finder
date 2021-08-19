@@ -89,7 +89,7 @@ class EmptyBuildsTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds, is(aMapWithSize(1)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
+            assertThat(builds, hasEntry(is(new BuildSystemInteger(0L)), hasProperty("id", is(0L))));
         }
     }
 }

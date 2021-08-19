@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -106,9 +107,9 @@ class PncBuildFinderTest {
                 .user(User.builder().username("testUser").build())
                 .scmRepository(SCMRepository.builder().internalUrl("http://repo.test/empty.git").build())
                 .scmRevision("master")
-                .project(ProjectRef.refBuilder().id("100").build())
+                .project(ProjectRef.refBuilder().id(buildId).build())
                 .buildConfigRevision(
-                        BuildConfigurationRevisionRef.refBuilder().id("100").buildType(BuildType.MVN).build())
+                        BuildConfigurationRevisionRef.refBuilder().id(buildId).buildType(BuildType.MVN).build())
                 .build();
 
         Artifact artifact = Artifact.builder()
@@ -136,7 +137,8 @@ class PncBuildFinderTest {
         assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
         assertThat(findBuildsResult.getNotFoundChecksums(), is(anEmptyMap()));
 
-        KojiBuild foundBuild = findBuildsResult.getFoundBuilds().get(new BuildSystemInteger(100, BuildSystem.pnc));
+        KojiBuild foundBuild = findBuildsResult.getFoundBuilds().get(new BuildSystemInteger(100L, BuildSystem.pnc));
+        assertThat(foundBuild, notNullValue());
         List<KojiLocalArchive> foundArchives = foundBuild.getArchives();
 
         assertThat(foundArchives, hasSize(1));
@@ -165,7 +167,7 @@ class PncBuildFinderTest {
         // then
         // Verify that only BuildZero is returned
         assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue(), is(0));
+        assertThat(findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue(), is(0L));
 
         // Verify that the artifact is in the notFoundChecksums collection
         assertThat(findBuildsResult.getNotFoundChecksums(), is(aMapWithSize(1)));

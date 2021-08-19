@@ -21,9 +21,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -41,6 +43,10 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiTaskRequest;
 
 public final class PncUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncUtils.class);
+
+    private static final long MAX_OLD_ID = 100000000000000000L;
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     private PncUtils() {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
@@ -88,13 +94,15 @@ public final class PncUtils {
 
         build.setTypes(Collections.singletonList("maven"));
 
-        KojiBuildInfo buildInfo = new KojiBuildInfo();
         Build record = pncbuild.getBuild();
+
+        build.setId(convertPncIdtoKojiId(record.getId()));
+
+        KojiBuildInfo buildInfo = new KojiBuildInfo();
 
         setMavenBuildInfoFromBuildRecord(record, buildInfo);
 
-        buildInfo.setId(Integer.parseInt(record.getId()));
-
+        // XXX: Can't set build_info id (int)
         buildInfo.setName(getSafelyExecutionRootName(record).replace(':', '-'));
         buildInfo.setVersion(getBrewBuildVersionOrZero(record));
         buildInfo.setRelease("1");
@@ -132,7 +140,7 @@ public final class PncUtils {
             List<KojiTagInfo> tags = new ArrayList<>(1);
             KojiTagInfo tag = new KojiTagInfo();
 
-            tag.setId(Integer.parseInt(productVersion.getId()));
+            // XXX: Can't set tag_info id (int)
             tag.setArches(Collections.singletonList("noarch"));
 
             String brewName = productVersion.getAttributes().get("BREW_TAG_PREFIX");
@@ -171,8 +179,20 @@ public final class PncUtils {
         Build record = pncbuild.getBuild();
         KojiArchiveInfo archiveInfo = new KojiArchiveInfo();
 
-        archiveInfo.setBuildId(Integer.parseInt(record.getId()));
-        archiveInfo.setArchiveId(Integer.parseInt(artifact.getId()));
+        try {
+            // XXX: convertPncIdtoKojiId expects long, but we can't change this
+            archiveInfo.setBuildId(Integer.parseInt(record.getId()));
+        } catch (NumberFormatException e) {
+            LOGGER.debug("Exception parsing record id {}", record.getId(), e);
+        }
+
+        try {
+            // XXX: Is this still an integer?
+            archiveInfo.setArchiveId(Integer.parseInt(artifact.getId()));
+        } catch (NumberFormatException e) {
+            LOGGER.debug("Exception parsing artifact id {}", artifact.getId(), e);
+        }
+
         archiveInfo.setArch("noarch");
         archiveInfo.setFilename(artifact.getFilename());
 
@@ -219,5 +239,9 @@ public final class PncUtils {
             buildInfo.setVersion(version);
             buildInfo.setNvr(buildInfo.getName() + "-" + 0 + "-" + buildInfo.getRelease().replace('-', '_'));
         }
+    }
+
+    public static long convertPncIdtoKojiId(String id) {
+        return LongBase32IdConverter.toLong(id);
     }
 }

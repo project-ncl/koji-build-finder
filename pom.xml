@@ -287,6 +287,11 @@
       </dependency>
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>common</artifactId>
+        <version>${version.org.jboss.pnc}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-client</artifactId>
         <version>${version.org.jboss.pnc}</version>
       </dependency>

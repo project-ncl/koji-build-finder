@@ -78,11 +78,11 @@ class SkipImportTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
+            assertThat(builds, hasEntry(is(new BuildSystemInteger(0L)), hasProperty("id", is(0L))));
             assertThat(
                     builds,
-                    hasEntry(is(new BuildSystemInteger(228994, BuildSystem.koji)), hasProperty("id", is(228994))));
-            assertThat(builds, not(hasKey(new BuildSystemInteger(251444, BuildSystem.koji))));
+                    hasEntry(is(new BuildSystemInteger(228994L, BuildSystem.koji)), hasProperty("id", is(228994L))));
+            assertThat(builds, not(hasKey(new BuildSystemInteger(251444L, BuildSystem.koji))));
         }
     }
 }

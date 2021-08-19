@@ -51,7 +51,7 @@ public class BuildStatistics {
             List<KojiLocalArchive> archives = build.getArchives();
             int archiveCount = archives.size();
 
-            if (build.getBuildInfo().getId() > 0) {
+            if (build.getId() > 0L) {
                 numberOfBuilds++;
 
                 if (isImport) {
