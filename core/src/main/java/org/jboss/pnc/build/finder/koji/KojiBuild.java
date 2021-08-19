@@ -35,6 +35,8 @@ public class KojiBuild {
 
     public static final String KEY_MAVEN = "maven";
 
+    private long id = -1L;
+
     private KojiBuildInfo buildInfo;
 
     private KojiTaskInfo taskInfo;
@@ -83,13 +85,16 @@ public class KojiBuild {
         this.remoteRpms = remoteRpms;
     }
 
-    @JsonIgnore
-    public int getId() {
-        if (buildInfo == null) {
-            return -1;
+    public long getId() {
+        if (id == -1L && buildInfo != null) {
+            return (long) buildInfo.getId();
         }
 
-        return buildInfo.getId();
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public KojiBuildInfo getBuildInfo() {

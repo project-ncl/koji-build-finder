@@ -56,6 +56,7 @@ import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
 
+import com.redhat.red.build.koji.model.json.KojiJsonConstants;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTagInfo;
@@ -109,15 +110,13 @@ public final class HTMLReport extends Report {
     }
 
     private Tag<?> linkBuild(KojiBuild build) {
-        int id = build.getId();
-
         if (build.isPnc()) {
-            return a()
-                    .withHref(pncUrl + "/pnc-web/#/builds/" + build.getBuildInfo().getExtra().get("external_build_id"))
-                    .with(text(Integer.toString(id)));
+            String id = build.getBuildInfo().getExtra().get(KojiJsonConstants.EXTERNAL_BUILD_ID).toString();
+            return a().withHref(pncUrl + "/pnc-web/#/builds/" + id).with(text(id));
         }
 
-        return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(Integer.toString(id)));
+        long id = build.getId();
+        return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(Long.toString(id)));
     }
 
     private Tag<?> linkPkg(KojiBuild build) {

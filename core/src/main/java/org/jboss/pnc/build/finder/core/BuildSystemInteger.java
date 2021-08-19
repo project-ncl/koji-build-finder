@@ -22,21 +22,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 
 public class BuildSystemInteger implements Comparable<Object> {
-    private final Integer value;
+    private final long value;
 
     private final BuildSystem buildSystem;
 
-    public BuildSystemInteger(int value) {
+    public BuildSystemInteger(long value) {
         this.value = value;
         this.buildSystem = BuildSystem.none;
     }
 
-    public BuildSystemInteger(int value, BuildSystem buildSystem) {
+    public BuildSystemInteger(long value, BuildSystem buildSystem) {
         this.value = value;
         this.buildSystem = buildSystem;
     }
 
-    public Integer getValue() {
+    public long getValue() {
         return value;
     }
 
@@ -59,7 +59,7 @@ public class BuildSystemInteger implements Comparable<Object> {
             result = false;
         } else {
             BuildSystemInteger other = (BuildSystemInteger) obj;
-            result = buildSystem == other.getBuildSystem() && value.equals(other.getValue());
+            result = buildSystem == other.getBuildSystem() && value == other.getValue();
         }
 
         return result;
@@ -84,7 +84,7 @@ public class BuildSystemInteger implements Comparable<Object> {
         int result;
 
         if (buildSystem == other.getBuildSystem()) {
-            result = value.compareTo(other.getValue());
+            result = Long.compare(value, other.getValue());
         } else {
             result = buildSystem.compareTo(other.getBuildSystem());
         }
@@ -98,7 +98,7 @@ public class BuildSystemInteger implements Comparable<Object> {
         @Override
         public Object deserializeKey(String s, DeserializationContext deserializationContext) {
             String[] t = PATTERN.split(s);
-            int value = Integer.parseInt(t[0]);
+            long value = Long.parseLong(t[0]);
             BuildSystem buildSystem = BuildSystem.valueOf(t[1]);
 
             return new BuildSystemInteger(value, buildSystem);

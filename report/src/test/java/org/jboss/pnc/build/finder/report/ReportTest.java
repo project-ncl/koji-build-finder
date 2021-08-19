@@ -56,6 +56,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.redhat.red.build.koji.model.json.KojiJsonConstants;
+
 class ReportTest {
     private static final Pattern PATTERN = Pattern.compile("\n");
 
@@ -70,7 +72,7 @@ class ReportTest {
 
         List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
 
-        buildList.sort(Comparator.comparingInt(KojiBuild::getId));
+        buildList.sort(Comparator.comparingLong(KojiBuild::getId));
 
         builds = Collections.unmodifiableList(buildList);
 
@@ -165,8 +167,10 @@ class ReportTest {
                         allOf(
                                 aMapWithSize(4),
                                 hasEntry("build_system", "PNC"),
-                                hasEntry("external_build_id", "985"),
-                                hasEntry("external_build_system", "http://localhost/pnc-web/#/build-records/985"),
+                                hasEntry(KojiJsonConstants.EXTERNAL_BUILD_ID, "985"),
+                                hasEntry(
+                                        KojiJsonConstants.EXTERNAL_BUILD_URL,
+                                        "http://localhost/pnc-web/#/build-records/985"),
                                 hasKey("maven"))));
 
         Object o = builds.get(4).getBuildInfo().getExtra().get("maven");
