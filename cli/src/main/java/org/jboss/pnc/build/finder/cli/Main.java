@@ -490,7 +490,7 @@ public final class Main implements Callable<Void> {
             }
 
             try {
-                JSONUtils.dumpObjectToFile(config, configFile);
+                config.save(configFile);
             } catch (IOException e) {
                 LOGGER.warn("Error writing configuration file: {}", red(e.getMessage()));
                 LOGGER.debug("Error", e);

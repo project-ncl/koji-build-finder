@@ -15,16 +15,18 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
 public final class BuildFinderObjectMapper extends KojiObjectMapper {
-    private static final long serialVersionUID = -1683456434414665536L;
+    private static final long serialVersionUID = -6336680901444277747L;
 
     public BuildFinderObjectMapper() {
         enable(SerializationFeature.INDENT_OUTPUT);
-        enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         registerModule(new Jdk8Module());
         registerModule(new BuildFinderModule());
     }

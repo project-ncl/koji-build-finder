@@ -18,10 +18,9 @@ package org.jboss.pnc.build.finder.protobuf;
 import org.infinispan.protostream.annotations.ProtoAdapter;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
+import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 
 /**
@@ -34,12 +33,10 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
  */
 @ProtoAdapter(KojiArchiveInfo.class)
 public class KojiArchiveInfoAdapter {
-    private static final ObjectMapper OBJECT_MAPPER = new KojiObjectMapper();
-
     @ProtoFactory
     KojiArchiveInfo create(String jsonData) {
         try {
-            return OBJECT_MAPPER.readValue(jsonData, KojiArchiveInfo.class);
+            return KojiJSONUtils.readValue(jsonData, KojiArchiveInfo.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -48,7 +45,7 @@ public class KojiArchiveInfoAdapter {
     @ProtoField(1)
     String getJsonData(KojiArchiveInfo kojiArchiveInfo) {
         try {
-            return OBJECT_MAPPER.writeValueAsString(kojiArchiveInfo);
+            return KojiJSONUtils.writeValueAsString(kojiArchiveInfo);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

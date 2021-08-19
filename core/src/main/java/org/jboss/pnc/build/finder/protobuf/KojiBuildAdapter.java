@@ -19,10 +19,9 @@ import org.infinispan.protostream.annotations.ProtoAdapter;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
 /**
  * Protostream adapter to be able to properly marshall/unmarshall {@link org.jboss.pnc.build.finder.koji.KojiBuild}.
@@ -33,12 +32,10 @@ import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
  */
 @ProtoAdapter(KojiBuild.class)
 public class KojiBuildAdapter {
-    private static final ObjectMapper OBJECT_MAPPER = new KojiObjectMapper();
-
     @ProtoFactory
     KojiBuild create(String jsonData) {
         try {
-            return OBJECT_MAPPER.readValue(jsonData, KojiBuild.class);
+            return KojiJSONUtils.readValue(jsonData, KojiBuild.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -47,7 +44,7 @@ public class KojiBuildAdapter {
     @ProtoField(number = 1, required = true)
     String getJsonData(KojiBuild kojiBuild) {
         try {
-            return OBJECT_MAPPER.writeValueAsString(kojiBuild);
+            return KojiJSONUtils.writeValueAsString(kojiBuild);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

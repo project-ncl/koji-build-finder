@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -26,6 +27,7 @@ import static org.hamcrest.Matchers.contains;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -154,6 +156,10 @@ class BuildConfigTest {
         File file = new File(folder, "config.json");
 
         bc.save(file);
+
+        List<String> lines = Files.readAllLines(file.toPath());
+
+        assertThat(lines, hasItem("  \"archive_types\" : [ \"jar\" ],"));
 
         BuildConfig bc2 = BuildConfig.load(file);
 

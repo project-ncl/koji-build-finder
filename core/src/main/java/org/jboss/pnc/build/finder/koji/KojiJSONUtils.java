@@ -22,10 +22,13 @@ import java.util.Map;
 import org.jboss.pnc.build.finder.core.BuildFinderObjectMapper;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class KojiJSONUtils {
+    private static final ObjectMapper MAPPER = new BuildFinderObjectMapper();
+
     private KojiJSONUtils() {
 
     }
@@ -36,11 +39,18 @@ public final class KojiJSONUtils {
         }
     }
 
+    public static <T> T readValue(String content, Class<T> valueType) throws JsonProcessingException {
+        return MAPPER.readValue(content, valueType);
+    }
+
+    public static String writeValueAsString(Object value) throws JsonProcessingException {
+        return MAPPER.writeValueAsString(value);
+    }
+
     public static Map<BuildSystemInteger, KojiBuild> loadBuildsFile(File file) throws IOException {
-        ObjectMapper mapper = new BuildFinderObjectMapper();
         TypeReference<Map<BuildSystemInteger, KojiBuild>> typeReference = new MapTypeReference();
 
-        return mapper.readValue(file, typeReference);
+        return MAPPER.readValue(file, typeReference);
     }
 
 }

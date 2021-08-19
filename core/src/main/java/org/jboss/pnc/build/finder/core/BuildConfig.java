@@ -24,21 +24,15 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class BuildConfig {
-    private static final ObjectMapper MAPPER = new BuildFinderObjectMapper();
-
-    static {
-        MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
+    private static final ObjectMapper MAPPER = new BuildFinderObjectMapper()
+            .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
     @JsonAlias("archive-extensions")
     private List<String> archiveExtensions;
