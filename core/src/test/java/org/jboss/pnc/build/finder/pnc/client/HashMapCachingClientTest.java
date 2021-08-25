@@ -17,12 +17,15 @@ package org.jboss.pnc.build.finder.pnc.client;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.common.Numbers;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductVersion;
@@ -39,6 +42,10 @@ class HashMapCachingClientTest {
 
     private static final PncClient HASH_MAP_CACHING_PNC_CLIENT = new HashMapCachingPncClient(DUMMY_PNC_CLIENT);
 
+    private static final String ARTIFACT_ID_STRING = "AAAADFIEAO4JA";
+
+    private static final long ARTIFACT_ID_LONG = 1739529107600L;
+
     @Test
     void m1ShouldGetArtifactsByMd5FromClient() throws RemoteResourceException {
         HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
@@ -51,6 +58,19 @@ class HashMapCachingClientTest {
         assertThat(DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter(), is(1));
     }
 
+    @Test
+    void m3ShouldConvertArtifactId() throws RemoteResourceException {
+        List<Artifact> artifacts = new ArrayList<>(HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5").getAll());
+
+        assertThat(artifacts, hasSize(1));
+
+        String id = artifacts.get(0).getId();
+
+        assertThat(id, is(ARTIFACT_ID_STRING));
+        assertThat(Numbers.decimalToBase32(ARTIFACT_ID_LONG), is(ARTIFACT_ID_STRING));
+        assertThat(PncUtils.convertPncIdtoKojiId(id), is(ARTIFACT_ID_LONG));
+    }
+
     private static class DummyPncClient implements PncClient {
         private final Collection<Artifact> artifacts;
 
@@ -58,7 +78,7 @@ class HashMapCachingClientTest {
 
         DummyPncClient() {
             artifacts = new ArrayList<>(1);
-            artifacts.add(Artifact.builder().id("1").build());
+            artifacts.add(Artifact.builder().id(ARTIFACT_ID_STRING).build());
         }
 
         int getGetArtifactsByMd5Counter() {

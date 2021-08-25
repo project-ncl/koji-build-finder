@@ -92,7 +92,7 @@ public class PncBuildFinder {
             } else {
                 KojiBuild kojiBuild = convertPncBuildToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds()
-                        .put(new BuildSystemInteger(kojiBuild.getBuildInfo().getId(), BuildSystem.pnc), kojiBuild);
+                        .put(new BuildSystemInteger(kojiBuild.getId(), BuildSystem.pnc), kojiBuild);
             }
         });
 

@@ -74,11 +74,11 @@ class DeletedAndCompletedBuildTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
+            assertThat(builds, hasEntry(is(new BuildSystemInteger(0L)), hasProperty("id", is(0L))));
             assertThat(
                     builds,
                     hasEntry(
-                            is(new BuildSystemInteger(500366, BuildSystem.koji)),
+                            is(new BuildSystemInteger(500366L, BuildSystem.koji)),
                             hasProperty("buildInfo", hasProperty("buildState", is(KojiBuildState.COMPLETE)))));
         }
     }
