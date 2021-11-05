@@ -84,7 +84,7 @@
     <version.com.spotify.hamcrest>1.2.0</version.com.spotify.hamcrest>
     <version.commons-codec>1.15</version.commons-codec>
     <version.eu.codearte.catch-exception>2.0</version.eu.codearte.catch-exception>
-    <version.info.picocli>4.6.1</version.info.picocli>
+    <version.info.picocli>4.6.2</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.4</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.17.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.6.2</version.net.revelc.code.impsort-maven-plugin>
