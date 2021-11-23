@@ -45,9 +45,9 @@ public final class Utils {
     static {
         PROPERTIES = new Properties();
 
-        try (InputStream is = Utils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
             PROPERTIES.load(is);
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException e) {
             LOGGER.error("Failed to load file: {}", boldRed(PROPERTIES_FILE), e);
         }
     }

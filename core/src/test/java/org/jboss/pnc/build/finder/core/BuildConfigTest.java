@@ -171,7 +171,7 @@ class BuildConfigTest {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"sha256\","
                 + "\"koji-hub-url\":\"https://my.url.com/hub\"," + "\"koji-web-url\":\"https://my.url.com/web\"}";
-        BuildConfig bc = BuildConfig.load(BuildConfigTest.class.getClassLoader());
+        BuildConfig bc = BuildConfig.load(Thread.currentThread().getContextClassLoader());
 
         assertThat(bc, is(notNullValue()));
         assertThat(bc.getArchiveTypes(), contains("jar", "xml", "pom", "so", "dll", "dylib"));

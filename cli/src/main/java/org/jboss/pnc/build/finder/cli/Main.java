@@ -276,7 +276,7 @@ public final class Main implements Callable<Void> {
     }
 
     private BuildConfig setupBuildConfig() throws IOException {
-        ClassLoader cl = Main.class.getClassLoader();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BuildConfig defaults = BuildConfig.load(cl);
         BuildConfig config;
 
