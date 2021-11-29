@@ -70,7 +70,7 @@
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.2.7</version.ch.qos.logback>
     <version.com.fasterxml.jackson>2.13.0</version.com.fasterxml.jackson>
-    <version.com.ginsberg.junit5-system-exit>1.1.1</version.com.ginsberg.junit5-system-exit>
+    <version.com.ginsberg.junit5-system-exit>1.1.2</version.com.ginsberg.junit5-system-exit>
     <version.com.github.ekryd.sortpom>3.0.0</version.com.github.ekryd.sortpom>
     <version.com.github.luben>1.5.0-4</version.com.github.luben>
     <version.com.github.sparkmuse>1.3.6</version.com.github.sparkmuse>
