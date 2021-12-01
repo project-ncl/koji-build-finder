@@ -15,15 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +35,7 @@ import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.FileError;
 import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,41 +58,48 @@ class RpmNvrNotFoundIT extends AbstractRpmIT {
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
         Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
 
-        assertThat(checksums, is(aMapWithSize(3)));
-        assertThat(builds, is(aMapWithSize(1)));
-        assertThat(fileErrors, is(empty()));
-        assertThat(
-                files,
-                allOf(
-                        aMapWithSize(1),
-                        hasEntry(
-                                is("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm"),
-                                contains(hasProperty("value", is("aa585b870f59ef457f26fa32a0daf923"))))));
-        assertThat(
-                analyzer.getChecksums(ChecksumType.md5),
-                hasEntry(
-                        is("aa585b870f59ef457f26fa32a0daf923"),
-                        contains(
-                                allOf(
-                                        hasProperty("filename", is("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm")),
-                                        hasProperty("size", is(258129L))))));
-        assertThat(
-                notFoundChecksums,
-                allOf(
-                        is(aMapWithSize(1)),
-                        hasEntry(
-                                hasProperty("value", is("aa585b870f59ef457f26fa32a0daf923")),
-                                contains("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm"))));
-        assertThat(foundChecksums, is(anEmptyMap()));
-        assertThat(buildsFound, is(empty()));
-        assertThat(
-                builds.get(new BuildSystemInteger(0)).getArchives(),
-                contains(
-                        allOf(
-                                hasProperty("filenames", contains("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm")),
-                                hasProperty(
-                                        "checksums",
-                                        contains(hasProperty("value", is("aa585b870f59ef457f26fa32a0daf923")))))));
+        assertThat(checksums).hasSize(3);
+        assertThat(builds).hasSize(1);
+        assertThat(fileErrors).isEmpty();
+        assertThat(files).hasSize(1)
+                .hasEntrySatisfying(
+                        "java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm",
+                        cksums -> assertThat(cksums).anySatisfy(
+                                checksum -> assertThat(checksum).extracting("value", as(STRING))
+                                        .isEqualTo("aa585b870f59ef457f26fa32a0daf923")));
+        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+                .hasEntrySatisfying(
+                        "aa585b870f59ef457f26fa32a0daf923",
+                        cksums -> assertThat(cksums).extracting("filename", "size")
+                                .contains(tuple("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm", 258129L)));
+        assertThat(notFoundChecksums).hasSize(1)
+                .hasEntrySatisfying(
+                        new RpmCondition(
+                                "aa585b870f59ef457f26fa32a0daf923",
+                                "java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm"));
+        assertThat(foundChecksums).isEmpty();
+        assertThat(buildsFound).isEmpty();
+
+        KojiBuild buildZero = builds.get(new BuildSystemInteger(0));
+
+        assertThat(buildZero).isNotNull();
+
+        List<KojiLocalArchive> archives = buildZero.getArchives();
+
+        assertThat(archives).singleElement()
+                .extracting("filenames", as(COLLECTION))
+                .singleElement(as(STRING))
+                .isEqualTo("java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm");
+        assertThat(archives).extracting("checksums")
+                .singleElement(as(COLLECTION))
+                .extracting("type", "value", "filename", "fileSize")
+                .singleElement()
+                .isEqualTo(
+                        tuple(
+                                ChecksumType.md5,
+                                "aa585b870f59ef457f26fa32a0daf923",
+                                "java-11-openjdk-11.0.8.10-1.fc33.x86_64.rpm",
+                                258129L));
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());

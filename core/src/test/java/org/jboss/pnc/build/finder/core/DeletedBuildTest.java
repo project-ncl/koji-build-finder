@@ -15,11 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,7 +43,7 @@ class DeletedBuildTest {
             WireMockConfiguration.options().usingFilesUnderClasspath("deleted-build-test").dynamicPort());
 
     @Test
-    void verifyDeletedBuild() throws KojiClientException, MalformedURLException {
+    void testDeletedBuild() throws KojiClientException, MalformedURLException {
         Checksum checksum = new Checksum(
                 ChecksumType.md5,
                 "a8c05c0ff2b61c3e205fb21010581bbe",
@@ -66,13 +62,12 @@ class DeletedBuildTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
-            assertThat(
-                    builds,
-                    hasEntry(
-                            is(new BuildSystemInteger(966480, BuildSystem.koji)),
-                            hasProperty("buildInfo", hasProperty("buildState", is(KojiBuildState.DELETED)))));
+            assertThat(builds).hasSize(2);
+            assertThat(builds)
+                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero());
+            assertThat(builds).hasEntrySatisfying(
+                    new BuildSystemInteger(966480, BuildSystem.koji),
+                    build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.DELETED));
         }
     }
 }

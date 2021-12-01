@@ -15,17 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,22 +64,22 @@ class PncBuildFinderTest {
     private KojiClientSession kojiClientSession;
 
     @Test
-    void shouldReturnEmptyResult() throws RemoteResourceException {
+    void testReturnEmptyResult() throws RemoteResourceException {
         // given
         PncClient pncClient = Mockito.mock(PncClient.class);
         BuildFinderUtils buildFinderUtils = new BuildFinderUtils(buildConfig, null, kojiClientSession);
         PncBuildFinder pncBuildFinder = new PncBuildFinder(pncClient, buildFinderUtils, buildConfig);
 
         // when
-        FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(new HashMap<>());
+        FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(Collections.emptyMap());
 
         // then
-        assertThat(findBuildsResult.getFoundBuilds(), is(anEmptyMap()));
-        assertThat(findBuildsResult.getNotFoundChecksums(), is(anEmptyMap()));
+        assertThat(findBuildsResult.getFoundBuilds()).isEmpty();
+        assertThat(findBuildsResult.getNotFoundChecksums()).isEmpty();
     }
 
     @Test
-    void shouldFindOneBuildInPnc() throws RemoteResourceException {
+    void testFindOneBuildInPnc() throws RemoteResourceException {
         // given
         String md5 = "md5-checksum";
         LocalFile filename = new LocalFile("empty.jar", -1L);
@@ -93,7 +87,7 @@ class PncBuildFinderTest {
         PncClient pncClient = Mockito.mock(PncClient.class);
         String buildId = "100";
 
-        Map<String, String> attributes = new HashMap<>();
+        Map<String, String> attributes = new HashMap<>(2);
         attributes.put(Attributes.BUILD_BREW_NAME, "org.empty-empty");
         attributes.put(Attributes.BUILD_BREW_VERSION, "1.0.0");
 
@@ -133,18 +127,18 @@ class PncBuildFinderTest {
         FindBuildsResult findBuildsResult = pncBuildFinder.findBuildsPnc(requestMap);
 
         // then
-        assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getNotFoundChecksums(), is(anEmptyMap()));
+        assertThat(findBuildsResult.getFoundBuilds()).hasSize(1);
+        assertThat(findBuildsResult.getNotFoundChecksums()).isEmpty();
 
         KojiBuild foundBuild = findBuildsResult.getFoundBuilds().get(new BuildSystemInteger(100, BuildSystem.pnc));
         List<KojiLocalArchive> foundArchives = foundBuild.getArchives();
 
-        assertThat(foundArchives, hasSize(1));
-        assertThat(foundArchives.get(0).getArchive().getChecksum(), is(md5));
+        assertThat(foundArchives).hasSize(1);
+        assertThat(foundArchives.get(0).getArchive().getChecksum()).isEqualTo(md5);
     }
 
     @Test
-    void shouldNotFindABuildInPnc() throws RemoteResourceException {
+    void testNotFindABuildInPnc() throws RemoteResourceException {
         // given
         String givenMd5 = "md5-different";
         LocalFile filename = new LocalFile("empty.jar", -1L);
@@ -164,19 +158,15 @@ class PncBuildFinderTest {
 
         // then
         // Verify that only BuildZero is returned
-        assertThat(findBuildsResult.getFoundBuilds(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getFoundBuilds().keySet().iterator().next().getValue(), is(0));
+        assertThat(findBuildsResult.getFoundBuilds()).hasSize(1);
+        assertThat(findBuildsResult.getFoundBuilds()).containsOnlyKeys(new BuildSystemInteger(0));
 
         // Verify that the artifact is in the notFoundChecksums collection
-        assertThat(findBuildsResult.getNotFoundChecksums(), is(aMapWithSize(1)));
-        assertThat(findBuildsResult.getNotFoundChecksums(), hasEntry(is(checksum), contains(filename.getFilename())));
+        assertThat(findBuildsResult.getNotFoundChecksums()).hasSize(1)
+                .containsEntry(checksum, Collections.singletonList(filename.getFilename()));
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
-        List<Artifact> artifactList = new ArrayList<>(artifacts.length);
-
-        Collections.addAll(artifactList, artifacts);
-
-        return new StaticRemoteCollection<>(artifactList);
+        return new StaticRemoteCollection<>(Arrays.asList(artifacts));
     }
 }

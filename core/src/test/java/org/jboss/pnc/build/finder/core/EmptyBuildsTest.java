@@ -15,12 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -48,7 +43,7 @@ class EmptyBuildsTest {
             WireMockConfiguration.options().usingFilesUnderClasspath("empty-builds-test").dynamicPort());
 
     @Test
-    void verifyEmptyChecksums() throws IOException, KojiClientException {
+    void testEmptyChecksums() throws IOException, KojiClientException {
         BuildConfig config = new BuildConfig();
 
         config.setKojiHubURL(new URL(server.baseUrl()));
@@ -61,12 +56,12 @@ class EmptyBuildsTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(Collections.emptyMap());
 
-            assertThat(builds, is(anEmptyMap()));
+            assertThat(builds).isEmpty();
         }
     }
 
     @Test
-    void verifyEmptyBuilds() throws KojiClientException, MalformedURLException {
+    void testEmptyBuilds() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
                 "ca5330166ccd4e2b205bed4b88f924b0",
@@ -88,8 +83,9 @@ class EmptyBuildsTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertThat(builds, is(aMapWithSize(1)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
+            assertThat(builds).hasSize(1);
+            assertThat(builds)
+                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero());
         }
     }
 }

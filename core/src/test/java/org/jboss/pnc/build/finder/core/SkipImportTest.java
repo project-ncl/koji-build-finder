@@ -15,13 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,7 +44,7 @@ class SkipImportTest {
             WireMockConfiguration.options().usingFilesUnderClasspath("skip-import-test").dynamicPort());
 
     @Test
-    void verifyMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
+    void testMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
                 "2e7e85f0ee97afde716231a6c792492a",
@@ -77,12 +71,12 @@ class SkipImportTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
-            assertThat(
-                    builds,
-                    hasEntry(is(new BuildSystemInteger(228994, BuildSystem.koji)), hasProperty("id", is(228994))));
-            assertThat(builds, not(hasKey(new BuildSystemInteger(251444, BuildSystem.koji))));
+            assertThat(builds).hasSize(2)
+                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero())
+                    .hasEntrySatisfying(
+                            new BuildSystemInteger(228994, BuildSystem.koji),
+                            build -> assertThat(build.getId()).isEqualTo(228994));
+            assertThat(builds).doesNotContainKey(new BuildSystemInteger(251444, BuildSystem.koji));
         }
     }
 }

@@ -15,11 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -73,13 +69,12 @@ class DeletedAndCompletedBuildTest {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
-            assertThat(builds, is(aMapWithSize(2)));
-            assertThat(builds, hasEntry(is(new BuildSystemInteger(0)), hasProperty("id", is(0))));
-            assertThat(
-                    builds,
-                    hasEntry(
-                            is(new BuildSystemInteger(500366, BuildSystem.koji)),
-                            hasProperty("buildInfo", hasProperty("buildState", is(KojiBuildState.COMPLETE)))));
+            assertThat(builds).hasSize(2);
+            assertThat(builds)
+                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero());
+            assertThat(builds).hasEntrySatisfying(
+                    new BuildSystemInteger(500366, BuildSystem.koji),
+                    build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.COMPLETE));
         }
     }
 }

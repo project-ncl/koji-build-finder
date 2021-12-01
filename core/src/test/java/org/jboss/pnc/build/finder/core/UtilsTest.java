@@ -15,17 +15,9 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
-import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasNoCause;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
@@ -41,76 +33,72 @@ class UtilsTest {
 
     private static void userHome() {
         String userHome = Utils.getUserHome();
-
         LOGGER.debug("user.home={}", userHome);
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
-    void verifyUserHomeQuestionMark() {
-        catchException(UtilsTest::userHome);
-        assertThat(
-                caughtException(),
-                allOf(isA(RuntimeException.class), hasMessage("Invalid user.home: ?"), hasNoCause()));
+    void testUserHomeQuestionMark() {
+        assertThatThrownBy(UtilsTest::userHome).isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Invalid user.home: ?")
+                .hasNoCause();
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @ClearSystemProperty(key = "user.home")
     @Test
-    void verifyUserHomeNull() {
-        catchException(UtilsTest::userHome);
-        assertThat(
-                caughtException(),
-                allOf(isA(RuntimeException.class), hasMessage("Invalid user.home: null"), hasNoCause()));
+    void testUserHomeNull() {
+        assertThatThrownBy(UtilsTest::userHome).isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Invalid user.home: null")
+                .hasNoCause();
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)
     @Test
-    void verifyUserHome() {
-        catchException(UtilsTest::userHome);
-        assertThat(caughtException(), is(nullValue()));
+    void testUserHome() {
+        assertThatCode(UtilsTest::userHome).doesNotThrowAnyException();
     }
 
     @Test
-    void verifyBuildFinderVersion() {
+    void testBuildFinderVersion() {
         String version = Utils.getBuildFinderVersion();
 
         LOGGER.debug("Version is: '{}'", version);
 
-        assertThat(version, is(not(emptyOrNullString())));
+        assertThat(version).isNotEmpty();
     }
 
     @Test
-    void verifyBuildFinderScmRevision() {
+    void testBuildFinderScmRevision() {
         String scmRevision = Utils.getBuildFinderScmRevision();
 
         LOGGER.debug("SCM Revision is: '{}'", scmRevision);
 
-        assertThat(scmRevision, is(not(emptyOrNullString())));
+        assertThat(scmRevision).isNotEmpty();
     }
 
     @Test
-    void verifyByteCountToDisplaySize() {
-        assertThat(Utils.byteCountToDisplaySize(1023L), is("1023"));
-        assertThat(Utils.byteCountToDisplaySize(1024L), is("1.0K"));
-        assertThat(Utils.byteCountToDisplaySize(1025L), is("1.1K"));
-        assertThat(Utils.byteCountToDisplaySize(10137L), is("9.9K"));
-        assertThat(Utils.byteCountToDisplaySize(10138L), is("10K"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1023L), is("1023K"));
-        assertThat(Utils.byteCountToDisplaySize(1024L << 10), is("1.0M"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1025L), is("1.1M"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1023L), is("1023M"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L), is("1.0G"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1025L), is("1.1G"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L), is("2.0G"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L - 1L), is("2.0G"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L), is("1.0T"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L), is("1.0P"));
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L * 1024L), is("1.0E"));
-        assertThat(Utils.byteCountToDisplaySize(Long.MAX_VALUE), is("8.0E"));
-        assertThat(Utils.byteCountToDisplaySize((long) Character.MAX_VALUE), is("64K"));
-        assertThat(Utils.byteCountToDisplaySize((long) Short.MAX_VALUE), is("32K"));
-        assertThat(Utils.byteCountToDisplaySize((long) Integer.MAX_VALUE), is("2.0G"));
+    void testByteCountToDisplaySize() {
+        assertThat(Utils.byteCountToDisplaySize(1023L)).isEqualTo("1023");
+        assertThat(Utils.byteCountToDisplaySize(1024L)).isEqualTo("1.0K");
+        assertThat(Utils.byteCountToDisplaySize(1025L)).isEqualTo("1.1K");
+        assertThat(Utils.byteCountToDisplaySize(10137L)).isEqualTo("9.9K");
+        assertThat(Utils.byteCountToDisplaySize(10138L)).isEqualTo("10K");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1023L)).isEqualTo("1023K");
+        assertThat(Utils.byteCountToDisplaySize(1024L << 10)).isEqualTo("1.0M");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1025L)).isEqualTo("1.1M");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1023L)).isEqualTo("1023M");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L)).isEqualTo("1.0G");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1025L)).isEqualTo("1.1G");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L)).isEqualTo("2.0G");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L - 1L)).isEqualTo("2.0G");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0T");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0P");
+        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0E");
+        assertThat(Utils.byteCountToDisplaySize(Long.MAX_VALUE)).isEqualTo("8.0E");
+        assertThat(Utils.byteCountToDisplaySize(Character.MAX_VALUE)).isEqualTo("64K");
+        assertThat(Utils.byteCountToDisplaySize(Short.MAX_VALUE)).isEqualTo("32K");
+        assertThat(Utils.byteCountToDisplaySize(Integer.MAX_VALUE)).isEqualTo("2.0G");
     }
 }

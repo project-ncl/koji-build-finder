@@ -15,9 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.INTEGER;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +86,7 @@ class FileObjectTrackingTest {
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
     @Test
-    void verifyObjectCreation(@TempDir File folder) throws IOException {
+    void testObjectCreation(@TempDir File folder) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
 
         BuildConfig config = new BuildConfig();
@@ -98,19 +97,15 @@ class FileObjectTrackingTest {
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(25);
 
         Object sCounter = getFileSystemCounter();
 
-        assertThat(sCounter, is(notNullValue()));
-
-        int sCount = (Integer) sCounter;
-
-        assertThat(sCount, is(0));
+        assertThat(sCounter).isNotNull().asInstanceOf(INTEGER).isZero();
 
         Object fCounter = getAbstractFileObjectCounter();
 
-        assertThat(fCounter, is(0));
+        assertThat(fCounter).isNotNull().asInstanceOf(INTEGER).isZero();
     }
 
     /**

@@ -16,15 +16,19 @@
 package org.jboss.pnc.build.finder.core.it;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
+import org.assertj.core.api.Condition;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
+import org.jboss.pnc.build.finder.core.Checksum;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.LocalFile;
@@ -48,6 +52,22 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
     protected abstract List<String> getFiles();
 
     protected abstract void verify(DistributionAnalyzer analyzer, BuildFinder finder) throws Exception;
+
+    public static class RpmCondition extends Condition<Entry<Checksum, Collection<String>>> {
+        private final String checksum;
+
+        private final String filename;
+
+        public RpmCondition(String checksum, String filename) {
+            this.checksum = checksum;
+            this.filename = filename;
+        }
+
+        @Override
+        public boolean matches(Entry<Checksum, Collection<String>> entry) {
+            return entry.getKey().getValue().equals(checksum) && entry.getValue().contains(filename);
+        }
+    }
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {

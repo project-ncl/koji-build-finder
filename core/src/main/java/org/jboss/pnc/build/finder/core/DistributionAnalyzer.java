@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -171,9 +172,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                 if (localMap != null) {
                                     this.map.get(checksumType).putAll(localMap);
 
-                                    Collection<Map.Entry<String, LocalFile>> entries = localMap.entries();
+                                    Collection<Entry<String, LocalFile>> entries = localMap.entries();
                                     try {
-                                        for (Map.Entry<String, LocalFile> entry : entries) {
+                                        for (Entry<String, LocalFile> entry : entries) {
                                             inverseMap.put(
                                                     entry.getValue().getFilename(),
                                                     new Checksum(checksumType, entry.getKey(), entry.getValue()));
@@ -189,7 +190,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                     }
 
                                     if (queue != null && checksumType == ChecksumType.md5) {
-                                        for (Map.Entry<String, LocalFile> entry : entries) {
+                                        for (Entry<String, LocalFile> entry : entries) {
                                             try {
                                                 Checksum checksum = new Checksum(
                                                         checksumType,

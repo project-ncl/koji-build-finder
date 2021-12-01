@@ -81,9 +81,7 @@
     <version.com.mycila>4.1</version.com.mycila>
     <version.com.puppycrawl.tools>9.2</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.15</version.com.redhat.red.build.kojiji>
-    <version.com.spotify.hamcrest>1.2.0</version.com.spotify.hamcrest>
     <version.commons-codec>1.15</version.commons-codec>
-    <version.eu.codearte.catch-exception>2.0</version.eu.codearte.catch-exception>
     <version.info.picocli>4.6.2</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.4</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.17.0</version.net.revelc.code.formatter>
@@ -118,6 +116,7 @@
     <version.org.apache.maven.plugins.maven-site-plugin>3.9.1</version.org.apache.maven.plugins.maven-site-plugin>
     <version.org.apache.maven.plugins.maven-source-plugin>3.2.1</version.org.apache.maven.plugins.maven-source-plugin>
     <version.org.apache.maven.plugins.maven-surefire-plugin>3.0.0-M5</version.org.apache.maven.plugins.maven-surefire-plugin>
+    <version.org.assertj>3.21.0</version.org.assertj>
     <version.org.bouncycastle>1.70</version.org.bouncycastle>
     <version.org.codehaus.mojo.buildnumber-maven-plugin>1.4</version.org.codehaus.mojo.buildnumber-maven-plugin>
     <version.org.codehaus.mojo.versions-maven-plugin>2.8.1</version.org.codehaus.mojo.versions-maven-plugin>
@@ -459,15 +458,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.spotify</groupId>
-        <artifactId>hamcrest-optional</artifactId>
-        <version>${version.com.spotify.hamcrest}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>eu.codearte.catch-exception</groupId>
-        <artifactId>catch-exception</artifactId>
-        <version>${version.eu.codearte.catch-exception}</version>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${version.org.assertj}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -532,16 +525,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.spotify</groupId>
-      <artifactId>hamcrest-optional</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>eu.codearte.catch-exception</groupId>
-      <artifactId>catch-exception</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.junit-pioneer</groupId>
       <artifactId>junit-pioneer</artifactId>
       <scope>test</scope>
@@ -554,6 +537,11 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

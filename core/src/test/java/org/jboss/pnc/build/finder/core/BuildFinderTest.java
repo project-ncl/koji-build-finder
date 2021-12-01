@@ -15,12 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.arrayWithSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +35,12 @@ class BuildFinderTest {
     @BeforeAll
     static void setTarget() throws IOException {
         File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
-        assertThat(target.canRead(), is(true));
+        assertThat(target).isFile().isReadable();
         files = Collections.singletonList(target.getPath());
     }
 
     @Test
-    void verifyDirectory(@TempDir File folder) throws IOException {
+    void testDirectory(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.sha1;
         BuildConfig config = new BuildConfig();
 
@@ -58,12 +53,12 @@ class BuildFinderTest {
 
         File[] file = folder.listFiles();
 
-        assertThat(file, allOf(is(notNullValue()), is(arrayWithSize(1))));
-        assertThat(da.getChecksumFile(checksumType).getCanonicalPath(), is(file[0].getCanonicalPath()));
+        assertThat(file).isNotNull().hasSize(1);
+        assertThat(da.getChecksumFile(checksumType).getCanonicalPath()).isEqualTo(file[0].getCanonicalPath());
     }
 
     @Test
-    void verifyloadChecksumsFile(@TempDir File folder) throws IOException {
+    void testLoadChecksumsFile(@TempDir File folder) throws IOException {
         ChecksumType checksumType = ChecksumType.md5;
         BuildConfig config = new BuildConfig();
 
@@ -76,6 +71,6 @@ class BuildFinderTest {
 
         Map<String, Collection<LocalFile>> checksums = JSONUtils.loadChecksumsFile(da.getChecksumFile(checksumType));
 
-        assertThat(checksums, is(aMapWithSize(1)));
+        assertThat(checksums).hasSize(1);
     }
 }

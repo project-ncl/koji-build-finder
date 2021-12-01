@@ -15,7 +15,7 @@
  */
 package org.jboss.pnc.build.finder.protobuf;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jeasy.random.EasyRandom;
@@ -25,12 +25,12 @@ class KojiBuildAdapterTest {
     private static final EasyRandom EASY_RANDOM = new EasyRandom();
 
     @Test
-    public void testSerializeDeserializeKojiBuild() {
+    void testSerializeDeserializeKojiBuild() {
         KojiBuild kojiBuild = EASY_RANDOM.nextObject(KojiBuild.class);
         KojiBuildAdapter adapter = new KojiBuildAdapter();
         String json = adapter.getJsonData(kojiBuild);
         KojiBuild deserialized = adapter.create(json);
 
-        assertEquals(kojiBuild.getId(), deserialized.getId());
+        assertThat(deserialized.getId()).isEqualTo(kojiBuild.getId());
     }
 }

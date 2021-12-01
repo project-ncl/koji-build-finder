@@ -15,16 +15,10 @@
  */
 package org.jboss.pnc.build.finder.pnc.it;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessage;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.iterableWithSize;
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.client.RemoteCollection;
@@ -39,7 +33,7 @@ import org.junit.jupiter.api.Test;
  */
 class PncClientImplIT extends AbstractKojiIT {
     @Test
-    void shouldGetArtifactByMd5() throws RemoteResourceException {
+    void testGetArtifactByMd5() throws RemoteResourceException {
         // given
         String checksum = "7538cd62a04a378d4c1944e26c793164";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -48,12 +42,11 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsByMd5(checksum);
 
         // then
-        assertThat(remoteArtifacts, is(iterableWithSize(1)));
-        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
+        assertThat(remoteArtifacts).singleElement().extracting("identifier", as(STRING)).isEqualTo(artifactIdentifier);
     }
 
     @Test
-    void shouldGetArtifactBySha1() throws RemoteResourceException {
+    void testGetArtifactBySha1() throws RemoteResourceException {
         // given
         String checksum = "6f488e461188496c62e161f32160b3465ce5901e";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -62,12 +55,11 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha1(checksum);
 
         // then
-        assertThat(remoteArtifacts, is(iterableWithSize(1)));
-        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
+        assertThat(remoteArtifacts).singleElement().extracting("identifier", as(STRING)).isEqualTo(artifactIdentifier);
     }
 
     @Test
-    void shouldGetArtifactBySha256() throws RemoteResourceException {
+    void testGetArtifactBySha256() throws RemoteResourceException {
         // given
         String checksum = "cfdf0057b2d2a416d48b873afe5a2bf8d848aabbba07636149fcbb622c5952d7";
         String artifactIdentifier = "org.apache.maven:maven-core:jar:2.2.1";
@@ -76,12 +68,11 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha256(checksum);
 
         // then
-        assertThat(remoteArtifacts, is(iterableWithSize(1)));
-        assertThat(remoteArtifacts.iterator().next().getIdentifier(), is(artifactIdentifier));
+        assertThat(remoteArtifacts).singleElement().extracting("identifier", as(STRING)).isEqualTo(artifactIdentifier);
     }
 
     @Test
-    void shouldNotGetArtifactBySha256() throws RemoteResourceException {
+    void testNotGetArtifactBySha256() throws RemoteResourceException {
         // given
         String checksum = "invalid sha 256";
 
@@ -89,29 +80,23 @@ class PncClientImplIT extends AbstractKojiIT {
         RemoteCollection<Artifact> remoteArtifacts = getPncClient().getArtifactsBySha256(checksum);
 
         // then
-        assertThat(remoteArtifacts, is(emptyIterable()));
+        assertThat(remoteArtifacts).isEmpty();
     }
 
     @Test
-    void shouldNotGetBuildPushResult() {
-        catchException(() -> {
+    void testNotGetBuildPushResult() {
+        assertThatThrownBy(() -> {
             // given
-            String buildId = "-100";
+            String buildId = "0000000000000";
 
             // when
             getPncClient().getBuildPushResult(buildId);
-        });
-
-        // then
-        assertThat(
-                caughtException(),
-                allOf(
-                        isA(RemoteResourceNotFoundException.class),
-                        hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
+        }).isExactlyInstanceOf(RemoteResourceNotFoundException.class)
+                .hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found");
     }
 
     @Test
-    void shouldGetProductVersion() throws RemoteResourceException {
+    void testGetProductVersion() throws RemoteResourceException {
         // given
         String buildId = "100";
 
@@ -119,25 +104,19 @@ class PncClientImplIT extends AbstractKojiIT {
         ProductVersion productVersion = getPncClient().getProductVersion(buildId);
 
         // then
-        assertThat(productVersion, is(notNullValue()));
-        assertThat(productVersion.getProduct(), is(notNullValue()));
+        assertThat(productVersion).isNotNull();
+        assertThat(productVersion.getProduct()).isNotNull();
     }
 
     @Test
-    void shouldNotGetProductVersion() {
-        catchException(() -> {
+    void testNotGetProductVersion() {
+        assertThatThrownBy(() -> {
             // given
             String buildId = "-100";
 
             // when
             getPncClient().getProductVersion(buildId);
-        });
-
-        // then
-        assertThat(
-                caughtException(),
-                allOf(
-                        isA(RemoteResourceNotFoundException.class),
-                        hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found")));
+        }).isExactlyInstanceOf(RemoteResourceNotFoundException.class)
+                .hasMessage("javax.ws.rs.NotFoundException: HTTP 404 Not Found");
     }
 }

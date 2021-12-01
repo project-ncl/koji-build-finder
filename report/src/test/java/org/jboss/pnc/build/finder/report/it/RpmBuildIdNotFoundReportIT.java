@@ -15,24 +15,15 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.io.FileMatchers.aReadableFile;
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.contentOf;
+import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +39,7 @@ import org.jboss.pnc.build.finder.core.FileError;
 import org.jboss.pnc.build.finder.core.LocalFile;
 import org.jboss.pnc.build.finder.core.it.AbstractRpmIT;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
 import org.jboss.pnc.build.finder.report.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,71 +63,69 @@ class RpmBuildIdNotFoundReportIT extends AbstractRpmIT {
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
         Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
 
-        assertThat(checksums, is(aMapWithSize(3)));
-        assertThat(builds, is(aMapWithSize(1)));
+        assertThat(checksums).hasSize(3);
+        assertThat(builds).hasSize(1);
 
         LOGGER.debug("builds is {}", builds);
 
-        assertThat(fileErrors, is(empty()));
-        assertThat(
-                analyzer.getChecksums(ChecksumType.md5),
-                hasEntry(
-                        is("84ed0982a77b1c3a0c093409eb19c8ab"),
-                        contains(
-                                allOf(
-                                        hasProperty("filename", is("libdnf-0.48.0-4.fc33.x86_64.rpm")),
-                                        hasProperty("size", is(605175L))))));
-        assertThat(notFoundChecksums, is(anEmptyMap()));
-        assertThat(
-                files,
-                allOf(
-                        aMapWithSize(1),
-                        hasEntry(
-                                is("libdnf-0.48.0-4.fc33.x86_64.rpm"),
-                                contains(hasProperty("value", is("84ed0982a77b1c3a0c093409eb19c8ab"))))));
-        assertThat(
-                foundChecksums,
-                allOf(
-                        is(aMapWithSize(1)),
-                        hasEntry(
-                                hasProperty("value", is("84ed0982a77b1c3a0c093409eb19c8ab")),
-                                contains("libdnf-0.48.0-4.fc33.x86_64.rpm"))));
-        assertThat(buildsFound, is(empty()));
-        assertThat(
-                builds.get(new BuildSystemInteger(0)).getArchives(),
-                contains(
-                        allOf(
-                                hasProperty("filenames", contains("libdnf-0.48.0-4.fc33.x86_64.rpm")),
-                                hasProperty(
-                                        "checksums",
-                                        contains(hasProperty("value", is("84ed0982a77b1c3a0c093409eb19c8ab")))))));
+        assertThat(fileErrors).isEmpty();
+        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+                .hasEntrySatisfying(
+                        "84ed0982a77b1c3a0c093409eb19c8ab",
+                        cksums -> assertThat(cksums).singleElement()
+                                .extracting("filename", "size")
+                                .contains("libdnf-0.48.0-4.fc33.x86_64.rpm", 605175L));
+        assertThat(notFoundChecksums).isEmpty();
+        assertThat(files).hasSize(1)
+                .hasEntrySatisfying(
+                        "libdnf-0.48.0-4.fc33.x86_64.rpm",
+                        cksums -> assertThat(cksums).extracting("value")
+                                .singleElement(as(STRING))
+                                .isEqualTo("84ed0982a77b1c3a0c093409eb19c8ab"));
+        assertThat(foundChecksums).hasSize(1)
+                .hasEntrySatisfying(
+                        new RpmCondition("84ed0982a77b1c3a0c093409eb19c8ab", "libdnf-0.48.0-4.fc33.x86_64.rpm"));
+        assertThat(buildsFound).isEmpty();
+
+        KojiBuild buildZero = builds.get(new BuildSystemInteger(0));
+
+        assertThat(buildZero).isNotNull();
+
+        List<KojiLocalArchive> archives = buildZero.getArchives();
+
+        assertThat(archives).singleElement()
+                .extracting("filenames", as(COLLECTION))
+                .singleElement(as(STRING))
+                .isEqualTo("libdnf-0.48.0-4.fc33.x86_64.rpm");
+        assertThat(archives).singleElement()
+                .extracting("checksums", as(COLLECTION))
+                .singleElement()
+                .extracting("type", "value", "filename", "fileSize")
+                .containsExactly(
+                        ChecksumType.md5,
+                        "84ed0982a77b1c3a0c093409eb19c8ab",
+                        "libdnf-0.48.0-4.fc33.x86_64.rpm",
+                        605175L);
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());
         LOGGER.info("File errors: {}", fileErrors.size());
 
+        // FIXME: Don't hardcode filenames
         Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
 
         File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
 
-        assertThat(nvrTxt, is(aReadableFile()));
+        assertThat(nvrTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
 
         File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
 
-        assertThat(gavTxt, is(aReadableFile()));
+        assertThat(gavTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
 
         File outputHtml = new File(finder.getOutputDirectory(), "output.html");
 
-        assertThat(outputHtml, is(aReadableFile()));
-
-        String lines = new String(Files.readAllBytes(outputHtml.toPath()), StandardCharsets.UTF_8);
-
-        assertThat(
-                lines,
-                allOf(
-                        startsWith("<!DOCTYPE html>"),
-                        containsString("rpmID="),
-                        containsString("color:red;font-weight:700"),
-                        endsWith("</html>")));
+        assertThat(contentOf(outputHtml, StandardCharsets.UTF_8)).startsWith("<!DOCTYPE html>")
+                .contains("rpmID=", "color:red;font-weight:700")
+                .endsWith("</html>");
     }
 }

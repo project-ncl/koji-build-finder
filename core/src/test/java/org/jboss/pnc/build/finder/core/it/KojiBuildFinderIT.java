@@ -15,11 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.util.Collections;
@@ -58,10 +54,9 @@ class KojiBuildFinderIT extends AbstractKojiIT {
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
-        assertThat(
-                "You must set the property " + PROPERTY + " pointing to the URL of the distribution to test with",
-                URL,
-                is(notNullValue()));
+        assertThat(URL)
+                .as("You must set the property %s pointing to the URL of the distribution to test with", PROPERTY)
+                .isNotNull();
 
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
@@ -88,8 +83,8 @@ class KojiBuildFinderIT extends AbstractKojiIT {
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             map = futureChecksum.get();
 
-            assertThat(map, is(aMapWithSize(3)));
-            assertThat(builds, is(aMapWithSize(greaterThanOrEqualTo(1))));
+            assertThat(map).hasSize(3);
+            assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
 
             LOGGER.info("Map size: {}", map.size());
             LOGGER.info("Builds size: {}", builds.size());

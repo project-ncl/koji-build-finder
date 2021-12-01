@@ -15,25 +15,15 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.io.FileMatchers.aReadableFile;
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.contentOf;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +49,7 @@ class RpmReportIT extends AbstractRpmIT {
     @Override
     protected List<String> getFiles() {
         return Collections.singletonList(
-                "https://downloads.redhat.com/redhat/rhel/rhel-8-beta/baseos/x86_64/Packages/basesystem-11-5.el8.noarch.rpm");
+                "https://downloads.redhat.com/redhat/rhel/rhel-9-beta/baseos/x86_64/Packages/basesystem-11-13.el9.noarch.rpm");
     }
 
     @Override
@@ -72,63 +62,52 @@ class RpmReportIT extends AbstractRpmIT {
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
         Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
 
-        assertThat(checksums, is(aMapWithSize(3)));
-        assertThat(builds, is(aMapWithSize(2)));
-        assertThat(fileErrors, is(empty()));
-        assertThat(
-                analyzer.getChecksums(ChecksumType.md5),
-                hasEntry(
-                        is("31bc067a6462aacd3b891681bdb27512"),
-                        contains(
-                                allOf(
-                                        hasProperty("filename", is("basesystem-11-5.el8.noarch.rpm")),
-                                        hasProperty("size", is(10756L))))));
-        assertThat(
-                files,
-                allOf(
-                        aMapWithSize(1),
-                        hasEntry(
-                                is("basesystem-11-5.el8.noarch.rpm"),
-                                contains(hasProperty("value", is("31bc067a6462aacd3b891681bdb27512"))))));
-        assertThat(notFoundChecksums, is(anEmptyMap()));
-        assertThat(
-                foundChecksums,
-                allOf(
-                        is(aMapWithSize(1)),
-                        hasEntry(
-                                hasProperty("value", is("31bc067a6462aacd3b891681bdb27512")),
-                                contains("basesystem-11-5.el8.noarch.rpm"))));
-        assertThat(
-                buildsFound,
-                contains(hasProperty("archives", contains(hasProperty("rpm", hasProperty("name", is("basesystem")))))));
-        assertThat(builds.get(new BuildSystemInteger(0)).getArchives(), is(empty()));
+        assertThat(checksums).hasSize(3);
+        assertThat(builds).hasSize(2);
+        assertThat(fileErrors).isEmpty();
+        assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+                .hasEntrySatisfying(
+                        "16605e0013938a5e21ffdf777cfa86ce",
+                        localFiles -> assertThat(localFiles).extracting("filename", "size")
+                                .containsExactly(tuple("basesystem-11-13.el9.noarch.rpm", 7677L)));
+        assertThat(files).hasSize(1)
+                .hasEntrySatisfying(
+                        "basesystem-11-13.el9.noarch.rpm",
+                        cksums -> assertThat(cksums).extracting("value")
+                                .singleElement(as(STRING))
+                                .isEqualTo("16605e0013938a5e21ffdf777cfa86ce"));
+        assertThat(notFoundChecksums).isEmpty();
+        assertThat(foundChecksums).hasSize(1)
+                .hasEntrySatisfying(
+                        new RpmCondition("16605e0013938a5e21ffdf777cfa86ce", "basesystem-11-13.el9.noarch.rpm"));
+        assertThat(buildsFound).extracting("archives")
+                .singleElement()
+                .asList()
+                .extracting("rpm.name")
+                .singleElement(as(STRING))
+                .isEqualTo("basesystem");
+        assertThat(builds.get(new BuildSystemInteger(0)).getArchives()).isEmpty();
 
         LOGGER.info("Checksums size: {}", checksums.size());
         LOGGER.info("Builds size: {}", builds.size());
         LOGGER.info("File errors: {}", fileErrors.size());
 
+        // FIXME: Don't hardcode filenames
         Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
 
         File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
 
-        assertThat(nvrTxt, is(aReadableFile()));
+        assertThat(nvrTxt).isFile().isReadable().content().hasLineCount(1).containsPattern("^basesystem-11-13.el9$");
 
         File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
 
-        assertThat(gavTxt, is(aReadableFile()));
+        assertThat(gavTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
 
         File outputHtml = new File(finder.getOutputDirectory(), "output.html");
 
-        assertThat(outputHtml, is(aReadableFile()));
-
-        String lines = new String(Files.readAllBytes(outputHtml.toPath()), StandardCharsets.UTF_8);
-
-        assertThat(
-                lines,
-                allOf(
-                        startsWith("<!DOCTYPE html>"),
-                        containsString("rpmID="),
-                        not(containsString("color:red;font-weight:bold")),
-                        endsWith("</html>")));
+        assertThat(contentOf(outputHtml, StandardCharsets.UTF_8)).startsWith("<!DOCTYPE html>")
+                .contains("rpmID=")
+                .doesNotContain("color:red;font-weight:bold")
+                .endsWith("</html>");
     }
 }

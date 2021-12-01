@@ -15,9 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertThat(timer.getCount(), is(greaterThan(0L)));
+        assertThat(timer.getCount()).isPositive();
     }
 
     @Test
@@ -79,7 +77,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertThat(timer.getCount(), is(greaterThan(0L)));
+        assertThat(timer.getCount()).isPositive();
     }
 
     @Test
@@ -98,6 +96,6 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
             }
         }
 
-        assertThat(timer.getCount(), is(greaterThan(0L)));
+        assertThat(timer.getCount()).isPositive();
     }
 }

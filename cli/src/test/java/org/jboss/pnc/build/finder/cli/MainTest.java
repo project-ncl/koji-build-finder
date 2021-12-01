@@ -15,19 +15,12 @@
  */
 package org.jboss.pnc.build.finder.cli;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -57,40 +50,36 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void verifyHelp(StdOut out) {
+    void testHelp(StdOut out) {
         String[] args = { "--help" };
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        assertThat(parseResult.hasMatchedOption("--help"), is(true));
+        assertThat(parseResult.hasMatchedOption("--help")).isTrue();
 
         Main.main(args);
 
-        assertThat(out.capturedLines(), hasItemInArray(containsString("Usage:")));
+        assertThat(out.capturedLines()).anyMatch(line -> line.contains("Usage:"));
     }
 
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void verifyVersion(StdOut out) {
+    void testVersion(StdOut out) {
         String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        assertThat(parseResult.hasMatchedOption("--version"), is(true));
+        assertThat(parseResult.hasMatchedOption("--version")).isTrue();
 
         Main.main(args);
 
-        assertThat(
-                out.capturedLines(),
-                hasItemInArray(
-                        allOf(
-                                containsString(Utils.getBuildFinderVersion()),
-                                containsString(Utils.getBuildFinderScmRevision()),
-                                not(containsString("unknown")))));
+        assertThat(out.capturedLines()).anyMatch(line -> line.contains(Utils.getBuildFinderVersion()))
+                .anyMatch(line -> line.contains(Utils.getBuildFinderScmRevision()))
+                .allMatch(line -> !line.contains("unknown"));
     }
 
     @Test
-    void verifyParsing(@TempDir File folder) throws IOException {
+    void testParsing(@TempDir File folder) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -140,40 +129,42 @@ class MainTest {
 
         File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertThat(outputDirectory, is(folder));
+        assertThat(outputDirectory).isEqualTo(folder);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-        assertThat(parsedConfigFile, is(configFile));
+        assertThat(parsedConfigFile).isEqualTo(configFile);
 
-        assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
+        assertThat((Boolean) parseResult.matchedOption("--checksum-only").getValue()).isTrue();
 
-        assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.sha256));
+        Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
+
+        assertThat(checksumType).containsExactly(ChecksumType.sha256);
 
         List<Pattern> excludes = parseResult.matchedOption("--exclude").getValue();
 
-        assertThat(excludes, hasSize(1));
+        assertThat(excludes).hasSize(1);
 
         List<String> archiveTypes = parseResult.matchedOption("--archive-type").getValue();
 
-        assertThat(archiveTypes, hasSize(1));
+        assertThat(archiveTypes).hasSize(1);
 
         List<String> archiveExtensions = parseResult.matchedOption("--archive-extension").getValue();
 
-        assertThat(archiveExtensions, hasSize(1));
+        assertThat(archiveExtensions).hasSize(1);
 
-        assertThat(parseResult.matchedOption("--krb-ccache").getValue(), is(krbCcache));
-        assertThat(parseResult.matchedOption("--krb-keytab").getValue(), is(krbKeytab));
-        assertThat(parseResult.matchedOption("--krb-password").getValue(), is(krbPassword));
-        assertThat(parseResult.matchedOption("--krb-principal").getValue(), is(krbPrincipal));
-        assertThat(parseResult.matchedOption("--krb-service").getValue(), is(krbService));
-        assertThat(parseResult.matchedOption("--pnc-num-threads").getValue(), is(pncNumThreads));
+        assertThat((File) parseResult.matchedOption("--krb-ccache").getValue()).isEqualTo(krbCcache);
+        assertThat((File) parseResult.matchedOption("--krb-keytab").getValue()).isEqualTo(krbKeytab);
+        assertThat((String) parseResult.matchedOption("--krb-password").getValue()).isEqualTo(krbPassword);
+        assertThat((String) parseResult.matchedOption("--krb-principal").getValue()).isEqualTo(krbPrincipal);
+        assertThat((String) parseResult.matchedOption("--krb-service").getValue()).isEqualTo(krbService);
+        assertThat((Long) parseResult.matchedOption("--pnc-num-threads").getValue()).isEqualTo(pncNumThreads);
     }
 
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void verifyConfig(@TempDir File folder, StdOut out) throws IOException {
+    void testConfig(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -192,25 +183,27 @@ class MainTest {
 
         File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-        assertThat(outputDirectory, is(folder));
+        assertThat(outputDirectory).isEqualTo(folder);
 
         File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-        assertThat(parsedConfigFile, is(configFile));
+        assertThat(parsedConfigFile).isEqualTo(configFile);
 
-        assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
+        assertThat((Boolean) parseResult.matchedOption("--checksum-only").getValue()).isTrue();
 
-        assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.sha256));
+        Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
+
+        assertThat(checksumType).containsExactly(ChecksumType.sha256);
 
         Main.main(args);
 
-        assertThat(out.capturedLines(), hasItemInArray(containsString(".war!")));
+        assertThat(out.capturedLines()).anyMatch(s -> s.contains(".war!"));
     }
 
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void verifyDebug(@TempDir File folder, StdOut out) throws IOException {
+    void testDebug(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -221,7 +214,7 @@ class MainTest {
         try {
             root.setLevel(Level.INFO);
 
-            assertThat(root.isDebugEnabled(), is(false));
+            assertThat(root.isDebugEnabled()).isFalse();
 
             String[] args = {
                     "--output-directory",
@@ -239,23 +232,25 @@ class MainTest {
 
             File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertThat(outputDirectory, is(folder));
+            assertThat(outputDirectory).isEqualTo(folder);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-            assertThat(parsedConfigFile, is(configFile));
+            assertThat(parsedConfigFile).isEqualTo(configFile);
 
-            assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
+            assertThat((Boolean) parseResult.matchedOption("--checksum-only").getValue()).isTrue();
 
-            assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.md5));
+            Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-            assertThat(parseResult.matchedOption("--debug").getValue(), is(Boolean.TRUE));
+            assertThat(checksumType).containsExactly(ChecksumType.md5);
+
+            assertThat((Boolean) parseResult.matchedOption("--debug").getValue()).isTrue();
 
             Main.main(args);
 
-            assertThat(root.isDebugEnabled(), is(true));
+            assertThat(root.isDebugEnabled()).isTrue();
 
-            assertThat(out.capturedLines(), hasItemInArray(containsString("DEBUG")));
+            assertThat(out.capturedLines()).anyMatch(s -> s.contains("DEBUG"));
         } finally {
             root.setLevel(level);
         }
@@ -264,7 +259,7 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void verifyQuiet(@TempDir File folder, StdOut out) throws IOException {
+    void testQuiet(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
 
@@ -275,7 +270,7 @@ class MainTest {
         try {
             root.setLevel(Level.INFO);
 
-            assertThat(root.isEnabledFor(Level.INFO), is(true));
+            assertThat(root.isEnabledFor(Level.INFO)).isTrue();
 
             String[] args = {
                     "--output-directory",
@@ -293,23 +288,25 @@ class MainTest {
 
             File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
-            assertThat(outputDirectory, is(folder));
+            assertThat(outputDirectory).isEqualTo(folder);
 
             File parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
-            assertThat(parsedConfigFile, is(configFile));
+            assertThat(parsedConfigFile).isEqualTo(configFile);
 
-            assertThat(parseResult.matchedOption("--checksum-only").getValue(), is(Boolean.TRUE));
+            assertThat((Boolean) parseResult.matchedOption("--checksum-only").getValue()).isTrue();
 
-            assertThat(parseResult.matchedOption("--checksum-type").getValue(), contains(ChecksumType.md5));
+            Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-            assertThat(parseResult.matchedOption("--quiet").getValue(), is(Boolean.TRUE));
+            assertThat(checksumType).containsExactly(ChecksumType.md5);
+
+            assertThat((Boolean) parseResult.matchedOption("--quiet").getValue()).isTrue();
 
             Main.main(args);
 
-            assertThat(root.isEnabledFor(Level.OFF), is(true));
+            assertThat(root.isEnabledFor(Level.OFF)).isTrue();
 
-            assertThat(out.capturedLines(), is(emptyArray()));
+            assertThat(out.capturedLines()).isEmpty();
         } finally {
             root.setLevel(level);
         }

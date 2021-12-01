@@ -15,7 +15,7 @@
  */
 package org.jboss.pnc.build.finder.protobuf;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
@@ -26,12 +26,12 @@ class KojiArchiveInfoAdapterTest {
     private static final EasyRandom EASY_RANDOM = new EasyRandom();
 
     @Test
-    public void testSerializeDeserializeKojiArchiveInfo() {
+    void testSerializeDeserializeKojiArchiveInfo() {
         KojiArchiveInfo kojiArchiveInfo = EASY_RANDOM.nextObject(KojiArchiveInfo.class);
         KojiArchiveInfoAdapter adapter = new KojiArchiveInfoAdapter();
         String json = adapter.getJsonData(kojiArchiveInfo);
         KojiArchiveInfo deSerialized = adapter.create(json);
 
-        assertEquals(kojiArchiveInfo.getArchiveId(), deSerialized.getArchiveId());
+        assertThat(deSerialized.getArchiveId()).isEqualTo(kojiArchiveInfo.getArchiveId());
     }
 }

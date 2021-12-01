@@ -15,17 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +41,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
 
@@ -59,21 +53,21 @@ class DistributionAnalyzerTest {
     private static final String MODE = "rw";
 
     @Test
-    void verifyEmptyList() throws IOException {
+    void testEmptyList() throws IOException {
         List<String> af = Collections.emptyList();
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = da.checksumFiles();
-        map.forEach((key, value) -> assertThat(value.asMap(), is((anEmptyMap()))));
+        map.forEach((key, value) -> assertThat(value.asMap()).isEmpty());
     }
 
     // XXX: Disabled for performance
     @Disabled
     @Test
-    void verifySize(@TempDir File folder) throws IOException {
+    void testSize(@TempDir File folder) throws IOException {
         List<String> af = new ArrayList<>(1);
-        File test = new File(folder, "verify-size");
+        File test = new File(folder, "test-size");
         af.add(test.getPath());
 
         try (RandomAccessFile file = new RandomAccessFile(test, MODE)) {
@@ -82,17 +76,17 @@ class DistributionAnalyzerTest {
             config.setArchiveExtensions(Collections.emptyList());
             DistributionAnalyzer da = new DistributionAnalyzer(af, config);
             Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = da.checksumFiles();
-            map.forEach((key, value) -> assertThat(value.asMap().values(), hasSize(1)));
+            map.forEach((key, value) -> assertThat(value.asMap().values()).hasSize(1));
         }
     }
 
     @Test
-    void verifyType(@TempDir File folder) throws IOException {
+    void testType(@TempDir File folder) throws IOException {
         String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
         List<String> af = new ArrayList<>(types.length);
 
         for (String type : types) {
-            File test = new File(folder, "verify-type-" + type);
+            File test = new File(folder, "test-type-" + type);
             Files.createFile(test.toPath());
             af.add(test.getPath());
         }
@@ -101,16 +95,16 @@ class DistributionAnalyzerTest {
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(af, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = da.checksumFiles();
-        map.forEach((key, value) -> assertThat(value.asMap(), is((aMapWithSize(1)))));
+        map.forEach((key, value) -> assertThat(value.asMap()).hasSize(1));
     }
 
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
     @DisabledOnOs(OS.WINDOWS)
     @Test
-    void verifyCacheClearance(@TempDir File folder) throws IOException {
+    void testCacheClearance(@TempDir File folder) throws IOException {
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
             Collection<Path> ls = stream.collect(Collectors.toList());
-            assertThat(ls, hasSize(1));
+            assertThat(ls).hasSize(1);
         }
 
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
@@ -121,147 +115,111 @@ class DistributionAnalyzerTest {
 
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
             Collection<Path> files = stream.collect(Collectors.toList());
-            assertThat(files, hasSize(1));
+            assertThat(files).hasSize(1);
         }
     }
 
     @Test
-    void loadNestedZip() throws IOException {
+    void testLoadNestedZip() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(25);
     }
 
     @Test
-    void loadNestedWar() throws IOException {
+    void testLoadNestedWar() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(7));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(7);
     }
 
     @StdIo
     @Test
-    void loadManPageZip(StdOut out) throws IOException {
+    void testLoadManPageZip(StdOut out) throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(4));
-        assertThat(out.capturedLines(), hasItemInArray(containsString("Unable to process archive/compressed file")));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(4);
+        assertThat(out.capturedLines()).anyMatch(line -> line.contains("Unable to process archive/compressed file"));
     }
 
     @Test
-    void loadNestedZipMultiThreaded() throws IOException {
+    void testLoadNestedZipMultiThreaded() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.call();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(25));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(25);
     }
 
     @Test
-    void loadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
+    void testLoadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
         List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         config.setChecksumTypes(EnumSet.allOf(ChecksumType.class));
 
-        assertThat(config.getChecksumTypes(), hasSize(3));
+        assertThat(config.getChecksumTypes()).hasSize(3);
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.call();
 
-        assertThat(checksums.keySet().size(), is(config.getChecksumTypes().size()));
-
-        assertThat(
-                config.getChecksumTypes(),
-                containsInAnyOrder(ChecksumType.md5, ChecksumType.sha1, ChecksumType.sha256));
+        assertThat(checksums.keySet()).hasSameSizeAs(config.getChecksumTypes());
+        assertThat(config.getChecksumTypes())
+                .containsExactlyInAnyOrder(ChecksumType.md5, ChecksumType.sha1, ChecksumType.sha256);
 
         Set<ChecksumType> checksumTypes = config.getChecksumTypes();
 
         for (ChecksumType checksumType : checksumTypes) {
-            assertThat(checksums.get(checksumType).size(), is(25));
+            assertThat(checksums.get(checksumType).size()).isEqualTo(25);
 
             for (Entry<String, LocalFile> entry : checksums.get(checksumType).entries()) {
                 String checksum = entry.getKey();
                 String filename = entry.getValue().getFilename();
                 Collection<Checksum> fileChecksums = da.getFiles().get(filename);
-                Optional<Checksum> cksum = Checksum.findByType(fileChecksums, checksumType);
+                Optional<Checksum> optionalChecksum = Checksum.findByType(fileChecksums, checksumType);
 
-                assertThat(
-                        cksum,
-                        is(
-                                optionalWithValue(
-                                        allOf(
-                                                hasProperty("value", is(checksum)),
-                                                hasProperty("type", is(checksumType))))));
+                assertThat(optionalChecksum).get().extracting("value", "type").contains(checksum, checksumType);
             }
 
         }
 
-        assertThat(checksums.values(), hasSize(3));
-        assertThat(
-                checksums.values().stream().mapToInt(MultiValuedMap::size).sum(),
-                is(25 * checksums.values().size()));
+        assertThat(checksums.values()).hasSize(3);
+        assertThat(checksums.values().stream().mapToInt(MultiValuedMap::size).sum())
+                .isEqualTo(25 * checksums.values().size());
     }
 
-    @Test
-    void loadNestedZipNoRecursion() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+    static Stream<Arguments> stringIntProvider() {
+        return Stream.of(
+                arguments("nested.zip", 3),
+                arguments("nested2.zip", 2),
+                arguments("nested.war", 1),
+                arguments("nested.tar.gz", 4));
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringIntProvider")
+    void testLoadNestedNoRecursion(String filename, int numChecksums) throws IOException {
+        List<String> target = Collections.singletonList(TestUtils.loadFile(filename).getPath());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         config.setDisableRecursion(true);
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
-        assertThat(checksums.get(ChecksumType.md5).size(), is(3));
-    }
-
-    @Test
-    void loadNested2ZipNoRecursion() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested2.zip").getPath());
-        BuildConfig config = new BuildConfig();
-        config.setArchiveExtensions(Collections.emptyList());
-        config.setDisableRecursion(true);
-        DistributionAnalyzer da = new DistributionAnalyzer(target, config);
-        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
-
-        assertThat(checksums.get(ChecksumType.md5).size(), is(2));
-    }
-
-    @Test
-    void loadNestedWarNoRecusion() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").getPath());
-        BuildConfig config = new BuildConfig();
-        config.setArchiveExtensions(Collections.emptyList());
-        config.setDisableRecursion(true);
-        DistributionAnalyzer da = new DistributionAnalyzer(target, config);
-        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
-
-        assertThat(checksums.get(ChecksumType.md5).size(), is(1));
-    }
-
-    @Test
-    void loadNestedTarGzNoRecusion() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.tar.gz").getPath());
-        BuildConfig config = new BuildConfig();
-        config.setArchiveExtensions(Collections.emptyList());
-        config.setDisableRecursion(true);
-        DistributionAnalyzer da = new DistributionAnalyzer(target, config);
-        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
-
-        assertThat(checksums.get(ChecksumType.md5).size(), is(4));
+        assertThat(checksums.get(ChecksumType.md5).size()).isEqualTo(numChecksums);
     }
 }

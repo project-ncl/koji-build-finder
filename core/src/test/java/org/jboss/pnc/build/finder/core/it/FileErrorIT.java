@@ -15,16 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.everyItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.io.File;
 import java.util.Collection;
@@ -91,54 +83,38 @@ class FileErrorIT extends AbstractKojiIT {
             Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
             List<KojiBuild> buildsFound = finder.getBuildsFound();
 
-            assertThat(map, is(aMapWithSize(3)));
-            assertThat(builds, is(aMapWithSize(2)));
-            assertThat(
-                    fileErrors,
-                    is(
-                            allOf(
-                                    hasSize(1),
-                                    contains(
-                                            allOf(
-                                                    hasProperty(
-                                                            "filename",
-                                                            is("jboss-jaxb-intros-1.0.2.GA-sources.jar")),
-                                                    hasProperty("message", is("Invalid relative file name.")))))));
-            assertThat(
-                    files,
-                    hasEntry(
-                            is("jboss-jaxb-intros-1.0.2.GA-sources.jar"),
-                            allOf(
-                                    hasSize(3),
-                                    everyItem(hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar"))))));
-            assertThat(
-                    analyzer.getChecksums(ChecksumType.md5),
-                    hasEntry(
-                            is("ac2a6ab1fbf6afba37789e2e88a916a6"),
-                            contains(
-                                    allOf(
-                                            hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")),
-                                            hasProperty("size", is(29537L))))));
-            assertThat(
-                    analyzer.getChecksums(ChecksumType.sha1),
-                    hasEntry(
-                            is("ab2f490dd83035bee3a719d2118cbab90508082f"),
-                            contains(
-                                    allOf(
-                                            hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")),
-                                            hasProperty("size", is(29537L))))));
-            assertThat(
-                    analyzer.getChecksums(ChecksumType.sha256),
-                    hasEntry(
-                            is("987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48"),
-                            contains(
-                                    allOf(
-                                            hasProperty("filename", is("jboss-jaxb-intros-1.0.2.GA-sources.jar")),
-                                            hasProperty("size", is(29537L))))));
-            assertThat(notFoundChecksums, is(anEmptyMap()));
-            assertThat(foundChecksums, is(aMapWithSize(1)));
-            assertThat(buildsFound, hasSize(1));
-            assertThat(builds.get(new BuildSystemInteger(0)).getArchives(), hasSize(0));
+            assertThat(map).hasSize(3);
+            assertThat(builds).hasSize(2);
+            assertThat(fileErrors).hasSize(1)
+                    .extracting("filename", "message")
+                    .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", "Invalid relative file name."));
+            assertThat(files).hasSize(1)
+                    .hasEntrySatisfying(
+                            "jboss-jaxb-intros-1.0.2.GA-sources.jar",
+                            cksums -> assertThat(cksums).hasSize(3)
+                                    .extracting("filename")
+                                    .containsOnly("jboss-jaxb-intros-1.0.2.GA-sources.jar"));
+            assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+                    .hasEntrySatisfying(
+                            "ac2a6ab1fbf6afba37789e2e88a916a6",
+                            cksums -> assertThat(cksums).extracting("filename", "size")
+                                    .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L)));
+            assertThat(analyzer.getChecksums(ChecksumType.sha1)).hasSize(1)
+                    .hasEntrySatisfying(
+                            "ab2f490dd83035bee3a719d2118cbab90508082f",
+                            cksums -> assertThat(cksums).singleElement()
+                                    .extracting("filename", "size")
+                                    .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
+            assertThat(analyzer.getChecksums(ChecksumType.sha256)).hasSize(1)
+                    .hasEntrySatisfying(
+                            "987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48",
+                            cksums -> assertThat(cksums).singleElement()
+                                    .extracting("filename", "size")
+                                    .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
+            assertThat(notFoundChecksums).isEmpty();
+            assertThat(foundChecksums).hasSize(1);
+            assertThat(buildsFound).hasSize(1);
+            assertThat(builds.get(new BuildSystemInteger(0)).getArchives()).isEmpty();
 
             LOGGER.info("Map size: {}", map.size());
             LOGGER.info("Builds size: {}", builds.size());
