@@ -25,6 +25,8 @@ import org.jboss.pnc.build.finder.core.LocalFile;
                 MultiValuedMapProtobufWrapper.class,
                 KojiArchiveInfoAdapter.class,
                 KojiBuildAdapter.class,
+                PncArtifactAdapter.class,
+                ArtifactStaticRemoteCollection.class,
                 ListKojiArchiveInfoProtobufWrapper.class },
         schemaFileName = "build-finder.proto",
         schemaFilePath = "proto/",

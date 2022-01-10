@@ -18,7 +18,9 @@ package org.jboss.pnc.build.finder.pnc.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.infinispan.commons.api.BasicCacheContainer;
 import org.jboss.pnc.build.finder.core.BuildConfig;
+import org.jboss.pnc.build.finder.protobuf.ArtifactStaticRemoteCollection;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
@@ -26,69 +28,93 @@ import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductVersion;
 
 /**
- * Implementation of adapter to communicate with PNC Orchestrator REST API, which caches the results in HashMaps to
- * improve performance of the application
+ * Implementation of adapter to communicate with PNC Orchestrator REST API, which caches the results in HashMaps or ISPN
+ * (if enabled) to improve performance of the application
  *
  * @author Jakub Bartecek
  */
-public class HashMapCachingPncClient implements PncClient {
+public class CachingPncClient implements PncClient {
+
     private final PncClient pncClient;
 
-    private final Map<String, StaticRemoteCollection<Artifact>> md5Cache = new HashMap<>();
-
-    private final Map<String, StaticRemoteCollection<Artifact>> sha1Cache = new HashMap<>();
-
-    private final Map<String, StaticRemoteCollection<Artifact>> sha256Cache = new HashMap<>();
+    private final Map<String, ArtifactStaticRemoteCollection> artifactCache;
 
     private final Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>();
 
     private final Map<String, ProductVersion> getProductVersionCache = new HashMap<>();
 
-    public HashMapCachingPncClient(BuildConfig config) {
+    public CachingPncClient(BuildConfig config, BasicCacheContainer cacheManager) {
+        if (cacheManager == null) {
+            artifactCache = new HashMap<>();
+        } else {
+            artifactCache = cacheManager.getCache("artifact-pnc");
+        }
         this.pncClient = new PncClientImpl(config);
     }
 
-    public HashMapCachingPncClient(PncClient pncClient) {
+    public CachingPncClient(PncClient pncClient, BasicCacheContainer cacheManager) {
+        if (cacheManager == null) {
+            artifactCache = new HashMap<>();
+        } else {
+            artifactCache = cacheManager.getCache("artifact-pnc");
+        }
         this.pncClient = pncClient;
     }
 
     @Override
     public RemoteCollection<Artifact> getArtifactsByMd5(String md5) throws RemoteResourceException {
-        RemoteCollection<Artifact> cachedEntity = md5Cache.get(md5);
-        if (cachedEntity != null) {
-            return cachedEntity;
-        } else {
-            RemoteCollection<Artifact> foundEntity = pncClient.getArtifactsByMd5(md5);
-            StaticRemoteCollection<Artifact> staticRemoteCollection = new StaticRemoteCollection<>(foundEntity);
-            md5Cache.put(md5, staticRemoteCollection);
-            return staticRemoteCollection;
+        ArtifactStaticRemoteCollection cachedValue = getFromCache(md5);
+        if (cachedValue != null) {
+            return cachedValue;
         }
+
+        RemoteCollection<Artifact> artifacts = pncClient.getArtifactsByMd5(md5);
+        if (artifacts != null && artifacts.size() > 0) {
+            insertToCache(md5, artifacts);
+        }
+
+        return artifacts;
     }
 
     @Override
     public RemoteCollection<Artifact> getArtifactsBySha1(String sha1) throws RemoteResourceException {
-        RemoteCollection<Artifact> cachedEntity = sha1Cache.get(sha1);
-        if (cachedEntity != null) {
-            return cachedEntity;
-        } else {
-            RemoteCollection<Artifact> foundEntity = pncClient.getArtifactsBySha1(sha1);
-            StaticRemoteCollection<Artifact> staticRemoteCollection = new StaticRemoteCollection<>(foundEntity);
-            sha1Cache.put(sha1, staticRemoteCollection);
-            return staticRemoteCollection;
+        ArtifactStaticRemoteCollection cachedValue = getFromCache(sha1);
+        if (cachedValue != null) {
+            return cachedValue;
         }
+
+        RemoteCollection<Artifact> artifacts = pncClient.getArtifactsBySha1(sha1);
+        if (artifacts != null && artifacts.size() > 0) {
+            insertToCache(sha1, artifacts);
+        }
+
+        return artifacts;
     }
 
     @Override
     public RemoteCollection<Artifact> getArtifactsBySha256(String sha256) throws RemoteResourceException {
-        RemoteCollection<Artifact> cachedEntity = sha256Cache.get(sha256);
-        if (cachedEntity != null) {
-            return cachedEntity;
-        } else {
-            RemoteCollection<Artifact> foundEntity = pncClient.getArtifactsBySha256(sha256);
-            StaticRemoteCollection<Artifact> staticRemoteCollection = new StaticRemoteCollection<>(foundEntity);
-            sha256Cache.put(sha256, staticRemoteCollection);
-            return staticRemoteCollection;
+        ArtifactStaticRemoteCollection cachedValue = getFromCache(sha256);
+        if (cachedValue != null) {
+            return cachedValue;
         }
+
+        RemoteCollection<Artifact> artifacts = pncClient.getArtifactsBySha256(sha256);
+        if (artifacts != null && artifacts.size() > 0) {
+            insertToCache(sha256, artifacts);
+        }
+
+        return artifacts;
+    }
+
+    private void insertToCache(String key, RemoteCollection<Artifact> value) {
+        artifactCache.put(key, new ArtifactStaticRemoteCollection(value));
+    }
+
+    private ArtifactStaticRemoteCollection getFromCache(String md5) {
+        if (artifactCache != null) {
+            return artifactCache.get(md5);
+        }
+        return null;
     }
 
     @Override

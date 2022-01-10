@@ -65,7 +65,7 @@ import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
-import org.jboss.pnc.build.finder.pnc.client.HashMapCachingPncClient;
+import org.jboss.pnc.build.finder.pnc.client.CachingPncClient;
 import org.jboss.pnc.build.finder.pnc.client.PncClient;
 import org.jboss.pnc.build.finder.protobuf.ProtobufSerializerImpl;
 import org.jboss.pnc.build.finder.report.Report;
@@ -461,6 +461,7 @@ public final class Main implements Callable<Void> {
 
         cacheManager.defineConfiguration("builds", configuration);
         cacheManager.defineConfiguration("builds-pnc", configuration);
+        cacheManager.defineConfiguration("artifact-pnc", configuration);
     }
 
     private void closeCaches() {
@@ -670,7 +671,8 @@ public final class Main implements Callable<Void> {
                                 krbCCache,
                                 krbKeytab)
                         : new KojiClientSession(config.getKojiHubURL());
-                        PncClient pncClient = config.getPncURL() != null ? new HashMapCachingPncClient(config) : null) {
+                        PncClient pncClient = config.getPncURL() != null ? new CachingPncClient(config, cacheManager)
+                                : null) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
@@ -734,7 +736,8 @@ public final class Main implements Callable<Void> {
                                 krbCCache,
                                 krbKeytab)
                         : new KojiClientSession(config.getKojiHubURL());
-                        PncClient pncClient = config.getPncURL() != null ? new HashMapCachingPncClient(config) : null) {
+                        PncClient pncClient = config.getPncURL() != null ? new CachingPncClient(config, cacheManager)
+                                : null) {
                     if (isKerberos) {
                         LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
                     } else {
