@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -261,13 +262,12 @@ class ReportTest {
     @Test
     void testHTMLReport(@TempDir File folder) throws IOException {
         List<String> files = Collections.emptyList();
-        List<Report> reports = new ArrayList<>(3);
-
-        reports.add(new BuildStatisticsReport(folder, builds));
-        reports.add(new NVRReport(folder, builds));
-        reports.add(new GAVReport(folder, builds));
-        reports.add(new ProductReport(folder, builds));
-
+        List<Report> reports = Collections.unmodifiableList(
+                Arrays.asList(
+                        new BuildStatisticsReport(folder, builds),
+                        new NVRReport(folder, builds),
+                        new GAVReport(folder, builds),
+                        new ProductReport(folder, builds)));
         HTMLReport htmlReport = new HTMLReport(
                 folder,
                 files,

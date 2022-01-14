@@ -43,7 +43,7 @@ class BuildConfigTest {
         Pattern fooPattern = Pattern.compile("foo");
         String fooPatternString = fooPattern.pattern();
         List<Pattern> excludes = Collections.singletonList(fooPattern);
-        List<String> baseExtension = Arrays.asList("foo", "bar", "baz");
+        List<String> baseExtension = Collections.unmodifiableList(Arrays.asList("foo", "bar", "baz"));
 
         BuildConfig base = new BuildConfig();
         base.setExcludes(excludes);
@@ -54,8 +54,8 @@ class BuildConfigTest {
         assertThat(base.getArchiveExtensions()).isEqualTo(baseExtension);
 
         // when
-        List<String> updatedExtensions = Arrays.asList("jar", "zip");
-        List<String> types = Arrays.asList("good", "bad", "ugly");
+        List<String> updatedExtensions = Collections.unmodifiableList(Arrays.asList("jar", "zip"));
+        List<String> types = Collections.unmodifiableList(Arrays.asList("good", "bad", "ugly"));
 
         BuildConfig copy = BuildConfig.copy(base);
         copy.setArchiveExtensions(updatedExtensions);

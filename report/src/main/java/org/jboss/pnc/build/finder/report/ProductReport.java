@@ -25,9 +25,10 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
+import static org.apache.commons.collections.IteratorUtils.unmodifiableIterator;
+import static org.apache.commons.collections4.IteratorUtils.arrayListIterator;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -131,7 +132,7 @@ public final class ProductReport extends Report {
                         SPACE_PATTERN.matcher(NAME_VER_PATTERN.matcher(tagName).replaceAll("${name}-${version}"))
                                 .replaceAll(" "))
                 .replaceAll("JBoss");
-        Iterator<String> it = Arrays.asList(prodName.split(" ")).iterator();
+        Iterator<String> it = unmodifiableIterator(arrayListIterator(prodName.split(" ")));
 
         StringBuilder sb = new StringBuilder(PRODUCT_NAME_LENGTH);
 

@@ -17,8 +17,8 @@ package org.jboss.pnc.build.finder.pnc.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
@@ -56,8 +56,7 @@ class HashMapCachingClientTest {
         private int getArtifactsByMd5Counter;
 
         DummyPncClient() {
-            artifacts = new ArrayList<>(1);
-            artifacts.add(Artifact.builder().id("1").build());
+            artifacts = Collections.singletonList(Artifact.builder().id("1").build());
         }
 
         int getGetArtifactsByMd5Counter() {

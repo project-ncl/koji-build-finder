@@ -23,7 +23,7 @@ import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
 import static org.jboss.pnc.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.constants.Attributes.BUILD_BREW_VERSION;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -150,7 +150,7 @@ public final class PncUtils {
 
         extra.put(BUILD_SYSTEM, PNC);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
-        // XXX: These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
+        // These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
         extra.put(EXTERNAL_PROJECT_ID, build.getProject().getId());
         extra.put(EXTERNAL_BUILD_CONFIGURATION_ID, build.getBuildConfigRevision().getId());
 
@@ -159,16 +159,13 @@ public final class PncUtils {
             extra.put(EXTERNAL_BREW_BUILD_URL, buildPushResult.getBrewBuildUrl());
         });
 
-        // TODO: Review - it is not necessary for the core logic, but only for reports
         pncbuild.getProductVersion().ifPresent(productVersion -> {
-            // XXX: These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
+            // These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
             extra.put(EXTERNAL_PRODUCT_ID, productVersion.getProduct().getId());
             extra.put(EXTERNAL_VERSION_ID, productVersion.getId());
 
-            List<KojiTagInfo> tags = new ArrayList<>(1);
             KojiTagInfo tag = new KojiTagInfo();
 
-            // FIXME: Tag info doesn't have an extra map to place real identifier in
             try {
                 tag.setId(Integer.parseInt(productVersion.getId()));
             } catch (NumberFormatException e) {
@@ -182,16 +179,11 @@ public final class PncUtils {
 
             tag.setName(tagName);
 
-            tags.add(tag);
-
-            kojiBuild.setTags(tags);
+            kojiBuild.setTags(Collections.singletonList(tag));
 
             KojiTaskInfo taskInfo = new KojiTaskInfo();
             KojiTaskRequest taskRequest = new KojiTaskRequest();
-            List<Object> request = new ArrayList<>(2);
-
-            request.add(pncbuild.getSource());
-            request.add(tagName);
+            List<Object> request = Collections.unmodifiableList(Arrays.asList(pncbuild.getSource(), tagName));
 
             taskRequest.setRequest(request);
 
@@ -235,7 +227,12 @@ public final class PncUtils {
         archiveInfo.setBuildType(getBuildType(pncbuild));
         archiveInfo.setChecksumType(KojiChecksumType.md5);
         archiveInfo.setChecksum(artifact.getMd5());
-        archiveInfo.setSize(artifact.getSize().intValue()); // XXX: Koji size should be long not int
+
+        try {
+            archiveInfo.setSize(Math.toIntExact(artifact.getSize()));
+        } catch (ArithmeticException e) {
+            archiveInfo.setSize(-1);
+        }
 
         String[] gaecv = artifact.getIdentifier().split(":");
 

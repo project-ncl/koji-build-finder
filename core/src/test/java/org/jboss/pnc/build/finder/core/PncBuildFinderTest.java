@@ -167,6 +167,6 @@ class PncBuildFinderTest {
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
-        return new StaticRemoteCollection<>(Arrays.asList(artifacts));
+        return new StaticRemoteCollection<>(Collections.unmodifiableList(Arrays.asList(artifacts)));
     }
 }

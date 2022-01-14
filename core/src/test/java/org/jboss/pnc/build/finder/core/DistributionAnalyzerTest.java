@@ -66,9 +66,8 @@ class DistributionAnalyzerTest {
     @Disabled
     @Test
     void testSize(@TempDir File folder) throws IOException {
-        List<String> af = new ArrayList<>(1);
         File test = new File(folder, "test-size");
-        af.add(test.getPath());
+        List<String> af = Collections.singletonList(test.getPath());
 
         try (RandomAccessFile file = new RandomAccessFile(test, MODE)) {
             file.setLength(ONE_GB << 1L);

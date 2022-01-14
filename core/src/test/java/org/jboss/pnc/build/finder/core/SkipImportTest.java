@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -55,7 +54,6 @@ class SkipImportTest {
                 "3b6a309e0dd4f488fd0cce429b44d067",
                 "commons-lang-2.6-redhat-2.pom",
                 17931L);
-        List<Checksum> checksums = Arrays.asList(checksum1, checksum2);
         List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
         List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
         Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);

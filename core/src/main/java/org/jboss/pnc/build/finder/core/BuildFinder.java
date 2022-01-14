@@ -284,7 +284,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
         if (taskIdsSize > 0) {
             Boolean[] a = new Boolean[taskIdsSize];
             Arrays.fill(a, Boolean.TRUE);
-            List<Boolean> requests = Arrays.asList(a);
+            List<Boolean> requests = Collections.unmodifiableList(Arrays.asList(a));
             futureRpmTaskInfos = pool.submit(() -> session.getTaskInfo(taskIds, requests));
         } else {
             rpmTaskInfos = Collections.emptyList();
@@ -344,7 +344,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
                 continue;
             }
 
-            // XXX: Only works for md5, and we can't lookup RPMs by checksum
+            // XXX: Only works for md5, and we can't look up RPMs by checksum
             // XXX: We can use other APIs to get other checksums, but they are not cached as part of this object
             if (checksum.getType() == ChecksumType.md5) {
                 String actual = rpm.getPayloadhash();
@@ -791,7 +791,7 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
             if (taskIdsSize > 0) {
                 Boolean[] a = new Boolean[taskIdsSize];
                 Arrays.fill(a, Boolean.TRUE);
-                List<Boolean> requests = Arrays.asList(a);
+                List<Boolean> requests = Collections.unmodifiableList(Arrays.asList(a));
                 futureTaskInfos = pool.submit(() -> session.getTaskInfo(taskIds, requests));
             }
 

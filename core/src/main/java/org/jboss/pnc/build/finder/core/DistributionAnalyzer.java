@@ -308,7 +308,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             LOGGER.info(
                     "Initialized file system manager {} with schemes: {}",
                     green(sfs.getClass().getSimpleName()),
-                    green(Arrays.asList(sfs.getSchemes())));
+                    green(Collections.unmodifiableList(Arrays.asList(sfs.getSchemes()))));
         }
 
         return sfs;
