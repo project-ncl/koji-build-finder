@@ -101,10 +101,6 @@ public class BuildConfig {
         return MAPPER.readValue(json, BuildConfig.class);
     }
 
-    public static BuildConfig fromString(String json) throws IOException {
-        return load(json);
-    }
-
     public static BuildConfig load(URL url) throws IOException {
         return MAPPER.readValue(url, BuildConfig.class);
     }
@@ -135,7 +131,7 @@ public class BuildConfig {
         return reader.readValue(url);
     }
 
-    public static BuildConfig copy(BuildConfig baseConfig) throws IOException {
+    public static BuildConfig copy(BuildConfig baseConfig) {
         return MAPPER.convertValue(baseConfig, BuildConfig.class);
     }
 

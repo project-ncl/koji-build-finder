@@ -32,7 +32,7 @@ import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
-import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.Build;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,9 +79,9 @@ public final class PncUtils {
     }
 
     // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
-    private static void setMavenBuildInfoFromBuildRecord(Build record, KojiBuildInfo buildInfo) {
-        String executionRootName = getSafelyExecutionRootName(record);
-        String executionRootVersion = record.getAttributes().get(BUILD_BREW_VERSION);
+    private static void setMavenBuildInfoFromBuildRecord(Build build, KojiBuildInfo buildInfo) {
+        String executionRootName = getSafelyExecutionRootName(build);
+        String executionRootVersion = build.getAttributes().get(BUILD_BREW_VERSION);
         String[] ga = executionRootName.split(":", 2);
 
         if (ga.length >= 2) {
@@ -110,9 +110,9 @@ public final class PncUtils {
         }
     }
 
-    public static String getNVRFromBuildRecord(Build record) {
-        return getSafelyExecutionRootName(record).replace(':', '-') + "-"
-                + record.getAttributes().get(BUILD_BREW_VERSION) + "-1";
+    public static String getNVRFromBuildRecord(Build build) {
+        return getSafelyExecutionRootName(build).replace(':', '-') + "-" + build.getAttributes().get(BUILD_BREW_VERSION)
+                + "-1";
     }
 
     public static KojiBuild pncBuildToKojiBuild(PncBuild pncbuild) {
@@ -201,7 +201,7 @@ public final class PncUtils {
         return kojiBuild;
     }
 
-    public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncbuild, Artifact artifact) {
+    public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncbuild, ArtifactRef artifact) {
         Build build = pncbuild.getBuild();
         KojiArchiveInfo archiveInfo = new KojiArchiveInfo();
 

@@ -85,8 +85,7 @@ public abstract class AbstractKojiIT {
         this.session = new KojiClientSession(
                 kojiConfig,
                 new MemoryPasswordManager(),
-                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT),
-                REGISTRY);
+                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
         this.pncclient = new PncClientImpl(config);
         this.reporter = Slf4jReporter.forRegistry(REGISTRY)
                 .outputTo(LOGGER)

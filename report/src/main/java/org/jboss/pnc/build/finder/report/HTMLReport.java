@@ -59,10 +59,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.HtmlTag;
-import j2html.tags.specialized.LiTag;
-import j2html.tags.specialized.SpanTag;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -74,6 +70,10 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiTagInfo;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.SpanTag;
 
 public final class HTMLReport extends Report {
     private static final String NAME = "Build Finder";
@@ -145,7 +145,10 @@ public final class HTMLReport extends Report {
         return a().withHref(kojiwebUrl + "/packageinfo?packageID=" + id).with(text(name));
     }
 
-    private Tag<? extends Tag<?>> linkArchive(KojiBuild build, KojiArchiveInfo archive, Collection<String> unmatchedFilenames) {
+    private Tag<? extends Tag<?>> linkArchive(
+            KojiBuild build,
+            KojiArchiveInfo archive,
+            Collection<String> unmatchedFilenames) {
         String name = archive.getFilename();
         Integer integerId = archive.getArchiveId();
         String id = (integerId != null && integerId > 0) ? String.valueOf(integerId)
@@ -270,28 +273,36 @@ public final class HTMLReport extends Report {
                                                         each(
                                                                 builds,
                                                                 build -> tr(
-                                                                        td(text(Integer.toString(builds.indexOf(build)))),
+                                                                        td(
+                                                                                text(
+                                                                                        Integer.toString(
+                                                                                                builds.indexOf(
+                                                                                                        build)))),
                                                                         td(
                                                                                 (build.getId() != null
-                                                                                        && isNotBuildIdZero(build.getId()))
-                                                                                                ? linkBuild(build)
-                                                                                                : errorText(
-                                                                                                        String.valueOf(
-                                                                                                                build.getId()))),
+                                                                                        && isNotBuildIdZero(
+                                                                                                build.getId()))
+                                                                                                        ? linkBuild(
+                                                                                                                build)
+                                                                                                        : errorText(
+                                                                                                                String.valueOf(
+                                                                                                                        build.getId()))),
                                                                         td(
                                                                                 (build.getId() != null
-                                                                                        && isNotBuildIdZero(build.getId()))
-                                                                                                ? linkPkg(build)
-                                                                                                : text("")),
+                                                                                        && isNotBuildIdZero(
+                                                                                                build.getId()))
+                                                                                                        ? linkPkg(build)
+                                                                                                        : text("")),
                                                                         td(
-                                                                                (build.getId() != null && isNotBuildIdZero(
-                                                                                        build.getId())) ? text(
-                                                                                                build.getBuildInfo()
-                                                                                                        .getVersion()
-                                                                                                        .replace(
-                                                                                                                '_',
-                                                                                                                '-'))
-                                                                                                : text("")),
+                                                                                (build.getId() != null
+                                                                                        && isNotBuildIdZero(
+                                                                                                build.getId())) ? text(
+                                                                                                        build.getBuildInfo()
+                                                                                                                .getVersion()
+                                                                                                                .replace(
+                                                                                                                        '_',
+                                                                                                                        '-'))
+                                                                                                        : text("")),
                                                                         td(
                                                                                 build.getArchives() != null ? ol(
                                                                                         each(
@@ -307,10 +318,13 @@ public final class HTMLReport extends Report {
                                                                                                                         a.getFilenames())))))
                                                                                         : text("")),
                                                                         td(
-                                                                                build.getTags() != null ? ul(
-                                                                                        each(
-                                                                                                build.getTags(),
-                                                                                                tag -> linkTag(build, tag)))
+                                                                                build.getTags() != null
+                                                                                        ? ul(
+                                                                                                each(
+                                                                                                        build.getTags(),
+                                                                                                        tag -> linkTag(
+                                                                                                                build,
+                                                                                                                tag)))
                                                                                         : text("")),
                                                                         td(
                                                                                 build.getMethod().isPresent()
@@ -333,7 +347,8 @@ public final class HTMLReport extends Report {
                                                                                 build.getPatchesZip().isPresent()
                                                                                         ? linkArchive(
                                                                                                 build,
-                                                                                                build.getPatchesZip().get())
+                                                                                                build.getPatchesZip()
+                                                                                                        .get())
                                                                                         : text("")),
                                                                         td(
                                                                                 build.getSource().isPresent()

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
@@ -34,7 +35,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "sequential"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            try (Timer.Context context = timer.time()) {
+            try (Context ignored = timer.time()) {
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {
                     getSession().getBuildInfo(getBuilds().get(j), null);
                 }
@@ -49,7 +50,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "threads"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            try (Timer.Context context = timer.time()) {
+            try (Context ignored = timer.time()) {
                 Thread[] threads = new Thread[MAX_CONNECTIONS];
 
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {
@@ -85,7 +86,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "multiCall"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
-            try (Timer.Context context = timer.time()) {
+            try (Context ignored = timer.time()) {
                 List<Object> args = new ArrayList<>(MAX_CONNECTIONS);
 
                 for (int j = 0; j < MAX_CONNECTIONS; j++) {

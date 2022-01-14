@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 public class BuildStatistics {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildStatistics.class);
 
+    private static final double ONE_HUNDRED_PERCENT = 100.00D;
+
     private long numberOfBuilds;
 
     private long numberOfArchives;
@@ -97,8 +99,9 @@ public class BuildStatistics {
         }
 
         if (!builds.isEmpty()) {
-            percentOfBuildsImported = ((double) numberOfImportedBuilds / (double) numberOfBuilds) * 100.00;
-            percentOfArchivesImported = ((double) numberOfImportedArchives / (double) numberOfArchives) * 100.00;
+            percentOfBuildsImported = ((double) numberOfImportedBuilds / (double) numberOfBuilds) * ONE_HUNDRED_PERCENT;
+            percentOfArchivesImported = ((double) numberOfImportedArchives / (double) numberOfArchives)
+                    * ONE_HUNDRED_PERCENT;
         }
     }
 

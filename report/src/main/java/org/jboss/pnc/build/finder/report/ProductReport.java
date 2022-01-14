@@ -42,7 +42,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import j2html.tags.specialized.TableTag;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -50,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.TableTag;
 
 public final class ProductReport extends Report {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductReport.class);

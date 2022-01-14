@@ -36,19 +36,12 @@ import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 
 public abstract class AbstractRpmIT extends AbstractKojiIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRpmIT.class);
-
-    private static final int CONNECTION_TIMEOUT = 300000;
-
-    private static final int READ_TIMEOUT = 900000;
-
     protected abstract List<String> getFiles();
 
     protected abstract void verify(DistributionAnalyzer analyzer, BuildFinder finder) throws Exception;
@@ -76,20 +69,21 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Timer.Context context = timer.time()) {
+        try (Context ignored = timer.time()) {
             analyzer = new DistributionAnalyzer(getFiles(), getConfig());
             futureChecksum = pool.submit(analyzer);
         }
 
         Timer timer2 = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "builds"));
 
-        try (Timer.Context context2 = timer2.time()) {
+        try (Context ignored = timer2.time()) {
             ClientSession session = getSession();
             BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
-            Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
+
+            futureChecksum.get();
+            futureBuilds.get();
 
             verify(analyzer, finder);
         } catch (InterruptedException e) {

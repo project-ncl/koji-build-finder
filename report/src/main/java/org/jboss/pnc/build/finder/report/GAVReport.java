@@ -32,11 +32,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import j2html.tags.specialized.TableTag;
 import org.jboss.pnc.build.finder.core.BuildFinderUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.TableTag;
 
 public final class GAVReport extends Report {
     private final List<String> gavs;

@@ -61,11 +61,8 @@ public final class KojiClientSession extends KojiClient implements ClientSession
 
     private final KojiClientHelper helper;
 
-    public KojiClientSession(
-            KojiConfig config,
-            PasswordManager passwordManager,
-            ExecutorService executorService,
-            com.codahale.metrics.MetricRegistry registry) throws KojiClientException {
+    public KojiClientSession(KojiConfig config, PasswordManager passwordManager, ExecutorService executorService)
+            throws KojiClientException {
         super(config, passwordManager, executorService);
         helper = new KojiClientHelper(this);
     }

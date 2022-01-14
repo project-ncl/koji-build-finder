@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
@@ -35,7 +36,7 @@ class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
         for (int i = 0; i < NUM_LOOPS; i++) {
             List<List<Integer>> chunks = ListUtils.partition(getBuilds(), chunkSize);
 
-            try (Timer.Context context = timer.time()) {
+            try (Context ignored = timer.time()) {
                 for (List<Integer> chunk : chunks) {
                     getSession().multiCall(Constants.GET_BUILD, (List) chunk, KojiBuildInfo.class, null);
                 }

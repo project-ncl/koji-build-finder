@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
 import java.io.IOException;
@@ -206,7 +207,7 @@ class BuildConfigTest {
                 "xml");
         assertThat(bc2.getArchiveTypes()).containsExactly("jar");
         assertThat(bc2.getChecksumOnly()).isTrue();
-        assertThat(bc2.getChecksumTypes()).containsExactly(ChecksumType.sha256);
+        assertThat(bc2.getChecksumTypes()).containsExactly(sha256);
         assertThat(bc2.getKojiHubURL().toExternalForm()).isEqualTo("https://my.url.com/hub");
         assertThat(bc2.getKojiWebURL().toExternalForm()).isEqualTo("https://my.url.com/web");
 
@@ -229,7 +230,7 @@ class BuildConfigTest {
                 "xml");
         assertThat(merged.getArchiveTypes()).containsExactly("jar");
         assertThat(merged.getChecksumOnly()).isTrue();
-        assertThat(merged.getChecksumTypes()).containsExactly(ChecksumType.sha256);
+        assertThat(merged.getChecksumTypes()).containsExactly(sha256);
         assertThat(merged.getKojiHubURL().toExternalForm()).isEqualTo("https://my.url.com/hub");
         assertThat(merged.getKojiWebURL().toExternalForm()).isEqualTo("https://my.url.com/web");
     }

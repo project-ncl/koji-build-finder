@@ -29,11 +29,11 @@ import static j2html.TagCreator.tr;
 import java.io.File;
 import java.util.Collection;
 
-import j2html.tags.specialized.TableTag;
 import org.jboss.pnc.build.finder.core.BuildStatistics;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.TableTag;
 
 public final class BuildStatisticsReport extends Report {
     private static final double ONE_HUNDRED_PERCENT = 100.00D;

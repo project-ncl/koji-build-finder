@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 
 class KojiBuildFinderIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(KojiBuildFinderIT.class);
@@ -47,10 +48,6 @@ class KojiBuildFinderIT extends AbstractKojiIT {
     private static final String PROPERTY = "distribution.url";
 
     private static final String URL = System.getProperty(PROPERTY);
-
-    private static final int CONNECTION_TIMEOUT = 300000;
-
-    private static final int READ_TIMEOUT = 900000;
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
@@ -60,28 +57,26 @@ class KojiBuildFinderIT extends AbstractKojiIT {
 
         Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
 
-        Map<ChecksumType, MultiValuedMap<String, LocalFile>> map;
-
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
         DistributionAnalyzer analyzer;
 
         Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Timer.Context context = timer.time()) {
+        try (Context ignored = timer.time()) {
             analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
         }
 
         Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "builds"));
 
-        try (Timer.Context context2 = timer2.time()) {
+        try (Context ignored = timer2.time()) {
             ClientSession session = getSession();
             BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
-            map = futureChecksum.get();
+            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
 
             assertThat(map).hasSize(3);
             assertThat(builds).hasSizeGreaterThanOrEqualTo(1);

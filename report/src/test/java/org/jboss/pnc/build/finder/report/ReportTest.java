@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ConfigDefaults;
@@ -52,12 +51,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class ReportTest {
-    private static final Pattern PATTERN = Pattern.compile("\n");
-
     private static List<KojiBuild> builds;
 
     @BeforeAll
-    static void setBuilds(@TempDir File folder) throws IOException {
+    static void setupBuilds(@TempDir File folder) throws IOException {
         File buildsFile = TestUtils.loadFile("report-test/builds.json");
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
 
@@ -274,7 +271,7 @@ class ReportTest {
                 builds,
                 ConfigDefaults.KOJI_WEB_URL,
                 ConfigDefaults.PNC_URL,
-                Collections.unmodifiableList(reports));
+                reports);
 
         htmlReport.outputHTML();
 

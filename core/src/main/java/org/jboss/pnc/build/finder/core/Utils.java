@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +42,8 @@ public final class Utils {
     private static final String PROPERTIES_FILE = "build-finder.properties";
 
     private static final Properties PROPERTIES;
+
+    public static final long TIMEOUT = Duration.ofSeconds(10L).toMillis();
 
     static {
         PROPERTIES = new Properties();
@@ -65,10 +68,10 @@ public final class Utils {
         pool.shutdown();
 
         try {
-            if (!pool.awaitTermination(10000L, TimeUnit.MILLISECONDS)) {
+            if (!pool.awaitTermination(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 pool.shutdownNow();
 
-                if (!pool.awaitTermination(10000L, TimeUnit.MILLISECONDS)) {
+                if (!pool.awaitTermination(TIMEOUT, TimeUnit.MILLISECONDS)) {
                     LOGGER.error("Pool did not terminate");
                 }
             }

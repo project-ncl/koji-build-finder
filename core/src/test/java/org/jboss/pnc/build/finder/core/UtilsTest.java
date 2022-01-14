@@ -18,6 +18,10 @@ package org.jboss.pnc.build.finder.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.build.finder.core.Utils.byteCountToDisplaySize;
+import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderScmRevision;
+import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderVersion;
+import static org.jboss.pnc.build.finder.core.Utils.getUserHome;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
@@ -32,7 +36,7 @@ class UtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsTest.class);
 
     private static void userHome() {
-        String userHome = Utils.getUserHome();
+        String userHome = getUserHome();
         LOGGER.debug("user.home={}", userHome);
     }
 
@@ -62,7 +66,7 @@ class UtilsTest {
 
     @Test
     void testBuildFinderVersion() {
-        String version = Utils.getBuildFinderVersion();
+        String version = getBuildFinderVersion();
 
         LOGGER.debug("Version is: '{}'", version);
 
@@ -71,7 +75,7 @@ class UtilsTest {
 
     @Test
     void testBuildFinderScmRevision() {
-        String scmRevision = Utils.getBuildFinderScmRevision();
+        String scmRevision = getBuildFinderScmRevision();
 
         LOGGER.debug("SCM Revision is: '{}'", scmRevision);
 
@@ -80,25 +84,25 @@ class UtilsTest {
 
     @Test
     void testByteCountToDisplaySize() {
-        assertThat(Utils.byteCountToDisplaySize(1023L)).isEqualTo("1023");
-        assertThat(Utils.byteCountToDisplaySize(1024L)).isEqualTo("1.0K");
-        assertThat(Utils.byteCountToDisplaySize(1025L)).isEqualTo("1.1K");
-        assertThat(Utils.byteCountToDisplaySize(10137L)).isEqualTo("9.9K");
-        assertThat(Utils.byteCountToDisplaySize(10138L)).isEqualTo("10K");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1023L)).isEqualTo("1023K");
-        assertThat(Utils.byteCountToDisplaySize(1024L << 10)).isEqualTo("1.0M");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1025L)).isEqualTo("1.1M");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1023L)).isEqualTo("1023M");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L)).isEqualTo("1.0G");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1025L)).isEqualTo("1.1G");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L)).isEqualTo("2.0G");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 2L - 1L)).isEqualTo("2.0G");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0T");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0P");
-        assertThat(Utils.byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0E");
-        assertThat(Utils.byteCountToDisplaySize(Long.MAX_VALUE)).isEqualTo("8.0E");
-        assertThat(Utils.byteCountToDisplaySize(Character.MAX_VALUE)).isEqualTo("64K");
-        assertThat(Utils.byteCountToDisplaySize(Short.MAX_VALUE)).isEqualTo("32K");
-        assertThat(Utils.byteCountToDisplaySize(Integer.MAX_VALUE)).isEqualTo("2.0G");
+        assertThat(byteCountToDisplaySize(1023L)).isEqualTo("1023");
+        assertThat(byteCountToDisplaySize(1024L)).isEqualTo("1.0K");
+        assertThat(byteCountToDisplaySize(1025L)).isEqualTo("1.1K");
+        assertThat(byteCountToDisplaySize(10137L)).isEqualTo("9.9K");
+        assertThat(byteCountToDisplaySize(10138L)).isEqualTo("10K");
+        assertThat(byteCountToDisplaySize(1024L * 1023L)).isEqualTo("1023K");
+        assertThat(byteCountToDisplaySize(1024L << 10)).isEqualTo("1.0M");
+        assertThat(byteCountToDisplaySize(1024L * 1025L)).isEqualTo("1.1M");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1023L)).isEqualTo("1023M");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L)).isEqualTo("1.0G");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1025L)).isEqualTo("1.1G");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L * 2L)).isEqualTo("2.0G");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L * 2L - 1L)).isEqualTo("2.0G");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0T");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0P");
+        assertThat(byteCountToDisplaySize(1024L * 1024L * 1024L * 1024L * 1024L * 1024L)).isEqualTo("1.0E");
+        assertThat(byteCountToDisplaySize(Long.MAX_VALUE)).isEqualTo("8.0E");
+        assertThat(byteCountToDisplaySize(Character.MAX_VALUE)).isEqualTo("64K");
+        assertThat(byteCountToDisplaySize(Short.MAX_VALUE)).isEqualTo("32K");
+        assertThat(byteCountToDisplaySize(Integer.MAX_VALUE)).isEqualTo("2.0G");
     }
 }

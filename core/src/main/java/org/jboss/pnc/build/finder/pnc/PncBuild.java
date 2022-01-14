@@ -25,7 +25,6 @@ import org.jboss.pnc.dto.ProductVersion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-// FIXME: To use current Infinispan cache, the fields have to be serializable
 public class PncBuild {
     private Build build;
 

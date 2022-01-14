@@ -16,6 +16,9 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.constants.Attributes.BUILD_BREW_NAME;
+import static org.jboss.pnc.constants.Attributes.BUILD_BREW_VERSION;
+import static org.jboss.pnc.enums.BuildType.MVN;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -36,14 +39,12 @@ import org.jboss.pnc.build.finder.pnc.client.PncClient;
 import org.jboss.pnc.build.finder.pnc.client.StaticRemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.enums.BuildType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -88,8 +89,8 @@ class PncBuildFinderTest {
         String buildId = "100";
 
         Map<String, String> attributes = new HashMap<>(2);
-        attributes.put(Attributes.BUILD_BREW_NAME, "org.empty-empty");
-        attributes.put(Attributes.BUILD_BREW_VERSION, "1.0.0");
+        attributes.put(BUILD_BREW_NAME, "org.empty-empty");
+        attributes.put(BUILD_BREW_VERSION, "1.0.0");
 
         Build build = Build.builder()
                 .id(buildId)
@@ -101,8 +102,7 @@ class PncBuildFinderTest {
                 .scmRepository(SCMRepository.builder().internalUrl("http://repo.test/empty.git").build())
                 .scmRevision("master")
                 .project(ProjectRef.refBuilder().id("100").build())
-                .buildConfigRevision(
-                        BuildConfigurationRevisionRef.refBuilder().id("100").buildType(BuildType.MVN).build())
+                .buildConfigRevision(BuildConfigurationRevisionRef.refBuilder().id("100").buildType(MVN).build())
                 .build();
 
         Artifact artifact = Artifact.builder()

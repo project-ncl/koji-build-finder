@@ -24,11 +24,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import j2html.tags.Tag;
 import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 
 public abstract class Report {
     private String name;
@@ -61,7 +61,7 @@ public abstract class Report {
                 buildList,
                 config.getKojiWebURL(),
                 config.getPncURL(),
-            reports);
+                reports);
 
         report.outputHTML();
     }

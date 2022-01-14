@@ -16,6 +16,8 @@
 package org.jboss.pnc.build.finder.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,7 +141,7 @@ class MainTest {
 
         Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-        assertThat(checksumType).containsExactly(ChecksumType.sha256);
+        assertThat(checksumType).containsExactly(sha256);
 
         List<Pattern> excludes = parseResult.matchedOption("--exclude").getValue();
 
@@ -193,7 +195,7 @@ class MainTest {
 
         Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-        assertThat(checksumType).containsExactly(ChecksumType.sha256);
+        assertThat(checksumType).containsExactly(sha256);
 
         Main.main(args);
 
@@ -242,7 +244,7 @@ class MainTest {
 
             Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-            assertThat(checksumType).containsExactly(ChecksumType.md5);
+            assertThat(checksumType).containsExactly(md5);
 
             assertThat((Boolean) parseResult.matchedOption("--debug").getValue()).isTrue();
 
@@ -298,7 +300,7 @@ class MainTest {
 
             Collection<ChecksumType> checksumType = parseResult.matchedOption("--checksum-type").getValue();
 
-            assertThat(checksumType).containsExactly(ChecksumType.md5);
+            assertThat(checksumType).containsExactly(md5);
 
             assertThat((Boolean) parseResult.matchedOption("--quiet").getValue()).isTrue();
 

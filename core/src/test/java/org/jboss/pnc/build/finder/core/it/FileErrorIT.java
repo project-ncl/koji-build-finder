@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
 import java.util.Collection;
@@ -45,15 +46,12 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 
 class FileErrorIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileErrorIT.class);
 
     private static final String URL = "https://repo1.maven.org/maven2/jboss/jaxbintros/jboss-jaxb-intros/1.0.2.GA/jboss-jaxb-intros-1.0.2.GA-sources.jar";
-
-    private static final int CONNECTION_TIMEOUT = 300000;
-
-    private static final int READ_TIMEOUT = 900000;
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
@@ -62,21 +60,20 @@ class FileErrorIT extends AbstractKojiIT {
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Timer.Context context = timer.time()) {
+        try (Context ignored = timer.time()) {
             analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
             futureChecksum = pool.submit(analyzer);
         }
 
         Timer timer2 = REGISTRY.timer(MetricRegistry.name(FileErrorIT.class, "builds"));
 
-        try (Timer.Context context2 = timer2.time()) {
+        try (Context ignored = timer2.time()) {
             ClientSession session = getSession();
             BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
             finder.setOutputDirectory(folder);
             Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
             Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
-            Map<BuildSystemInteger, KojiBuild> buildsMap = finder.getBuildsMap();
             Collection<FileError> fileErrors = analyzer.getFileErrors();
             Map<String, Collection<Checksum>> files = analyzer.getFiles();
             Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
@@ -105,7 +102,7 @@ class FileErrorIT extends AbstractKojiIT {
                             cksums -> assertThat(cksums).singleElement()
                                     .extracting("filename", "size")
                                     .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
-            assertThat(analyzer.getChecksums(ChecksumType.sha256)).hasSize(1)
+            assertThat(analyzer.getChecksums(sha256)).hasSize(1)
                     .hasEntrySatisfying(
                             "987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48",
                             cksums -> assertThat(cksums).singleElement()

@@ -45,7 +45,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
     /**
      * This method is called for Protobuf to MultiValuedMapWrapper convertor.
      *
-     * @param entries
+     * @param entries the entries
      */
     @ProtoFactory
     MultiValuedMapProtobufWrapper(Collection<MultiValuedMapProtobufEntry<K, V>> entries) {
@@ -58,16 +58,16 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
         return this.asMap()
                 .entrySet()
                 .stream()
-                .map(a -> new MultiValuedMapProtobufEntry<K, V>(a.getKey(), a.getValue()))
+                .map(a -> new MultiValuedMapProtobufEntry<>(a.getKey(), a.getValue()))
                 .collect(Collectors.toList());
     }
 
     /**
      * POJO representing the key and list of values of MultiValuedMap for Protobuf.
-     *
+     * <p>
      * The key and values are marshalled as a WrappedMessage. In theory, the WrappedMessage object should know how to
      * marshall primitives, enums, and other POJO objects which can be marshalled by Protobuf (as long as they are in
-     * the `AutoProtoSchemaBuilder` list in the ProtobufSerializer interface.
+     * the `AutoProtoSchemaBuilder` list in the ProtobufSerializer interface).
      *
      * @param <K> Key type
      * @param <V> Value type
