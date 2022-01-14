@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import j2html.tags.specialized.TableTag;
 import org.jboss.pnc.build.finder.core.BuildFinderUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
@@ -65,7 +66,7 @@ public final class GAVReport extends Report {
     }
 
     @Override
-    public ContainerTag toHTML() {
+    public ContainerTag<TableTag> toHTML() {
         return table(
                 attrs("#table-" + getBaseFilename()),
                 caption(text(getName())),

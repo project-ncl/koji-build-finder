@@ -42,6 +42,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import j2html.tags.specialized.TableTag;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -53,11 +54,11 @@ import j2html.tags.ContainerTag;
 public final class ProductReport extends Report {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductReport.class);
 
-    private static final Pattern NAME_VER_PATTERN = Pattern.compile("(?<name>[a-z\\-]+)(?<version>[0-9.?]+)?.*");
+    private static final Pattern NAME_VER_PATTERN = Pattern.compile("(?<name>[\\p{Lower}\\-]+)(?<version>[0-9.?]+)?.*");
 
     private static final Pattern SPACE_PATTERN = Pattern.compile("-+");
 
-    private static final Pattern JBOSS_PATTERN = Pattern.compile("(?:jb|jboss)");
+    private static final Pattern JBOSS_PATTERN = Pattern.compile("jb|jboss");
 
     private static final int PRODUCT_NAME_LENGTH = 120;
 
@@ -132,6 +133,7 @@ public final class ProductReport extends Report {
                         SPACE_PATTERN.matcher(NAME_VER_PATTERN.matcher(tagName).replaceAll("${name}-${version}"))
                                 .replaceAll(" "))
                 .replaceAll("JBoss");
+        @SuppressWarnings("unchecked")
         Iterator<String> it = unmodifiableIterator(arrayListIterator(prodName.split(" ")));
 
         StringBuilder sb = new StringBuilder(PRODUCT_NAME_LENGTH);
@@ -158,7 +160,7 @@ public final class ProductReport extends Report {
     }
 
     @Override
-    public ContainerTag toHTML() {
+    public ContainerTag<TableTag> toHTML() {
         return table(
                 attrs("#table-" + getBaseFilename()),
                 caption(text(getName())),

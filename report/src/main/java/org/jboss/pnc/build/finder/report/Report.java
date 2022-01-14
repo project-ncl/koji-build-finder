@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import j2html.tags.Tag;
 import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
@@ -60,7 +61,7 @@ public abstract class Report {
                 buildList,
                 config.getKojiWebURL(),
                 config.getPncURL(),
-                Collections.unmodifiableList(reports));
+            reports);
 
         report.outputHTML();
     }
@@ -81,7 +82,7 @@ public abstract class Report {
                 renderText.get().getBytes(StandardCharsets.UTF_8));
     }
 
-    public abstract ContainerTag toHTML();
+    public abstract ContainerTag<? extends Tag<?>> toHTML();
 
     public void outputHTML() throws IOException {
         Optional<String> renderText = renderText();
