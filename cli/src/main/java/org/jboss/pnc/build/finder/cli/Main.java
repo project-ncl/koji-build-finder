@@ -217,7 +217,7 @@ public final class Main implements Callable<Void> {
     @Parameters(arity = "1..*", paramLabel = "FILE", description = "One or more files.")
     private List<String> files;
 
-    public static void main(String... args) {
+    public static void main(String[] args) {
         Main main = new Main();
 
         try {
@@ -423,10 +423,10 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
-        String location = new File(ConfigDefaults.CACHE_LOCATION).getAbsolutePath();
+        String cacheLocation = new File(ConfigDefaults.CACHE_LOCATION).getAbsolutePath();
 
         globalConfig.globalState()
-                .persistentLocation(location)
+                .persistentLocation(cacheLocation)
                 .serialization()
                 .addContextInitializer(new ProtobufSerializerImpl())
                 .allowList()
@@ -440,13 +440,14 @@ public final class Main implements Callable<Void> {
                 .wakeUpInterval(-1L)
                 .persistence()
                 .passivation(false)
-                .addSingleFileStore()
+                .addSoftIndexFileStore()
                 .segmented(true)
                 .shared(false)
                 .preload(true)
                 .fetchPersistentState(true)
                 .purgeOnStartup(false)
-                .location(location)
+                .dataLocation(cacheLocation)
+                .indexLocation(cacheLocation)
                 .build();
 
         cacheManager = new DefaultCacheManager(globalConfiguration);
