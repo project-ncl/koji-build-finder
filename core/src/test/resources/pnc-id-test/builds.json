@@ -1,0 +1,188 @@
+{
+  "0, none" : {
+    "buildInfo" : {
+      "version" : "not found",
+      "release" : "not found",
+      "build_id" : 0,
+      "package_id" : 0,
+      "package_name" : "not found",
+      "completion_time" : 1642023309,
+      "creation_time" : 1642023309,
+      "state" : "ALL"
+    },
+    "archives" : [ {
+      "archive" : {
+        "filename" : "not found",
+        "checksum" : "5b008f709811cec1be4efdcaf1499d1f",
+        "size" : 24862,
+        "id" : -1,
+        "build_id" : 0,
+        "checksum_type" : "md5"
+      },
+      "checksums" : [ {
+        "type" : "md5",
+        "value" : "5b008f709811cec1be4efdcaf1499d1f",
+        "fileSize" : 24862
+      }, {
+        "type" : "sha1",
+        "value" : "fa9fbad5283ca068855a1b718647b8ccb63c8ca9",
+        "fileSize" : 24862
+      }, {
+        "type" : "sha256",
+        "value" : "d5590de5fd720d0b19b6726a30b31a6cc8c9188d7ce095fb915d394cb491049d",
+        "fileSize" : 24862
+      } ],
+      "files" : [ "camel-core-2.23.2.fuse-7_10_0-00018-redhat-00001.jar!/META-INF/maven/org.apache.camel/camel-core/pom.xml" ]
+    } ]
+  },
+  "AN3KE4EQQ3ABC, pnc" : {
+    "buildInfo" : {
+      "version" : "2.23.2.fuse-7_10_0-00018-redhat-00001",
+      "release" : "1",
+      "nvr" : "org.apache.camel-camel-2.23.2.fuse_7_10_0_00018_redhat_00001-1",
+      "extra" : {
+        "external_build_id" : "AN3KE4EQQ3ABC",
+        "external_version_id" : "277",
+        "build_system" : "PNC",
+        "external_product_id" : "42",
+        "external_project_id" : "28",
+        "external_build_configuration_id" : "6034"
+      },
+      "build_id" : -1,
+      "package_id" : 0,
+      "package_name" : "org.apache.camel-camel",
+      "completion_time" : 1637344087,
+      "creation_time" : 1637338934,
+      "owner_name" : "service-account-fuse-ci",
+      "state" : "COMPLETE",
+      "maven_group_id" : "org.apache.camel",
+      "maven_artifact_id" : "camel",
+      "maven_version" : "2.23.2.fuse-7_10_0-00018-redhat-00001",
+      "source" : "git+ssh://localhost/jboss-fuse/camel.git#90e404e9794f70d911438a6427131d06e9c88f30"
+    },
+    "taskInfo" : {
+      "taskId" : 0,
+      "weight" : 0.0,
+      "parentTaskId" : 0,
+      "channelId" : 0,
+      "priority" : 0,
+      "state" : 0,
+      "ownerId" : 0,
+      "hostId" : 0,
+      "method" : "build",
+      "request" : [ "git+ssh://localhost/jboss-fuse/camel.git", "jb-fuse-7-pnc" ]
+    },
+    "taskRequest" : {
+      "request" : [ "git+ssh://localhost/jboss-fuse/camel.git", "jb-fuse-7-pnc" ]
+    },
+    "archives" : [ {
+      "archive" : {
+        "version" : "2.23.2.fuse-7_10_0-00018-redhat-00001",
+        "arch" : "noarch",
+        "filename" : "camel-core-2.23.2.fuse-7_10_0-00018-redhat-00001.jar",
+        "checksum" : "f9174bb40ca562512763fe0d416b545f",
+        "size" : 5159971,
+        "extra" : {
+          "external_build_id" : "AN3KE4EQQ3ABC",
+          "external_archive_id" : "7006187"
+        },
+        "id" : 7006187,
+        "btype" : "maven",
+        "group_id" : "org.apache.camel",
+        "artifact_id" : "camel-core",
+        "build_id" : -1,
+        "type_name" : "jar",
+        "checksum_type" : "md5"
+      },
+      "checksums" : [ {
+        "type" : "md5",
+        "value" : "f9174bb40ca562512763fe0d416b545f",
+        "fileSize" : 0
+      }, {
+        "type" : "sha1",
+        "value" : "37d903cfbdfdd3c084de6d478c7f4d8e99258c00",
+        "fileSize" : 0
+      }, {
+        "type" : "sha256",
+        "value" : "eb84ade1075a20a4dae30ca5e1c3a072c4c206134f42881a7cbfbf8cf80a32e3",
+        "fileSize" : 0
+      } ],
+      "files" : [ "camel-core-2.23.2.fuse-7_10_0-00018-redhat-00001.jar" ]
+    }, {
+      "archive" : {
+        "version" : "2.23.2.fuse-7_10_0-00018-redhat-00001",
+        "arch" : "noarch",
+        "filename" : "json-simple-ordered-2.23.2.fuse-7_10_0-00018-redhat-00001.pom",
+        "checksum" : "9f8f695a97a79129dd59b91dc0940c82",
+        "size" : 3902,
+        "extra" : {
+          "external_build_id" : "AN3KE4EQQ3ABC",
+          "external_archive_id" : "7008219"
+        },
+        "id" : 7008219,
+        "btype" : "maven",
+        "group_id" : "org.apache.camel",
+        "artifact_id" : "json-simple-ordered",
+        "build_id" : -1,
+        "type_name" : "pom",
+        "checksum_type" : "md5"
+      },
+      "checksums" : [ {
+        "type" : "md5",
+        "value" : "9f8f695a97a79129dd59b91dc0940c82",
+        "fileSize" : 3902
+      }, {
+        "type" : "sha256",
+        "value" : "1f8a64744a1c7625648a46ef4bdb4167d450f8c45dc60f7d5d4d56736638b601",
+        "fileSize" : 3902
+      }, {
+        "type" : "sha1",
+        "value" : "0818f96013e9a1a22bfc1b5dc722e07f917e7a85",
+        "fileSize" : 3902
+      } ],
+      "files" : [ "camel-core-2.23.2.fuse-7_10_0-00018-redhat-00001.jar!/META-INF/maven/org.apache.camel/json-simple-ordered/pom.xml" ]
+    }, {
+      "archive" : {
+        "version" : "2.23.2.fuse-7_10_0-00018-redhat-00001",
+        "arch" : "noarch",
+        "filename" : "spi-annotations-2.23.2.fuse-7_10_0-00018-redhat-00001.pom",
+        "checksum" : "169cd47bb5d5b9c83bca2a67aef86bab",
+        "size" : 1540,
+        "extra" : {
+          "external_build_id" : "AN3KE4EQQ3ABC",
+          "external_archive_id" : "7008230"
+        },
+        "id" : 7008230,
+        "btype" : "maven",
+        "group_id" : "org.apache.camel",
+        "artifact_id" : "spi-annotations",
+        "build_id" : -1,
+        "type_name" : "pom",
+        "checksum_type" : "md5"
+      },
+      "checksums" : [ {
+        "type" : "md5",
+        "value" : "169cd47bb5d5b9c83bca2a67aef86bab",
+        "fileSize" : 1540
+      }, {
+        "type" : "sha256",
+        "value" : "51c211a07c86ffcb6b32fdfb3f99dc23e80c224dd7d80cec890de03c6ba65480",
+        "fileSize" : 1540
+      }, {
+        "type" : "sha1",
+        "value" : "ac33232036190126315ef151d523994386c22c59",
+        "fileSize" : 1540
+      } ],
+      "files" : [ "camel-core-2.23.2.fuse-7_10_0-00018-redhat-00001.jar!/META-INF/maven/org.apache.camel/spi-annotations/pom.xml" ]
+    } ],
+    "tags" : [ {
+      "id" : 277,
+      "name" : "jb-fuse-7-pnc",
+      "arches" : [ "noarch" ],
+      "locked" : false,
+      "maven_support" : true,
+      "maven_include_all" : true
+    } ],
+    "types" : [ "maven" ]
+  }
+}

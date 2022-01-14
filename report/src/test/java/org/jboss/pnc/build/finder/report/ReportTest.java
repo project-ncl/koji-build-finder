@@ -15,12 +15,19 @@
  */
 package org.jboss.pnc.build.finder.report;
 
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.ARTIFACT_ID;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_URL;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.GROUP_ID;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.VERSION;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.Assertions.linesOf;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.assertj.core.api.InstanceOfAssertFactories.map;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.PNC;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +64,7 @@ class ReportTest {
 
         List<KojiBuild> buildList = new ArrayList<>(buildMap.values());
 
-        buildList.sort(Comparator.comparingInt(KojiBuild::getId));
+        buildList.sort(Comparator.comparing(KojiBuild::getId));
 
         builds = Collections.unmodifiableList(buildList);
 
@@ -80,102 +87,112 @@ class ReportTest {
     }
 
     @Test
+    void testBuilds0() {
+        KojiBuild build = builds.get(0);
+        assertThat(build.isMaven()).isFalse();
+        assertThat(build.isImport()).isTrue();
+        assertThat(build.getScmSourcesZip()).isEmpty();
+        assertThat(build.getPatchesZip()).isEmpty();
+        assertThat(build.getProjectSourcesTgz()).isEmpty();
+        assertThat(build.getDuplicateArchives()).isEmpty();
+        assertThat(build.toString()).isNotEmpty();
+    }
+
+    @Test
     void testBuilds1() {
-        assertThat(builds.get(0).isImport()).isTrue();
-        assertThat(builds.get(0).getScmSourcesZip()).isEmpty();
-        assertThat(builds.get(0).getPatchesZip()).isEmpty();
-        assertThat(builds.get(0).getProjectSourcesTgz()).isEmpty();
-        assertThat(builds.get(0).getDuplicateArchives()).isEmpty();
-        assertThat(builds.get(0).toString()).isNotEmpty();
+        KojiBuild build = builds.get(1);
+        assertThat(build.isMaven()).isFalse();
+        assertThat(build.isImport()).isTrue();
+        assertThat(build.getScmSourcesZip()).isEmpty();
+        assertThat(build.getPatchesZip()).isEmpty();
+        assertThat(build.getProjectSourcesTgz()).isEmpty();
+        assertThat(build.getDuplicateArchives()).hasSize(1);
+        assertThat(build.toString()).isNotEmpty();
     }
 
     @Test
     void testBuilds2() {
-        assertThat(builds.get(1).isImport()).isTrue();
-        assertThat(builds.get(1).getScmSourcesZip()).isEmpty();
-        assertThat(builds.get(1).getPatchesZip()).isEmpty();
-        assertThat(builds.get(1).getProjectSourcesTgz()).isEmpty();
-        assertThat(builds.get(1).getDuplicateArchives()).hasSize(1);
-        assertThat(builds.get(1).toString()).isNotEmpty();
+        KojiBuild build = builds.get(2);
+        assertThat(build.isMaven()).isFalse();
+        assertThat(build.isImport()).isTrue();
+        assertThat(build.getScmSourcesZip()).isEmpty();
+        assertThat(build.getPatchesZip()).isEmpty();
+        assertThat(build.getProjectSourcesTgz()).isEmpty();
+        assertThat(build.getDuplicateArchives()).hasSize(1);
+        assertThat(build.toString()).isNotEmpty();
+        assertThat(build.getDuplicateArchives().get(0)).isNotNull();
     }
 
     @Test
     void testBuilds3() {
-        assertThat(builds.get(2).isImport()).isTrue();
-        assertThat(builds.get(2).getScmSourcesZip()).isEmpty();
-        assertThat(builds.get(2).getPatchesZip()).isEmpty();
-        assertThat(builds.get(2).getProjectSourcesTgz()).isEmpty();
-        assertThat(builds.get(2).getDuplicateArchives()).hasSize(1);
-        assertThat(builds.get(2).toString()).isNotEmpty();
-        assertThat(builds.get(2).getDuplicateArchives().get(0)).isNotNull();
-    }
-
-    @Test
-    void testBuilds4() {
-        assertThat(builds.get(3).isMaven()).isTrue();
-        assertThat(builds.get(3).getTypes()).containsExactly("maven");
-        assertThat(builds.get(3).getSource()).get(as(STRING))
+        KojiBuild build = builds.get(3);
+        assertThat(build.isMaven()).isTrue();
+        assertThat(build.isImport()).isFalse();
+        assertThat(build.getTypes()).containsExactly("maven");
+        assertThat(build.getSource()).get(as(STRING))
                 .isEqualTo("svn+http://svn.apache.org/repos/asf/commons/proper/beanutils/tags/BEANUTILS_1_9_2#1598386");
-        assertThat(builds.get(3).getScmSourcesZip()).get()
-                .extracting("filename", as(STRING))
-                .endsWith("-scm-sources.zip");
-        assertThat(builds.get(3).getPatchesZip()).get().extracting("filename", as(STRING)).endsWith("-patches.zip");
-        assertThat(builds.get(3).getProjectSourcesTgz()).get()
+        assertThat(build.getScmSourcesZip()).get().extracting("filename", as(STRING)).endsWith("-scm-sources.zip");
+        assertThat(build.getPatchesZip()).get().extracting("filename", as(STRING)).endsWith("-patches.zip");
+        assertThat(build.getProjectSourcesTgz()).get()
                 .extracting("filename", as(STRING))
                 .endsWith("-project-sources.tar.gz");
-        assertThat(builds.get(3).getTaskRequest().asMavenBuildRequest().getProperties()).hasSize(2)
+        assertThat(build.getTaskRequest().asMavenBuildRequest().getProperties()).hasSize(2)
                 .containsEntry("version.incremental.suffix", "redhat")
                 .containsEntry("additionalparam", "-Xdoclint:none");
     }
 
     @Test
+    void testBuilds4() {
+        KojiBuild build = builds.get(4);
+        assertThat(build.isMaven()).isFalse();
+        assertThat(build.isImport()).isFalse();
+        assertThat(build.getSource()).get(as(STRING))
+                .isEqualTo("git://localhost/rpms/artemis-native-linux#eee002a284922bf7c4c6b006dcb62f2c036ef293");
+        assertThat(build.getScmSourcesZip()).isEmpty();
+        assertThat(build.getPatchesZip()).isEmpty();
+        assertThat(build.getProjectSourcesTgz()).isEmpty();
+        assertThat(build.getDuplicateArchives()).isEmpty();
+        assertThat(build.toString()).isNotEmpty();
+    }
+
+    @Test
     void testBuilds5() {
-        assertThat(builds.get(3).getDuplicateArchives()).isEmpty();
-        assertThat(builds.get(3).toString()).isNotEmpty();
-        assertThat(builds.get(4).isMaven()).isTrue();
-        assertThat(builds.get(4).getSource()).get(as(STRING))
+        KojiBuild build = builds.get(5);
+        assertThat(build.getDuplicateArchives()).isEmpty();
+        assertThat(build.toString()).isNotEmpty();
+        assertThat(build.isMaven()).isTrue();
+        assertThat(build.isImport()).isFalse();
+        assertThat(build.getSource()).get(as(STRING))
                 .isEqualTo("git+ssh://user@localhost:22/wildfly-swarm-prod/wildfly-config-api.git#1.x");
-        assertThat(builds.get(4).getScmSourcesZip()).isEmpty();
-        assertThat(builds.get(4).getPatchesZip()).isEmpty();
-        assertThat(builds.get(4).getProjectSourcesTgz()).get()
+        assertThat(build.getScmSourcesZip()).isEmpty();
+        assertThat(build.getPatchesZip()).isEmpty();
+        assertThat(build.getProjectSourcesTgz()).get()
                 .extracting("filename", as(STRING))
                 .endsWith("-project-sources.tar.gz");
-        assertThat(builds.get(4).getBuildInfo().getExtra()).hasSize(4)
-                .containsEntry("build_system", "PNC")
-                .containsEntry("external_build_id", "985")
-                .containsEntry("external_build_system", "http://localhost/pnc-web/#/build-records/985")
+        assertThat(build.getBuildInfo().getExtra()).hasSize(4)
+                .containsEntry(BUILD_SYSTEM, PNC)
+                .containsEntry(EXTERNAL_BUILD_ID, "985")
+                .containsEntry(EXTERNAL_BUILD_URL, "http://localhost/pnc-web/#/build-records/985")
                 .hasEntrySatisfying(
                         "maven",
                         value -> assertThat(value).asInstanceOf(map(String.class, String.class))
                                 .hasSize(3)
-                                .containsEntry("group_id", "org.wildfly.swarm")
-                                .containsEntry("artifact_id", "config-api-parent")
-                                .containsEntry("version", "1.1.0.Final-redhat-14"));
+                                .containsEntry(GROUP_ID, "org.wildfly.swarm")
+                                .containsEntry(ARTIFACT_ID, "config-api-parent")
+                                .containsEntry(VERSION, "1.1.0.Final-redhat-14"));
 
-        Map<String, Object> extra = builds.get(4).getBuildInfo().getExtra();
+        Map<String, Object> extra = build.getBuildInfo().getExtra();
         Object obj = extra.get("maven");
 
         assertThat(obj).asInstanceOf(map(String.class, String.class))
                 .hasSize(3)
-                .containsEntry("artifact_id", "config-api-parent")
-                .containsEntry("group_id", "org.wildfly.swarm")
-                .containsEntry("version", "1.1.0.Final-redhat-14");
+                .containsEntry(GROUP_ID, "org.wildfly.swarm")
+                .containsEntry(ARTIFACT_ID, "config-api-parent")
+                .containsEntry(VERSION, "1.1.0.Final-redhat-14");
 
-        assertThat(builds.get(4).getMethod()).get(as(STRING)).isEqualTo("PNC");
-        assertThat(builds.get(4).getDuplicateArchives()).isEmpty();
-        assertThat(builds.get(4).toString()).isNotEmpty();
-    }
-
-    @Test
-    void testBuilds6() {
-        assertThat(builds.get(5).isMaven()).isFalse();
-        assertThat(builds.get(5).getSource()).get(as(STRING))
-                .isEqualTo("git://localhost/rpms/artemis-native-linux#eee002a284922bf7c4c6b006dcb62f2c036ef293");
-        assertThat(builds.get(5).getScmSourcesZip()).isEmpty();
-        assertThat(builds.get(5).getPatchesZip()).isEmpty();
-        assertThat(builds.get(5).getProjectSourcesTgz()).isEmpty();
-        assertThat(builds.get(5).getDuplicateArchives()).isEmpty();
-        assertThat(builds.get(5).toString()).isNotEmpty();
+        assertThat(build.getMethod()).get(as(STRING)).isEqualTo(PNC);
+        assertThat(build.getDuplicateArchives()).isEmpty();
+        assertThat(build.toString()).isNotEmpty();
     }
 
     @Test

@@ -52,6 +52,8 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 public final class BuildFinderUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildFinderUtils.class);
 
+    public static final String BUILD_ID_ZERO = "0";
+
     private List<String> archiveExtensions;
 
     private final DistributionAnalyzer distributionAnalyzer;
@@ -96,7 +98,7 @@ public final class BuildFinderUtils {
     public void addArchiveToBuild(KojiBuild build, KojiArchiveInfo archive, Collection<String> filenames) {
         LOGGER.debug(
                 "Found build id {} for file {} (checksum {}) matching local files {}",
-                build.getBuildInfo().getId(),
+                build.getId(),
                 archive.getFilename(),
                 archive.getChecksum(),
                 filenames);
@@ -226,6 +228,22 @@ public final class BuildFinderUtils {
         buildInfo.setRelease("not found");
 
         return new KojiBuild(buildInfo);
+    }
+
+    public static boolean isBuildIdZero(String id) {
+        return BUILD_ID_ZERO.equals(id);
+    }
+
+    public static boolean isNotBuildIdZero(String id) {
+        return !isBuildIdZero(id);
+    }
+
+    public static boolean isBuildZero(KojiBuild build) {
+        return isBuildIdZero(build.getId());
+    }
+
+    public static boolean isNotBuildZero(KojiBuild build) {
+        return !isBuildIdZero(build.getId());
     }
 
     public void addFilesInError(KojiBuild buildZero) {

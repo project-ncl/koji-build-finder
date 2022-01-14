@@ -173,20 +173,17 @@ public class BuildFinder implements Callable<Map<BuildSystemInteger, KojiBuild>>
 
     private void initBuilds() {
         builds = new HashMap<>();
-
         KojiBuild build = BuildFinderUtils.createKojiBuildZero();
         builds.put(new BuildSystemInteger(0), build);
     }
 
     private void addArchiveWithoutBuild(Checksum checksum, Collection<String> filenames) {
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
-
         buildFinderUtils.addArchiveWithoutBuild(buildZero, checksum, filenames);
     }
 
     private void addRpmWithoutBuild(Checksum checksum, Collection<String> filenames, KojiRpmInfo rpm) {
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
-
         buildFinderUtils.addArchiveWithoutBuild(buildZero, checksum, filenames, rpm);
     }
 

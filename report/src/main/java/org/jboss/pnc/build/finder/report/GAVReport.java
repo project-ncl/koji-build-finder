@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jboss.pnc.build.finder.core.BuildFinderUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import j2html.tags.ContainerTag;
@@ -46,7 +47,7 @@ public final class GAVReport extends Report {
         setOutputDirectory(outputDirectory);
 
         this.gavs = builds.stream()
-                .filter(build -> build.getBuildInfo().getId() > 0)
+                .filter(BuildFinderUtils::isNotBuildZero)
                 .filter(build -> build.getTypes() != null && build.getTypes().contains("maven"))
                 .flatMap(build -> build.getArchives().stream())
                 .map(

@@ -22,21 +22,26 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 
 public class BuildSystemInteger implements Comparable<Object> {
-    private final Integer value;
+    private final String value;
 
     private final BuildSystem buildSystem;
 
     public BuildSystemInteger(int value) {
-        this.value = value;
+        this.value = String.valueOf(value);
         this.buildSystem = BuildSystem.none;
     }
 
     public BuildSystemInteger(int value, BuildSystem buildSystem) {
+        this.value = String.valueOf(value);
+        this.buildSystem = buildSystem;
+    }
+
+    public BuildSystemInteger(String value, BuildSystem buildSystem) {
         this.value = value;
         this.buildSystem = buildSystem;
     }
 
-    public Integer getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -45,24 +50,22 @@ public class BuildSystemInteger implements Comparable<Object> {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(buildSystem, value);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BuildSystemInteger that = (BuildSystemInteger) o;
+        return Objects.equals(value, that.value) && buildSystem == that.buildSystem;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        boolean result;
-
-        if (this == obj) {
-            result = true;
-        } else if (!(obj instanceof BuildSystemInteger)) {
-            result = false;
-        } else {
-            BuildSystemInteger other = (BuildSystemInteger) obj;
-            result = buildSystem == other.getBuildSystem() && value.equals(other.getValue());
-        }
-
-        return result;
+    public int hashCode() {
+        return Objects.hash(value, buildSystem);
     }
 
     @Override
@@ -98,9 +101,8 @@ public class BuildSystemInteger implements Comparable<Object> {
         @Override
         public Object deserializeKey(String s, DeserializationContext deserializationContext) {
             String[] t = PATTERN.split(s);
-            int value = Integer.parseInt(t[0]);
+            String value = t[0];
             BuildSystem buildSystem = BuildSystem.valueOf(t[1]);
-
             return new BuildSystemInteger(value, buildSystem);
         }
     }

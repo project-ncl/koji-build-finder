@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isNotBuildZero;
 
 import java.util.Collection;
 import java.util.List;
@@ -51,7 +52,7 @@ public class BuildStatistics {
             List<KojiLocalArchive> archives = build.getArchives();
             int archiveCount = archives.size();
 
-            if (build.getBuildInfo().getId() > 0) {
+            if (isNotBuildZero(build)) {
                 numberOfBuilds++;
 
                 if (isImport) {

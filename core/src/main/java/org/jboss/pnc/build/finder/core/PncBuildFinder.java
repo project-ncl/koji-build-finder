@@ -16,6 +16,8 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -92,7 +94,7 @@ public class PncBuildFinder {
             } else {
                 KojiBuild kojiBuild = convertPncBuildToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds()
-                        .put(new BuildSystemInteger(kojiBuild.getBuildInfo().getId(), BuildSystem.pnc), kojiBuild);
+                        .put(new BuildSystemInteger(kojiBuild.getId(), BuildSystem.pnc), kojiBuild);
             }
         });
 
@@ -183,7 +185,7 @@ public class PncBuildFinder {
      */
     private static ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Iterable<EnhancedArtifact> artifacts) {
         ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>();
-        Build buildZero = Build.builder().id("0").build();
+        Build buildZero = Build.builder().id(BUILD_ID_ZERO).build();
 
         artifacts.forEach(artifact -> {
             Build build;
@@ -341,13 +343,13 @@ public class PncBuildFinder {
     }
 
     /**
-     * Check if PncBuild.build.id has "0" value, which indicates a container for not found artifacts
+     * Check if PncBuild.build.id has &quot;0&quot; value, which indicates a container for not found artifacts
      *
      * @param pncBuild A PncBuild
      * @return False if the build has ID 0 otherwise true
      */
     private static boolean isBuildZero(PncBuild pncBuild) {
-        return "0".equals(pncBuild.getBuild().getId());
+        return isBuildIdZero(pncBuild.getBuild().getId());
     }
 
     void setListener(BuildFinderListener listener) {

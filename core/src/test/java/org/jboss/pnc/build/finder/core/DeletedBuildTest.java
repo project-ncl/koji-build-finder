@@ -63,8 +63,9 @@ class DeletedBuildTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds).hasSize(2);
-            assertThat(builds)
-                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero());
+            assertThat(builds).hasEntrySatisfying(
+                    new BuildSystemInteger(0),
+                    build -> assertThat(Integer.parseInt(build.getId())).isZero());
             assertThat(builds).hasEntrySatisfying(
                     new BuildSystemInteger(966480, BuildSystem.koji),
                     build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.DELETED));

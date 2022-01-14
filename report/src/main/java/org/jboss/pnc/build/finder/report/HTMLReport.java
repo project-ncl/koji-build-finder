@@ -42,7 +42,14 @@ import static j2html.TagCreator.title;
 import static j2html.TagCreator.tr;
 import static j2html.TagCreator.ul;
 import static java.lang.String.join;
-import static java.lang.String.valueOf;
+import static org.apache.commons.collections4.MapUtils.getString;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isNotBuildIdZero;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_ARCHIVE_ID;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_BUILD_CONFIGURATION_ID;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_PRODUCT_ID;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_PROJECT_ID;
+import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_VERSION_ID;
 
 import java.io.File;
 import java.net.URL;
@@ -104,31 +111,27 @@ public final class HTMLReport extends Report {
         this.reports = reports;
     }
 
-    private static ContainerTag errorText(String text) {
+    private static ContainerTag<?> errorText(String text) {
         return span(text).withStyle("color:red;font-weight:700");
     }
 
     private Tag<?> linkBuild(KojiBuild build) {
-        int id = build.getId();
+        String id = build.getId();
 
         if (build.isPnc()) {
-            return a()
-                    .withHref(pncUrl + "/pnc-web/#/builds/" + build.getBuildInfo().getExtra().get("external_build_id"))
-                    .with(text(Integer.toString(id)));
+            return a().withHref(pncUrl + "/pnc-web/#/builds/" + id).with(text(id));
         }
 
-        return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(Integer.toString(id)));
+        return a().withHref(kojiwebUrl + "/buildinfo?buildID=" + id).with(text(id));
     }
 
     private Tag<?> linkPkg(KojiBuild build) {
         String name = build.getBuildInfo().getName();
 
         if (build.isPnc()) {
-            return a()
-                    .withHref(
-                            pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get("external_project_id")
-                                    + "/build-configs/"
-                                    + build.getBuildInfo().getExtra().get("external_build_configuration_id"))
+            return a().withHref(
+                    pncUrl + "/pnc-web/#/projects/" + build.getBuildInfo().getExtra().get(EXTERNAL_PROJECT_ID)
+                            + "/build-configs/" + build.getBuildInfo().getExtra().get(EXTERNAL_BUILD_CONFIGURATION_ID))
                     .with(text(name));
         }
 
@@ -138,33 +141,33 @@ public final class HTMLReport extends Report {
 
     private Tag<?> linkArchive(KojiBuild build, KojiArchiveInfo archive, Collection<String> unmatchedFilenames) {
         String name = archive.getFilename();
-        Integer id = archive.getArchiveId();
-        boolean validId = id != null && id > 0;
+        Integer integerId = archive.getArchiveId();
+        String id = (integerId != null && integerId > 0) ? String.valueOf(integerId)
+                : getString(archive.getExtra(), EXTERNAL_ARCHIVE_ID);
 
         if (!unmatchedFilenames.isEmpty()) {
             String archives = join(", ", unmatchedFilenames);
-
             name += " (unmatched files: " + archives + ")";
         }
 
-        boolean error = !unmatchedFilenames.isEmpty() || build.isImport() || !validId;
+        boolean error = !unmatchedFilenames.isEmpty() || build.isImport() || id == null;
 
         if (build.isPnc()) {
-            return error ? errorText(name)
-                    : a().withHref(pncUrl + "/pnc-web/#/artifacts/" + archive.getArchiveId()).with(text(name));
-        }
-
-        String href = "/archiveinfo?archiveID=" + id;
-
-        if (error) {
-            if (validId) {
-                return a().withHref(kojiwebUrl + href).with(errorText(name));
+            if (error) {
+                return errorText(name);
             }
 
-            return errorText(name);
+            return a().withHref(pncUrl + "/pnc-web/#/artifacts/" + id).with(text(name));
         }
 
-        return a().withHref(kojiwebUrl + href).with(text(name));
+        String href = kojiwebUrl + "/archiveinfo?archiveID=" + id;
+
+        if (error) {
+            return id != null ? a().withHref(href).with(errorText(name)) : errorText(name);
+
+        }
+
+        return a().withHref(href).with(text(name));
     }
 
     private Tag<?> linkArchive(KojiBuild build, KojiArchiveInfo archive) {
@@ -180,7 +183,7 @@ public final class HTMLReport extends Report {
                 : a().withHref(kojiwebUrl + href).with(text(name));
     }
 
-    private Tag<?> linkLocAr(KojiBuild build, KojiLocalArchive localArchive) {
+    private Tag<?> linkLocalArchive(KojiBuild build, KojiLocalArchive localArchive) {
         KojiArchiveInfo archive = localArchive.getArchive();
         KojiRpmInfo rpm = localArchive.getRpm();
         Collection<String> unmatchedFilenames = localArchive.getUnmatchedFilenames();
@@ -195,18 +198,17 @@ public final class HTMLReport extends Report {
     }
 
     private Tag<?> linkTag(KojiBuild build, KojiTagInfo tag) {
-        int id = tag.getId();
         String name = tag.getName();
 
         if (build.isPnc()) {
             return li(
                     a().withHref(
-                            pncUrl + "/pnc-web/#/product/" + build.getBuildInfo().getExtra().get("external_product_id")
-                                    + "/version/" + build.getBuildInfo().getExtra().get("external_version_id"))
+                            pncUrl + "/pnc-web/#/product/" + build.getBuildInfo().getExtra().get(EXTERNAL_PRODUCT_ID)
+                                    + "/version/" + build.getBuildInfo().getExtra().get(EXTERNAL_VERSION_ID))
                             .with(text(name)));
         }
 
-        return li(a().withHref(kojiwebUrl + "/taginfo?tagID=" + id).with(text(name)));
+        return li(a().withHref(kojiwebUrl + "/taginfo?tagID=" + tag.getId()).with(text(name)));
     }
 
     private static Tag<?> linkSource(KojiBuild build) {
@@ -265,22 +267,34 @@ public final class HTMLReport extends Report {
                                                                 b -> tr(
                                                                         td(text(Integer.toString(builds.indexOf(b)))),
                                                                         td(
-                                                                                b.getId() > 0 ? linkBuild(b)
-                                                                                        : errorText(
-                                                                                                valueOf(b.getId()))),
-                                                                        td(b.getId() > 0 ? linkPkg(b) : text("")),
+                                                                                (b.getId() != null
+                                                                                        && isNotBuildIdZero(b.getId()))
+                                                                                                ? linkBuild(b)
+                                                                                                : errorText(
+                                                                                                        String.valueOf(
+                                                                                                                b.getId()))),
                                                                         td(
-                                                                                b.getId() > 0 ? text(
-                                                                                        b.getBuildInfo()
-                                                                                                .getVersion()
-                                                                                                .replace('_', '-'))
-                                                                                        : text("")),
+                                                                                (b.getId() != null
+                                                                                        && isNotBuildIdZero(b.getId()))
+                                                                                                ? linkPkg(b)
+                                                                                                : text("")),
+                                                                        td(
+                                                                                (b.getId() != null && isNotBuildIdZero(
+                                                                                        b.getId())) ? text(
+                                                                                                b.getBuildInfo()
+                                                                                                        .getVersion()
+                                                                                                        .replace(
+                                                                                                                '_',
+                                                                                                                '-'))
+                                                                                                : text("")),
                                                                         td(
                                                                                 b.getArchives() != null ? ol(
                                                                                         each(
                                                                                                 b.getArchives(),
                                                                                                 a -> li(
-                                                                                                        linkLocAr(b, a),
+                                                                                                        linkLocalArchive(
+                                                                                                                b,
+                                                                                                                a),
                                                                                                         text(": "),
                                                                                                         text(
                                                                                                                 join(
@@ -296,9 +310,13 @@ public final class HTMLReport extends Report {
                                                                         td(
                                                                                 b.getMethod().isPresent()
                                                                                         ? text(b.getMethod().get())
-                                                                                        : b.getId() > 0 ? errorText(
-                                                                                                "imported build")
-                                                                                                : text("")),
+                                                                                        : (b.getId() != null
+                                                                                                && isNotBuildIdZero(
+                                                                                                        b.getId()))
+                                                                                                                ? errorText(
+                                                                                                                        "imported build")
+                                                                                                                : text(
+                                                                                                                        "")),
                                                                         td(
                                                                                 b.getScmSourcesZip().isPresent()
                                                                                         ? linkArchive(
@@ -315,9 +333,13 @@ public final class HTMLReport extends Report {
                                                                         td(
                                                                                 b.getSource().isPresent()
                                                                                         ? linkSource(b)
-                                                                                        : b.getId() == 0 ? text("")
-                                                                                                : errorText(
-                                                                                                        "missing URL")),
+                                                                                        : (b.getId() == null
+                                                                                                || isBuildIdZero(
+                                                                                                        b.getId()))
+                                                                                                                ? text(
+                                                                                                                        "")
+                                                                                                                : errorText(
+                                                                                                                        "missing URL")),
                                                                         td(
                                                                                 b.getTaskInfo() != null
                                                                                         && b.getTaskInfo()

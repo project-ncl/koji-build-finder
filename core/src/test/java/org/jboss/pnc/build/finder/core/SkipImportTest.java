@@ -72,10 +72,12 @@ class SkipImportTest {
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
 
             assertThat(builds).hasSize(2)
-                    .hasEntrySatisfying(new BuildSystemInteger(0), build -> assertThat(build.getId()).isZero())
+                    .hasEntrySatisfying(
+                            new BuildSystemInteger(0),
+                            build -> assertThat(Integer.parseInt(build.getId())).isZero())
                     .hasEntrySatisfying(
                             new BuildSystemInteger(228994, BuildSystem.koji),
-                            build -> assertThat(build.getId()).isEqualTo(228994));
+                            build -> assertThat(build.getId()).isEqualTo("228994"));
             assertThat(builds).doesNotContainKey(new BuildSystemInteger(251444, BuildSystem.koji));
         }
     }

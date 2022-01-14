@@ -810,7 +810,7 @@ public final class Main implements Callable<Void> {
         int buildListSize = buildList.size();
 
         if (buildListSize > 1) {
-            buildList.sort(Comparator.comparingInt(build -> build.getBuildInfo().getId()));
+            buildList.sort(Comparator.comparing(KojiBuild::getId));
         }
 
         if (buildListSize > 1 || buildZero != null && !buildZero.getArchives().isEmpty()) {

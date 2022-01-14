@@ -15,6 +15,14 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
+import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
+import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
+import static org.jboss.pnc.constants.Attributes.BUILD_BREW_NAME;
+import static org.jboss.pnc.constants.Attributes.BUILD_BREW_VERSION;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -24,13 +32,11 @@ import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
-import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redhat.red.build.koji.model.json.KojiJsonConstants;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
@@ -42,6 +48,32 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiTaskRequest;
 public final class PncUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncUtils.class);
 
+    public static final String EXTERNAL_ARCHIVE_ID = "external_archive_id";
+
+    public static final String EXTERNAL_BREW_BUILD_ID = "external_brew_build_id";
+
+    public static final String EXTERNAL_BREW_BUILD_URL = "external_brew_build_url";
+
+    public static final String EXTERNAL_BUILD_CONFIGURATION_ID = "external_build_configuration_id";
+
+    public static final String EXTERNAL_PRODUCT_ID = "external_product_id";
+
+    public static final String EXTERNAL_PROJECT_ID = "external_project_id";
+
+    public static final String EXTERNAL_VERSION_ID = "external_version_id";
+
+    public static final String GRADLE = "gradle";
+
+    public static final String MAVEN = "maven";
+
+    public static final String NPM = "npm";
+
+    public static final String UNKNOWN = "unknown";
+
+    public static final String NO_BUILD_BREW_NAME = "NO_BUILD_BREW_NAME";
+
+    public static final String PNC = "PNC";
+
     private PncUtils() {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
@@ -49,7 +81,7 @@ public final class PncUtils {
     // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
     private static void setMavenBuildInfoFromBuildRecord(Build record, KojiBuildInfo buildInfo) {
         String executionRootName = getSafelyExecutionRootName(record);
-        String executionRootVersion = record.getAttributes().get(Attributes.BUILD_BREW_VERSION);
+        String executionRootVersion = record.getAttributes().get(BUILD_BREW_VERSION);
         String[] ga = executionRootName.split(":", 2);
 
         if (ga.length >= 2) {
@@ -61,18 +93,18 @@ public final class PncUtils {
     }
 
     private static String getSafelyExecutionRootName(Build build) {
-        String buildBrewName = build.getAttributes().get(Attributes.BUILD_BREW_NAME);
+        String buildBrewName = build.getAttributes().get(BUILD_BREW_NAME);
         if (buildBrewName == null) {
-            return "NO_BUILD_BREW_NAME";
+            return NO_BUILD_BREW_NAME;
         } else {
             return buildBrewName;
         }
     }
 
     private static String getBrewBuildVersionOrZero(Build build) {
-        String buildBrewVersion = build.getAttributes().get(Attributes.BUILD_BREW_VERSION);
+        String buildBrewVersion = build.getAttributes().get(BUILD_BREW_VERSION);
         if (buildBrewVersion == null) {
-            return "0";
+            return BUILD_ID_ZERO;
         } else {
             return buildBrewVersion;
         }
@@ -80,69 +112,79 @@ public final class PncUtils {
 
     public static String getNVRFromBuildRecord(Build record) {
         return getSafelyExecutionRootName(record).replace(':', '-') + "-"
-                + record.getAttributes().get(Attributes.BUILD_BREW_VERSION) + "-1";
+                + record.getAttributes().get(BUILD_BREW_VERSION) + "-1";
     }
 
     public static KojiBuild pncBuildToKojiBuild(PncBuild pncbuild) {
-        KojiBuild build = new KojiBuild();
+        KojiBuild kojiBuild = new KojiBuild();
+        Build build = pncbuild.getBuild();
 
-        build.setTypes(Collections.singletonList("maven"));
+        kojiBuild.setTypes(Collections.singletonList(MAVEN));
 
         KojiBuildInfo buildInfo = new KojiBuildInfo();
-        Build record = pncbuild.getBuild();
 
-        setMavenBuildInfoFromBuildRecord(record, buildInfo);
+        setMavenBuildInfoFromBuildRecord(build, buildInfo);
 
-        buildInfo.setId(Integer.parseInt(record.getId()));
+        try {
+            buildInfo.setId(Integer.parseInt(build.getId()));
+        } catch (NumberFormatException e) {
+            buildInfo.setId(-1);
+        }
 
-        buildInfo.setName(getSafelyExecutionRootName(record).replace(':', '-'));
-        buildInfo.setVersion(getBrewBuildVersionOrZero(record));
+        buildInfo.setName(getSafelyExecutionRootName(build).replace(':', '-'));
+        buildInfo.setVersion(getBrewBuildVersionOrZero(build));
         buildInfo.setRelease("1");
         buildInfo.setNvr(
                 buildInfo.getName() + "-" + buildInfo.getVersion().replace('-', '_') + "-"
                         + buildInfo.getRelease().replace('-', '_'));
-        buildInfo.setCreationTime(Date.from(record.getStartTime()));
-        buildInfo.setCompletionTime(Date.from(record.getEndTime()));
+        buildInfo.setCreationTime(Date.from(build.getStartTime()));
+        buildInfo.setCompletionTime(Date.from(build.getEndTime()));
         buildInfo.setBuildState(KojiBuildState.COMPLETE);
-        buildInfo.setOwnerName(record.getUser().getUsername());
+        buildInfo.setOwnerName(build.getUser().getUsername());
         buildInfo.setSource(
-                (record.getScmRepository().getInternalUrl().startsWith("http") ? "git+" : "")
-                        + record.getScmRepository().getInternalUrl()
-                        + (record.getScmRevision() != null ? "#" + record.getScmRevision() : ""));
+                (build.getScmRepository().getInternalUrl().startsWith("http") ? "git+" : "")
+                        + build.getScmRepository().getInternalUrl()
+                        + (build.getScmRevision() != null ? "#" + build.getScmRevision() : ""));
 
         Map<String, Object> extra = new HashMap<>(8, 1.0f);
 
-        extra.put(KojiJsonConstants.BUILD_SYSTEM, "PNC");
-        extra.put(KojiJsonConstants.EXTERNAL_BUILD_ID, record.getId());
+        extra.put(BUILD_SYSTEM, PNC);
+        extra.put(EXTERNAL_BUILD_ID, build.getId());
         // XXX: These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
-        extra.put("external_project_id", record.getProject().getId());
-        extra.put("external_build_configuration_id", record.getBuildConfigRevision().getId());
+        extra.put(EXTERNAL_PROJECT_ID, build.getProject().getId());
+        extra.put(EXTERNAL_BUILD_CONFIGURATION_ID, build.getBuildConfigRevision().getId());
 
         pncbuild.getBuildPushResult().ifPresent(buildPushResult -> {
-            extra.put("external_brew_build_id", buildPushResult.getBrewBuildId());
-            extra.put("external_brew_build_url", buildPushResult.getBrewBuildUrl());
+            extra.put(EXTERNAL_BREW_BUILD_ID, buildPushResult.getBrewBuildId());
+            extra.put(EXTERNAL_BREW_BUILD_URL, buildPushResult.getBrewBuildUrl());
         });
 
         // TODO: Review - it is not necessary for the core logic, but only for reports
         pncbuild.getProductVersion().ifPresent(productVersion -> {
             // XXX: These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
-            extra.put("external_product_id", productVersion.getProduct().getId());
-            extra.put("external_version_id", productVersion.getId());
+            extra.put(EXTERNAL_PRODUCT_ID, productVersion.getProduct().getId());
+            extra.put(EXTERNAL_VERSION_ID, productVersion.getId());
 
             List<KojiTagInfo> tags = new ArrayList<>(1);
             KojiTagInfo tag = new KojiTagInfo();
 
-            tag.setId(Integer.parseInt(productVersion.getId()));
+            // FIXME: Tag info doesn't have an extra map to place real identifier in
+            try {
+                tag.setId(Integer.parseInt(productVersion.getId()));
+            } catch (NumberFormatException e) {
+                tag.setId(-1);
+            }
+
             tag.setArches(Collections.singletonList("noarch"));
 
-            String brewName = productVersion.getAttributes().get("BREW_TAG_PREFIX");
+            String brewName = productVersion.getAttributes().get(BREW_TAG_PREFIX);
             String tagName = brewName != null ? brewName : productVersion.getProduct().getName();
 
             tag.setName(tagName);
 
             tags.add(tag);
 
-            build.setTags(tags);
+            kojiBuild.setTags(tags);
 
             KojiTaskInfo taskInfo = new KojiTaskInfo();
             KojiTaskRequest taskRequest = new KojiTaskRequest();
@@ -156,23 +198,37 @@ public final class PncUtils {
             taskInfo.setMethod("build");
             taskInfo.setRequest(request);
 
-            build.setTaskInfo(taskInfo);
-            build.setTaskRequest(taskRequest);
+            kojiBuild.setTaskInfo(taskInfo);
+            kojiBuild.setTaskRequest(taskRequest);
         });
 
-        buildInfo.setExtra(Collections.unmodifiableMap(extra));
+        buildInfo.setExtra(extra);
 
-        build.setBuildInfo(buildInfo);
+        kojiBuild.setBuildInfo(buildInfo);
 
-        return build;
+        return kojiBuild;
     }
 
     public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncbuild, Artifact artifact) {
-        Build record = pncbuild.getBuild();
+        Build build = pncbuild.getBuild();
         KojiArchiveInfo archiveInfo = new KojiArchiveInfo();
 
-        archiveInfo.setBuildId(Integer.parseInt(record.getId()));
-        archiveInfo.setArchiveId(Integer.parseInt(artifact.getId()));
+        try {
+            archiveInfo.setBuildId(Integer.parseInt(build.getId()));
+        } catch (NumberFormatException e) {
+            archiveInfo.setBuildId(-1);
+        }
+
+        try {
+            archiveInfo.setArchiveId(Integer.parseInt(artifact.getId()));
+        } catch (NumberFormatException e) {
+            archiveInfo.setArchiveId(-1);
+        }
+
+        Map<String, Object> extra = new HashMap<>(2, 1.0f);
+        extra.put(EXTERNAL_BUILD_ID, build.getId());
+        extra.put(EXTERNAL_ARCHIVE_ID, artifact.getId());
+        archiveInfo.setExtra(extra);
         archiveInfo.setArch("noarch");
         archiveInfo.setFilename(artifact.getFilename());
 
@@ -197,16 +253,16 @@ public final class PncUtils {
     private static String getBuildType(PncBuild pncBuild) {
         switch (pncBuild.getBuild().getBuildConfigRevision().getBuildType()) {
             case MVN:
-                return "maven";
+                return MAVEN;
             case GRADLE:
-                return "gradle";
+                return GRADLE;
             case NPM:
-                return "npm";
+                return NPM;
             default:
                 LOGGER.warn(
                         "Unsupported build type conversion. BuildType: {}",
                         pncBuild.getBuild().getBuildConfigRevision().getBuildType());
-                return "unknown";
+                return UNKNOWN;
         }
     }
 
@@ -215,7 +271,7 @@ public final class PncUtils {
         String buildVersion = buildInfo.getVersion();
         String version = archiveInfo.getVersion();
 
-        if (buildVersion == null || "0".equals(buildVersion)) {
+        if (buildVersion == null || isBuildIdZero(buildVersion)) {
             buildInfo.setVersion(version);
             buildInfo.setNvr(buildInfo.getName() + "-" + 0 + "-" + buildInfo.getRelease().replace('-', '_'));
         }

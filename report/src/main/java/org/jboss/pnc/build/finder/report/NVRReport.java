@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jboss.pnc.build.finder.core.BuildFinderUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
@@ -49,8 +50,8 @@ public final class NVRReport extends Report {
         setOutputDirectory(outputDirectory);
 
         this.nvrs = builds.stream()
+                .filter(BuildFinderUtils::isNotBuildZero)
                 .map(KojiBuild::getBuildInfo)
-                .filter(info -> info.getId() > 0)
                 .map(KojiBuildInfo::getNvr)
                 .sorted(String::compareToIgnoreCase)
                 .distinct()
