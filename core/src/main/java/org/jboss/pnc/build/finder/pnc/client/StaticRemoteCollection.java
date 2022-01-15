@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.pnc.client;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.jboss.pnc.client.RemoteCollection;
 
@@ -26,7 +27,7 @@ import org.jboss.pnc.client.RemoteCollection;
  *
  * @author Jakub Bartecek
  */
-public class StaticRemoteCollection<T> implements RemoteCollection<T> {
+public class StaticRemoteCollection<T> implements Collection<T>, RemoteCollection<T> {
     private final Collection<T> staticCollection;
 
     public StaticRemoteCollection(RemoteCollection<T> remoteCollection) {
@@ -34,12 +35,22 @@ public class StaticRemoteCollection<T> implements RemoteCollection<T> {
     }
 
     public StaticRemoteCollection(Collection<T> collection) {
-        this.staticCollection = collection;
+        this.staticCollection = Collections.unmodifiableCollection(collection);
     }
 
     @Override
     public int size() {
         return staticCollection.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return staticCollection.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return staticCollection.contains(o);
     }
 
     @Override
@@ -50,5 +61,74 @@ public class StaticRemoteCollection<T> implements RemoteCollection<T> {
     @Override
     public Iterator<T> iterator() {
         return staticCollection.iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return staticCollection.toArray();
+    }
+
+    @Override
+    public <T1> T1[] toArray(T1[] a) {
+        return staticCollection.toArray(a);
+    }
+
+    @Override
+    public boolean add(T t) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return staticCollection.containsAll(c);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StaticRemoteCollection<?> that = (StaticRemoteCollection<?>) o;
+        return Objects.equals(staticCollection, that.staticCollection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(staticCollection);
+    }
+
+    @Override
+    public String toString() {
+        return staticCollection.toString();
     }
 }
