@@ -16,8 +16,8 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.constants.Attributes.BUILD_BREW_NAME;
-import static org.jboss.pnc.constants.Attributes.BUILD_BREW_VERSION;
+import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
+import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION;
 import static org.jboss.pnc.enums.BuildType.MVN;
 import static org.mockito.Mockito.when;
 

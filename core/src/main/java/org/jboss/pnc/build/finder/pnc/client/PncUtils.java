@@ -17,11 +17,11 @@ package org.jboss.pnc.build.finder.pnc.client;
 
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
+import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
+import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
-import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
-import static org.jboss.pnc.constants.Attributes.BUILD_BREW_NAME;
-import static org.jboss.pnc.constants.Attributes.BUILD_BREW_VERSION;
 
 import java.util.Arrays;
 import java.util.Collections;
