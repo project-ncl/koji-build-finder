@@ -34,6 +34,7 @@ import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.enums.BuildType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +147,7 @@ public final class PncUtils {
                         + build.getScmRepository().getInternalUrl()
                         + (build.getScmRevision() != null ? "#" + build.getScmRevision() : ""));
 
-        Map<String, Object> extra = new HashMap<>(8, 1.0f);
+        Map<String, Object> extra = new HashMap<>(8, 1.0F);
 
         extra.put(BUILD_SYSTEM, PNC);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
@@ -217,7 +218,7 @@ public final class PncUtils {
             archiveInfo.setArchiveId(-1);
         }
 
-        Map<String, Object> extra = new HashMap<>(2, 1.0f);
+        Map<String, Object> extra = new HashMap<>(2, 1.0F);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
         extra.put(EXTERNAL_ARCHIVE_ID, artifact.getId());
         archiveInfo.setExtra(extra);
@@ -248,7 +249,9 @@ public final class PncUtils {
     }
 
     private static String getBuildType(PncBuild pncBuild) {
-        switch (pncBuild.getBuild().getBuildConfigRevision().getBuildType()) {
+        BuildType buildType = pncBuild.getBuild().getBuildConfigRevision().getBuildType();
+
+        switch (buildType) {
             case MVN:
                 return MAVEN;
             case GRADLE:
@@ -256,9 +259,7 @@ public final class PncUtils {
             case NPM:
                 return NPM;
             default:
-                LOGGER.warn(
-                        "Unsupported build type conversion. BuildType: {}",
-                        pncBuild.getBuild().getBuildConfigRevision().getBuildType());
+                LOGGER.warn("Unsupported build type conversion for: {}", buildType);
                 return UNKNOWN;
         }
     }
