@@ -127,4 +127,9 @@ public abstract class Report {
     public void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
+
+    @Override
+    public String toString() {
+        return renderText().orElse("");
+    }
 }
