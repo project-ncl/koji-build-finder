@@ -39,7 +39,7 @@ class BuildConfigTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildConfigTest.class);
 
     @Test
-    void testCopyConfig() throws IOException {
+    void testCopyConfig() {
         // given
         Pattern fooPattern = Pattern.compile("foo");
         String fooPatternString = fooPattern.pattern();

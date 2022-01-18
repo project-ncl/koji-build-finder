@@ -43,7 +43,7 @@ class DeletedAndCompletedBuildTest {
             WireMockConfiguration.options().usingFilesUnderClasspath("completed-and-deleted-build-test").dynamicPort());
 
     @Test
-    void verifyDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
+    void testDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
         Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
                 "59ef4fa1ef35fc0fc074dbfab196c0cd",
