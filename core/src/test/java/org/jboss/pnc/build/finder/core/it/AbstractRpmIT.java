@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +28,8 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.assertj.core.api.Condition;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -36,10 +40,6 @@ import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
 
 public abstract class AbstractRpmIT extends AbstractKojiIT {
     protected abstract List<String> getFiles();
@@ -64,7 +64,7 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
 
     @Test
     void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "checksums"));
+        Timer timer = REGISTRY.timer(name(AbstractRpmIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
@@ -74,7 +74,7 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(AbstractRpmIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(name(AbstractRpmIT.class, "builds"));
 
         try (Context ignored = timer2.time()) {
             ClientSession session = getSession();

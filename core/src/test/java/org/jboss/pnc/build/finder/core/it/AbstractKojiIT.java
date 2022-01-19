@@ -15,17 +15,20 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jboss.pnc.build.finder.core.ConfigDefaults.CONFIG;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
+import org.commonjava.o11yphant.metrics.DefaultMetricRegistry;
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.util.jhttpc.auth.MemoryPasswordManager;
 import org.jboss.pnc.build.finder.core.BuildConfig;
-import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.pnc.client.PncClientImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -33,9 +36,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.config.SimpleKojiConfig;
 import com.redhat.red.build.koji.config.SimpleKojiConfigBuilder;
@@ -43,11 +46,19 @@ import com.redhat.red.build.koji.config.SimpleKojiConfigBuilder;
 public abstract class AbstractKojiIT {
     static final int MAX_CONNECTIONS = 20;
 
-    protected static final MetricRegistry REGISTRY = new MetricRegistry();
+    private static final com.codahale.metrics.MetricRegistry CODAHALE_REGISTRY = new com.codahale.metrics.MetricRegistry();
+
+    private static final HealthCheckRegistry HEALTH_CHECK_REGISTRY = new HealthCheckRegistry();
+
+    protected static final MetricRegistry REGISTRY = new DefaultMetricRegistry(
+            CODAHALE_REGISTRY,
+            HEALTH_CHECK_REGISTRY);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractKojiIT.class);
 
     private static final int DEFAULT_THREAD_COUNT = 1;
+
+    private static final long PERIOD = 600L;
 
     private ScheduledReporter reporter;
 
@@ -59,7 +70,7 @@ public abstract class AbstractKojiIT {
 
     @BeforeEach
     void setup() throws IOException, KojiClientException {
-        Path configPath = Paths.get(ConfigDefaults.CONFIG);
+        Path configPath = Paths.get(CONFIG);
         File configFile = configPath.toFile();
 
         if (!configFile.exists()) {
@@ -85,15 +96,15 @@ public abstract class AbstractKojiIT {
         this.session = new KojiClientSession(
                 kojiConfig,
                 new MemoryPasswordManager(),
-                Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT));
+                newFixedThreadPool(DEFAULT_THREAD_COUNT),
+                REGISTRY);
         this.pncclient = new PncClientImpl(config);
-        this.reporter = Slf4jReporter.forRegistry(REGISTRY)
+        this.reporter = Slf4jReporter.forRegistry(CODAHALE_REGISTRY)
                 .outputTo(LOGGER)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.SECONDS)
+                .convertRatesTo(SECONDS)
+                .convertDurationsTo(SECONDS)
                 .build();
-
-        reporter.start(600L, TimeUnit.SECONDS);
+        reporter.start(PERIOD, SECONDS);
     }
 
     protected KojiClientSession getSession() {
@@ -116,7 +127,6 @@ public abstract class AbstractKojiIT {
 
         if (reporter != null) {
             reporter.stop();
-
             reporter.report();
         }
     }

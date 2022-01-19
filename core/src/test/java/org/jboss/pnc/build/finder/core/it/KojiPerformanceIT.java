@@ -16,23 +16,23 @@
 package org.jboss.pnc.build.finder.core.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.junit.jupiter.api.Test;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 
 class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     @Test
-    void testSequential() throws KojiClientException {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "sequential"));
+    void testSequential() throws Exception {
+        Timer timer = REGISTRY.timer(name(KojiPerformanceIT.class, "sequential"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             try (Context ignored = timer.time()) {
@@ -46,8 +46,8 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    void testThreads() throws InterruptedException {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "threads"));
+    void testThreads() throws Exception {
+        Timer timer = REGISTRY.timer(name(KojiPerformanceIT.class, "threads"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             try (Context ignored = timer.time()) {
@@ -82,8 +82,8 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    void testMultiCall() throws KojiClientException {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiPerformanceIT.class, "multiCall"));
+    void testMultiCall() throws Exception {
+        Timer timer = REGISTRY.timer(name(KojiPerformanceIT.class, "multiCall"));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             try (Context ignored = timer.time()) {

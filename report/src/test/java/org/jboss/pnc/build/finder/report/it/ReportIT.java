@@ -15,20 +15,21 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
@@ -43,10 +44,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
-
 class ReportIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportIT.class);
 
@@ -55,15 +52,14 @@ class ReportIT extends AbstractKojiIT {
     private static final String URL = System.getProperty(PROPERTY);
 
     @Test
-    void testChecksumsAndFindBuildsAndGenerateReports(@TempDir File folder)
-            throws ExecutionException, InterruptedException, IOException {
+    void testChecksumsAndFindBuildsAndGenerateReports(@TempDir File folder) throws Exception {
         assertThat(URL)
                 .as("You must set the property %s pointing to the URL of the distribution to test with", PROPERTY)
                 .isNotEmpty();
 
-        Timer timer = REGISTRY.timer(MetricRegistry.name(ReportIT.class, "checksums"));
+        Timer timer = REGISTRY.timer(name(ReportIT.class, "checksums"));
 
-        ExecutorService pool = Executors.newFixedThreadPool(2);
+        ExecutorService pool = newFixedThreadPool(2);
 
         DistributionAnalyzer analyzer;
 
@@ -74,7 +70,7 @@ class ReportIT extends AbstractKojiIT {
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(ReportIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(name(ReportIT.class, "builds"));
 
         try (Context ignored = timer2.time()) {
             ClientSession session = getSession();

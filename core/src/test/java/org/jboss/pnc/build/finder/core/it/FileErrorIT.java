@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.File;
@@ -24,12 +25,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -44,18 +46,14 @@ import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
-
 class FileErrorIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileErrorIT.class);
 
     private static final String URL = "https://repo1.maven.org/maven2/jboss/jaxbintros/jboss-jaxb-intros/1.0.2.GA/jboss-jaxb-intros-1.0.2.GA-sources.jar";
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
-        Timer timer = REGISTRY.timer(MetricRegistry.name(FileErrorIT.class, "checksums"));
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
+        Timer timer = REGISTRY.timer(name(FileErrorIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
         DistributionAnalyzer analyzer;
         Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
@@ -65,7 +63,7 @@ class FileErrorIT extends AbstractKojiIT {
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(FileErrorIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(name(FileErrorIT.class, "builds"));
 
         try (Context ignored = timer2.time()) {
             ClientSession session = getSession();

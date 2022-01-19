@@ -16,16 +16,18 @@
 package org.jboss.pnc.build.finder.core.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections4.MultiValuedMap;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.jboss.pnc.build.finder.core.BuildFinder;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
@@ -38,10 +40,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
-
 class KojiBuildFinderIT extends AbstractKojiIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(KojiBuildFinderIT.class);
 
@@ -50,12 +48,12 @@ class KojiBuildFinderIT extends AbstractKojiIT {
     private static final String URL = System.getProperty(PROPERTY);
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws ExecutionException, InterruptedException {
+    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
         assertThat(URL)
                 .as("You must set the property %s pointing to the URL of the distribution to test with", PROPERTY)
                 .isNotNull();
 
-        Timer timer = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "checksums"));
+        Timer timer = REGISTRY.timer(name(KojiBuildFinderIT.class, "checksums"));
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
@@ -68,7 +66,7 @@ class KojiBuildFinderIT extends AbstractKojiIT {
             futureChecksum = pool.submit(analyzer);
         }
 
-        Timer timer2 = REGISTRY.timer(MetricRegistry.name(KojiBuildFinderIT.class, "builds"));
+        Timer timer2 = REGISTRY.timer(name(KojiBuildFinderIT.class, "builds"));
 
         try (Context ignored = timer2.time()) {
             ClientSession session = getSession();

@@ -15,23 +15,23 @@
  */
 package org.jboss.pnc.build.finder.core.it;
 
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
+
 import java.util.List;
 
 import org.apache.commons.collections4.ListUtils;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Timer.Context;
 import org.junit.jupiter.api.Test;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
-import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.messages.Constants;
 
 class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    void testMultiCall(int chunkSize) throws KojiClientException {
-        Timer timer = REGISTRY.timer(
-                MetricRegistry.name(KojiMultiCallPerformanceIT.class, String.format("multiCall-%03d", chunkSize)));
+    void testMultiCall(int chunkSize) throws Exception {
+        Timer timer = REGISTRY
+                .timer(name(KojiMultiCallPerformanceIT.class, String.format("multiCall-%03d", chunkSize)));
 
         for (int i = 0; i < NUM_LOOPS; i++) {
             List<List<Integer>> chunks = ListUtils.partition(getBuilds(), chunkSize);
@@ -45,7 +45,7 @@ class KojiMultiCallPerformanceIT extends AbstractKojiPerformanceIT {
     }
 
     @Test
-    void testMultiCall() throws KojiClientException {
+    void testMultiCall() throws Exception {
         final int min = 5;
         int size = BUILD_IDS.size();
         int doubleSize = size << 1;
