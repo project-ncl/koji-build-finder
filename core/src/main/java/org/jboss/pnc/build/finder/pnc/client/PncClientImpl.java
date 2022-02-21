@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import java.util.Optional;
+
 import org.jboss.pnc.build.finder.core.BuildConfig;
 import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.BuildClient;
@@ -34,6 +36,8 @@ import org.jboss.pnc.dto.ProductVersion;
  * @author Jakub Bartecek
  */
 public class PncClientImpl implements PncClient {
+    public static final String ONLY_BUILT = "build=isnull=false";
+
     private final BuildClient buildClient;
 
     private final ArtifactClient artifactClient;
@@ -59,17 +63,17 @@ public class PncClientImpl implements PncClient {
 
     @Override
     public RemoteCollection<Artifact> getArtifactsByMd5(String md5) throws RemoteResourceException {
-        return artifactClient.getAll(null, md5, null);
+        return artifactClient.getAll(null, md5, null, Optional.empty(), Optional.of(ONLY_BUILT));
     }
 
     @Override
     public RemoteCollection<Artifact> getArtifactsBySha1(String sha1) throws RemoteResourceException {
-        return artifactClient.getAll(null, null, sha1);
+        return artifactClient.getAll(null, null, sha1, Optional.empty(), Optional.of(ONLY_BUILT));
     }
 
     @Override
     public RemoteCollection<Artifact> getArtifactsBySha256(String sha256) throws RemoteResourceException {
-        return artifactClient.getAll(sha256, null, null);
+        return artifactClient.getAll(sha256, null, null, Optional.empty(), Optional.of(ONLY_BUILT));
     }
 
     @Override
