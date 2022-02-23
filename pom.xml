@@ -141,7 +141,7 @@
     <version.org.mockito>4.3.1</version.org.mockito>
     <version.org.ow2.asm>9.2</version.org.ow2.asm>
     <version.org.slf4j>1.7.36</version.org.slf4j>
-    <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.11</version.org.sonatype.plugins.nexus-staging-maven-plugin>
+    <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.12</version.org.sonatype.plugins.nexus-staging-maven-plugin>
   </properties>
 
   <dependencyManagement>
