@@ -83,7 +83,7 @@
     <version.com.redhat.red.build.kojiji>2.15</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.15</version.commons-codec>
     <version.info.picocli>4.6.3</version.info.picocli>
-    <version.io.dropwizard.metrics>4.2.8</version.io.dropwizard.metrics>
+    <version.io.dropwizard.metrics>4.2.9</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.18.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.6.2</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.43.0</version.net.sourceforge.pmd>
@@ -119,7 +119,7 @@
     <version.org.assertj>3.22.0</version.org.assertj>
     <version.org.bouncycastle>1.70</version.org.bouncycastle>
     <version.org.codehaus.mojo.buildnumber-maven-plugin>3.0.0</version.org.codehaus.mojo.buildnumber-maven-plugin>
-    <version.org.codehaus.mojo.versions-maven-plugin>2.9.0</version.org.codehaus.mojo.versions-maven-plugin>
+    <version.org.codehaus.mojo.versions-maven-plugin>2.10.0</version.org.codehaus.mojo.versions-maven-plugin>
     <version.org.codehaus.plexus.plexus-component-metadata>2.1.1</version.org.codehaus.plexus.plexus-component-metadata>
     <version.org.commonjava.rwx>2.3</version.org.commonjava.rwx>
     <version.org.commonjava.util.jhttpc>1.12</version.org.commonjava.util.jhttpc>
