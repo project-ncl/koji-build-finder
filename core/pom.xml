@@ -100,6 +100,11 @@
     </dependency>
     <dependency>
       <groupId>org.infinispan.protostream</groupId>
+      <artifactId>protostream</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.infinispan.protostream</groupId>
       <artifactId>protostream-processor</artifactId>
       <scope>provided</scope>
     </dependency>
