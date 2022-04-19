@@ -318,7 +318,7 @@ public class PncBuildFinder {
             LOGGER.info(
                     "Found build in Pnc: id: {} nvr: {} checksum: ({}) {} archive: {}",
                     green(pncBuild.getBuild().getId()),
-                    green(PncUtils.getNVRFromBuildRecord(pncBuild.getBuild())),
+                    green(PncUtils.getNVRFromBuildRecord(pncBuild)),
                     green(artifact.getChecksum().getType()),
                     green(artifact.getChecksum().getValue()),
                     green(artifact.getFilenames()));

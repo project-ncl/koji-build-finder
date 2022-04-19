@@ -25,13 +25,16 @@ import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
+import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildType;
@@ -69,6 +72,8 @@ public final class PncUtils {
 
     public static final String NPM = "npm";
 
+    public static final String SBT = "sbt";
+
     public static final String UNKNOWN = "unknown";
 
     public static final String NO_BUILD_BREW_NAME = "NO_BUILD_BREW_NAME";
@@ -79,52 +84,125 @@ public final class PncUtils {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
 
-    // FIXME: Implement a better way of reading GAV from PNC as not all builds are pushed to Brew
-    private static void setMavenBuildInfoFromBuildRecord(Build build, KojiBuildInfo buildInfo) {
-        String executionRootName = getSafelyExecutionRootName(build);
-        String executionRootVersion = build.getAttributes().get(BUILD_BREW_VERSION);
-        String[] ga = executionRootName.split(":", 2);
-
+    private static void setMavenBuildInfoFromBuildRecord(PncBuild build, KojiBuildInfo buildInfo) {
+        // PNC brew name for maven builds is in format of G:A
+        String brewName = getBrewName(build);
+        String[] ga = brewName.split("-", 2);
         if (ga.length >= 2) {
             buildInfo.setMavenGroupId(ga[0]);
             buildInfo.setMavenArtifactId(ga[1]);
         }
 
-        buildInfo.setMavenVersion(executionRootVersion);
+        // PNC brew version for maven builds is in format of V
+        String brewVersion = getBrewVersion(build);
+        buildInfo.setMavenVersion(brewVersion);
     }
 
-    private static String getSafelyExecutionRootName(Build build) {
-        String buildBrewName = build.getAttributes().get(BUILD_BREW_NAME);
+    private static String getBrewName(PncBuild build) {
+        String buildBrewName = build.getBuild().getAttributes().get(BUILD_BREW_NAME);
         if (buildBrewName == null) {
-            return NO_BUILD_BREW_NAME;
+            return getBrewNameFromArtifacts(build);
         } else {
-            return buildBrewName;
+            return buildBrewName.replace(':', '-');
         }
     }
 
-    private static String getBrewBuildVersionOrZero(Build build) {
-        String buildBrewVersion = build.getAttributes().get(BUILD_BREW_VERSION);
+    private static String getBrewVersion(PncBuild build) {
+        String buildBrewVersion = build.getBuild().getAttributes().get(BUILD_BREW_VERSION);
         if (buildBrewVersion == null) {
-            return BUILD_ID_ZERO;
+            return getBrewVersionFromArtifacts(build);
         } else {
             return buildBrewVersion;
         }
     }
 
-    public static String getNVRFromBuildRecord(Build build) {
-        return getSafelyExecutionRootName(build).replace(':', '-') + "-" + build.getAttributes().get(BUILD_BREW_VERSION)
-                + "-1";
+    private static String getBrewNameFromArtifacts(PncBuild build) {
+        String[] identSplit = getIdentifierPartsFromArtifact(build);
+
+        if (identSplit.length == 0) {
+            return NO_BUILD_BREW_NAME;
+        }
+
+        BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
+        switch (buildType) {
+            case NPM:
+                // should always be N:V
+                if (identSplit.length != 2) {
+                    break;
+                }
+                return identSplit[0];
+            case MVN:
+            case GRADLE:
+            case SBT:
+            default:
+                // need at least G:A
+                if (identSplit.length < 2) {
+                    break;
+                }
+                return identSplit[0] + "-" + identSplit[1];
+        }
+
+        return NO_BUILD_BREW_NAME;
     }
 
-    public static KojiBuild pncBuildToKojiBuild(PncBuild pncbuild) {
-        KojiBuild kojiBuild = new KojiBuild();
-        Build build = pncbuild.getBuild();
+    private static String getBrewVersionFromArtifacts(PncBuild build) {
+        String[] identSplit = getIdentifierPartsFromArtifact(build);
 
-        kojiBuild.setTypes(Collections.singletonList(MAVEN));
+        if (identSplit.length == 0) {
+            return BUILD_ID_ZERO;
+        }
+
+        BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
+        switch (buildType) {
+            case NPM:
+                // should always be N:V
+                if (identSplit.length != 2) {
+                    break;
+                }
+                return identSplit[1];
+            case MVN:
+            case GRADLE:
+            case SBT:
+            default:
+                // needs to be at least G:A:P:V to extract V
+                if (identSplit.length < 4) {
+                    break;
+                }
+                return identSplit[3];
+        }
+
+        return NO_BUILD_BREW_NAME;
+
+    }
+
+    private static String[] getIdentifierPartsFromArtifact(PncBuild build) {
+        Optional<Artifact> optionalArtifact = build.getBuiltArtifacts()
+                .stream()
+                .filter((art) -> art.getArtifact().isPresent())
+                .map(art -> art.getArtifact().get())
+                .min(Comparator.comparing(ArtifactRef::getId));
+        if (!optionalArtifact.isPresent()) {
+            // SHOULD NEVER HAPPEN
+            return new String[0];
+        }
+
+        Artifact firstArtifact = optionalArtifact.get();
+
+        return firstArtifact.getIdentifier().split(":");
+    }
+
+    public static String getNVRFromBuildRecord(PncBuild build) {
+        return getBrewName(build) + "-" + build.getBuild().getAttributes().get(BUILD_BREW_VERSION) + "-1";
+    }
+
+    public static KojiBuild pncBuildToKojiBuild(PncBuild pncBuild) {
+        KojiBuild kojiBuild = new KojiBuild();
+        Build build = pncBuild.getBuild();
+
+        setKojiBuildType(pncBuild, kojiBuild);
 
         KojiBuildInfo buildInfo = new KojiBuildInfo();
-
-        setMavenBuildInfoFromBuildRecord(build, buildInfo);
+        setMavenBuildInfoFromBuildRecord(pncBuild, buildInfo);
 
         try {
             buildInfo.setId(Integer.parseInt(build.getId()));
@@ -132,8 +210,8 @@ public final class PncUtils {
             buildInfo.setId(-1);
         }
 
-        buildInfo.setName(getSafelyExecutionRootName(build).replace(':', '-'));
-        buildInfo.setVersion(getBrewBuildVersionOrZero(build));
+        buildInfo.setName(getBrewName(pncBuild));
+        buildInfo.setVersion(getBrewVersion(pncBuild));
         buildInfo.setRelease("1");
         buildInfo.setNvr(
                 buildInfo.getName() + "-" + buildInfo.getVersion().replace('-', '_') + "-"
@@ -155,12 +233,12 @@ public final class PncUtils {
         extra.put(EXTERNAL_PROJECT_ID, build.getProject().getId());
         extra.put(EXTERNAL_BUILD_CONFIGURATION_ID, build.getBuildConfigRevision().getId());
 
-        pncbuild.getBuildPushResult().ifPresent(buildPushResult -> {
+        pncBuild.getBuildPushResult().ifPresent(buildPushResult -> {
             extra.put(EXTERNAL_BREW_BUILD_ID, buildPushResult.getBrewBuildId());
             extra.put(EXTERNAL_BREW_BUILD_URL, buildPushResult.getBrewBuildUrl());
         });
 
-        pncbuild.getProductVersion().ifPresent(productVersion -> {
+        pncBuild.getProductVersion().ifPresent(productVersion -> {
             // These aren't used by Koji, but we need them to create the hyperlinks for the HTML report
             extra.put(EXTERNAL_PRODUCT_ID, productVersion.getProduct().getId());
             extra.put(EXTERNAL_VERSION_ID, productVersion.getId());
@@ -184,7 +262,7 @@ public final class PncUtils {
 
             KojiTaskInfo taskInfo = new KojiTaskInfo();
             KojiTaskRequest taskRequest = new KojiTaskRequest();
-            List<Object> request = Collections.unmodifiableList(Arrays.asList(pncbuild.getSource(), tagName));
+            List<Object> request = Collections.unmodifiableList(Arrays.asList(pncBuild.getSource(), tagName));
 
             taskRequest.setRequest(request);
 
@@ -200,6 +278,23 @@ public final class PncUtils {
         kojiBuild.setBuildInfo(buildInfo);
 
         return kojiBuild;
+    }
+
+    private static void setKojiBuildType(PncBuild pncBuild, KojiBuild kojiBuild) {
+        switch (pncBuild.getBuild().getBuildConfigRevision().getBuildType()) {
+            case NPM:
+                kojiBuild.setTypes(Collections.singletonList(NPM));
+                break;
+            case GRADLE:
+                kojiBuild.setTypes(Collections.singletonList(GRADLE));
+                break;
+            case SBT:
+                kojiBuild.setTypes(Collections.singletonList(SBT));
+                break;
+            case MVN:
+            default:
+                kojiBuild.setTypes(Collections.singletonList(MAVEN));
+        }
     }
 
     public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncbuild, ArtifactRef artifact) {
@@ -235,14 +330,23 @@ public final class PncUtils {
             archiveInfo.setSize(-1);
         }
 
-        String[] gaecv = artifact.getIdentifier().split(":");
+        switch (pncbuild.getBuild().getBuildConfigRevision().getBuildType()) {
+            case NPM:
+                // How do we set ArtifactInfo for NPM builds?
+                break;
+            case MVN:
+            case GRADLE:
+            case SBT:
+            default:
+                String[] gaecv = artifact.getIdentifier().split(":");
 
-        if (gaecv.length >= 3) {
-            archiveInfo.setGroupId(gaecv[0]);
-            archiveInfo.setArtifactId(gaecv[1]);
-            archiveInfo.setExtension(gaecv[2]);
-            archiveInfo.setVersion(gaecv[3]);
-            archiveInfo.setClassifier(gaecv.length > 4 ? gaecv[4] : null);
+                if (gaecv.length >= 3) {
+                    archiveInfo.setGroupId(gaecv[0]);
+                    archiveInfo.setArtifactId(gaecv[1]);
+                    archiveInfo.setExtension(gaecv[2]);
+                    archiveInfo.setVersion(gaecv[3]);
+                    archiveInfo.setClassifier(gaecv.length > 4 ? gaecv[4] : null);
+                }
         }
 
         return archiveInfo;
@@ -258,6 +362,8 @@ public final class PncUtils {
                 return GRADLE;
             case NPM:
                 return NPM;
+            case SBT:
+                return SBT;
             default:
                 LOGGER.warn("Unsupported build type conversion for: {}", buildType);
                 return UNKNOWN;
