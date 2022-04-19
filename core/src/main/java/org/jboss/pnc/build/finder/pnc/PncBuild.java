@@ -32,26 +32,26 @@ public class PncBuild {
 
     private ProductVersion productVersion;
 
-    private List<EnhancedArtifact> artifacts;
+    private List<EnhancedArtifact> builtArtifacts;
 
     public PncBuild() {
-        this.artifacts = new ArrayList<>();
+        this.builtArtifacts = new ArrayList<>();
     }
 
     public PncBuild(Build build) {
         this.build = build;
-        this.artifacts = new ArrayList<>();
+        this.builtArtifacts = new ArrayList<>();
     }
 
     public PncBuild(
             Build build,
             BuildPushResult buildPushResult,
             ProductVersion productVersion,
-            List<EnhancedArtifact> artifacts) {
+            List<EnhancedArtifact> builtArtifacts) {
         this.build = build;
         this.buildPushResult = buildPushResult;
         this.productVersion = productVersion;
-        this.artifacts = artifacts;
+        this.builtArtifacts = builtArtifacts;
     }
 
     @JsonIgnore
@@ -97,17 +97,17 @@ public class PncBuild {
         this.productVersion = productVersion;
     }
 
-    public List<EnhancedArtifact> getArtifacts() {
-        return artifacts;
+    public List<EnhancedArtifact> getBuiltArtifacts() {
+        return builtArtifacts;
     }
 
-    public void setArtifacts(List<EnhancedArtifact> artifacts) {
-        this.artifacts = artifacts;
+    public void setBuiltArtifacts(List<EnhancedArtifact> builtArtifacts) {
+        this.builtArtifacts = builtArtifacts;
     }
 
     @Override
     public String toString() {
         return "PncBuild{" + "build=" + build + ", buildPushResult=" + buildPushResult + ", productVersion="
-                + productVersion + ", artifacts=" + artifacts + '}';
+                + productVersion + ", builtArtifacts=" + builtArtifacts + '}';
     }
 }

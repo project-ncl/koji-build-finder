@@ -87,7 +87,7 @@ public class PncBuildFinder {
                 KojiBuild kojiBuild = convertPncBuildZeroToKojiBuild(pncBuild);
                 findBuildsResult.getFoundBuilds().put(new BuildSystemInteger(0, BuildSystem.none), kojiBuild);
 
-                pncBuild.getArtifacts()
+                pncBuild.getBuiltArtifacts()
                         .forEach(
                                 enhancedArtifact -> findBuildsResult.getNotFoundChecksums()
                                         .put(enhancedArtifact.getChecksum(), enhancedArtifact.getFilenames()));
@@ -202,10 +202,10 @@ public class PncBuildFinder {
             }
 
             if (pncBuilds.containsKey(build.getId())) {
-                pncBuilds.get(build.getId()).getArtifacts().add(artifact);
+                pncBuilds.get(build.getId()).getBuiltArtifacts().add(artifact);
             } else {
                 PncBuild pncBuild = new PncBuild(build);
-                pncBuild.getArtifacts().add(artifact);
+                pncBuild.getBuiltArtifacts().add(artifact);
                 pncBuilds.put(build.getId(), pncBuild);
             }
         });
@@ -302,7 +302,7 @@ public class PncBuildFinder {
     private KojiBuild convertPncBuildToKojiBuild(PncBuild pncBuild) {
         KojiBuild kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild);
 
-        for (EnhancedArtifact artifact : pncBuild.getArtifacts()) {
+        for (EnhancedArtifact artifact : pncBuild.getBuiltArtifacts()) {
             Optional<Artifact> optionalArtifact = artifact.getArtifact();
 
             // XXX: Can this ever happen?
@@ -330,7 +330,7 @@ public class PncBuildFinder {
     private KojiBuild convertPncBuildZeroToKojiBuild(PncBuild pncBuild) {
         KojiBuild buildZero = BuildFinderUtils.createKojiBuildZero();
 
-        pncBuild.getArtifacts()
+        pncBuild.getBuiltArtifacts()
                 .forEach(
                         enhancedArtifact -> buildFinderUtils.addArchiveWithoutBuild(
                                 buildZero,
