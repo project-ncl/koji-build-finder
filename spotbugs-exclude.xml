@@ -18,7 +18,7 @@
 -->
 <FindBugsFilter>
   <Match>
-    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
   </Match>
   <Match>
     <Class name="org.jboss.pnc.build.finder.cli.Main"/>
