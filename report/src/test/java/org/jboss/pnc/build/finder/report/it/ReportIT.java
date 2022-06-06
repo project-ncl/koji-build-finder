@@ -87,7 +87,7 @@ class ReportIT extends AbstractKojiIT {
             LOGGER.info("Builds size: {}", builds.size());
 
             // FIXME: Don't hardcode filenames
-            Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
+            Report.generateReports(getConfig(), finder.getKojiBuildFinder().getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
 
             File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
 

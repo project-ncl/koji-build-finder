@@ -56,11 +56,11 @@ class RpmReportIT extends AbstractRpmIT {
     protected void verify(DistributionAnalyzer analyzer, BuildFinder finder) throws IOException {
         Collection<FileError> fileErrors = analyzer.getFileErrors();
         Map<String, Collection<Checksum>> files = analyzer.getFiles();
-        Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
-        Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
-        List<KojiBuild> buildsFound = finder.getBuildsFound();
+        Map<Checksum, Collection<String>> foundChecksums = finder.getKojiBuildFinder().getFoundChecksums();
+        Map<Checksum, Collection<String>> notFoundChecksums = finder.getKojiBuildFinder().getNotFoundChecksums();
+        List<KojiBuild> buildsFound = finder.getKojiBuildFinder().getBuildsFound();
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
-        Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
+        Map<BuildSystemInteger, KojiBuild> builds = finder.getKojiBuildFinder().getBuildsMap();
 
         assertThat(checksums).hasSize(3);
         assertThat(builds).hasSize(2);
@@ -93,7 +93,11 @@ class RpmReportIT extends AbstractRpmIT {
         LOGGER.info("File errors: {}", fileErrors.size());
 
         // FIXME: Don't hardcode filenames
-        Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
+        Report.generateReports(
+                getConfig(),
+                finder.getKojiBuildFinder().getBuilds(),
+                finder.getOutputDirectory(),
+                analyzer.getInputs());
 
         File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
 

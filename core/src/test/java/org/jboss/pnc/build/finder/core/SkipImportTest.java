@@ -67,7 +67,7 @@ class SkipImportTest {
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
-            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.getKojiBuildFinder().findBuilds(checksumTable);
 
             assertThat(builds).hasSize(2)
                     .hasEntrySatisfying(

@@ -140,6 +140,7 @@
     <version.org.junit-pioneer>1.7.0</version.org.junit-pioneer>
     <version.org.mockito>4.5.1</version.org.mockito>
     <version.org.ow2.asm>9.3</version.org.ow2.asm>
+    <version.org.projectlombok>1.18.24</version.org.projectlombok>
     <version.org.slf4j>1.7.36</version.org.slf4j>
     <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.13</version.org.sonatype.plugins.nexus-staging-maven-plugin>
   </properties>
@@ -318,15 +319,9 @@
         <version>${version.org.slf4j}</version>
       </dependency>
       <dependency>
-        <groupId>org.infinispan.protostream</groupId>
-        <artifactId>protostream</artifactId>
-        <version>${version.org.infinispan.protostream}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan.protostream</groupId>
-        <artifactId>protostream-processor</artifactId>
-        <version>${version.org.infinispan.protostream}</version>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${version.org.projectlombok}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Required dependency for packager-rpm (certain RPMs) -->

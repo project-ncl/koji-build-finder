@@ -74,9 +74,9 @@ class FileErrorIT extends AbstractKojiIT {
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             Collection<FileError> fileErrors = analyzer.getFileErrors();
             Map<String, Collection<Checksum>> files = analyzer.getFiles();
-            Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
-            Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
-            List<KojiBuild> buildsFound = finder.getBuildsFound();
+            Map<Checksum, Collection<String>> foundChecksums = finder.getKojiBuildFinder().getFoundChecksums();
+            Map<Checksum, Collection<String>> notFoundChecksums = finder.getKojiBuildFinder().getNotFoundChecksums();
+            List<KojiBuild> buildsFound = finder.getKojiBuildFinder().getBuildsFound();
 
             assertThat(map).hasSize(3);
             assertThat(builds).hasSize(2);
