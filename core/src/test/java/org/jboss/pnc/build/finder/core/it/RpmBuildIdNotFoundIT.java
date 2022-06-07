@@ -52,11 +52,11 @@ class RpmBuildIdNotFoundIT extends AbstractRpmIT {
     protected void verify(DistributionAnalyzer analyzer, BuildFinder finder) {
         Collection<FileError> fileErrors = analyzer.getFileErrors();
         Map<String, Collection<Checksum>> files = analyzer.getFiles();
-        Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
-        Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
-        List<KojiBuild> buildsFound = finder.getBuildsFound();
+        Map<Checksum, Collection<String>> foundChecksums = finder.getKojiBuildFinder().getFoundChecksums();
+        Map<Checksum, Collection<String>> notFoundChecksums = finder.getKojiBuildFinder().getNotFoundChecksums();
+        List<KojiBuild> buildsFound = finder.getKojiBuildFinder().getBuildsFound();
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = analyzer.getChecksums();
-        Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
+        Map<BuildSystemInteger, KojiBuild> builds = finder.getKojiBuildFinder().getBuildsMap();
 
         assertThat(checksums).hasSize(3);
         assertThat(builds).hasSize(1);

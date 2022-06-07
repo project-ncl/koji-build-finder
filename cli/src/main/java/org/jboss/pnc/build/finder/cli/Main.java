@@ -708,7 +708,7 @@ public final class Main implements Callable<Void> {
 
                     finder.setOutputDirectory(outputDirectory);
 
-                    builds = finder.findBuilds(newMap);
+                    builds = finder.getKojiBuildFinder().findBuilds(newMap);
                 } catch (KojiClientException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
                     LOGGER.debug("Error", e);

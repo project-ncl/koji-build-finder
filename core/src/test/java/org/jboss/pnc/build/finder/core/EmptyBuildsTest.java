@@ -54,7 +54,7 @@ class EmptyBuildsTest {
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
-            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(Collections.emptyMap());
+            Map<BuildSystemInteger, KojiBuild> builds = finder.getKojiBuildFinder().findBuilds(Collections.emptyMap());
 
             assertThat(builds).isEmpty();
         }
@@ -81,7 +81,7 @@ class EmptyBuildsTest {
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
-            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.getKojiBuildFinder().findBuilds(checksumTable);
 
             assertThat(builds).hasSize(1);
             assertThat(builds).hasEntrySatisfying(
