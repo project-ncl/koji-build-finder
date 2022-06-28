@@ -15,8 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -146,7 +144,7 @@ public class Checksum implements Serializable {
                             Object sha1 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA1HEADER);
 
                             if (!(sha1 instanceof byte[])) {
-                                LOGGER.warn("Missing {} for {}", red(checksumType.getAlgorithm()), red(fo));
+                                LOGGER.warn("Missing {} for {}", checksumType.getAlgorithm(), fo);
                                 break;
                             }
 
@@ -161,7 +159,7 @@ public class Checksum implements Serializable {
                             Object sha256 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA256HEADER);
 
                             if (!(sha256 instanceof byte[])) {
-                                LOGGER.warn("Missing {} for {}", red(checksumType.getAlgorithm()), red(fo));
+                                LOGGER.warn("Missing {} for {}", checksumType.getAlgorithm(), fo);
                                 break;
                             }
 

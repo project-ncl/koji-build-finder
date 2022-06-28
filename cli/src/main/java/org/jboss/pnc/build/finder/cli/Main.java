@@ -15,11 +15,6 @@
  */
 package org.jboss.pnc.build.finder.cli;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -234,7 +229,7 @@ public final class Main implements Callable<Void> {
             int exitCode = commandLine.execute(args);
             System.exit(exitCode);
         } catch (CommandLine.ExecutionException e) {
-            LOGGER.error("Error: {}", boldRed(e.getMessage()), e);
+            LOGGER.error("Error: {}", e.getMessage(), e);
             System.exit(1);
         } finally {
             main.closeCaches();
@@ -281,7 +276,7 @@ public final class Main implements Callable<Void> {
         BuildConfig config;
 
         if (configFile.exists()) {
-            LOGGER.info("Using configuration file: {}", green(configFile));
+            LOGGER.info("Using configuration file: {}", configFile);
 
             if (defaults == null) {
                 LOGGER.info("No configuration file found on classpath");
@@ -294,22 +289,20 @@ public final class Main implements Callable<Void> {
             }
         } else {
             if (defaults == null) {
-                LOGGER.info(
-                        "Configuration file {} does not exist. Implicitly creating with defaults.",
-                        green(configFile));
+                LOGGER.info("Configuration file {} does not exist. Implicitly creating with defaults.", configFile);
                 config = new BuildConfig();
             } else {
                 LOGGER.info(
                         "Configuration file {} does not exist. Implicitly creating using defaults from file {} on classpath.",
-                        green(configFile),
-                        green(ConfigDefaults.CONFIG_FILE));
+                        configFile,
+                        ConfigDefaults.CONFIG_FILE);
                 config = defaults;
             }
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("-b")) {
             config.setBuildSystems(buildSystems);
-            LOGGER.info("Using build systems: {}", green(buildSystems));
+            LOGGER.info("Using build systems: {}", buildSystems);
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--cache-lifespan")) {
@@ -322,15 +315,15 @@ public final class Main implements Callable<Void> {
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--disable-cache")) {
             config.setDisableCache(disableCache);
-            LOGGER.info("Local cache: {}", green("disabled"));
+            LOGGER.info("Local cache: {}", "disabled");
         } else {
             LOGGER.info(
                     "Local cache: {} ({} {}), lifespan: {}, maxIdle: {}",
-                    green("enabled"),
-                    green(Version.getBrandName()),
-                    green(Version.getVersion()),
-                    green(config.getCacheLifespan()),
-                    green(config.getCacheMaxIdle()));
+                    "enabled",
+                    Version.getBrandName(),
+                    Version.getVersion(),
+                    config.getCacheLifespan(),
+                    config.getCacheMaxIdle());
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--disable-recursion")) {
@@ -415,7 +408,7 @@ public final class Main implements Callable<Void> {
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("-o")) {
             config.setOutputDirectory(outputDirectory.toString());
-            LOGGER.info("Output will be stored in directory: {}", green(outputDirectory));
+            LOGGER.info("Output will be stored in directory: {}", outputDirectory);
         }
 
         return config;
@@ -469,7 +462,7 @@ public final class Main implements Callable<Void> {
             try {
                 cacheManager.close();
             } catch (IOException e) {
-                LOGGER.warn("Error closing cache manager: {}", red(e.getMessage()));
+                LOGGER.warn("Error closing cache manager: {}", e.getMessage());
                 LOGGER.debug("Error", e);
             }
         }
@@ -494,7 +487,7 @@ public final class Main implements Callable<Void> {
             try {
                 config.save(configFile);
             } catch (IOException e) {
-                LOGGER.warn("Error writing configuration file: {}", red(e.getMessage()));
+                LOGGER.warn("Error writing configuration file: {}", e.getMessage());
                 LOGGER.debug("Error", e);
             }
         }
@@ -515,7 +508,7 @@ public final class Main implements Callable<Void> {
         try {
             config = setupBuildConfig();
         } catch (IOException e) {
-            LOGGER.error("Error reading configuration file: {}", boldRed(e.getMessage()));
+            LOGGER.error("Error reading configuration file: {}", e.getMessage());
             LOGGER.debug("Error", e);
             System.exit(1);
         }
@@ -542,7 +535,7 @@ public final class Main implements Callable<Void> {
 
         LOGGER.info(
                 "Checksum type: {}",
-                green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
+                String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet())));
 
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
 
@@ -553,7 +546,7 @@ public final class Main implements Callable<Void> {
                 if (checksumFile.exists()) {
                     checksumsFromFile.put(checksumType, new ArrayListValuedHashMap<>());
 
-                    LOGGER.info("Loading checksums from file: {}", green(checksumFile));
+                    LOGGER.info("Loading checksums from file: {}", checksumFile);
 
                     try {
                         Map<String, Collection<LocalFile>> subChecksums = JSONUtils.loadChecksumsFile(checksumFile);
@@ -568,12 +561,12 @@ public final class Main implements Callable<Void> {
                             }
                         }
                     } catch (IOException e) {
-                        LOGGER.error("Error loading checksums file: {}", boldRed(e.getMessage()));
+                        LOGGER.error("Error loading checksums file: {}", e.getMessage());
                         LOGGER.debug("Error", e);
                         System.exit(1);
                     }
                 } else {
-                    LOGGER.error("File {} does not exist", boldRed(checksumFile));
+                    LOGGER.error("File {} does not exist", checksumFile);
                     System.exit(1);
                 }
             }
@@ -595,7 +588,7 @@ public final class Main implements Callable<Void> {
                 try {
                     checksums = futureChecksum.get();
                 } catch (ExecutionException e) {
-                    LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()), e);
+                    LOGGER.error("Error getting checksums: {}", e.getMessage(), e);
                     LOGGER.debug("Error", e);
                     System.exit(1);
                 } catch (InterruptedException e) {
@@ -609,7 +602,7 @@ public final class Main implements Callable<Void> {
                     try {
                         analyzer.outputToFile(checksumType);
                     } catch (IOException e) {
-                        LOGGER.error("Error writing checksums file: {}", boldRed(e.getMessage()));
+                        LOGGER.error("Error writing checksums file: {}", e.getMessage());
                         LOGGER.debug("Error", e);
                         System.exit(1);
                     }
@@ -617,7 +610,7 @@ public final class Main implements Callable<Void> {
             } else {
                 int numChecksums = checksums.values().iterator().next().size();
 
-                LOGGER.info("Total number of checksums: {}", green(numChecksums));
+                LOGGER.info("Total number of checksums: {}", numChecksums);
             }
 
             if (checksums.isEmpty()) {
@@ -628,9 +621,9 @@ public final class Main implements Callable<Void> {
         }
 
         if (config.getPncURL() != null) {
-            LOGGER.info("Pnc support: {}", green("enabled"));
+            LOGGER.info("Pnc support: {}", "enabled");
         } else {
-            LOGGER.info("Pnc support: {}", green("disabled"));
+            LOGGER.info("Pnc support: {}", "disabled");
         }
 
         BuildFinder finder;
@@ -639,22 +632,22 @@ public final class Main implements Callable<Void> {
 
         if (Boolean.TRUE.equals(config.getUseBuildsFile())) {
             if (buildsFile.exists()) {
-                LOGGER.info("Loading builds from file: {}", green(buildsFile.getPath()));
+                LOGGER.info("Loading builds from file: {}", buildsFile.getPath());
 
                 try {
                     builds = KojiJSONUtils.loadBuildsFile(buildsFile);
                 } catch (IOException e) {
-                    LOGGER.error("Error loading builds file: {}", boldRed(e.getMessage()));
+                    LOGGER.error("Error loading builds file: {}", e.getMessage());
                     LOGGER.debug("Error", e);
                     System.exit(1);
                 }
             } else {
-                LOGGER.error("File {} does not exist", boldRed(buildsFile));
+                LOGGER.error("File {} does not exist", buildsFile);
                 System.exit(1);
             }
         } else {
             if (!checksumTypes.contains(ChecksumType.md5)) {
-                LOGGER.error("To find builds, you must enable checksum type: {}", boldRed(ChecksumType.md5));
+                LOGGER.error("To find builds, you must enable checksum type: {}", ChecksumType.md5);
                 System.exit(1);
             }
 
@@ -674,7 +667,7 @@ public final class Main implements Callable<Void> {
                         PncClient pncClient = config.getPncURL() != null ? new CachingPncClient(config, cacheManager)
                                 : null) {
                     if (isKerberos) {
-                        LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
+                        LOGGER.info("Using Koji session with Kerberos service: {}", krbService);
                     } else {
                         LOGGER.info("Using anonymous Koji session");
                     }
@@ -710,7 +703,7 @@ public final class Main implements Callable<Void> {
 
                     builds = finder.findBuilds(newMap);
                 } catch (KojiClientException e) {
-                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
+                    LOGGER.error("Error finding builds: {}", e.getMessage());
                     LOGGER.debug("Error", e);
                     System.exit(1);
                 }
@@ -739,7 +732,7 @@ public final class Main implements Callable<Void> {
                         PncClient pncClient = config.getPncURL() != null ? new CachingPncClient(config, cacheManager)
                                 : null) {
                     if (isKerberos) {
-                        LOGGER.info("Using Koji session with Kerberos service: {}", green(krbService));
+                        LOGGER.info("Using Koji session with Kerberos service: {}", krbService);
                     } else {
                         LOGGER.info("Using anonymous Koji session");
                     }
@@ -757,7 +750,7 @@ public final class Main implements Callable<Void> {
                     try {
                         checksums = futureChecksum.get();
                     } catch (ExecutionException e) {
-                        LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()), e);
+                        LOGGER.error("Error getting checksums: {}", e.getMessage(), e);
                         LOGGER.debug("Error", e);
                         System.exit(1);
                     } catch (InterruptedException e) {
@@ -771,7 +764,7 @@ public final class Main implements Callable<Void> {
                         try {
                             analyzer.outputToFile(checksumType);
                         } catch (IOException e) {
-                            LOGGER.error("Error writing checksums file: {}", boldRed(e.getMessage()));
+                            LOGGER.error("Error writing checksums file: {}", e.getMessage());
                             LOGGER.debug("Error", e);
                             System.exit(1);
                         }
@@ -784,7 +777,7 @@ public final class Main implements Callable<Void> {
                     try {
                         builds = futureBuilds.get();
                     } catch (ExecutionException e) {
-                        LOGGER.error("Error getting builds {}", boldRed(e.getMessage()), e);
+                        LOGGER.error("Error getting builds {}", e.getMessage(), e);
                         LOGGER.debug("ExecutionException", e);
                         System.exit(1);
                     } catch (InterruptedException e) {
@@ -794,15 +787,15 @@ public final class Main implements Callable<Void> {
 
                     JSONUtils.dumpObjectToFile(builds, buildsFile);
                 } catch (KojiClientException e) {
-                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
+                    LOGGER.error("Error finding builds: {}", e.getMessage(), e);
                     LOGGER.debug("Koji Client Error", e);
                     System.exit(1);
                 } catch (IOException e) {
-                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
+                    LOGGER.error("Error finding builds: {}", e.getMessage(), e);
                     LOGGER.debug("IOException", e);
                     System.exit(1);
                 } catch (RuntimeException e) {
-                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()), e);
+                    LOGGER.error("Error finding builds: {}", e.getMessage(), e);
                     LOGGER.debug("Exception", e);
                     System.exit(1);
                 }
@@ -823,13 +816,13 @@ public final class Main implements Callable<Void> {
             } catch (IOException e) {
                 LOGGER.error(
                         "Error writing reports for files {} with {} builds to output directory {}",
-                        boldRed(files),
-                        boldRed(buildListSize),
-                        boldRed(outputDirectory));
+                        files,
+                        buildListSize,
+                        outputDirectory);
                 LOGGER.debug("Report error", e);
             }
 
-            LOGGER.info("{}", boldYellow("DONE"));
+            LOGGER.info("{}", "DONE");
         } else {
             LOGGER.warn("Did not generate any reports since the list of builds is empty");
         }

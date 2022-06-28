@@ -15,9 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,7 +62,7 @@ public final class BuildFinderUtils {
 
         loadArchiveExtensions(config, session);
 
-        LOGGER.debug("Archive extensions: {}", green(archiveExtensions));
+        LOGGER.debug("Archive extensions: {}", archiveExtensions);
 
         emptyDigests = new EnumMap<>(ChecksumType.class);
 
@@ -78,7 +75,7 @@ public final class BuildFinderUtils {
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
         if (checksum.getValue().equals(emptyDigests.get(checksum.getType()))) {
-            LOGGER.warn("Skipped empty digest for files: {}", red(filenames));
+            LOGGER.warn("Skipped empty digest for files: {}", filenames);
             return true;
         }
 
@@ -88,7 +85,7 @@ public final class BuildFinderUtils {
         newArchiveExtensions.add("rpm");
 
         if (filenames.stream().noneMatch(filename -> newArchiveExtensions.stream().anyMatch(filename::endsWith))) {
-            LOGGER.warn("Skipped due to invalid archive extension for files: {}", red(filenames));
+            LOGGER.warn("Skipped due to invalid archive extension for files: {}", filenames);
             return false;
         }
 
@@ -174,9 +171,9 @@ public final class BuildFinderUtils {
                 if (existingArchive.getRpm() != null) {
                     LOGGER.warn(
                             "Replacing RPM {} in archive {} with {}",
-                            red(existingArchive.getRpm()),
-                            red(existingArchive.getArchive().getArchiveId()),
-                            red(rpm));
+                            existingArchive.getRpm(),
+                            existingArchive.getArchive().getArchiveId(),
+                            rpm);
                 }
 
                 existingArchive.setRpm(rpm);
@@ -286,7 +283,7 @@ public final class BuildFinderUtils {
         List<String> archiveTypes = config.getArchiveTypes();
         List<String> archiveTypesToCheck;
 
-        LOGGER.debug("Archive types: {}", green(archiveTypes));
+        LOGGER.debug("Archive types: {}", archiveTypes);
 
         if (!archiveTypes.isEmpty()) {
             LOGGER.debug("There are {} supplied Koji archive types: {}", archiveTypes.size(), archiveTypes);

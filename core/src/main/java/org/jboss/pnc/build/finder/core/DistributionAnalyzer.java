@@ -15,10 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -186,8 +182,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                         LOGGER.error(
                                                 "Error loading cache {}: {}. The cache format has changed"
                                                         + " and you will have to manually delete the existing cache",
-                                                boldRed(ConfigDefaults.CACHE_LOCATION),
-                                                boldRed(e.getMessage()),
+                                                ConfigDefaults.CACHE_LOCATION,
+                                                e.getMessage(),
                                                 e);
                                         throw e;
                                     }
@@ -217,14 +213,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
                                     LOGGER.info(
                                             "Loaded {} checksums for file: {} (checksum: {}) from cache",
-                                            green(size),
-                                            green(fo.getName()),
-                                            green(value));
+                                            size,
+                                            fo.getName(),
+                                            value);
                                 } else {
-                                    LOGGER.info(
-                                            "File: {} (checksum: {}) not found in cache",
-                                            green(fo.getName()),
-                                            green(value));
+                                    LOGGER.info("File: {} (checksum: {}) not found in cache", fo.getName(), value);
                                 }
                             }
                         }
@@ -233,13 +226,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     if (!checksumTypesToCheck.isEmpty()) {
                         LOGGER.info(
                                 "Finding checksums: {} for file: {}",
-                                green(
-                                        String.join(
-                                                ", ",
-                                                checksumTypesToCheck.stream()
-                                                        .map(String::valueOf)
-                                                        .collect(Collectors.toSet()))),
-                                green(fo.getName()));
+                                String.join(
+                                        ", ",
+                                        checksumTypesToCheck.stream().map(String::valueOf).collect(Collectors.toSet())),
+                                fo.getName());
 
                         listChildren(fo);
 
@@ -270,11 +260,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         int numChecksums = map.values().iterator().next().size();
 
-        LOGGER.info(
-                "Total number of checksums: {}, time: {}, average: {}",
-                green(numChecksums),
-                green(duration),
-                green((double) numChecksums > 0.0D ? duration.dividedBy((long) numChecksums) : 0.0D));
+        Object o = (double) numChecksums > 0.0D ? duration.dividedBy((long) numChecksums) : 0.0D;
+        LOGGER.info("Total number of checksums: {}, time: {}, average: {}", numChecksums, duration, o);
 
         if (listener != null) {
             listener.checksumsComputed(new ChecksumsComputedEvent(numChecksums));
@@ -310,8 +297,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
                     "Initialized file system manager {} with schemes: {}",
-                    green(sfs.getClass().getSimpleName()),
-                    green(Collections.unmodifiableList(Arrays.asList(sfs.getSchemes()))));
+                    sfs.getClass().getSimpleName(),
+                    Collections.unmodifiableList(Arrays.asList(sfs.getSchemes())));
         }
 
         return sfs;
@@ -337,9 +324,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             String filename = fo.getPublicURIString();
 
             if (fo.isFile()) {
-                LOGGER.info("Analyzing: {} ({})", green(filename), green(Utils.byteCountToDisplaySize(fo)));
+                LOGGER.info("Analyzing: {} ({})", filename, Utils.byteCountToDisplaySize(fo));
             } else {
-                LOGGER.info("Analyzing: {}", green(filename));
+                LOGGER.info("Analyzing: {}", filename);
             }
         }
 
@@ -402,7 +389,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
             fileErrors.add(new FileError(filename, message));
 
-            LOGGER.warn("Unable to process archive/compressed file: {}: {}", red(filename), red(message));
+            LOGGER.warn("Unable to process archive/compressed file: {}: {}", filename, message);
             LOGGER.debug("Error", e);
         } finally {
             if (fs != null) {

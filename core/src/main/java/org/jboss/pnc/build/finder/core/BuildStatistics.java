@@ -15,7 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isNotBuildZero;
 
 import java.util.Collection;
@@ -74,9 +73,9 @@ public class BuildStatistics {
 
                     LOGGER.warn(
                             "Built archive {} with {} unmatched files: {}",
-                            red(archive.getArchive().getFilename()),
-                            red(unmatchedFilenamesCount),
-                            red(archive.getUnmatchedFilenames()));
+                            archive.getArchive().getFilename(),
+                            unmatchedFilenamesCount,
+                            archive.getUnmatchedFilenames());
                 }
             }
 
@@ -88,12 +87,9 @@ public class BuildStatistics {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn(
                             "Imported build {} with {} archives: {}",
-                            red(build.getBuildInfo().getName()),
-                            red(archiveCount),
-                            red(
-                                    archives.stream()
-                                            .flatMap(a -> a.getFilenames().stream())
-                                            .collect(Collectors.toList())));
+                            build.getBuildInfo().getName(),
+                            archiveCount,
+                            archives.stream().flatMap(a -> a.getFilenames().stream()).collect(Collectors.toList()));
                 }
             }
         }

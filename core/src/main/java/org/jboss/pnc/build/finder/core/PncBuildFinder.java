@@ -15,7 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 
@@ -317,11 +316,11 @@ public class PncBuildFinder {
 
             LOGGER.info(
                     "Found build in Pnc: id: {} nvr: {} checksum: ({}) {} archive: {}",
-                    green(pncBuild.getBuild().getId()),
-                    green(PncUtils.getNVRFromBuildRecord(pncBuild)),
-                    green(artifact.getChecksum().getType()),
-                    green(artifact.getChecksum().getValue()),
-                    green(artifact.getFilenames()));
+                    pncBuild.getBuild().getId(),
+                    PncUtils.getNVRFromBuildRecord(pncBuild),
+                    artifact.getChecksum().getType(),
+                    artifact.getChecksum().getValue(),
+                    artifact.getFilenames());
         }
 
         return kojibuild;
