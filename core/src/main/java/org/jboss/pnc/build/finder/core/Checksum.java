@@ -39,6 +39,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.eclipse.packager.rpm.RpmSignatureTag;
 import org.eclipse.packager.rpm.RpmTag;
 import org.eclipse.packager.rpm.coding.PayloadCoding;
@@ -83,6 +84,14 @@ public class Checksum implements Serializable {
         this.fileSize = localFile.getSize();
     }
 
+    public static long determineFileSize(FileContent fc) throws FileSystemException {
+        try {
+            return fc.getSize();
+        } catch (FileSystemException e) {
+            throw new FileSystemException("Error determining file size. Does file " + fc.getFile() + " exist?", e);
+        }
+    }
+
     public static Set<Checksum> checksum(FileObject fo, Collection<ChecksumType> checksumTypes, String root)
             throws IOException {
         Map<ChecksumType, MessageDigest> mds = new EnumMap<>(ChecksumType.class);
@@ -99,12 +108,14 @@ public class Checksum implements Serializable {
         Collection<CompletableFuture<Void>> futures = new ArrayList<>(checksumTypesSize);
         Map<ChecksumType, CompletableFuture<Checksum>> futures2 = new EnumMap<>(ChecksumType.class);
         FileName filename = fo.getName();
-        long fileSize = fo.getContent().getSize();
+        long fileSize;
 
         if ("rpm".equals(filename.getExtension())) {
             try (FileContent fc = fo.getContent();
                     InputStream is = fc.getInputStream();
                     RpmInputStream in = new RpmInputStream(is)) {
+                fileSize = determineFileSize(fc);
+
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Got RPM: {}", filename);
 
@@ -183,6 +194,7 @@ public class Checksum implements Serializable {
             }
         } else {
             try (FileContent fc = fo.getContent(); InputStream is = fc.getInputStream()) {
+                fileSize = determineFileSize(fc);
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int read;
 
