@@ -77,7 +77,7 @@
     <version.com.github.spotbugs.spotbugs>4.7.1</version.com.github.spotbugs.spotbugs>
     <version.com.github.spotbugs.spotbugs-maven-plugin>4.7.0.0</version.com.github.spotbugs.spotbugs-maven-plugin>
     <version.com.google.guava>31.1-jre</version.com.google.guava>
-    <version.com.j2html>1.5.0</version.com.j2html>
+    <version.com.j2html>1.6.0</version.com.j2html>
     <version.com.mycila>4.1</version.com.mycila>
     <version.com.puppycrawl.tools>10.3.1</version.com.puppycrawl.tools>
     <version.com.redhat.red.build.kojiji>2.15</version.com.redhat.red.build.kojiji>
