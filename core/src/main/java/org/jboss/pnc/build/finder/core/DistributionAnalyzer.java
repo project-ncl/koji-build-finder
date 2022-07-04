@@ -77,7 +77,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
      * for {@code zip}/{@code gz} which is classified as {@code application/octet-stream}.
      */
     private static final List<String> NON_ARCHIVE_SCHEMES = Collections
-            .unmodifiableList(Arrays.asList("tmp", "res", "ram", "file"));
+            .unmodifiableList(Arrays.asList("tmp", "res", "ram", "file", "http", "https"));
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
