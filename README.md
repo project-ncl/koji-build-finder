@@ -14,14 +14,14 @@ Additionally, it writes various reports about the builds.
 
 ## Build Status
 
-| Name    | Description           | Badge                                                                                                                                                                                                          |
-|:--------|:----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| License | License               | [![GitHub](https://img.shields.io/github/license/project-ncl/build-finder)](https://raw.githubusercontent.com/project-ncl/build-finder/master/LICENSE)                                                         |
-| Maven   | Latest Release        | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jboss.pnc.build.finder/build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jboss.pnc.build.finder/build-finder) |
-| CI      | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)          |
-| Codecov | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                             |
-| Snyk    | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                               |
-| Dependabot | Dependencies       | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)                                                                             |
+| Name       | Description           | Badge                                                                                                                                                                                                            |
+|:-----------|:----------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| License    | License               | [![GitHub](https://img.shields.io/github/license/project-ncl/build-finder)](https://raw.githubusercontent.com/project-ncl/build-finder/master/LICENSE)                                                           |
+| Maven      | Latest Release        | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jboss.pnc.build.finder/build-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jboss.pnc.build.finder/build-finder) |
+| CI         | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)            |
+| Codecov    | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                               |
+| Snyk       | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                                 |
+| Dependabot | Dependencies          | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)                                                                               |
 
 ## Development
 
@@ -152,13 +152,14 @@ There is a `Dockerfile` and a `Makefile` supplied in the code
 repository. If you are unfamiliar with Java-based projects, you can
 easily create a container image and run Build Finder in a Fedora Linux
 container by executing the following commands in a shell:
+
 1. Build the container image:
 
 ```
 $ make build
 ```
 
-2. Invoke shell in the container so you can try the tool out:
+1. Invoke shell in the container, so you can try the tool out:
 
 ```
 $ make shell
@@ -217,9 +218,9 @@ milliseconds.
 The `cache-max-idle` option specifies the cache entry maximum idle time
 in milliseconds.
 
-The `checksum-only` option specifies whether or not to skip the Koji
-build lookup stage and only checksum the files in the input. This stage
-is performed offline, whereas the build lookup stage is online.
+The `checksum-only` option specifies whether to skip the Koji build
+lookup stage and only checksum the files in the input. This stage is
+performed offline, whereas the build lookup stage is online.
 
 The `checksum-type` option specifies the checksum type to use for
 lookups. Note that at this time Koji can only support a single checksum
@@ -257,8 +258,8 @@ The `use-checksums-file` and `use-builds-file` options specify whether
 to load any existing `checksums.json` or `builds.json` file,
 respectively. These files are always written, but not loaded by default.
 
-All of the options found in the configuration file can also be specified
-and overridden via command-line options.
+Any option found in the configuration file can also be specified and
+overridden via command-line options.
 
 ### Command-line options
 
