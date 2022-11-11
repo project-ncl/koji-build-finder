@@ -43,7 +43,7 @@ class RpmIT extends AbstractRpmIT {
     @Override
     protected List<String> getFiles() {
         return Collections.singletonList(
-                "https://downloads.redhat.com/redhat/rhel/rhel-9-beta/baseos/x86_64/Packages/basesystem-11-13.el9.noarch.rpm");
+                "https://dl.fedoraproject.org/pub/archive/fedora/linux/releases/30/Everything/x86_64/os/Packages/b/basesystem-11-7.fc30.noarch.rpm");
     }
 
     @Override
@@ -57,23 +57,23 @@ class RpmIT extends AbstractRpmIT {
         Map<BuildSystemInteger, KojiBuild> builds = finder.getBuildsMap();
 
         assertThat(checksums).hasSize(3);
-        assertThat(builds).hasSize(2);
+        assertThat(builds).hasSize(1);
         assertThat(fileErrors).isEmpty();
         assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
                 .hasEntrySatisfying(
-                        "16605e0013938a5e21ffdf777cfa86ce",
+                        "16b9266485a71b7dd230d14a3986f170",
                         localFiles -> assertThat(localFiles).extracting("filename", "size")
-                                .containsExactly(tuple("basesystem-11-13.el9.noarch.rpm", 7677L)));
+                                .containsExactly(tuple("basesystem-11-7.fc30.noarch.rpm", 7092L)));
         assertThat(files).hasSize(1)
                 .hasEntrySatisfying(
-                        "basesystem-11-13.el9.noarch.rpm",
+                        "basesystem-11-7.fc30.noarch.rpm",
                         cksums -> assertThat(cksums).singleElement()
                                 .extracting("value")
-                                .isEqualTo("16605e0013938a5e21ffdf777cfa86ce"));
+                                .isEqualTo("16b9266485a71b7dd230d14a3986f170"));
         assertThat(notFoundChecksums).isEmpty();
         assertThat(foundChecksums).hasSize(1)
                 .hasEntrySatisfying(
-                        new RpmCondition("16605e0013938a5e21ffdf777cfa86ce", "basesystem-11-13.el9.noarch.rpm"));
+                        new RpmCondition("16b9266485a71b7dd230d14a3986f170", "basesystem-11-7.fc30.noarch.rpm"));
         assertThat(buildsFound).extracting("archives")
                 .singleElement()
                 .asList()

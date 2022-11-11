@@ -67,19 +67,19 @@ class RpmReportIT extends AbstractRpmIT {
         assertThat(fileErrors).isEmpty();
         assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
                 .hasEntrySatisfying(
-                        "16605e0013938a5e21ffdf777cfa86ce",
+                        "16b9266485a71b7dd230d14a3986f170",
                         localFiles -> assertThat(localFiles).extracting("filename", "size")
-                                .containsExactly(tuple("basesystem-11-13.el9.noarch.rpm", 7677L)));
+                                .containsExactly(tuple("basesystem-11-7.fc30.noarch.rpm", 7092L)));
         assertThat(files).hasSize(1)
                 .hasEntrySatisfying(
-                        "basesystem-11-13.el9.noarch.rpm",
+                        "basesystem-11-7.fc30.noarch.rpm",
                         cksums -> assertThat(cksums).extracting("value")
                                 .singleElement(as(STRING))
-                                .isEqualTo("16605e0013938a5e21ffdf777cfa86ce"));
+                                .isEqualTo("16b9266485a71b7dd230d14a3986f170"));
         assertThat(notFoundChecksums).isEmpty();
         assertThat(foundChecksums).hasSize(1)
                 .hasEntrySatisfying(
-                        new RpmCondition("16605e0013938a5e21ffdf777cfa86ce", "basesystem-11-13.el9.noarch.rpm"));
+                        new RpmCondition("16b9266485a71b7dd230d14a3986f170", "basesystem-11-7.fc30.noarch.rpm"));
         assertThat(buildsFound).extracting("archives")
                 .singleElement()
                 .asList()

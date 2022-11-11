@@ -261,7 +261,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 }
             }
         } finally {
-            cleanupVfsCache();
+            try {
+                cleanupVfsCache();
+            } catch (IOException e) {
+                LOGGER.error("Cleaning up vfs cache failed", e);
+            }
+
             Utils.shutdownAndAwaitTermination(pool);
         }
 
