@@ -286,6 +286,16 @@
         <version>${version.org.infinispan}</version>
       </dependency>
       <dependency>
+        <groupId>org.infinispan.protostream</groupId>
+        <artifactId>protostream</artifactId>
+        <version>${version.org.infinispan.protostream}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.infinispan.protostream</groupId>
+        <artifactId>protostream-processor</artifactId>
+        <version>${version.org.infinispan.protostream}</version>
+      </dependency>
+      <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-api</artifactId>
         <version>${version.org.jboss.pnc.pnc-api}</version>
@@ -320,18 +330,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${version.org.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan.protostream</groupId>
-        <artifactId>protostream</artifactId>
-        <version>${version.org.infinispan.protostream}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.infinispan.protostream</groupId>
-        <artifactId>protostream-processor</artifactId>
-        <version>${version.org.infinispan.protostream}</version>
-        <scope>provided</scope>
       </dependency>
       <!-- Required dependency for packager-rpm (certain RPMs) -->
       <dependency>
