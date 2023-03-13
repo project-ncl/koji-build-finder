@@ -89,4 +89,20 @@ class EmptyBuildsTest {
                     build -> assertThat(Integer.parseInt(build.getId())).isZero());
         }
     }
+
+    @Test
+    void shouldSkipOnEmptyZipFile() throws MalformedURLException, KojiClientException {
+        // 76cdb2bad9582d23c1f6f4d868218d6c is md5 for empty zip file with size of 22 bytes
+        String filename = "empty.zip";
+        Collection<String> filenames = Collections.singletonList("empty.zip");
+        Checksum checksum = new Checksum(ChecksumType.md5, "76cdb2bad9582d23c1f6f4d868218d6c", filename, 22);
+
+        BuildConfig config = new BuildConfig();
+        config.setKojiHubURL(new URL(server.baseUrl()));
+
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinderUtils utils = new BuildFinderUtils(config, null, session);
+            assertThat(utils.shouldSkipChecksum(checksum, filenames)).isTrue();
+        }
+    }
 }

@@ -18,6 +18,8 @@ package org.jboss.pnc.build.finder.core;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -60,6 +63,8 @@ public final class BuildFinderUtils {
 
     private final Map<ChecksumType, String> emptyDigests;
 
+    private final Map<ChecksumType, String> emptyZipDigests;
+
     public BuildFinderUtils(BuildConfig config, DistributionAnalyzer distributionAnalyzer, ClientSession session) {
         this.distributionAnalyzer = distributionAnalyzer;
 
@@ -68,17 +73,46 @@ public final class BuildFinderUtils {
         LOGGER.debug("Archive extensions: {}", green(archiveExtensions));
 
         emptyDigests = new EnumMap<>(ChecksumType.class);
+        emptyZipDigests = new EnumMap<>(ChecksumType.class);
 
         config.getChecksumTypes()
                 .forEach(
                         checksumType -> emptyDigests.put(
                                 checksumType,
-                                Hex.encodeHexString(DigestUtils.getDigest(ChecksumType.md5.getAlgorithm()).digest())));
+                                Hex.encodeHexString(DigestUtils.getDigest(checksumType.getAlgorithm()).digest())));
+
+        byte[] emptyZip = emptyZipBytes();
+        config.getChecksumTypes()
+                .forEach(
+                        checksumType -> emptyZipDigests.put(
+                                checksumType,
+                                Hex.encodeHexString(
+                                        DigestUtils.getDigest(checksumType.getAlgorithm()).digest(emptyZip))));
+
+    }
+
+    private byte[] emptyZipBytes() {
+        byte[] toReturn = new byte[0];
+        try (ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream()) {
+            try (ZipOutputStream zos = new ZipOutputStream(byteOutputStream)) {
+                zos.finish();
+            }
+            byteOutputStream.flush();
+            toReturn = byteOutputStream.toByteArray();
+        } catch (IOException e) {
+            LOGGER.warn("Error creating empty zip file: {}", red(e.getMessage()));
+        }
+        return toReturn;
     }
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
         if (checksum.getValue().equals(emptyDigests.get(checksum.getType()))) {
             LOGGER.warn("Skipped empty digest for files: {}", red(filenames));
+            return true;
+        }
+
+        if (checksum.getValue().equals(emptyZipDigests.get(checksum.getType()))) {
+            LOGGER.warn("Skipped empty zip digest for files: {}", red(filenames));
             return true;
         }
 
