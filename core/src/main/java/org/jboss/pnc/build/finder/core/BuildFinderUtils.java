@@ -33,6 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -59,6 +60,8 @@ public final class BuildFinderUtils {
 
     private List<String> archiveExtensions;
 
+    private final BuildConfig config;
+
     private final DistributionAnalyzer distributionAnalyzer;
 
     private final Map<ChecksumType, String> emptyDigests;
@@ -66,6 +69,7 @@ public final class BuildFinderUtils {
     private final Map<ChecksumType, String> emptyZipDigests;
 
     public BuildFinderUtils(BuildConfig config, DistributionAnalyzer distributionAnalyzer, ClientSession session) {
+        this.config = config;
         this.distributionAnalyzer = distributionAnalyzer;
 
         loadArchiveExtensions(config, session);
@@ -284,9 +288,20 @@ public final class BuildFinderUtils {
         if (distributionAnalyzer != null) {
             for (FileError fileError : distributionAnalyzer.getFileErrors()) {
                 String filename = fileError.getFilename();
+                String extension = FilenameUtils.getExtension(filename);
+                List<String> archiveExtensions = config.getArchiveExtensions();
+
+                if (!FilenameUtils.isExtension(filename, archiveExtensions)) {
+                    LOGGER.warn(
+                            "Skipping file with error {} since its extension {} is not in configured list of archive extensions {}",
+                            filename,
+                            extension,
+                            archiveExtensions);
+                    continue;
+                }
+
                 Collection<Checksum> fileChecksums = distributionAnalyzer.getFiles().get(filename);
                 Optional<Checksum> checksum = Checksum.findByType(fileChecksums, ChecksumType.md5);
-
                 checksum.ifPresent(
                         cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(filename)));
             }
