@@ -439,7 +439,7 @@ public final class Main implements Callable<Void> {
                 .maxIdle(config.getCacheMaxIdle())
                 .wakeUpInterval(-1L)
                 .persistence()
-                .passivation(false)
+                .passivation(true)
                 .addSoftIndexFileStore()
                 .segmented(true)
                 .shared(false)

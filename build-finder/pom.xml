@@ -92,12 +92,6 @@
                   </includes>
                 </filter>
                 <filter>
-                  <artifact>org.infinispan:infinispan-commons-jdk11</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-                <filter>
                   <artifact>org.infinispan:infinispan-core</artifact>
                   <includes>
                     <include>**</include>

@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
 public final class BuildFinderObjectMapper extends KojiObjectMapper {
@@ -28,6 +29,7 @@ public final class BuildFinderObjectMapper extends KojiObjectMapper {
         enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         registerModule(new Jdk8Module());
+        registerModule(new JavaTimeModule());
         registerModule(new BuildFinderModule());
     }
 }
