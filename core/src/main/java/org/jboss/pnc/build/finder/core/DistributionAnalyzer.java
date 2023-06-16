@@ -22,6 +22,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
@@ -264,7 +265,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             try {
                 cleanupVfsCache();
             } catch (IOException e) {
-                LOGGER.error("Cleaning up vfs cache failed", e);
+                LOGGER.warn("Cleaning up vfs cache failed: {}", getMessage(e));
+                LOGGER.debug("Cleaning up vfs cache failed", e);
             }
 
             Utils.shutdownAndAwaitTermination(pool);
@@ -389,21 +391,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             listChildren(layered);
         } catch (IOException e) {
             String filename = Utils.normalizePath(fo, root);
-            String message = e.getMessage();
-
-            if (message == null) {
-                message = "";
-            }
-
-            Throwable cause = e.getCause();
-
-            if (cause != null) {
-                String causeMessage = cause.getMessage();
-
-                if (causeMessage != null) {
-                    message += " (" + causeMessage + ")";
-                }
-            }
+            String message = getMessage(e);
 
             fileErrors.add(new FileError(filename, message));
 
@@ -414,6 +402,40 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 manager.closeFileSystem(fs);
             }
         }
+    }
+
+    private static String getMessage(Throwable t) {
+        StringBuilder sb = new StringBuilder();
+
+        if (t instanceof java.nio.file.FileSystemException) {
+            java.nio.file.FileSystemException fse = (java.nio.file.FileSystemException) t;
+
+            if (fse instanceof DirectoryNotEmptyException) {
+                if (sb.length() > 0) {
+                    sb.append(": ");
+                }
+
+                sb.append("directory ").append(fse.getFile()).append(" not empty");
+            }
+        } else {
+            String message = t.getMessage();
+
+            if (message != null) {
+                sb.append(message);
+            }
+
+            Throwable cause = t.getCause();
+
+            if (cause != null) {
+                String causeMessage = cause.getMessage();
+
+                if (causeMessage != null) {
+                    sb.append(" (").append(causeMessage).append(")");
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
     private boolean includeFile(FileObject fo) {
