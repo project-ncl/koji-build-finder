@@ -64,7 +64,7 @@
   <properties>
     <koji.hub.url></koji.hub.url>
     <koji.web.url></koji.web.url>
-    <mavenVersion>3.3.9</mavenVersion>
+    <mavenVersion>3.5.4</mavenVersion>
     <pnc.url></pnc.url>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
@@ -72,20 +72,20 @@
     <version.com.fasterxml.jackson>2.14.2</version.com.fasterxml.jackson>
     <version.com.ginsberg.junit5-system-exit>1.1.2</version.com.ginsberg.junit5-system-exit>
     <version.com.github.ekryd.sortpom>3.2.1</version.com.github.ekryd.sortpom>
-    <version.com.github.luben>1.5.4-2</version.com.github.luben>
+    <version.com.github.luben>1.5.5-4</version.com.github.luben>
     <version.com.github.sparkmuse>1.3.6</version.com.github.sparkmuse>
     <version.com.github.spotbugs.spotbugs>4.7.3</version.com.github.spotbugs.spotbugs>
-    <version.com.github.spotbugs.spotbugs-maven-plugin>4.7.3.4</version.com.github.spotbugs.spotbugs-maven-plugin>
-    <version.com.google.guava>31.1-jre</version.com.google.guava>
+    <version.com.github.spotbugs.spotbugs-maven-plugin>4.7.3.5</version.com.github.spotbugs.spotbugs-maven-plugin>
+    <version.com.google.guava>32.0.1-jre</version.com.google.guava>
     <version.com.j2html>1.6.0</version.com.j2html>
-    <version.com.mycila>4.1</version.com.mycila>
+    <version.com.mycila>4.2</version.com.mycila>
     <version.com.puppycrawl.tools>10.12.0</version.com.puppycrawl.tools>
-    <version.com.redhat.red.build.kojiji>2.17</version.com.redhat.red.build.kojiji>
+    <version.com.redhat.red.build.kojiji>2.19</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.15</version.commons-codec>
-    <version.info.picocli>4.7.1</version.info.picocli>
+    <version.info.picocli>4.7.4</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.19</version.io.dropwizard.metrics>
-    <version.net.revelc.code.formatter>2.22.0</version.net.revelc.code.formatter>
-    <version.net.revelc.code.impsort-maven-plugin>1.8.0</version.net.revelc.code.impsort-maven-plugin>
+    <version.net.revelc.code.formatter>2.23.0</version.net.revelc.code.formatter>
+    <version.net.revelc.code.impsort-maven-plugin>1.9.0</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.55.0</version.net.sourceforge.pmd>
     <version.org.apache.commons.commons-collections4>4.4</version.org.apache.commons.commons-collections4>
     <version.org.apache.commons.commons-compress>1.23.0</version.org.apache.commons.commons-compress>
@@ -95,31 +95,31 @@
     <version.org.apache.httpcomponents.httpclient>4.5.14</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.4.16</version.org.apache.httpcomponents.httpcore>
     <version.org.apache.maven.plugins.maven-antrun-plugin>3.1.0</version.org.apache.maven.plugins.maven-antrun-plugin>
-    <version.org.apache.maven.plugins.maven-assembly-plugin>3.4.2</version.org.apache.maven.plugins.maven-assembly-plugin>
-    <version.org.apache.maven.plugins.maven-checkstyle-plugin>3.2.1</version.org.apache.maven.plugins.maven-checkstyle-plugin>
-    <version.org.apache.maven.plugins.maven-clean-plugin>3.2.0</version.org.apache.maven.plugins.maven-clean-plugin>
-    <version.org.apache.maven.plugins.maven-compiler-plugin>3.10.1</version.org.apache.maven.plugins.maven-compiler-plugin>
-    <version.org.apache.maven.plugins.maven-dependency-plugin>3.5.0</version.org.apache.maven.plugins.maven-dependency-plugin>
-    <version.org.apache.maven.plugins.maven-deploy-plugin>3.1.0</version.org.apache.maven.plugins.maven-deploy-plugin>
-    <version.org.apache.maven.plugins.maven-enforcer-plugin>3.2.1</version.org.apache.maven.plugins.maven-enforcer-plugin>
-    <version.org.apache.maven.plugins.maven-gpg-plugin>3.0.1</version.org.apache.maven.plugins.maven-gpg-plugin>
-    <version.org.apache.maven.plugins.maven-install-plugin>3.1.0</version.org.apache.maven.plugins.maven-install-plugin>
+    <version.org.apache.maven.plugins.maven-assembly-plugin>3.6.0</version.org.apache.maven.plugins.maven-assembly-plugin>
+    <version.org.apache.maven.plugins.maven-checkstyle-plugin>3.3.0</version.org.apache.maven.plugins.maven-checkstyle-plugin>
+    <version.org.apache.maven.plugins.maven-clean-plugin>3.3.1</version.org.apache.maven.plugins.maven-clean-plugin>
+    <version.org.apache.maven.plugins.maven-compiler-plugin>3.11.0</version.org.apache.maven.plugins.maven-compiler-plugin>
+    <version.org.apache.maven.plugins.maven-dependency-plugin>3.6.0</version.org.apache.maven.plugins.maven-dependency-plugin>
+    <version.org.apache.maven.plugins.maven-deploy-plugin>3.1.1</version.org.apache.maven.plugins.maven-deploy-plugin>
+    <version.org.apache.maven.plugins.maven-enforcer-plugin>3.3.0</version.org.apache.maven.plugins.maven-enforcer-plugin>
+    <version.org.apache.maven.plugins.maven-gpg-plugin>3.1.0</version.org.apache.maven.plugins.maven-gpg-plugin>
+    <version.org.apache.maven.plugins.maven-install-plugin>3.1.1</version.org.apache.maven.plugins.maven-install-plugin>
     <version.org.apache.maven.plugins.maven-jar-plugin>3.3.0</version.org.apache.maven.plugins.maven-jar-plugin>
     <version.org.apache.maven.plugins.maven-javadoc-plugin>3.5.0</version.org.apache.maven.plugins.maven-javadoc-plugin>
     <version.org.apache.maven.plugins.maven-jxr-plugin>3.3.0</version.org.apache.maven.plugins.maven-jxr-plugin>
-    <version.org.apache.maven.plugins.maven-plugin-plugin>3.8.1</version.org.apache.maven.plugins.maven-plugin-plugin>
-    <version.org.apache.maven.plugins.maven-pmd-plugin>3.20.0</version.org.apache.maven.plugins.maven-pmd-plugin>
-    <version.org.apache.maven.plugins.maven-project-info-reports-plugin>3.4.2</version.org.apache.maven.plugins.maven-project-info-reports-plugin>
+    <version.org.apache.maven.plugins.maven-plugin-plugin>3.9.0</version.org.apache.maven.plugins.maven-plugin-plugin>
+    <version.org.apache.maven.plugins.maven-pmd-plugin>3.21.0</version.org.apache.maven.plugins.maven-pmd-plugin>
+    <version.org.apache.maven.plugins.maven-project-info-reports-plugin>3.4.5</version.org.apache.maven.plugins.maven-project-info-reports-plugin>
     <version.org.apache.maven.plugins.maven-release-plugin>3.0.1</version.org.apache.maven.plugins.maven-release-plugin>
     <version.org.apache.maven.plugins.maven-resources-plugin>3.3.1</version.org.apache.maven.plugins.maven-resources-plugin>
     <version.org.apache.maven.plugins.maven-shade-plugin>3.5.0</version.org.apache.maven.plugins.maven-shade-plugin>
     <version.org.apache.maven.plugins.maven-site-plugin>3.12.1</version.org.apache.maven.plugins.maven-site-plugin>
-    <version.org.apache.maven.plugins.maven-source-plugin>3.2.1</version.org.apache.maven.plugins.maven-source-plugin>
-    <version.org.apache.maven.plugins.maven-surefire-plugin>3.0.0-M7</version.org.apache.maven.plugins.maven-surefire-plugin>
+    <version.org.apache.maven.plugins.maven-source-plugin>3.3.0</version.org.apache.maven.plugins.maven-source-plugin>
+    <version.org.apache.maven.plugins.maven-surefire-plugin>3.1.2</version.org.apache.maven.plugins.maven-surefire-plugin>
     <version.org.assertj>3.24.2</version.org.assertj>
     <version.org.bouncycastle>1.70</version.org.bouncycastle>
-    <version.org.codehaus.mojo.buildnumber-maven-plugin>3.0.0</version.org.codehaus.mojo.buildnumber-maven-plugin>
-    <version.org.codehaus.mojo.versions-maven-plugin>2.15.0</version.org.codehaus.mojo.versions-maven-plugin>
+    <version.org.codehaus.mojo.buildnumber-maven-plugin>3.2.0</version.org.codehaus.mojo.buildnumber-maven-plugin>
+    <version.org.codehaus.mojo.versions-maven-plugin>2.16.0</version.org.codehaus.mojo.versions-maven-plugin>
     <version.org.codehaus.plexus.plexus-component-metadata>2.1.1</version.org.codehaus.plexus.plexus-component-metadata>
     <version.org.commonjava.rwx>2.3</version.org.commonjava.rwx>
     <version.org.commonjava.util.jhttpc>1.12</version.org.commonjava.util.jhttpc>
@@ -130,15 +130,16 @@
     <version.org.infinispan>14.0.11.Final</version.org.infinispan>
     <version.org.infinispan.protostream>4.4.4.Final</version.org.infinispan.protostream>
     <version.org.jacoco>0.8.10</version.org.jacoco>
-    <version.org.jboss.byteman>4.0.20</version.org.jboss.byteman>
+    <version.org.jboss.byteman>4.0.21</version.org.jboss.byteman>
     <version.org.jboss.logmanager>2.1.19.Final</version.org.jboss.logmanager>
     <version.org.jboss.pnc>2.5.0</version.org.jboss.pnc>
-    <version.org.jboss.pnc.pnc-api>2.4.1</version.org.jboss.pnc.pnc-api>
+    <version.org.jboss.pnc.pnc-api>2.4.5</version.org.jboss.pnc.pnc-api>
     <version.org.jeasy>5.0.0</version.org.jeasy>
     <version.org.json.json>20200518</version.org.json.json>
-    <version.org.junit>5.9.2</version.org.junit>
+    <version.org.junit>5.9.3</version.org.junit>
     <version.org.junit-pioneer>2.0.1</version.org.junit-pioneer>
     <version.org.mockito>5.2.0</version.org.mockito>
+    <version.org.mockito-junit-jupiter>5.4.0</version.org.mockito-junit-jupiter>
     <version.org.ow2.asm>9.5</version.org.ow2.asm>
     <version.org.slf4j>2.0.7</version.org.slf4j>
     <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.13</version.org.sonatype.plugins.nexus-staging-maven-plugin>
@@ -512,7 +513,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
-        <version>${version.org.mockito}</version>
+        <version>${version.org.mockito-junit-jupiter}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -999,15 +1000,17 @@
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
-          <excludes>
-            <exclude>.cache/*</exclude>
-            <exclude>.vs*/*</exclude>
-            <exclude>LICENSE</exclude>
-            <exclude>src/test/resources/**/*.war</exclude>
-            <exclude>src/test/resources/**/*.xml</exclude>
-          </excludes>
-          <!-- XXX: <https://github.com/mycila/license-maven-plugin/issues/83> -->
-          <inlineHeader><![CDATA[Copyright (C) ${project.inceptionYear} Red Hat, Inc.
+          <licenseSets>
+            <licenseSet>
+              <excludes>
+                <exclude>.cache/*</exclude>
+                <exclude>.vs*/*</exclude>
+                <exclude>LICENSE</exclude>
+                <exclude>src/test/resources/**/*.war</exclude>
+                <exclude>src/test/resources/**/*.xml</exclude>
+              </excludes>
+              <!-- XXX: <https://github.com/mycila/license-maven-plugin/issues/83> -->
+              <inlineHeader><![CDATA[Copyright (C) ${project.inceptionYear} Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1020,6 +1023,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.]]></inlineHeader>
+            </licenseSet>
+          </licenseSets>
           <mapping>
             <gitattributes>SCRIPT_STYLE</gitattributes>
             <java>SLASHSTAR_STYLE</java>
