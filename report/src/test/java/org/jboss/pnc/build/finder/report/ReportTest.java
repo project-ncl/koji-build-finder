@@ -24,7 +24,6 @@ import static com.redhat.red.build.koji.model.json.KojiJsonConstants.VERSION;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
-import static org.assertj.core.api.Assertions.linesOf;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.assertj.core.api.InstanceOfAssertFactories.map;
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.PNC;
@@ -32,7 +31,6 @@ import static org.jboss.pnc.build.finder.pnc.client.PncUtils.PNC;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +38,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pnc.build.finder.core.BuildFinderObjectMapper;
 import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.core.JSONUtils;
@@ -49,6 +48,9 @@ import org.jboss.pnc.build.finder.koji.KojiJSONUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 class ReportTest {
     private static List<KojiBuild> builds;
@@ -80,8 +82,11 @@ class ReportTest {
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
-        assertThat(linesOf(buildsFile, StandardCharsets.UTF_8))
-                .hasSameElementsAs(Files.readAllLines(newBuildsFile.toPath()));
+        ObjectMapper mapper = new BuildFinderObjectMapper();
+        JsonNode buildsNode = mapper.readTree(buildsFile);
+        JsonNode newBuildsNode = mapper.readTree(newBuildsFile);
+
+        assertThat(buildsNode).isEqualTo(newBuildsNode);
     }
 
     @Test
