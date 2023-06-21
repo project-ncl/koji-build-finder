@@ -76,7 +76,8 @@ class KojiBuildFinderIT extends AbstractKojiIT {
             Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
             Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
 
-            assertThat(map).hasSize(3);
+            assertThat(getConfig().getChecksumTypes()).hasSizeGreaterThanOrEqualTo(1);
+            assertThat(map).hasSize(getConfig().getChecksumTypes().size());
             assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
 
             LOGGER.info("Map size: {}", map.size());
