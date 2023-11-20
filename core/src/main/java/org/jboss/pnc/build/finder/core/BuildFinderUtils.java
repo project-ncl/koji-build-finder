@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -373,5 +374,39 @@ public final class BuildFinderUtils {
         }
 
         return Collections.unmodifiableList(extensionsToCheck);
+    }
+
+    public Map<Checksum, Collection<String>> swapEntriesWithPreferredChecksum(
+            Map<Checksum, Collection<String>> originalMap,
+            Map<String, Collection<Checksum>> fileInverseMap,
+            ChecksumType preferredChecksumType) {
+
+        Map<Checksum, Collection<String>> preferredChecksumMap = new HashMap<>(originalMap.size(), 1.0f);
+
+        for (Map.Entry<Checksum, Collection<String>> entry : originalMap.entrySet()) {
+            Checksum checksum = entry.getKey();
+            Collection<String> files = entry.getValue();
+
+            String firstAlias = files != null ? files.stream().findFirst().orElse(null) : null;
+            if (checksum.getType().equals(preferredChecksumType) || firstAlias == null) {
+                // If the checksum type is already the preferred type or the file list is empty,
+                // there is no need to search further
+                preferredChecksumMap.put(checksum, files);
+                continue;
+            }
+
+            Collection<Checksum> fileChecksums = fileInverseMap.get(firstAlias);
+            Optional<Checksum> preferredChecksum = Checksum.findByType(fileChecksums, preferredChecksumType);
+
+            if (preferredChecksum.isPresent()) {
+                // The preferred checksum was found, use it
+                preferredChecksumMap.put(preferredChecksum.get(), files);
+            } else {
+                // The preferred checksum type was not found, use the original checksum
+                preferredChecksumMap.put(checksum, files);
+            }
+        }
+
+        return preferredChecksumMap;
     }
 }

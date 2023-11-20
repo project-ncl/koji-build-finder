@@ -66,6 +66,7 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveQuery;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
+import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
 import com.redhat.red.build.koji.model.xmlrpc.KojiIdOrName;
 import com.redhat.red.build.koji.model.xmlrpc.KojiNVRA;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
@@ -550,6 +551,49 @@ public class BuildFinder
         return handleFileNotFound(parentFilename);
     }
 
+    private Optional<String> handleFileFound(String filename) {
+        LOGGER.debug("Handle file found: {}", filename);
+
+        int index = filename.lastIndexOf("!/");
+
+        if (index == -1) {
+            index = filename.length();
+        }
+
+        String parentFilename = filename.substring(0, index);
+
+        LOGGER.debug("Parent of file found: {}", parentFilename);
+
+        for (KojiBuild build : builds.values()) {
+            List<KojiLocalArchive> as = build.getArchives();
+            Optional<KojiLocalArchive> a = as.stream()
+                    .filter(ar -> ar.getFilenames().contains(parentFilename))
+                    .findFirst();
+
+            if (a.isPresent()) {
+                KojiLocalArchive matchedArchive = a.get();
+                KojiArchiveInfo archive = matchedArchive.getArchive();
+
+                matchedArchive.getUnmatchedFilenames().remove(filename);
+
+                LOGGER.debug(
+                        "Archive {} ({}) had unfound file removed {} (built from source: {})",
+                        archive.getArchiveId(),
+                        archive.getFilename(),
+                        filename,
+                        matchedArchive.isBuiltFromSource());
+
+                return Optional.of(parentFilename);
+            }
+        }
+
+        if (index == filename.length()) {
+            return Optional.empty();
+        }
+
+        return handleFileFound(parentFilename);
+    }
+
     /**
      * Find builds with the given checksums.
      *
@@ -919,6 +963,9 @@ public class BuildFinder
                     }
 
                     if (build != null) {
+                        // It's ok to not create a new build for the same local archive if it already exists, but we
+                        // need to mark the checksum as found anyway.
+                        markFound(entry);
                         addArchiveToBuild(build, archive, filenames);
                     } else {
                         LOGGER.warn(
@@ -1030,7 +1077,7 @@ public class BuildFinder
         }
 
         Utils.shutdownAndAwaitTermination(pool);
-
+        cleanupBuildZeroReProcessedArchives();
         buildsList = new ArrayList<>(builds.values());
 
         buildsList.sort(Comparator.comparingInt(build -> build.getBuildInfo().getId()));
@@ -1040,9 +1087,34 @@ public class BuildFinder
         return Collections.unmodifiableMap(builds);
     }
 
+    private void cleanupBuildZeroReProcessedArchives() {
+        // In case a local archive has been processed more than once (with different checksum types), it will appear
+        // more than once in the BuildZero not found archives. Here we are removing such duplicates (if any),
+        // retaining the md5 checkum type which should be always present.
+
+        KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
+        Collection<List<KojiLocalArchive>> groupedArchives = buildZero.getArchives()
+                .stream()
+                .collect(Collectors.groupingBy(KojiLocalArchive::getFilenames))
+                .values();
+
+        List<KojiLocalArchive> cleanedArchives = groupedArchives.stream().map(archives -> {
+            if (archives.size() <= 1) {
+                return archives; // No duplicates to remove
+            }
+            archives.removeIf(archive -> !archive.getArchive().getChecksumType().equals(KojiChecksumType.md5));
+            return archives;
+        }).flatMap(List::stream).collect(Collectors.toList());
+
+        buildZero.setArchives(cleanedArchives);
+    }
+
     private void markFound(Entry<Checksum, Collection<String>> entry) {
         foundChecksums.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         notFoundChecksums.remove(entry.getKey());
+        // A file could be not found with a checksum type, but later on found with a different checksum type, we need to
+        // now handle this new case.
+        entry.getValue().stream().forEach(filename -> handleFileFound(filename));
 
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
 
@@ -1169,8 +1241,17 @@ public class BuildFinder
             Map<Checksum, Collection<String>> map = localchecksumMap.asMap();
 
             if (config.getBuildSystems().contains(BuildSystem.pnc) && config.getPncURL() != null) {
+                // The preferred checksumType for PNC is sha256, so replace the original map with a preferred map
+                LOGGER.info(
+                        "Swapping the original MD5-based checksum map to a SHA256-based checksum map (whenever possible) for finding builds in PNC!");
+                Map<Checksum, Collection<String>> sha56BasedCheckumMap = buildFinderUtils
+                        .swapEntriesWithPreferredChecksum(map, analyzer.getFiles(), ChecksumType.sha256);
+                LOGGER.debug(
+                        "Original MD5-based checksum map: {}, new SHA256-based checksum map: {}",
+                        map,
+                        sha56BasedCheckumMap);
                 try {
-                    pncBuildsNew = pncBuildFinder.findBuildsPnc(map);
+                    pncBuildsNew = pncBuildFinder.findBuildsPnc(sha56BasedCheckumMap);
                 } catch (RemoteResourceException e) {
                     throw new KojiClientException("Pnc error", e);
                 }
@@ -1178,11 +1259,73 @@ public class BuildFinder
                 allBuilds.putAll(pncBuildsNew.getFoundBuilds());
 
                 if (!pncBuildsNew.getNotFoundChecksums().isEmpty()) {
-                    kojiBuildsNew = findBuilds(pncBuildsNew.getNotFoundChecksums());
+                    LOGGER.debug(
+                            "Need to search in Brew!! Not found checksumns: " + pncBuildsNew.getNotFoundChecksums());
+                    LOGGER.info(
+                            "Swapping back the SHA256-based checksum map to a MD5-based checksum map for finding builds in Brew!");
+
+                    Map<Checksum, Collection<String>> md5BasedNotFoundCheckumMap = buildFinderUtils
+                            .swapEntriesWithPreferredChecksum(
+                                    pncBuildsNew.getNotFoundChecksums(),
+                                    analyzer.getFiles(),
+                                    ChecksumType.md5);
+
+                    LOGGER.debug(
+                            "Original SHA256-based not found checksum map: {}",
+                            pncBuildsNew.getNotFoundChecksums());
+                    LOGGER.debug("New MD5-based not found checksum map: {}", md5BasedNotFoundCheckumMap);
+
+                    kojiBuildsNew = findBuilds(md5BasedNotFoundCheckumMap);
+                    allBuilds.putAll(kojiBuildsNew);
+
+                    LOGGER.info(
+                            "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed files (e.g. signed binaries)");
+                    LOGGER.info(
+                            "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more builds in Brew!");
+
+                    Map<Checksum, Collection<String>> sha256BasedNotFoundCheckumMap = buildFinderUtils
+                            .swapEntriesWithPreferredChecksum(
+                                    notFoundChecksums,
+                                    analyzer.getFiles(),
+                                    ChecksumType.sha256);
+
+                    LOGGER.debug("Original MD5-based not found checksum map: {}", notFoundChecksums);
+                    LOGGER.debug("New SHA256-based not found checksum map: {}", sha256BasedNotFoundCheckumMap);
+
+                    // In case the same checksum has already been processed, remove them from the new checksum map
+                    sha256BasedNotFoundCheckumMap.keySet().removeAll(notFoundChecksums.keySet());
+
+                    LOGGER.debug(
+                            "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
+                            sha256BasedNotFoundCheckumMap);
+
+                    kojiBuildsNew = findBuilds(sha256BasedNotFoundCheckumMap);
+                    LOGGER.debug("Found more Brew builds which were missed initially: {}", kojiBuildsNew);
                     allBuilds.putAll(kojiBuildsNew);
                 }
             } else {
                 kojiBuildsNew = findBuilds(map);
+                allBuilds.putAll(kojiBuildsNew);
+                LOGGER.info(
+                        "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed files (like the signed binaries)");
+                LOGGER.info(
+                        "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more builds in Brew!");
+
+                Map<Checksum, Collection<String>> sha256BasedNotFoundCheckumMap = buildFinderUtils
+                        .swapEntriesWithPreferredChecksum(notFoundChecksums, analyzer.getFiles(), ChecksumType.sha256);
+
+                LOGGER.debug("Original MD5-based not found checksum map: {}", notFoundChecksums);
+                LOGGER.debug("New SHA256-based not found checksum map: {}", sha256BasedNotFoundCheckumMap);
+
+                // In case the same checksum has already been processed, remove them from the new checksum map
+                sha256BasedNotFoundCheckumMap.keySet().removeAll(notFoundChecksums.keySet());
+
+                LOGGER.debug(
+                        "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
+                        sha256BasedNotFoundCheckumMap);
+
+                kojiBuildsNew = findBuilds(sha256BasedNotFoundCheckumMap);
+                LOGGER.debug("Found more Brew builds which were missed initially: {}", kojiBuildsNew);
                 allBuilds.putAll(kojiBuildsNew);
             }
 
