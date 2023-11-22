@@ -66,7 +66,6 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveQuery;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
-import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
 import com.redhat.red.build.koji.model.xmlrpc.KojiIdOrName;
 import com.redhat.red.build.koji.model.xmlrpc.KojiNVRA;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
@@ -508,8 +507,19 @@ public class BuildFinder
         return build;
     }
 
-    private Optional<String> handleFileNotFound(String filename) {
-        LOGGER.debug("Handle file not found: {}", filename);
+    /**
+     * This method takes as input a filename which could not be found in the analysis (for example
+     * "foo.tar!/foo/bar.zip!/bar/jansi-1.18.0.redhat-00001.jar"). It will iterate over all the builds local archives
+     * and search the ones that have a file name matching the parent of the filename specified (in this example
+     * "foo.tar!/foo/bar.zip"). If a match is found it will add the provided filename to the list of the unmatched
+     * filenames of the local archive. This method will iterate recursively on all the parents of the filename (parents
+     * are separated by "!/") until a local archive is matched.
+     *
+     * @param filename
+     * @return the parent of the file name (separated by "!/"")
+     */
+    private Optional<String> handleNotFoundFile(String filename) {
+        LOGGER.debug("Handle not found file: {}", filename);
 
         int index = filename.lastIndexOf("!/");
 
@@ -519,7 +529,7 @@ public class BuildFinder
 
         String parentFilename = filename.substring(0, index);
 
-        LOGGER.debug("Parent of file not found: {}", parentFilename);
+        LOGGER.debug("Parent of not found file: {}", parentFilename);
 
         for (KojiBuild build : builds.values()) {
             List<KojiLocalArchive> as = build.getArchives();
@@ -530,11 +540,10 @@ public class BuildFinder
             if (a.isPresent()) {
                 KojiLocalArchive matchedArchive = a.get();
                 KojiArchiveInfo archive = matchedArchive.getArchive();
-
                 matchedArchive.getUnmatchedFilenames().add(filename);
 
                 LOGGER.debug(
-                        "Archive {} ({}) contains unfound file {} (built from source: {})",
+                        "Archive {} ({}) contains not found file {} (built from source: {})",
                         archive.getArchiveId(),
                         archive.getFilename(),
                         filename,
@@ -548,11 +557,20 @@ public class BuildFinder
             return Optional.empty();
         }
 
-        return handleFileNotFound(parentFilename);
+        return handleNotFoundFile(parentFilename);
     }
 
-    private Optional<String> handleFileFound(String filename) {
-        LOGGER.debug("Handle file found: {}", filename);
+    /**
+     * This method accepts the name of a file which was found in the analysis. It will search all the builds local
+     * archives, whose name matches the parent of the filename specified, and removes the provided filename from the
+     * list of the unmatched filenames associated with the local archive. This in case a filename could not be found
+     * using a particular checksum type, but then was found later using another checksum type.
+     *
+     * @param filename
+     * @return the parent of the file name (separated by "!/"")
+     */
+    private Optional<String> handleFoundFile(String filename) {
+        LOGGER.debug("Handle found file: {}", filename);
 
         int index = filename.lastIndexOf("!/");
 
@@ -562,7 +580,7 @@ public class BuildFinder
 
         String parentFilename = filename.substring(0, index);
 
-        LOGGER.debug("Parent of file found: {}", parentFilename);
+        LOGGER.debug("Parent of found file: {}", parentFilename);
 
         for (KojiBuild build : builds.values()) {
             List<KojiLocalArchive> as = build.getArchives();
@@ -573,11 +591,10 @@ public class BuildFinder
             if (a.isPresent()) {
                 KojiLocalArchive matchedArchive = a.get();
                 KojiArchiveInfo archive = matchedArchive.getArchive();
-
                 matchedArchive.getUnmatchedFilenames().remove(filename);
 
                 LOGGER.debug(
-                        "Archive {} ({}) had unfound file removed {} (built from source: {})",
+                        "Archive {} ({}) had not found file removed {} (built from source: {})",
                         archive.getArchiveId(),
                         archive.getFilename(),
                         filename,
@@ -591,7 +608,7 @@ public class BuildFinder
             return Optional.empty();
         }
 
-        return handleFileFound(parentFilename);
+        return handleFoundFile(parentFilename);
     }
 
     /**
@@ -615,6 +632,9 @@ public class BuildFinder
         Collection<List<KojiArchiveInfo>> cachedArchiveInfos = new ArrayList<>(numEntries);
         Collection<Entry<Checksum, Collection<String>>> rpmEntries = new ArrayList<>(numEntries);
 
+        /*
+         * Determine whether the checksums to be found have been previously cached
+         */
         for (Entry<Checksum, Collection<String>> entry : entries) {
             Checksum checksum = entry.getKey();
             Collection<String> filenames = entry.getValue();
@@ -664,6 +684,10 @@ public class BuildFinder
             }
         }
 
+        /*
+         * For any checksum which was not already in the cache, get a list of KojiArchiveInfo by submitting a list of
+         * KojiArchiveQuery with a checksum value to find.
+         */
         int numThreads = config.getKojiNumThreads();
         ExecutorService pool = Executors.newFixedThreadPool(numThreads);
         int numChecksums = checksums.size();
@@ -730,6 +754,9 @@ public class BuildFinder
 
         session.enrichArchiveTypeInfo(archivesToEnrich);
 
+        /*
+         * For any KojiArchiveInfo create a protobuf wrapper and add it to the checksum cache.
+         */
         Iterator<KojiArchiveQuery> itqueries = allQueries.iterator();
 
         for (List<KojiArchiveInfo> archiveList : archives) {
@@ -756,6 +783,10 @@ public class BuildFinder
             }
         }
 
+        /*
+         * Create a list of buildIds associated with all the KojiArchiveInfo found (either already in the cache or just
+         * queried)
+         */
         Stream<Integer> archiveBuildIds = archives.stream().flatMap(List::stream).map(KojiArchiveInfo::getBuildId);
         Stream<Integer> cachedBuildIds = cachedArchiveInfos.stream()
                 .flatMap(List::stream)
@@ -766,6 +797,9 @@ public class BuildFinder
                 .collect(Collectors.toList());
         int buildIdsSize = buildIds.size();
 
+        /*
+         * For any buildId in the list, remove the ones already present in the cache
+         */
         if (cacheManager != null) {
             Iterator<Integer> it = buildIds.iterator();
 
@@ -797,6 +831,11 @@ public class BuildFinder
             }
         }
 
+        /*
+         * For any remaining buildId in the list (the ones not already in the cache): 1- find all the KojiBuildInfo by
+         * submitting a list of KojiArchiveQuery with a buildId. 2- find all the KojiTaskInfo associated with each
+         * build. 3- find all the KojiTagInfo associated with each build.
+         */
         if (!buildIds.isEmpty()) {
             List<KojiIdOrName> idsOrNames = buildIds.stream().map(KojiIdOrName::getFor).collect(Collectors.toList());
             Future<List<KojiBuildInfo>> futureArchiveBuilds = pool.submit(() -> session.getBuild(idsOrNames));
@@ -866,6 +905,9 @@ public class BuildFinder
             Iterator<List<KojiArchiveInfo>> itArchiveInfos = archiveInfos.iterator();
             Iterator<KojiTaskInfo> ittasks = taskInfos.iterator();
 
+            /*
+             * Link all the tags, archives, task found to the corresponding builds and add them to the cache
+             */
             while (itbuilds.hasNext()) {
                 KojiBuildInfo buildInfo = itbuilds.next();
                 KojiBuild build = new KojiBuild(buildInfo);
@@ -890,6 +932,9 @@ public class BuildFinder
                 }
             }
 
+            /*
+             * Find the optional scmSourceZip, projectSourceZip and patchesZip and them to each archive
+             */
             List<KojiArchiveInfo> archivesToUpdate = new ArrayList<>(3 * archiveBuilds.size());
 
             Collection<KojiBuild> values = allKojiBuilds.values();
@@ -922,6 +967,17 @@ public class BuildFinder
         Iterator<Entry<Checksum, Collection<String>>> itchecksums = checksums.iterator();
         Iterator<List<KojiArchiveInfo>> itarchives = archives.iterator();
 
+        /*
+         * For every checksum, if a KojiArchiveInfo is not found, add the checksum to the notFoundChecksums map
+         * (`markNotFound`). The `markNotFound` method will also add the not found checksum to the buildZero.
+         *
+         * Otherwise if one KojiArchiveInfo is found for that checksum (in case more than one is found, select a best
+         * match), add it to the "builds" map, and add the checksum to the foundChecksums (markFound). The `markFound`
+         * method will also remove the checksum from the notFoundChecksums map, remove the archives matching the
+         * checksum from the buildZero, and remove all the filenames associated with the checksum from the unmatched
+         * filenames.
+         *
+         */
         while (itchecksums.hasNext()) {
             Entry<Checksum, Collection<String>> entry = itchecksums.next();
             Checksum checksum = entry.getKey();
@@ -933,46 +989,17 @@ public class BuildFinder
                 LOGGER.debug("Got empty archive list for checksum: {}", green(checksum));
                 markNotFound(entry);
             } else {
+
+                KojiArchiveInfo archive;
+                Integer buildId;
+                String archiveFilenames;
+
                 if (size == 1) {
-                    KojiArchiveInfo archive = localArchiveInfos.get(0);
-                    Integer buildId = archive.getBuildId();
+                    archive = localArchiveInfos.get(0);
+                    buildId = archive.getBuildId();
+                    archiveFilenames = archive.getFilename();
 
                     LOGGER.debug("Singular build id {} found for checksum {}", green(buildId), green(checksum));
-
-                    KojiBuild build = builds.get(new BuildSystemInteger(buildId, BuildSystem.koji));
-
-                    if (build == null) {
-                        KojiBuild allBuild = allKojiBuilds.get(buildId);
-
-                        if (allBuild != null) {
-                            builds.put(
-                                    new BuildSystemInteger(allBuild.getBuildInfo().getId(), BuildSystem.koji),
-                                    allBuild);
-                            build = builds.get(new BuildSystemInteger(buildId, BuildSystem.koji));
-
-                            LOGGER.info(
-                                    "Found build in Koji: id: {} nvr: {} checksum: ({}) {} archive: {}",
-                                    green(build.getBuildInfo().getId()),
-                                    green(build.getBuildInfo().getNvr()),
-                                    green(checksum.getType()),
-                                    green(checksum.getValue()),
-                                    green(archive.getFilename()));
-
-                            markFound(entry);
-                        }
-                    }
-
-                    if (build != null) {
-                        // It's ok to not create a new build for the same local archive if it already exists, but we
-                        // need to mark the checksum as found anyway.
-                        markFound(entry);
-                        addArchiveToBuild(build, archive, filenames);
-                    } else {
-                        LOGGER.warn(
-                                "Null build when adding archive id {} and filenames {}",
-                                red(archive.getArchiveId()),
-                                red(filenames));
-                    }
                 } else {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(
@@ -990,33 +1017,30 @@ public class BuildFinder
                     Optional<KojiArchiveInfo> optionalArchive = localArchiveInfos.stream()
                             .filter(a -> a.getBuildId().equals(bestBuild.getBuildInfo().getId()))
                             .findFirst();
-                    KojiArchiveInfo archive;
 
                     if (optionalArchive.isPresent()) {
                         archive = optionalArchive.get();
+                        buildId = archive.getBuildId();
+                        archiveFilenames = localArchiveInfos.stream()
+                                .filter(a -> a.getBuildId().equals(buildId))
+                                .map(KojiArchiveInfo::getFilename)
+                                .collect(Collectors.joining(", "));
+
+                        LOGGER.debug(
+                                "Build id {} found for checksum {}",
+                                green(bestBuild.getBuildInfo().getId()),
+                                green(checksum));
                     } else {
                         continue;
                     }
+                }
 
-                    LOGGER.debug(
-                            "Build id {} found for checksum {}",
-                            green(bestBuild.getBuildInfo().getId()),
-                            green(checksum));
-
-                    int buildId = bestBuild.getBuildInfo().getId();
-                    KojiBuild build = builds.get(new BuildSystemInteger(buildId, BuildSystem.koji));
-
-                    if (build == null) {
-                        build = allKojiBuilds.get(buildId);
-
-                        builds.put(new BuildSystemInteger(build.getBuildInfo().getId(), BuildSystem.koji), build);
-
-                        int id = build.getBuildInfo().getId();
-
-                        String archiveFilenames = localArchiveInfos.stream()
-                                .filter(a -> a.getBuildId() == id)
-                                .map(KojiArchiveInfo::getFilename)
-                                .collect(Collectors.joining(", "));
+                BuildSystemInteger buildSystemBuildId = new BuildSystemInteger(buildId, BuildSystem.koji);
+                KojiBuild build = builds.get(buildSystemBuildId);
+                if (build == null) {
+                    build = allKojiBuilds.get(buildId);
+                    if (build != null) {
+                        builds.put(buildSystemBuildId, build);
 
                         LOGGER.info(
                                 "Found build in Koji: id: {} nvr: {} checksum: ({}) {} archive: {}",
@@ -1025,12 +1049,19 @@ public class BuildFinder
                                 green(checksum.getType()),
                                 green(checksum.getValue()),
                                 green(archiveFilenames));
-
                     }
-
+                }
+                if (build != null) {
+                    // It's ok to not create a new build for the same local archive if it already exists, but we
+                    // always need to mark the checksum as found. This handles the scenario where there is a file
+                    // present multiple times (with possible different filenames) inside the zip distribution.
                     markFound(entry);
-
                     addArchiveToBuild(build, archive, filenames);
+                } else {
+                    LOGGER.warn(
+                            "Null build when adding archive id {} and filenames {}",
+                            red(archive.getArchiveId()),
+                            red(filenames));
                 }
             }
 
@@ -1039,6 +1070,9 @@ public class BuildFinder
             }
         }
 
+        /*
+         * As a final step, cleanup the buildZero.
+         */
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
 
         // XXX: This was meant to be shared between Pnc and Koji, but it appears to add files which are already present
@@ -1060,7 +1094,7 @@ public class BuildFinder
 
             while (it2.hasNext()) {
                 String filename = it2.next();
-                Optional<String> optionalParentFilename = handleFileNotFound(filename);
+                Optional<String> optionalParentFilename = handleNotFoundFile(filename);
 
                 if (optionalParentFilename.isPresent() && optionalParentFilename.get().contains("!/")) {
                     LOGGER.debug("Removing {} since we found a parent elsewhere", filename);
@@ -1077,7 +1111,6 @@ public class BuildFinder
         }
 
         Utils.shutdownAndAwaitTermination(pool);
-        cleanupBuildZeroReProcessedArchives();
         buildsList = new ArrayList<>(builds.values());
 
         buildsList.sort(Comparator.comparingInt(build -> build.getBuildInfo().getId()));
@@ -1087,37 +1120,13 @@ public class BuildFinder
         return Collections.unmodifiableMap(builds);
     }
 
-    private void cleanupBuildZeroReProcessedArchives() {
-        // In case a local archive has been processed more than once (with different checksum types), it will appear
-        // more than once in the BuildZero not found archives. Here we are removing such duplicates (if any),
-        // retaining the md5 checkum type which should be always present.
-
-        KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
-        Collection<List<KojiLocalArchive>> groupedArchives = buildZero.getArchives()
-                .stream()
-                .collect(Collectors.groupingBy(KojiLocalArchive::getFilenames))
-                .values();
-
-        List<KojiLocalArchive> cleanedArchives = groupedArchives.stream().map(archives -> {
-            if (archives.size() <= 1) {
-                return archives; // No duplicates to remove
-            }
-            archives.removeIf(archive -> !archive.getArchive().getChecksumType().equals(KojiChecksumType.md5));
-            return archives;
-        }).flatMap(List::stream).collect(Collectors.toList());
-
-        buildZero.setArchives(cleanedArchives);
-    }
-
     private void markFound(Entry<Checksum, Collection<String>> entry) {
+        LOGGER.debug("Mark found checksum: {}", entry);
+
         foundChecksums.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         notFoundChecksums.remove(entry.getKey());
-        // A file could be not found with a checksum type, but later on found with a different checksum type, we need to
-        // now handle this new case.
-        entry.getValue().stream().forEach(filename -> handleFileFound(filename));
 
         KojiBuild buildZero = builds.get(new BuildSystemInteger(0, BuildSystem.none));
-
         buildZero.getArchives()
                 .removeIf(
                         localArchive -> localArchive.getChecksums()
@@ -1126,9 +1135,13 @@ public class BuildFinder
                                         cksum -> cksum.getType() == entry.getKey().getType()
                                                 && cksum.getValue().equals(entry.getKey().getValue())));
 
+        // The same checksum might be associated with multiple filenames (in case of files present multiple times inside
+        // the zip distribution).
+        entry.getValue().stream().forEach(filename -> handleFoundFile(filename));
     }
 
     private void markNotFound(Entry<Checksum, Collection<String>> entry) {
+        LOGGER.debug("Mark not found checksum: {}", entry);
         notFoundChecksums.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         addArchiveWithoutBuild(entry.getKey(), new ArrayList<>(entry.getValue()));
     }
@@ -1244,14 +1257,14 @@ public class BuildFinder
                 // The preferred checksumType for PNC is sha256, so replace the original map with a preferred map
                 LOGGER.info(
                         "Swapping the original MD5-based checksum map to a SHA256-based checksum map (whenever possible) for finding builds in PNC!");
-                Map<Checksum, Collection<String>> sha56BasedCheckumMap = buildFinderUtils
+                Map<Checksum, Collection<String>> sha256BasedCheckumMap = buildFinderUtils
                         .swapEntriesWithPreferredChecksum(map, analyzer.getFiles(), ChecksumType.sha256);
                 LOGGER.debug(
                         "Original MD5-based checksum map: {}, new SHA256-based checksum map: {}",
                         map,
-                        sha56BasedCheckumMap);
+                        sha256BasedCheckumMap);
                 try {
-                    pncBuildsNew = pncBuildFinder.findBuildsPnc(sha56BasedCheckumMap);
+                    pncBuildsNew = pncBuildFinder.findBuildsPnc(sha256BasedCheckumMap);
                 } catch (RemoteResourceException e) {
                     throw new KojiClientException("Pnc error", e);
                 }
