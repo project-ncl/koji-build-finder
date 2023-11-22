@@ -183,19 +183,31 @@ public final class BuildFinderUtils {
         addArchiveWithoutBuild(buildZero, checksum, filenames, null);
     }
 
+    /**
+     * Adds the checksum to the buildZero. If there is already a local archive associated with the checksum inside the
+     * buildZero, adds the filename to the filenames associated with that archive. Since the same checksum might have
+     * already been unfound (with a different checksum type), the archives are matched by any checksum associated with
+     * them, not just the same checksum type.
+     *
+     * @param buildZero the build which is associated with all the not found archives
+     * @param checksum the checksum which was not found
+     * @param filenames the filenames not found
+     * @param rpm the rpm associated with the checksum
+     */
     public void addArchiveWithoutBuild(
             KojiBuild buildZero,
             Checksum checksum,
             Collection<String> filenames,
             KojiRpmInfo rpm) {
+
         Optional<KojiLocalArchive> matchingArchive = buildZero.getArchives()
                 .stream()
                 .filter(
-                        localArchive -> localArchive.getArchive()
-                                .getChecksumType()
-                                .name()
-                                .equals(checksum.getType().name())
-                                && localArchive.getArchive().getChecksum().equals(checksum.getValue()))
+                        localArchive -> localArchive.getChecksums()
+                                .stream()
+                                .anyMatch(
+                                        cksum -> cksum.getType() == checksum.getType()
+                                                && cksum.getValue().equals(checksum.getValue())))
                 .findFirst();
 
         if (matchingArchive.isPresent()) {
@@ -387,15 +399,13 @@ public final class BuildFinderUtils {
             Checksum checksum = entry.getKey();
             Collection<String> files = entry.getValue();
 
-            String firstAlias = files != null ? files.stream().findFirst().orElse(null) : null;
-            if (checksum.getType().equals(preferredChecksumType) || firstAlias == null) {
-                // If the checksum type is already the preferred type or the file list is empty,
-                // there is no need to search further
+            if (checksum.getType().equals(preferredChecksumType)) {
+                // If the checksum type is already the preferred type there is no need to search further
                 preferredChecksumMap.put(checksum, files);
                 continue;
             }
 
-            Collection<Checksum> fileChecksums = fileInverseMap.get(firstAlias);
+            Collection<Checksum> fileChecksums = fileInverseMap.get(files.iterator().next());
             Optional<Checksum> preferredChecksum = Checksum.findByType(fileChecksums, preferredChecksumType);
 
             if (preferredChecksum.isPresent()) {
