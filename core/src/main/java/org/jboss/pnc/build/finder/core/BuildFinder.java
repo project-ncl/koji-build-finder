@@ -20,6 +20,8 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -251,7 +253,8 @@ public class BuildFinder
             Optional<String> rpmFilename = filenames.stream().filter(filename -> filename.endsWith(".rpm")).findFirst();
 
             if (rpmFilename.isPresent()) {
-                String name = rpmFilename.get();
+                // Let's make sure we have the filename only, removing the parent path (if any)
+                String name = rpmFilename.map(Paths::get).map(Path::getFileName).map(Path::toString).orElse("");
                 KojiNVRA nvra = KojiNVRA.parseNVRA(name);
                 KojiIdOrName idOrName = KojiIdOrName.getFor(
                         nvra.getName() + "-" + nvra.getVersion() + "-" + nvra.getRelease() + "." + nvra.getArch());
