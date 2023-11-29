@@ -62,13 +62,13 @@
   </scm>
 
   <properties>
-    <koji.hub.url />
-    <koji.web.url />
+    <koji.hub.url/>
+    <koji.web.url/>
     <mavenVersion>3.5.4</mavenVersion>
-    <pnc.url />
+    <pnc.url/>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
-    <version.ch.qos.logback>1.4.8</version.ch.qos.logback>
+    <version.ch.qos.logback>1.4.12</version.ch.qos.logback>
     <version.com.fasterxml.jackson>2.15.2</version.com.fasterxml.jackson>
     <version.com.ginsberg.junit5-system-exit>1.1.2</version.com.ginsberg.junit5-system-exit>
     <version.com.github.ekryd.sortpom>3.3.0</version.com.github.ekryd.sortpom>
@@ -1102,7 +1102,7 @@ limitations under the License.]]></inlineHeader>
                 <requireMavenVersion>
                   <version>${mavenVersion}</version>
                 </requireMavenVersion>
-                <requireSameVersions />
+                <requireSameVersions/>
               </rules>
             </configuration>
           </execution>
