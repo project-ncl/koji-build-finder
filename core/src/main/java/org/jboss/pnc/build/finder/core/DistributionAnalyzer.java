@@ -23,7 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -295,9 +300,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         String tmpDir = System.getProperty("java.io.tmpdir");
 
         if (tmpDir != null) {
-            File vfsCacheDir = new File(tmpDir, "vfs_cache");
-
-            Files.deleteIfExists(vfsCacheDir.toPath());
+            Path vfsCacheDir = Paths.get(tmpDir).resolve("vfs_cache");
+            Files.walkFileTree(vfsCacheDir, new RecursiveDeleter());
         }
     }
 
@@ -627,5 +631,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public void setListener(DistributionAnalyzerListener listener) {
         this.listener = listener;
+    }
+
+    private static final class RecursiveDeleter extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+        }
     }
 }
