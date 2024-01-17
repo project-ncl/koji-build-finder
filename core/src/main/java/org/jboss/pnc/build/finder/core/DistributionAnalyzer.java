@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
@@ -296,8 +297,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         if (tmpDir != null) {
             File vfsCacheDir = new File(tmpDir, "vfs_cache");
-
-            Files.deleteIfExists(vfsCacheDir.toPath());
+            FileUtils.deleteDirectory(vfsCacheDir);
         }
     }
 
