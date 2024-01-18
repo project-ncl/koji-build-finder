@@ -83,7 +83,7 @@
     <version.com.redhat.red.build.kojiji>2.19</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.16.0</version.commons-codec>
     <version.info.picocli>4.7.5</version.info.picocli>
-    <version.io.dropwizard.metrics>4.2.22</version.io.dropwizard.metrics>
+    <version.io.dropwizard.metrics>4.2.23</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.23.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.9.0</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>6.55.0</version.net.sourceforge.pmd>
