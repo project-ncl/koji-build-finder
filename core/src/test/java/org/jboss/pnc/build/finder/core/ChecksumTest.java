@@ -18,7 +18,6 @@ package org.jboss.pnc.build.finder.core;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -29,11 +28,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 class ChecksumTest {
     @Test
-    void testMissingFile(@TempDir File folder) throws IOException {
+    void testMissingFile(@TempDir File folder) {
         assertThatThrownBy(() -> {
-            FileObject fo = VFS.getManager().resolveFile(folder, "missing.zip");
-
-            try (FileContent fc = fo.getContent()) {
+            try (FileObject fo = VFS.getManager().resolveFile(folder, "missing.zip");
+                    FileContent fc = fo.getContent()) {
                 Checksum.determineFileSize(fc);
             }
         }).isExactlyInstanceOf(FileSystemException.class).hasMessageMatching(".*Does file.*exist.*");

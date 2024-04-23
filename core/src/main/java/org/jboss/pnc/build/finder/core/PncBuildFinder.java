@@ -306,7 +306,7 @@ public class PncBuildFinder {
             Optional<Artifact> optionalArtifact = artifact.getArtifact();
 
             // XXX: Can this ever happen?
-            if (!optionalArtifact.isPresent()) {
+            if (optionalArtifact.isEmpty()) {
                 LOGGER.warn("Enhanced artifact with checksum {} has missing artifact", artifact.getChecksum());
                 continue;
             }

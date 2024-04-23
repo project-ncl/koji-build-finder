@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,12 +42,11 @@ public abstract class Report {
             List<KojiBuild> buildList,
             File outputDirectory,
             List<String> files) throws IOException {
-        List<Report> reports = Collections.unmodifiableList(
-                Arrays.asList(
-                        new BuildStatisticsReport(outputDirectory, buildList),
-                        new ProductReport(outputDirectory, buildList),
-                        new NVRReport(outputDirectory, buildList),
-                        new GAVReport(outputDirectory, buildList)));
+        List<Report> reports = List.of(
+                new BuildStatisticsReport(outputDirectory, buildList),
+                new ProductReport(outputDirectory, buildList),
+                new NVRReport(outputDirectory, buildList),
+                new GAVReport(outputDirectory, buildList));
 
         for (Report report : reports) {
             report.outputText();
@@ -73,7 +70,7 @@ public abstract class Report {
     public void outputText() throws IOException {
         Optional<String> renderText = renderText();
 
-        if (!renderText.isPresent()) {
+        if (renderText.isEmpty()) {
             return;
         }
 
@@ -87,7 +84,7 @@ public abstract class Report {
     public void outputHTML() throws IOException {
         Optional<String> renderText = renderText();
 
-        if (!renderText.isPresent()) {
+        if (renderText.isEmpty()) {
             return;
         }
 

@@ -22,7 +22,6 @@ import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -44,7 +43,7 @@ class BuildConfigTest {
         Pattern fooPattern = Pattern.compile("foo");
         String fooPatternString = fooPattern.pattern();
         List<Pattern> excludes = Collections.singletonList(fooPattern);
-        List<String> baseExtension = Collections.unmodifiableList(Arrays.asList("foo", "bar", "baz"));
+        List<String> baseExtension = List.of("foo", "bar", "baz");
 
         BuildConfig base = new BuildConfig();
         base.setExcludes(excludes);
@@ -55,8 +54,8 @@ class BuildConfigTest {
         assertThat(base.getArchiveExtensions()).isEqualTo(baseExtension);
 
         // when
-        List<String> updatedExtensions = Collections.unmodifiableList(Arrays.asList("jar", "zip"));
-        List<String> types = Collections.unmodifiableList(Arrays.asList("good", "bad", "ugly"));
+        List<String> updatedExtensions = List.of("jar", "zip");
+        List<String> types = List.of("good", "bad", "ugly");
 
         BuildConfig copy = BuildConfig.copy(base);
         copy.setArchiveExtensions(updatedExtensions);
@@ -117,8 +116,10 @@ class BuildConfigTest {
         assertThat(bc.getChecksumOnly()).isTrue();
         assertThat(bc.getChecksumTypes()).containsExactly(ChecksumType.md5);
 
-        List<String> excludes = Collections
-                .unmodifiableList(bc.getExcludes().stream().map(Pattern::pattern).collect(Collectors.toList()));
+        List<String> excludes = bc.getExcludes()
+                .stream()
+                .map(Pattern::pattern)
+                .collect(Collectors.toUnmodifiableList());
 
         assertThat(excludes).containsExactly(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$").pattern());
     }

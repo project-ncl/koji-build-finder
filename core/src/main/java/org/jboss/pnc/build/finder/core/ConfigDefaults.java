@@ -17,7 +17,6 @@ package org.jboss.pnc.build.finder.core;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -27,26 +26,23 @@ import java.util.regex.Pattern;
 
 public abstract class ConfigDefaults {
     private static final String USER_HOME = Utils.getUserHome();
-    public static final List<String> ARCHIVE_TYPES = Collections
-            .unmodifiableList(Arrays.asList("jar", "xml", "pom", "so", "dll", "dylib"));
-    public static final List<String> ARCHIVE_EXTENSIONS = Collections.unmodifiableList(
-            Arrays.asList(
-                    "dll",
-                    "dylib",
-                    "ear",
-                    "jar",
-                    "jdocbook",
-                    "jdocbook-style",
-                    "kar",
-                    "plugin",
-                    "pom",
-                    "rar",
-                    "sar",
-                    "so",
-                    "war",
-                    "xml"));
-    public static final List<BuildSystem> BUILD_SYSTEMS = Collections
-            .unmodifiableList(Arrays.asList(BuildSystem.pnc, BuildSystem.koji));
+    public static final List<String> ARCHIVE_TYPES = List.of("jar", "xml", "pom", "so", "dll", "dylib");
+    public static final List<String> ARCHIVE_EXTENSIONS = List.of(
+            "dll",
+            "dylib",
+            "ear",
+            "jar",
+            "jdocbook",
+            "jdocbook-style",
+            "kar",
+            "plugin",
+            "pom",
+            "rar",
+            "sar",
+            "so",
+            "war",
+            "xml");
+    public static final List<BuildSystem> BUILD_SYSTEMS = List.of(BuildSystem.pnc, BuildSystem.koji);
     public static final Long CACHE_LIFESPAN = TimeUnit.HOURS.toMillis(1L);
     public static final Long CACHE_MAX_IDLE = TimeUnit.HOURS.toMillis(1L);
     public static final Boolean CHECKSUM_ONLY = Boolean.FALSE;

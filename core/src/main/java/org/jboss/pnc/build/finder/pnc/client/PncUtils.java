@@ -181,7 +181,7 @@ public final class PncUtils {
                 .filter((art) -> art.getArtifact().isPresent())
                 .map(art -> art.getArtifact().get())
                 .min(Comparator.comparing(ArtifactRef::getId));
-        if (!optionalArtifact.isPresent()) {
+        if (optionalArtifact.isEmpty()) {
             // SHOULD NEVER HAPPEN
             return new String[0];
         }
