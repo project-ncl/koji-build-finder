@@ -232,15 +232,17 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     }
 
                     if (!checksumTypesToCheck.isEmpty()) {
-                        LOGGER.info(
-                                "Finding checksums: {} for file: {}",
-                                green(
-                                        String.join(
-                                                ", ",
-                                                checksumTypesToCheck.stream()
-                                                        .map(String::valueOf)
-                                                        .collect(Collectors.toSet()))),
-                                green(fo.getName()));
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info(
+                                    "Finding checksums: {} for file: {}",
+                                    green(
+                                            String.join(
+                                                    ", ",
+                                                    checksumTypesToCheck.stream()
+                                                            .map(String::valueOf)
+                                                            .collect(Collectors.toSet()))),
+                                    green(fo.getName()));
+                        }
 
                         listChildren(fo);
 
@@ -317,7 +319,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             LOGGER.info(
                     "Initialized file system manager {} with schemes: {}",
                     green(sfs.getClass().getSimpleName()),
-                    green(Collections.unmodifiableList(Arrays.asList(sfs.getSchemes()))));
+                    green(String.join(", ", sfs.getSchemes())));
         }
 
         return sfs;

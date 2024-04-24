@@ -315,13 +315,15 @@ public class PncBuildFinder {
             PncUtils.fixNullVersion(kojibuild, kojiArchive);
             buildFinderUtils.addArchiveToBuild(kojibuild, kojiArchive, artifact.getFilenames());
 
-            LOGGER.info(
-                    "Found build in Pnc: id: {} nvr: {} checksum: ({}) {} archive: {}",
-                    green(pncBuild.getBuild().getId()),
-                    green(PncUtils.getNVRFromBuildRecord(pncBuild)),
-                    green(artifact.getChecksum().getType()),
-                    green(artifact.getChecksum().getValue()),
-                    green(artifact.getFilenames()));
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(
+                        "Found build in Pnc: id: {} nvr: {} checksum: ({}) {} filenames: {}",
+                        green(pncBuild.getBuild().getId()),
+                        green(PncUtils.getNVRFromBuildRecord(pncBuild)),
+                        green(artifact.getChecksum().getType()),
+                        green(artifact.getChecksum().getValue()),
+                        green(String.join(", ", artifact.getFilenames())));
+            }
         }
 
         return kojibuild;

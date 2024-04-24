@@ -112,12 +112,16 @@ public final class BuildFinderUtils {
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
         if (checksum.getValue().equals(emptyDigests.get(checksum.getType()))) {
-            LOGGER.warn("Skipped empty digest for files: {}", red(filenames));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Skipped empty digest for files: {}", red(String.join(", ", filenames)));
+            }
             return true;
         }
 
         if (checksum.getValue().equals(emptyZipDigests.get(checksum.getType()))) {
-            LOGGER.warn("Skipped empty zip digest for files: {}", red(filenames));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Skipped empty zip digest for files: {}", red(String.join(", ", filenames)));
+            }
             return true;
         }
 
@@ -351,11 +355,23 @@ public final class BuildFinderUtils {
         LOGGER.debug("Archive types: {}", green(archiveTypes));
 
         if (!archiveTypes.isEmpty()) {
-            LOGGER.debug("There are {} supplied Koji archive types: {}", archiveTypes.size(), archiveTypes);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "There are {} supplied Koji archive types: {}",
+                        archiveTypes.size(),
+                        String.join(", ", archiveTypes));
+            }
+
             archiveTypesToCheck = archiveTypes.stream()
                     .filter(allArchiveTypesMap::containsKey)
                     .collect(Collectors.toList());
-            LOGGER.debug("There are {} valid supplied Koji archive types: {}", archiveTypes.size(), archiveTypes);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "There are {} valid supplied Koji archive types: {}",
+                        archiveTypes.size(),
+                        String.join(", ", archiveTypes));
+            }
         } else {
             LOGGER.debug("There are {} known Koji archive types: {}", allArchiveTypes.size(), allArchiveTypes);
             LOGGER.warn("Supplied archive types list is empty; defaulting to all known archive types");
@@ -373,14 +389,29 @@ public final class BuildFinderUtils {
         List<String> extensionsToCheck;
 
         if (!extensions.isEmpty()) {
-            LOGGER.debug("There are {} supplied Koji archive extensions: {}", extensions.size(), extensions);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "There are {} supplied Koji archive extensions: {}",
+                        extensions.size(),
+                        String.join(", ", extensions));
+            }
+
             extensionsToCheck = extensions.stream().filter(allArchiveExtensions::contains).collect(Collectors.toList());
-            LOGGER.debug("There are {} valid supplied Koji archive extensions: {}", extensions.size(), extensions);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "There are {} valid supplied Koji archive extensions: {}",
+                        extensions.size(),
+                        String.join(", ", extensions));
+            }
         } else {
-            LOGGER.debug(
-                    "There are {} known Koji archive extensions: {}",
-                    allArchiveExtensions.size(),
-                    allArchiveExtensions.size());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "There are {} known Koji archive extensions: {}",
+                        allArchiveExtensions.size(),
+                        String.join(", ", allArchiveExtensions));
+            }
+
             LOGGER.warn("Supplied archive extensions list is empty; defaulting to all known archive extensions");
             extensionsToCheck = allArchiveExtensions;
         }

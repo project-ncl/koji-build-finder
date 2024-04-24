@@ -70,20 +70,22 @@ public class BuildStatistics {
                 if (!isImport && !archive.isBuiltFromSource()) {
                     int unmatchedFilenamesCount = archive.getUnmatchedFilenames().size();
 
-                    numberOfImportedArchives += (long) unmatchedFilenamesCount;
+                    numberOfImportedArchives += unmatchedFilenamesCount;
 
-                    LOGGER.warn(
-                            "Built archive {} with {} unmatched files: {}",
-                            red(archive.getArchive().getFilename()),
-                            red(unmatchedFilenamesCount),
-                            red(archive.getUnmatchedFilenames()));
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn(
+                                "Built archive {} with {} unmatched files: {}",
+                                red(archive.getArchive().getFilename()),
+                                red(unmatchedFilenamesCount),
+                                red(String.join(", ", archive.getUnmatchedFilenames())));
+                    }
                 }
             }
 
-            numberOfArchives += (long) archiveCount;
+            numberOfArchives += archiveCount;
 
             if (isImport) {
-                numberOfImportedArchives += (long) archiveCount;
+                numberOfImportedArchives += archiveCount;
 
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn(
@@ -93,7 +95,7 @@ public class BuildStatistics {
                             red(
                                     archives.stream()
                                             .flatMap(a -> a.getFilenames().stream())
-                                            .collect(Collectors.toList())));
+                                            .collect(Collectors.joining(", "))));
                 }
             }
         }

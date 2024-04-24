@@ -757,11 +757,12 @@ public final class Main implements Callable<Void> {
                     try {
                         checksums = futureChecksum.get();
                     } catch (ExecutionException e) {
-                        LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()), e);
+                        LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()));
                         LOGGER.debug("Error", e);
                         System.exit(1);
                     } catch (InterruptedException e) {
-                        LOGGER.warn("Thread interrupted while getting checksums", e);
+                        LOGGER.warn("Thread interrupted while getting checksums");
+                        LOGGER.debug("Error", e);
                         Thread.currentThread().interrupt();
                     }
 

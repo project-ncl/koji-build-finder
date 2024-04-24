@@ -248,7 +248,9 @@ public class BuildFinder
         for (Entry<Checksum, Collection<String>> rpmEntry : rpmEntries) {
             Collection<String> filenames = rpmEntry.getValue();
 
-            LOGGER.info("RPM entry has filenames: {}", filenames);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("RPM entry has filenames: {}", green(String.join(", ", filenames)));
+            }
 
             Optional<String> rpmFilename = filenames.stream().filter(filename -> filename.endsWith(".rpm")).findFirst();
 
@@ -315,7 +317,9 @@ public class BuildFinder
             Checksum checksum = entry.getKey();
             Collection<String> filenames = entry.getValue();
 
-            LOGGER.debug("After processing, RPM entry has filenames: {}", green(filenames));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("After processing, RPM entry has filenames: {}", String.join(", ", filenames));
+            }
 
             KojiRpmInfo rpm = itrpm.next();
 
@@ -326,7 +330,7 @@ public class BuildFinder
                     green(rpm));
 
             if (rpm == null) {
-                LOGGER.debug("Got null RPM for checksum: {}, filenames: {}", green(checksum), green(filenames));
+                LOGGER.debug("Got null RPM for checksum: {}, filenames: {}", checksum, String.join(", ", filenames));
                 markNotFound(entry);
                 continue;
             } else if (rpm.getBuildId() == null) {
@@ -373,17 +377,19 @@ public class BuildFinder
 
             addRpmToBuild(build, rpm, filenames);
 
-            LOGGER.info(
-                    "Found build in Koji: id: {} nvr: {} checksum: ({}) {} filenames: {} archive: {}-{}-{}.{}.rpm",
-                    green(build.getBuildInfo().getId()),
-                    green(build.getBuildInfo().getNvr()),
-                    green(checksum.getType()),
-                    green(checksum.getValue()),
-                    green(filenames),
-                    green(rpm.getName()),
-                    green(rpm.getVersion()),
-                    green(rpm.getRelease()),
-                    green(rpm.getArch()));
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(
+                        "Found build in Koji: id: {} nvr: {} checksum: ({}) {} filenames: {} RPM: {}-{}-{}.{}.rpm",
+                        green(build.getBuildInfo().getId()),
+                        green(build.getBuildInfo().getNvr()),
+                        green(checksum.getType()),
+                        green(checksum.getValue()),
+                        green(String.join(", ", filenames)),
+                        green(rpm.getName()),
+                        green(rpm.getVersion()),
+                        green(rpm.getRelease()),
+                        green(rpm.getArch()));
+            }
 
             markFound(entry);
 
@@ -1045,13 +1051,15 @@ public class BuildFinder
                     if (build != null) {
                         builds.put(buildSystemBuildId, build);
 
-                        LOGGER.info(
-                                "Found build in Koji: id: {} nvr: {} checksum: ({}) {} archive: {}",
-                                green(build.getBuildInfo().getId()),
-                                green(build.getBuildInfo().getNvr()),
-                                green(checksum.getType()),
-                                green(checksum.getValue()),
-                                green(archiveFilenames));
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info(
+                                    "Found build in Koji: id: {} nvr: {} checksum: ({}) {} filenames: {}",
+                                    green(build.getBuildInfo().getId()),
+                                    green(build.getBuildInfo().getNvr()),
+                                    green(checksum.getType()),
+                                    green(checksum.getValue()),
+                                    green(String.join(", ", archiveFilenames)));
+                        }
                     }
                 }
                 if (build != null) {
@@ -1083,7 +1091,12 @@ public class BuildFinder
 
         List<KojiLocalArchive> localArchives = buildZero.getArchives();
 
-        LOGGER.debug("Find parents for {} archives: {}", localArchives.size(), localArchives);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "Find parents for {} archives: {}",
+                    localArchives.size(),
+                    localArchives.stream().map(KojiLocalArchive::toString).collect(Collectors.joining(", ")));
+        }
 
         Iterator<KojiLocalArchive> it = localArchives.iterator();
 
@@ -1276,7 +1289,8 @@ public class BuildFinder
 
                 if (!pncBuildsNew.getNotFoundChecksums().isEmpty()) {
                     LOGGER.debug(
-                            "Need to search in Brew!! Not found checksumns: " + pncBuildsNew.getNotFoundChecksums());
+                            "Need to search in Brew!! Not found checksums: {}",
+                            pncBuildsNew.getNotFoundChecksums());
                     LOGGER.info(
                             "Swapping back the SHA256-based checksum map to a MD5-based checksum map for finding builds in Brew!");
 
