@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
 import java.util.Collection;
@@ -80,7 +81,7 @@ class RpmIT extends AbstractRpmIT {
                         new RpmCondition("16b9266485a71b7dd230d14a3986f170", "basesystem-11-7.fc30.noarch.rpm"));
         assertThat(buildsFound).extracting("archives")
                 .singleElement()
-                .asList()
+                .asInstanceOf(LIST)
                 .extracting("rpm.name")
                 .singleElement(as(STRING))
                 .isEqualTo("basesystem");
