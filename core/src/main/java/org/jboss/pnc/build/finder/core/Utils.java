@@ -123,7 +123,7 @@ public final class Utils {
                 number = 1.0D;
                 unit = units.charAt(z + 1);
             } else {
-                number = (double) (i + 1);
+                number = i + 1;
             }
         }
 

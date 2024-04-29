@@ -17,10 +17,12 @@ package org.jboss.pnc.build.finder.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,13 +50,20 @@ public final class JSONUtils {
     }
 
     public static Map<String, Collection<LocalFile>> loadChecksumsFile(File file) throws IOException {
-        TypeReference<Map<String, Collection<LocalFile>>> typeReference = new MapTypeReference();
+        TypeReference<Map<String, Collection<LocalFile>>> typeReference = new ChecksumsMapTypeReference();
         return MAPPER.readValue(file, typeReference);
     }
 
-    private static class MapTypeReference extends TypeReference<Map<String, Collection<LocalFile>>> {
-        MapTypeReference() {
+    public static Map<String, List<String>> loadLicenseMappingUrls(InputStream in) throws IOException {
+        TypeReference<Map<String, List<String>>> typeReference = new LicensesMapTypeReference();
+        return MAPPER.readValue(in, typeReference);
+    }
 
-        }
+    private static final class LicensesMapTypeReference extends TypeReference<Map<String, List<String>>> {
+
+    }
+
+    private static final class ChecksumsMapTypeReference extends TypeReference<Map<String, Collection<LocalFile>>> {
+
     }
 }

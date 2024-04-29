@@ -44,23 +44,7 @@ class SkipImportTest {
 
     @Test
     void testMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
-        Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
-                "2e7e85f0ee97afde716231a6c792492a",
-                "commons-lang-2.6-redhat-2.jar",
-                287477L);
-        Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
-                "3b6a309e0dd4f488fd0cce429b44d067",
-                "commons-lang-2.6-redhat-2.pom",
-                17931L);
-        List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
-        List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum1, filenames1);
-        checksumTable.put(checksum2, filenames2);
-
+        Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
         BuildConfig config = new BuildConfig();
 
         config.setKojiHubURL(new URL(server.baseUrl()));
@@ -78,5 +62,25 @@ class SkipImportTest {
                             build -> assertThat(build.getId()).isEqualTo("228994"));
             assertThat(builds).doesNotContainKey(new BuildSystemInteger(251444, BuildSystem.koji));
         }
+    }
+
+    private static Map<Checksum, Collection<String>> getChecksumTable() {
+        Checksum checksum1 = new Checksum(
+                ChecksumType.md5,
+                "2e7e85f0ee97afde716231a6c792492a",
+                "commons-lang-2.6-redhat-2.jar",
+                287477L);
+        Checksum checksum2 = new Checksum(
+                ChecksumType.md5,
+                "3b6a309e0dd4f488fd0cce429b44d067",
+                "commons-lang-2.6-redhat-2.pom",
+                17931L);
+        List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
+        List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
+
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
+        return checksumTable;
     }
 }

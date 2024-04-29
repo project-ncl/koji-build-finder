@@ -96,7 +96,7 @@ public final class BuildFinderUtils {
 
     }
 
-    private byte[] emptyZipBytes() {
+    private static byte[] emptyZipBytes() {
         byte[] toReturn = new byte[0];
         try (ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream()) {
             try (ZipOutputStream zos = new ZipOutputStream(byteOutputStream)) {
@@ -318,9 +318,12 @@ public final class BuildFinderUtils {
                 }
 
                 Collection<Checksum> fileChecksums = distributionAnalyzer.getFiles().get(filename);
-                Optional<Checksum> checksum = Checksum.findByType(fileChecksums, ChecksumType.md5);
-                checksum.ifPresent(
-                        cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(filename)));
+
+                if (fileChecksums != null) {
+                    Optional<Checksum> checksum = Checksum.findByType(fileChecksums, ChecksumType.md5);
+                    checksum.ifPresent(
+                            cksum -> addArchiveWithoutBuild(buildZero, cksum, Collections.singletonList(filename)));
+                }
             }
         }
     }
@@ -419,7 +422,7 @@ public final class BuildFinderUtils {
         return Collections.unmodifiableList(extensionsToCheck);
     }
 
-    public Map<Checksum, Collection<String>> swapEntriesWithPreferredChecksum(
+    public static Map<Checksum, Collection<String>> swapEntriesWithPreferredChecksum(
             Map<Checksum, Collection<String>> originalMap,
             Map<String, Collection<Checksum>> fileInverseMap,
             ChecksumType preferredChecksumType) {

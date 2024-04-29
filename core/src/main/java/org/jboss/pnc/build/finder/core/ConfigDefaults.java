@@ -54,8 +54,7 @@ public abstract class ConfigDefaults {
     public static final Boolean DISABLE_CACHE = Boolean.FALSE;
     public static final String CACHE_LOCATION = CONFIG_PATH + File.separator + "cache";
     public static final Boolean DISABLE_RECURSION = Boolean.FALSE;
-    public static final List<Pattern> EXCLUDES = Collections
-            .singletonList(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$"));
+    public static final List<Pattern> EXCLUDES = List.of(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$"));
     public static final URL KOJI_HUB_URL = null;
     public static final Integer KOJI_MULTICALL_SIZE = 8;
     public static final Integer KOJI_NUM_THREADS = 12;

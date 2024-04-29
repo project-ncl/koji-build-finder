@@ -44,23 +44,7 @@ class CompletedBuildTest {
 
     @Test
     void testCompletedBuilds() throws KojiClientException, MalformedURLException {
-        Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
-                "46148535be98c75c900837ecea491c71",
-                "hibernate-validator-6.0.10.Final-redhat-1.pom",
-                19544L);
-        Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
-                "c723630b4a215ffa05106e5c8555871c",
-                "hibernate-validator-cdi-6.0.10.Final-redhat-1.pom",
-                8591L);
-        Collection<String> filenames1 = Collections.singletonList("hibernate-validator-6.0.10.Final-redhat-1.pom");
-        Collection<String> filenames2 = Collections.singletonList("hibernate-validator-cdi-6.0.10.Final-redhat-1.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum1, filenames1);
-        checksumTable.put(checksum2, filenames2);
-
+        Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
         BuildConfig config = new BuildConfig();
 
         config.setKojiHubURL(new URL(server.baseUrl()));
@@ -77,5 +61,25 @@ class CompletedBuildTest {
                     new BuildSystemInteger(700821, BuildSystem.koji),
                     build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.COMPLETE));
         }
+    }
+
+    private static Map<Checksum, Collection<String>> getChecksumTable() {
+        Checksum checksum1 = new Checksum(
+                ChecksumType.md5,
+                "46148535be98c75c900837ecea491c71",
+                "hibernate-validator-6.0.10.Final-redhat-1.pom",
+                19544L);
+        Checksum checksum2 = new Checksum(
+                ChecksumType.md5,
+                "c723630b4a215ffa05106e5c8555871c",
+                "hibernate-validator-cdi-6.0.10.Final-redhat-1.pom",
+                8591L);
+        Collection<String> filenames1 = Collections.singletonList("hibernate-validator-6.0.10.Final-redhat-1.pom");
+        Collection<String> filenames2 = Collections.singletonList("hibernate-validator-cdi-6.0.10.Final-redhat-1.pom");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
+
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
+        return checksumTable;
     }
 }

@@ -25,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.jboss.pnc.build.finder.core.MavenLicense;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
@@ -46,6 +50,8 @@ public class KojiBuild {
 
     private KojiTaskInfo taskInfo;
 
+    private Set<MavenLicense> licenses;
+
     private transient KojiTaskRequest taskRequest;
 
     private transient List<KojiLocalArchive> archives;
@@ -63,12 +69,14 @@ public class KojiBuild {
     public KojiBuild() {
         archives = new ArrayList<>();
         duplicateArchives = new ArrayList<>();
+        licenses = new TreeSet<>();
     }
 
     public KojiBuild(KojiBuildInfo buildInfo) {
         this.buildInfo = buildInfo;
         archives = new ArrayList<>();
         duplicateArchives = new ArrayList<>();
+        licenses = new TreeSet<>();
     }
 
     public KojiBuild(
@@ -88,6 +96,7 @@ public class KojiBuild {
         this.tags = tags;
         this.types = types;
         this.remoteRpms = remoteRpms;
+        licenses = new TreeSet<>();
     }
 
     @JsonIgnore
@@ -178,6 +187,14 @@ public class KojiBuild {
 
     public void setDuplicateArchives(List<KojiArchiveInfo> duplicateArchives) {
         this.duplicateArchives = duplicateArchives;
+    }
+
+    public Set<MavenLicense> getLicenses() {
+        return licenses;
+    }
+
+    public void setLicenses(Set<MavenLicense> licenses) {
+        this.licenses = licenses;
     }
 
     @JsonIgnore
@@ -295,6 +312,6 @@ public class KojiBuild {
     public String toString() {
         return "KojiBuild [buildInfo=" + buildInfo + ", taskInfo=" + taskInfo + ", taskRequest=" + taskRequest
                 + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags + ", remoteRpms="
-                + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
+                + remoteRpms + ", duplicateArchives=" + duplicateArchives + ", licenses=" + licenses + "]";
     }
 }

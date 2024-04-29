@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * Protostream adapter to be able to properly marshall/unmarshall {@link org.jboss.pnc.build.finder.koji.KojiBuild}.
- *
+ * <p/>
  * This class uses several classes defined in Kojiji and can't be easily modified to add Proto annotations. Instead, the
  * marshalling process involves converting KojiBuild object into JSON and stored in Protobuf as a string. The
  * unmarshalling process involves reading the JSON string from Protobuf and converting it back to a KojiBuild object.

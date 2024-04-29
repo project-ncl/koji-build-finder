@@ -44,23 +44,7 @@ class DeletedAndCompletedBuildTest {
 
     @Test
     void testDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
-        Checksum checksum1 = new Checksum(
-                ChecksumType.md5,
-                "59ef4fa1ef35fc0fc074dbfab196c0cd",
-                "wildfly-core-security-7.5.9.Final-redhat-2.jar",
-                22827L);
-        Checksum checksum2 = new Checksum(
-                ChecksumType.md5,
-                "36f95ca365830463f581d576eb2f1f84",
-                "wildfly-core-security-7.5.9.Final-redhat-2.pom",
-                3105L);
-        Collection<String> filenames1 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
-        Collection<String> filenames2 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum1, filenames1);
-        checksumTable.put(checksum2, filenames2);
-
+        Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
         BuildConfig config = new BuildConfig();
 
         config.setKojiHubURL(new URL(server.baseUrl()));
@@ -77,5 +61,25 @@ class DeletedAndCompletedBuildTest {
                     new BuildSystemInteger(500366, BuildSystem.koji),
                     build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.COMPLETE));
         }
+    }
+
+    private static Map<Checksum, Collection<String>> getChecksumTable() {
+        Checksum checksum1 = new Checksum(
+                ChecksumType.md5,
+                "59ef4fa1ef35fc0fc074dbfab196c0cd",
+                "wildfly-core-security-7.5.9.Final-redhat-2.jar",
+                22827L);
+        Checksum checksum2 = new Checksum(
+                ChecksumType.md5,
+                "36f95ca365830463f581d576eb2f1f84",
+                "wildfly-core-security-7.5.9.Final-redhat-2.pom",
+                3105L);
+        Collection<String> filenames1 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
+        Collection<String> filenames2 = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.pom");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
+
+        checksumTable.put(checksum1, filenames1);
+        checksumTable.put(checksum2, filenames2);
+        return checksumTable;
     }
 }
