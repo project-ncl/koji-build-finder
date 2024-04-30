@@ -24,6 +24,7 @@ import static org.spdx.library.DefaultModelStore.getDefaultModelStore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,18 +51,37 @@ import org.spdx.library.model.license.SpdxListedLicense;
 public final class LicenseUtils {
     public static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
 
-    private static final Map<String, SpdxListedLicense> LICENSE_ID_MAP = getLicenseIdMap();
+    private static final int EXPECTED_NUM_SPDX_LICENSES = 1000;
 
-    private static final Map<String, SpdxListedLicense> LICENSE_NAME_MAP = getLicenseNameMap();
+    private static Map<String, SpdxListedLicense> LICENSE_ID_MAP;
 
-    private static final List<SpdxListedLicense> LICENSES = List.copyOf(LICENSE_ID_MAP.values());
+    private static Map<String, SpdxListedLicense> LICENSE_NAME_MAP;
 
-    private static final List<String> LICENSE_IDS = LICENSES.stream()
+    static {
+        LICENSE_ID_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
+        LICENSE_NAME_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
+        List<String> spdxListedLicenseIds = LicenseInfoFactory.getSpdxListedLicenseIds();
+
+        for (String id : spdxListedLicenseIds) {
+            try {
+                SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
+                LICENSE_ID_MAP.put(spdxListedLicense.getLicenseId(), spdxListedLicense);
+                LICENSE_NAME_MAP.put(spdxListedLicense.getName(), spdxListedLicense);
+            } catch (InvalidSPDXAnalysisException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        LICENSE_ID_MAP = Collections.unmodifiableMap(LICENSE_ID_MAP);
+        LICENSE_NAME_MAP = Collections.unmodifiableMap(LICENSE_NAME_MAP);
+    }
+
+    private static final List<String> LICENSE_IDS = LICENSE_ID_MAP.values().stream()
             .map(SpdxListedLicense::getLicenseId)
             .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
             .collect(Collectors.toUnmodifiableList());
 
-    private static final List<String> LICENSE_NAMES = LICENSES.stream()
+    private static final List<String> LICENSE_NAMES = LICENSE_ID_MAP.values().stream()
             .map(LicenseUtils::findLicenseName)
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -74,8 +94,6 @@ public final class LicenseUtils {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
-    private static final int EXPECTED_NUM_SPDX_LICENSES = 1000;
-
     private static final String[] EXTENSIONS_TO_REMOVE = { ".html", ".php", ".txt" };
 
     private static final Pattern NAME_VERSION_PATTERN = Pattern
@@ -83,38 +101,6 @@ public final class LicenseUtils {
 
     private LicenseUtils() {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
-    }
-
-    private static Map<String, SpdxListedLicense> getLicenseIdMap() {
-        Map<String, SpdxListedLicense> map = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
-        List<String> spdxListedLicenseIds = LicenseInfoFactory.getSpdxListedLicenseIds();
-
-        for (String id : spdxListedLicenseIds) {
-            try {
-                SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
-                map.put(spdxListedLicense.getLicenseId(), spdxListedLicense);
-            } catch (InvalidSPDXAnalysisException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return Collections.unmodifiableMap(map);
-    }
-
-    private static Map<String, SpdxListedLicense> getLicenseNameMap() {
-        Map<String, SpdxListedLicense> map = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
-        List<String> spdxListedLicenseIds = LicenseInfoFactory.getSpdxListedLicenseIds();
-
-        for (String id : spdxListedLicenseIds) {
-            try {
-                SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
-                map.put(spdxListedLicense.getName(), spdxListedLicense);
-            } catch (InvalidSPDXAnalysisException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return Collections.unmodifiableMap(map);
     }
 
     /**
@@ -176,9 +162,9 @@ public final class LicenseUtils {
      * license URL. A URL is detected automatically by looking for <code>:/</code> in the license string. If a URL is
      * detected, the URLs are then normalized. The normalization is a follows:
      * <ol>
-     * <li>Call URI::normalize</li>
+     * <li>Call <code>URI::normalize</code></li>
      * <li>Remove www. from the host</li>
-     * <li>Replace creativecommins with cc in the host (since CC is used for the SPDX short license ids)</li>
+     * <li>Replace creativecommins with cc in the host (since CC is used for the SPDX short license identifiers)</li>
      * <li>Remove any trailing slash</li>
      * </ol>
      *
@@ -233,7 +219,7 @@ public final class LicenseUtils {
     }
 
     public static int getNumberOfSpdxLicenses() {
-        return LICENSES.size();
+        return LICENSE_ID_MAP.size();
     }
 
     /**
@@ -332,7 +318,9 @@ public final class LicenseUtils {
             return Optional.empty();
         }
 
-        for (SpdxListedLicense license : LICENSES) {
+        Collection<SpdxListedLicense> values = LICENSE_ID_MAP.values();
+
+        for (SpdxListedLicense license : values) {
             try {
                 List<String> seeAlso = license.getSeeAlso()
                         .stream()
