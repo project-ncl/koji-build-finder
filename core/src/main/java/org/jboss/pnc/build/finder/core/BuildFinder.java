@@ -1430,7 +1430,7 @@ public class BuildFinder
             Map<String, Set<MavenLicense>> licensesMap,
             Map<BuildSystemInteger, KojiBuild> allBuilds) {
         Set<Entry<String, Set<MavenLicense>>> entries = licensesMap.entrySet();
-        Set<MavenLicense> allLicenses = new HashSet<>(entries.size() * 2);
+        Set<MavenLicense> allLicenses = new TreeSet<>();
 
         for (Entry<String, Set<MavenLicense>> licenseEntry : entries) {
             String coords = licenseEntry.getKey();
@@ -1466,11 +1466,10 @@ public class BuildFinder
                         boldRed(coords),
                         boldRed(matchingBuilds));
             } else if (!matchingBuilds.isEmpty()) {
-                KojiBuild kojiBuild = matchingBuilds.get(0);
                 Set<MavenLicense> mavenLicenses = licenseEntry.getValue();
-                Set<MavenLicense> licenses = new TreeSet<>(mavenLicenses);
-                kojiBuild.setLicenses(licenses);
-                allLicenses.addAll(licenses);
+                KojiBuild kojiBuild = matchingBuilds.get(0);
+                kojiBuild.getLicenses().addAll(mavenLicenses);
+                allLicenses.addAll(mavenLicenses);
             }
         }
 
