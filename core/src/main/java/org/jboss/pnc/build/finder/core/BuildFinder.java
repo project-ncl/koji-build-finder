@@ -1460,11 +1460,18 @@ public class BuildFinder
                     .collect(Collectors.toList());
 
             if (matchingBuilds.size() > 1) {
-                LOGGER.error(
-                        "More than one ({}) build found for Maven GAV {} when matching licenses: {}",
-                        boldRed(matchingBuilds.size()),
-                        boldRed(coords),
-                        boldRed(matchingBuilds));
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error(
+                            "More than one ({}) build found for Maven GAV {} when matching licenses: {}",
+                            boldRed(matchingBuilds.size()),
+                            boldRed(coords),
+                            boldRed(
+                                    matchingBuilds.stream()
+                                            .map(KojiBuild::getBuildInfo)
+                                            .map(KojiBuildInfo::getNvr)
+                                            .sorted()
+                                            .collect(Collectors.joining(", "))));
+                }
             } else if (!matchingBuilds.isEmpty()) {
                 Set<MavenLicense> mavenLicenses = licenseEntry.getValue();
                 KojiBuild kojiBuild = matchingBuilds.get(0);

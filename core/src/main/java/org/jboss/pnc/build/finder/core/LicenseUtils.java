@@ -76,12 +76,14 @@ public final class LicenseUtils {
         LICENSE_NAME_MAP = Collections.unmodifiableMap(LICENSE_NAME_MAP);
     }
 
-    private static final List<String> LICENSE_IDS = LICENSE_ID_MAP.values().stream()
+    private static final List<String> LICENSE_IDS = LICENSE_ID_MAP.values()
+            .stream()
             .map(SpdxListedLicense::getLicenseId)
             .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
             .collect(Collectors.toUnmodifiableList());
 
-    private static final List<String> LICENSE_NAMES = LICENSE_ID_MAP.values().stream()
+    private static final List<String> LICENSE_NAMES = LICENSE_ID_MAP.values()
+            .stream()
             .map(LicenseUtils::findLicenseName)
             .filter(Optional::isPresent)
             .map(Optional::get)
