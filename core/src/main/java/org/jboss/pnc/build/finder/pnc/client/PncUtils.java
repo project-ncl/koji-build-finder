@@ -100,7 +100,7 @@ public final class PncUtils {
     }
 
     private static String getBrewName(PncBuild build) {
-        String buildBrewName = MapUtils.getString(build.getBuild().getAttributes(), BUILD_BREW_NAME);
+        String buildBrewName = MapUtils.getObject(build.getBuild().getAttributes(), BUILD_BREW_NAME);
         if (buildBrewName == null) {
             return getBrewNameFromArtifacts(build);
         } else {
@@ -109,7 +109,7 @@ public final class PncUtils {
     }
 
     private static String getBrewVersion(PncBuild build) {
-        String buildBrewVersion = MapUtils.getString(build.getBuild().getAttributes(), BUILD_BREW_VERSION);
+        String buildBrewVersion = MapUtils.getObject(build.getBuild().getAttributes(), BUILD_BREW_VERSION);
         if (buildBrewVersion == null) {
             return getBrewVersionFromArtifacts(build);
         } else {
@@ -254,7 +254,7 @@ public final class PncUtils {
 
             tag.setArches(Collections.singletonList("noarch"));
 
-            String brewName = MapUtils.getString(productVersion.getAttributes(), BREW_TAG_PREFIX);
+            String brewName = MapUtils.getObject(productVersion.getAttributes(), BREW_TAG_PREFIX);
             String tagName = brewName != null ? brewName : productVersion.getProduct().getName();
 
             tag.setName(tagName);

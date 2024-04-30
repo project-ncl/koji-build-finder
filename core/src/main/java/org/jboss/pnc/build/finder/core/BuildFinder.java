@@ -1468,7 +1468,8 @@ public class BuildFinder
                             boldRed(
                                     matchingBuilds.stream()
                                             .map(KojiBuild::getBuildInfo)
-                                            .map(KojiBuildInfo::getNvr)
+                                            .map(KojiBuildInfo::getGAV)
+                                            .map(Objects::toString)
                                             .sorted()
                                             .collect(Collectors.joining(", "))));
                 }
