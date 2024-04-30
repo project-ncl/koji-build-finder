@@ -613,7 +613,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             Set<MavenLicense> mavenLicenses = new TreeSet<>();
 
             for (MavenLicense license : licenses) {
-                String name = license.getName();
+                String name = license.getName() != null ? SPACE_PATTERN.matcher(license.getName()).replaceAll(" ")
+                        : null;
                 String url = license.getUrl();
 
                 if ((name == null || name.isBlank()) && (url == null || url.isBlank())) {
@@ -621,29 +622,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     continue;
                 }
 
-                if (name != null) {
-                    name = SPACE_PATTERN.matcher(name).replaceAll(" ");
-                }
-
                 String licenseId;
-                Optional<String> optLicenseId = LicenseUtils.findMatchingLicense(name, url);
+                Optional<String> optLicenseId = LicenseUtils.findMatchingLicense(name, url)
+                        .or(() -> LicenseUtils.findLicenseMapping(mapping, url))
+                        .or(() -> LicenseUtils.findLicenseMapping(mapping, name));
 
                 if (optLicenseId.isEmpty()) {
-                    optLicenseId = LicenseUtils.findLicenseMapping(mapping, url);
-
-                    if (optLicenseId.isEmpty()) {
-                        optLicenseId = LicenseUtils.findLicenseMapping(mapping, name);
-
-                        if (optLicenseId.isEmpty()) {
-                            if (LOGGER.isWarnEnabled()) {
-                                LOGGER.warn(
-                                        "Missing mapping for {} license: name: {}, URL: {} in {}",
-                                        red(coords),
-                                        red(name),
-                                        red(url),
-                                        red(LICENSE_MAPPING_FILENAME));
-                            }
-                        }
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn(
+                                "Missing mapping for {} license: name: {}, URL: {} in {}",
+                                red(coords),
+                                red(name),
+                                red(url),
+                                red(LICENSE_MAPPING_FILENAME));
                     }
                 }
 
