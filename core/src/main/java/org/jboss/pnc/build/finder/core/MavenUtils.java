@@ -41,6 +41,9 @@ import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+/**
+ * Utilities for working with Maven.
+ */
 public final class MavenUtils {
     private static final Pattern POM_XML_PATTERN = Pattern.compile(
             String.join(SEPARATOR, "^", "META-INF", "maven", "(?<groupId>.*)", "(?<artifactId>.*)", "pom.xml$"));
@@ -51,6 +54,13 @@ public final class MavenUtils {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
     }
 
+    /**
+     * Determines whether the given file object is a POM file. A pom file is a file that has extension <code>pom</code>,
+     * or a file inside a jar named <code>pom.xml</code>, if it is inside the <code>META-INF/maven</code> directory.
+     *
+     * @param fileObject the file object
+     * @return true if the file object is a POM file and false otherwise
+     */
     public static boolean isPom(FileObject fileObject) {
         FileName name = fileObject.getName();
         String extension = name.getExtension();
@@ -64,7 +74,7 @@ public final class MavenUtils {
         return matcher.matches();
     }
 
-    public static String interpolateString(Model model, String input) throws InterpolationException {
+    private static String interpolateString(Model model, String input) throws InterpolationException {
         if (input != null && MAVEN_PROPERTY_PATTERN.matcher(input).matches()) {
             StringSearchInterpolator interpolator = new StringSearchInterpolator();
             List<String> possiblePrefixes = List.of("pom.", "project.");
@@ -84,9 +94,18 @@ public final class MavenUtils {
         return input;
     }
 
-    public static MavenProject getMavenProject(FileObject fileObject)
+    /**
+     * Gets the Maven project from the given POM file object.
+     *
+     * @param pomFileObject the POM file object
+     * @return the Maven project
+     * @throws InterpolationException if an error occurs interpolating the Maven properties
+     * @throws IOException if an error occurs when reading from the file
+     * @throws XmlPullParserException if an error occurs when parsing the POM file
+     */
+    public static MavenProject getMavenProject(FileObject pomFileObject)
             throws InterpolationException, IOException, XmlPullParserException {
-        try (FileContent content = fileObject.getContent(); InputStream in = content.getInputStream()) {
+        try (FileContent content = pomFileObject.getContent(); InputStream in = content.getInputStream()) {
             MavenXpp3Reader reader = new MavenXpp3Reader();
 
             try {
@@ -104,6 +123,12 @@ public final class MavenUtils {
         }
     }
 
+    /**
+     * Gets the GAV for the given Maven project.
+     *
+     * @param project the Maven project
+     * @return groupId:artifactId:version
+     */
     public static String getGAV(MavenProject project) {
         String groupId = project.getGroupId();
         String artifactId = project.getArtifactId();
@@ -111,13 +136,30 @@ public final class MavenUtils {
         return String.join(":", groupId, artifactId, version);
     }
 
+    /**
+     * Converts the Maven licenses of the given project (if any) into <code>MavenLicense</code> JSON serializable
+     * objects.
+     *
+     * @param project the Maven project
+     * @return the list of Maven projects (may be empty)
+     */
     public static List<MavenLicense> getLicenses(MavenProject project) {
         return project.getLicenses().stream().map(MavenLicense::new).collect(Collectors.toUnmodifiableList());
     }
 
-    public static Map<String, List<MavenLicense>> getLicenses(FileObject fileObject)
+    /**
+     * Gets the licenses for the given POM file object (if any) as a map with the GAV as key and the list of licenses as
+     * the value (which may be empty).
+     *
+     * @param pomFileObject the POM file object
+     * @return a map with the key the GAV of the POM file and the value the list of licenses (may be empty)
+     * @throws InterpolationException if an error occurs interpolating the Maven properties
+     * @throws IOException if an error occurs when reading from the file
+     * @throws XmlPullParserException if an error occurs when parsing the POM file
+     */
+    public static Map<String, List<MavenLicense>> getLicenses(FileObject pomFileObject)
             throws IOException, XmlPullParserException, InterpolationException {
-        MavenProject project = getMavenProject(fileObject);
+        MavenProject project = getMavenProject(pomFileObject);
         return Collections.singletonMap(getGAV(project), getLicenses(project));
     }
 }
