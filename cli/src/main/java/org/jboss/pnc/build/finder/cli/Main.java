@@ -803,15 +803,22 @@ public final class Main implements Callable<Void> {
                         Thread.currentThread().interrupt();
                     }
 
-                    analyzer.outputLicensesToFile();
-                    JSONUtils.dumpObjectToFile(builds, buildsFile);
+                    try {
+                        analyzer.outputLicensesToFile();
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing licenses file: {}", boldRed(e.getMessage()));
+                        LOGGER.debug("Error", e);
+                    }
+
+                    try {
+                        JSONUtils.dumpObjectToFile(builds, buildsFile);
+                    } catch (IOException e) {
+                        LOGGER.error("Error writing builds file: {}", boldRed(e.getMessage()));
+                        LOGGER.debug("Error", e);
+                    }
                 } catch (KojiClientException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
                     LOGGER.debug("Koji Client Error", e);
-                    System.exit(1);
-                } catch (IOException e) {
-                    LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
-                    LOGGER.debug("IOException", e);
                     System.exit(1);
                 } catch (RuntimeException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));
