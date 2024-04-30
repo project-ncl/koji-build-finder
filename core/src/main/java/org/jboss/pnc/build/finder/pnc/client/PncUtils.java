@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.collections4.MapUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.pnc.PncBuild;
 import org.jboss.pnc.dto.Artifact;
@@ -99,7 +100,7 @@ public final class PncUtils {
     }
 
     private static String getBrewName(PncBuild build) {
-        String buildBrewName = build.getBuild().getAttributes().get(BUILD_BREW_NAME);
+        String buildBrewName = MapUtils.getString(build.getBuild().getAttributes(), BUILD_BREW_NAME);
         if (buildBrewName == null) {
             return getBrewNameFromArtifacts(build);
         } else {
@@ -108,7 +109,7 @@ public final class PncUtils {
     }
 
     private static String getBrewVersion(PncBuild build) {
-        String buildBrewVersion = build.getBuild().getAttributes().get(BUILD_BREW_VERSION);
+        String buildBrewVersion = MapUtils.getString(build.getBuild().getAttributes(), BUILD_BREW_VERSION);
         if (buildBrewVersion == null) {
             return getBrewVersionFromArtifacts(build);
         } else {
@@ -192,7 +193,7 @@ public final class PncUtils {
     }
 
     public static String getNVRFromBuildRecord(PncBuild build) {
-        return getBrewName(build) + "-" + build.getBuild().getAttributes().get(BUILD_BREW_VERSION) + "-1";
+        return getBrewName(build) + "-" + getBrewVersion(build) + "-1";
     }
 
     public static KojiBuild pncBuildToKojiBuild(PncBuild pncBuild) {
@@ -253,7 +254,7 @@ public final class PncUtils {
 
             tag.setArches(Collections.singletonList("noarch"));
 
-            String brewName = productVersion.getAttributes().get(BREW_TAG_PREFIX);
+            String brewName = MapUtils.getString(productVersion.getAttributes(), BREW_TAG_PREFIX);
             String tagName = brewName != null ? brewName : productVersion.getProduct().getName();
 
             tag.setName(tagName);
