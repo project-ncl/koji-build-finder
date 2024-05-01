@@ -1459,25 +1459,27 @@ public class BuildFinder
                                                             version)))
                     .collect(Collectors.toList());
 
-            if (matchingBuilds.size() > 1) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error(
-                            "More than one ({}) build found for Maven GAV {} when matching licenses: {}",
-                            boldRed(matchingBuilds.size()),
-                            boldRed(coords),
-                            boldRed(
-                                    matchingBuilds.stream()
-                                            .map(KojiBuild::getBuildInfo)
-                                            .map(KojiBuildInfo::getGAV)
-                                            .map(Objects::toString)
-                                            .sorted()
-                                            .collect(Collectors.joining(", "))));
+            if (!matchingBuilds.isEmpty()) {
+                if (matchingBuilds.size() > 1) {
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn(
+                                "Multiple builds ({}) found for Maven GAV {} when matching licenses: {}",
+                                red(matchingBuilds.size()),
+                                red(coords),
+                                red(
+                                        matchingBuilds.stream()
+                                                .map(KojiBuild::getBuildInfo)
+                                                .map(KojiBuildInfo::getNvr)
+                                                .sorted()
+                                                .collect(Collectors.joining(", "))));
+                    }
                 }
-            } else if (!matchingBuilds.isEmpty()) {
+
                 Set<MavenLicense> mavenLicenses = licenseEntry.getValue();
-                KojiBuild kojiBuild = matchingBuilds.get(0);
-                kojiBuild.getLicenses().addAll(mavenLicenses);
-                allLicenses.addAll(mavenLicenses);
+                matchingBuilds.forEach(kojiBuild -> {
+                    kojiBuild.getLicenses().addAll(mavenLicenses);
+                    allLicenses.addAll(mavenLicenses);
+                });
             }
         }
 
