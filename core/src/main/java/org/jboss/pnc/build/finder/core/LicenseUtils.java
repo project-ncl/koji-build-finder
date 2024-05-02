@@ -24,6 +24,7 @@ import static org.spdx.library.DefaultModelStore.getDefaultModelStore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,22 +52,32 @@ import org.spdx.library.model.license.SpdxListedLicense;
 public final class LicenseUtils {
     public static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
 
-    private static final int EXPECTED_NUM_SPDX_LICENSES = 1000;
+    private static final int EXPECTED_NUM_SPDX_LICENSES = 1024;
 
     private static Map<String, SpdxListedLicense> LICENSE_ID_MAP;
 
     private static Map<String, SpdxListedLicense> LICENSE_NAME_MAP;
 
+    private static List<String> LICENSE_IDS;
+
+    private static List<String> LICENSE_NAMES;
+
     static {
         LICENSE_ID_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
         LICENSE_NAME_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
+        LICENSE_IDS = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
+        LICENSE_NAMES = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
         List<String> spdxListedLicenseIds = LicenseInfoFactory.getSpdxListedLicenseIds();
 
         for (String id : spdxListedLicenseIds) {
             try {
                 SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
-                LICENSE_ID_MAP.put(spdxListedLicense.getLicenseId(), spdxListedLicense);
-                LICENSE_NAME_MAP.put(spdxListedLicense.getName(), spdxListedLicense);
+                String licenseId = spdxListedLicense.getLicenseId();
+                LICENSE_ID_MAP.put(licenseId, spdxListedLicense);
+                LICENSE_IDS.add(licenseId);
+                String licenseName = spdxListedLicense.getName();
+                LICENSE_NAME_MAP.put(licenseName, spdxListedLicense);
+                LICENSE_NAMES.add(licenseName);
             } catch (InvalidSPDXAnalysisException e) {
                 throw new RuntimeException(e);
             }
@@ -74,21 +85,11 @@ public final class LicenseUtils {
 
         LICENSE_ID_MAP = Collections.unmodifiableMap(LICENSE_ID_MAP);
         LICENSE_NAME_MAP = Collections.unmodifiableMap(LICENSE_NAME_MAP);
+        LICENSE_IDS.sort(comparing(String::length).reversed().thenComparing(naturalOrder()));
+        LICENSE_IDS = Collections.unmodifiableList(LICENSE_IDS);
+        LICENSE_NAMES.sort(comparing(String::length).reversed().thenComparing(naturalOrder()));
+        LICENSE_NAMES = Collections.unmodifiableList(LICENSE_NAMES);
     }
-
-    private static final List<String> LICENSE_IDS = LICENSE_ID_MAP.values()
-            .stream()
-            .map(SpdxListedLicense::getLicenseId)
-            .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
-            .collect(Collectors.toUnmodifiableList());
-
-    private static final List<String> LICENSE_NAMES = LICENSE_ID_MAP.values()
-            .stream()
-            .map(LicenseUtils::findLicenseName)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
-            .collect(Collectors.toUnmodifiableList());
 
     private static final String URL_MARKER = ":/";
 
@@ -367,13 +368,5 @@ public final class LicenseUtils {
         }
 
         return findMatchingLicenseSeeAlso(licenseUrl);
-    }
-
-    private static Optional<String> findLicenseName(SpdxListedLicense spdxListedLicense) {
-        try {
-            return Optional.of(spdxListedLicense.getName());
-        } catch (InvalidSPDXAnalysisException e) {
-            return Optional.empty();
-        }
     }
 }
