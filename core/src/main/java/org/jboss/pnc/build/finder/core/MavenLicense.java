@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.jboss.pnc.build.finder.core.LicenseUtils.NONE;
+
 import java.util.Objects;
 
 import org.apache.maven.model.License;
@@ -35,7 +37,7 @@ public class MavenLicense implements Comparable<MavenLicense> {
         distribution = null;
         name = null;
         url = null;
-        spdxLicenseId = "NONE";
+        spdxLicenseId = NONE;
     }
 
     public MavenLicense(License license) {

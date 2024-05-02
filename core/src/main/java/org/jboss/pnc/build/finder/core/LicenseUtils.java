@@ -17,9 +17,8 @@ package org.jboss.pnc.build.finder.core;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
-import static org.spdx.library.DefaultModelStore.getDefaultCopyManager;
-import static org.spdx.library.DefaultModelStore.getDefaultDocumentUri;
-import static org.spdx.library.DefaultModelStore.getDefaultModelStore;
+import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
+import static org.spdx.library.SpdxConstants.NONE_VALUE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +50,12 @@ import org.spdx.library.model.license.SpdxListedLicense;
  */
 public final class LicenseUtils {
     public static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
+
+    public static final String NOASSERTION = NOASSERTION_VALUE;
+
+    public static final String NONE = NONE_VALUE;
+
+    private static final Pattern IDSTRING_PATTERN = Pattern.compile("[a-zA-Z0-9-]+");
 
     private static final int EXPECTED_NUM_SPDX_LICENSES = 1024;
 
@@ -110,7 +115,11 @@ public final class LicenseUtils {
      * Loads the licenses mapping JSON file (<code>license-mapping.json</code>) into a map. The map keys consist of SPDX
      * license short identifiers, e.g., <code>Apache-2.0</code>). The values are either a license URL or license name.
      * These fields correspond to the values in the Maven POM for the license. It is generally preferred to use a URL as
-     * a name may be ambiguous, e.g., which BSD license does the name BSD refer to?
+     * a name may be ambiguous, e.g., how do we know which BSD license the name &quot;BSD&quot; refers to.
+     * <p/>
+     * The license file is validated while loading in order to make sure that the license identifiers are valid.
+     * <em>Note that even though SPDX identifiers are considered to be case-insensitive, the mapping file requires the
+     * canonical names of the license identifiers from the license list.</em>
      *
      * @return the license mapping map
      * @throws IOException if an error occurs reading the file or parsing the JSON
@@ -127,12 +136,32 @@ public final class LicenseUtils {
         Set<String> licenseStrings = mapping.keySet();
 
         for (String licenseString : licenseStrings) {
+            if (IDSTRING_PATTERN.matcher(licenseString).matches()) {
+                validateSpdxListedLicenseId(licenseString);
+                continue;
+            }
+
             try {
-                parseSPDXLicenseString(licenseString);
+                AnyLicenseInfo anyLicenseInfo = parseSPDXLicenseString(licenseString);
+
+                if (anyLicenseInfo instanceof SpdxListedLicense) {
+                    SpdxListedLicense spdxListedLicense = (SpdxListedLicense) anyLicenseInfo;
+                    String licenseId = spdxListedLicense.getLicenseId();
+                    validateSpdxListedLicenseId(licenseId);
+                }
             } catch (InvalidLicenseStringException e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private static void validateSpdxListedLicenseId(String licenseString) {
+        if (NOASSERTION.equals(licenseString) || NONE.equals(licenseString)
+                || LICENSE_ID_MAP.containsKey(licenseString)) {
+            return;
+        }
+
+        throw new RuntimeException("License identifier '" + licenseString + "' is not in list of SPDX licenses");
     }
 
     static String normalizeLicenseUrl(String licenseUrl) {
@@ -214,11 +243,7 @@ public final class LicenseUtils {
     }
 
     static AnyLicenseInfo parseSPDXLicenseString(String licenseString) throws InvalidLicenseStringException {
-        return LicenseInfoFactory.parseSPDXLicenseString(
-                licenseString,
-                getDefaultModelStore(),
-                getDefaultDocumentUri(),
-                getDefaultCopyManager());
+        return LicenseInfoFactory.parseSPDXLicenseString(licenseString, null, null, null);
     }
 
     public static int getNumberOfSpdxLicenses() {
@@ -355,18 +380,7 @@ public final class LicenseUtils {
      * @return the match if any, otherwise empty
      */
     public static Optional<String> findMatchingLicense(String licenseName, String licenseUrl) {
-        Optional<String> optLicenseId = findMatchingLicenseId(licenseName);
-
-        if (optLicenseId.isPresent()) {
-            return optLicenseId;
-        }
-
-        Optional<String> optLicenseId2 = findMatchingLicenseName(licenseName, licenseUrl);
-
-        if (optLicenseId2.isPresent()) {
-            return optLicenseId2;
-        }
-
-        return findMatchingLicenseSeeAlso(licenseUrl);
+        return findMatchingLicenseId(licenseName).or(() -> findMatchingLicenseName(licenseName, licenseUrl))
+                .or(() -> findMatchingLicenseSeeAlso(licenseUrl));
     }
 }

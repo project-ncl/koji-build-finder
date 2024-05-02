@@ -19,6 +19,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.LICENSE_MAPPING_FILENAME;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.NOASSERTION;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
 
@@ -638,7 +639,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     }
                 }
 
-                licenseId = optLicenseId.orElse("NOASSERTION");
+                licenseId = optLicenseId.orElse(NOASSERTION);
                 license.setSpdxLicenseId(licenseId);
                 mavenLicenses.add(license);
             }
