@@ -85,7 +85,7 @@
     <version.commons-codec>1.17.0</version.commons-codec>
     <version.commons-io>2.16.1</version.commons-io>
     <version.info.picocli>4.7.6</version.info.picocli>
-    <version.io.dropwizard.metrics>4.2.25</version.io.dropwizard.metrics>
+    <version.io.dropwizard.metrics>4.2.26</version.io.dropwizard.metrics>
     <version.net.revelc.code.formatter>2.23.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.9.0</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>7.2.0</version.net.sourceforge.pmd>
