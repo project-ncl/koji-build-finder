@@ -45,6 +45,8 @@ public final class Utils {
 
     public static final long TIMEOUT = Duration.ofSeconds(10L).toMillis();
 
+    public static final String BANG_SLASH = "!/";
+
     static {
         PROPERTIES = new Properties();
 
@@ -173,5 +175,32 @@ public final class Utils {
         }
 
         LOGGER.info("{}", green(""));
+    }
+
+    public static String getAllErrorMessages(Throwable t) {
+        StringBuilder sb = new StringBuilder();
+        Throwable t2 = t;
+        String message = t2.getMessage();
+
+        while (true) {
+            if (message != null) {
+                sb.append(message);
+            }
+
+            Throwable cause = t2.getCause();
+
+            if (cause == null) {
+                break;
+            }
+
+            t2 = cause;
+            message = t2.getMessage();
+
+            if (message != null) {
+                sb.append(" ");
+            }
+        }
+
+        return sb.toString();
     }
 }

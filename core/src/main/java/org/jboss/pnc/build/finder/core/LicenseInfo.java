@@ -15,13 +15,14 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.jboss.pnc.build.finder.core.LicenseSource.UNKNOWN;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.NONE;
 
 import java.util.Objects;
 
 import org.apache.maven.model.License;
 
-public class MavenLicense implements Comparable<MavenLicense> {
+public class LicenseInfo implements Comparable<LicenseInfo> {
     private final String comments;
 
     private final String distribution;
@@ -32,15 +33,27 @@ public class MavenLicense implements Comparable<MavenLicense> {
 
     private String spdxLicenseId;
 
-    public MavenLicense() {
+    private LicenseSource source;
+
+    public LicenseInfo() {
         comments = null;
         distribution = null;
         name = null;
         url = null;
         spdxLicenseId = NONE;
+        source = UNKNOWN;
     }
 
-    public MavenLicense(License license) {
+    public LicenseInfo(String name, String url, String spdxLicenseId, LicenseSource source) {
+        comments = null;
+        distribution = null;
+        this.name = name;
+        this.url = url;
+        this.spdxLicenseId = spdxLicenseId;
+        this.source = source;
+    }
+
+    public LicenseInfo(License license) {
         comments = license.getComments();
         distribution = license.getDistribution();
         name = license.getName();
@@ -71,8 +84,16 @@ public class MavenLicense implements Comparable<MavenLicense> {
         this.spdxLicenseId = spdxLicenseId;
     }
 
+    public LicenseSource getSource() {
+        return source;
+    }
+
+    public void setSource(LicenseSource source) {
+        this.source = source;
+    }
+
     @Override
-    public int compareTo(MavenLicense o) {
+    public int compareTo(LicenseInfo o) {
         if (spdxLicenseId != null && o.spdxLicenseId != null) {
             return spdxLicenseId.compareTo(o.spdxLicenseId);
         }
@@ -90,10 +111,10 @@ public class MavenLicense implements Comparable<MavenLicense> {
             return false;
         }
 
-        MavenLicense that = (MavenLicense) o;
+        LicenseInfo that = (LicenseInfo) o;
         return Objects.equals(comments, that.comments) && Objects.equals(distribution, that.distribution)
                 && Objects.equals(name, that.name) && Objects.equals(url, that.url)
-                && Objects.equals(spdxLicenseId, that.spdxLicenseId);
+                && Objects.equals(spdxLicenseId, that.spdxLicenseId) && Objects.equals(source, that.source);
     }
 
     @Override
@@ -104,6 +125,7 @@ public class MavenLicense implements Comparable<MavenLicense> {
     @Override
     public String toString() {
         return "MavenLicense: " + ", comments: '" + comments + '\'' + ", distribution: '" + distribution + '\''
-                + ", name: '" + name + '\'' + ", url: '" + url + '\'' + ", spdxLicenseId: '" + spdxLicenseId + '\'';
+                + ", name: '" + name + '\'' + ", url: '" + url + '\'' + ", spdxLicenseId: '" + spdxLicenseId + '\''
+                + ", source: " + source;
     }
 }

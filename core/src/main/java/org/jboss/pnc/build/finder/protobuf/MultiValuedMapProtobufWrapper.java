@@ -59,7 +59,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
                 .entrySet()
                 .stream()
                 .map(a -> new MultiValuedMapProtobufEntry<>(a.getKey(), a.getValue()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -93,7 +93,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
         @ProtoFactory
         MultiValuedMapProtobufEntry(WrappedMessage key, Collection<WrappedMessage> values) {
             this.key = (K) key.getValue();
-            this.values = values.stream().map(a -> (V) a.getValue()).collect(Collectors.toList());
+            this.values = values.stream().map(a -> (V) a.getValue()).collect(Collectors.toUnmodifiableList());
         }
 
         @ProtoField(number = 1)
@@ -103,7 +103,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
 
         @ProtoField(number = 2)
         Collection<WrappedMessage> getValues() {
-            return this.values.stream().map(WrappedMessage::new).collect(Collectors.toList());
+            return this.values.stream().map(WrappedMessage::new).collect(Collectors.toUnmodifiableList());
         }
     }
 }

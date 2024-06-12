@@ -42,7 +42,6 @@ import static j2html.TagCreator.title;
 import static j2html.TagCreator.tr;
 import static j2html.TagCreator.ul;
 import static java.lang.String.join;
-import static org.apache.commons.collections4.MapUtils.getString;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isNotBuildIdZero;
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_ARCHIVE_ID;
@@ -59,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections4.MapUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -152,7 +152,7 @@ public final class HTMLReport extends Report {
         String name = archive.getFilename();
         Integer integerId = archive.getArchiveId();
         String id = (integerId != null && integerId > 0) ? String.valueOf(integerId)
-                : getString(archive.getExtra(), EXTERNAL_ARCHIVE_ID);
+                : MapUtils.getString(archive.getExtra(), EXTERNAL_ARCHIVE_ID);
 
         if (!unmatchedFilenames.isEmpty()) {
             String archives = join(", ", unmatchedFilenames);

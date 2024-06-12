@@ -15,8 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
+import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
 import static org.spdx.library.SpdxConstants.NONE_VALUE;
 
@@ -24,40 +26,76 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
 import org.spdx.library.model.license.InvalidLicenseStringException;
 import org.spdx.library.model.license.LicenseInfoFactory;
 import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Utilities for working with SPDX licenses.
  */
 public final class LicenseUtils {
-    public static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
+    static final String NOASSERTION = NOASSERTION_VALUE;
 
-    public static final String NOASSERTION = NOASSERTION_VALUE;
+    static final String NONE = NONE_VALUE;
 
-    public static final String NONE = NONE_VALUE;
+    private static final List<String> LICENSE_ID_TEXT_LIST = List
+            .of("Apache-2.0", "BSD-3-Clause", "EPL-1.0", "BSD-2-Clause", "MIT", "xpp", "Plexus");
 
-    private static final Pattern IDSTRING_PATTERN = Pattern.compile("[a-zA-Z0-9-]+");
+    private static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
+
+    private static final String LICENSE_DEPRECATED_FILENAME = "license-deprecated.json";
+
+    private static final Pattern IDSTRING_PATTERN = Pattern.compile("[a-zA-Z0-9-.]+");
+
+    private static final Pattern LICENSE_FILE_PATTERN = Pattern.compile("^([A-Z-]+)?LICENSE(.md|.txt)?$");
+
+    private static final Pattern MANIFEST_MF_PATTERN = Pattern.compile("^.*META-INF/MANIFEST.MF$");
 
     private static final int EXPECTED_NUM_SPDX_LICENSES = 1024;
+
+    private static final String BUNDLE_LICENSE = "Bundle-License";
+
+    private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
+
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+
+    private static final Pattern TWO_DIGIT_PATTERN = Pattern.compile("([0-9])([0-9])");
+
+    private static final Pattern LETTER_DIGIT_PATTERN = Pattern.compile("([A-Za-z])([0-9])");
+
+    private static final int LINE_LIMIT = 5;
+
+    private static final Pattern SPDX_LICENSE_IDENTIFIER_PATTERN = Pattern
+            .compile("SPDX-License-Identifier:\\s*(" + IDSTRING_PATTERN.pattern() + ")");
 
     private static Map<String, SpdxListedLicense> LICENSE_ID_MAP;
 
@@ -67,19 +105,32 @@ public final class LicenseUtils {
 
     private static List<String> LICENSE_NAMES;
 
-    static {
-        LICENSE_ID_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
-        LICENSE_NAME_MAP = new HashMap<>(EXPECTED_NUM_SPDX_LICENSES);
-        LICENSE_IDS = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
-        LICENSE_NAMES = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
-        List<String> spdxListedLicenseIds = LicenseInfoFactory.getSpdxListedLicenseIds();
+    private static final String URL_MARKER = ":/";
 
-        for (String id : spdxListedLicenseIds) {
+    private static final List<String> EXTENSIONS_TO_REMOVE = List.of(".html", ".php", ".txt");
+
+    private static final Pattern NAME_VERSION_PATTERN = Pattern
+            .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>[0-9]+))?");
+
+    private static final Pattern SINGLE_DIGIT_PATTERN = Pattern.compile("(?<b>[^0-9.])(?<major>[1-9])(?<a>[^0-9.])");
+
+    // XXX: Should be moved to an external file
+    private static final Map<String, String> DEPRECATED_LICENSE_IDS_MAP;
+
+    static {
+        LICENSE_ID_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
+        LICENSE_IDS = LicenseInfoFactory.getSpdxListedLicenseIds()
+                .stream()
+                .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
+                .collect(Collectors.toUnmodifiableList());
+        LICENSE_NAME_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
+        LICENSE_NAMES = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
+
+        for (String id : LICENSE_IDS) {
             try {
                 SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
                 String licenseId = spdxListedLicense.getLicenseId();
                 LICENSE_ID_MAP.put(licenseId, spdxListedLicense);
-                LICENSE_IDS.add(licenseId);
                 String licenseName = spdxListedLicense.getName();
                 LICENSE_NAME_MAP.put(licenseName, spdxListedLicense);
                 LICENSE_NAMES.add(licenseName);
@@ -90,22 +141,16 @@ public final class LicenseUtils {
 
         LICENSE_ID_MAP = Collections.unmodifiableMap(LICENSE_ID_MAP);
         LICENSE_NAME_MAP = Collections.unmodifiableMap(LICENSE_NAME_MAP);
-        LICENSE_IDS.sort(comparing(String::length).reversed().thenComparing(naturalOrder()));
         LICENSE_IDS = Collections.unmodifiableList(LICENSE_IDS);
         LICENSE_NAMES.sort(comparing(String::length).reversed().thenComparing(naturalOrder()));
         LICENSE_NAMES = Collections.unmodifiableList(LICENSE_NAMES);
+
+        try {
+            DEPRECATED_LICENSE_IDS_MAP = loadLicenseDeprecated();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-    private static final String URL_MARKER = ":/";
-
-    private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
-
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-
-    private static final String[] EXTENSIONS_TO_REMOVE = { ".html", ".php", ".txt" };
-
-    private static final Pattern NAME_VERSION_PATTERN = Pattern
-            .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>[0-9]+))?");
 
     private LicenseUtils() {
         throw new IllegalArgumentException("This is a utility class and cannot be instantiated");
@@ -126,7 +171,7 @@ public final class LicenseUtils {
      */
     public static Map<String, List<String>> loadLicenseMapping() throws IOException {
         try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_MAPPING_FILENAME)) {
-            Map<String, List<String>> mapping = JSONUtils.loadLicenseMappingUrls(in);
+            Map<String, List<String>> mapping = JSONUtils.loadLicenseMapping(in);
             validateLicenseMapping(mapping);
             return Collections.unmodifiableMap(mapping);
         }
@@ -137,51 +182,101 @@ public final class LicenseUtils {
 
         for (String licenseString : licenseStrings) {
             if (IDSTRING_PATTERN.matcher(licenseString).matches()) {
-                validateSpdxListedLicenseId(licenseString);
+                validateSPDXListedLicenseId(licenseString);
                 continue;
             }
 
-            try {
-                AnyLicenseInfo anyLicenseInfo = parseSPDXLicenseString(licenseString);
-
-                if (anyLicenseInfo instanceof SpdxListedLicense) {
-                    SpdxListedLicense spdxListedLicense = (SpdxListedLicense) anyLicenseInfo;
-                    String licenseId = spdxListedLicense.getLicenseId();
-                    validateSpdxListedLicenseId(licenseId);
-                }
-            } catch (InvalidLicenseStringException e) {
-                throw new RuntimeException(e);
-            }
+            validateLicenseString(licenseString);
         }
     }
 
-    private static void validateSpdxListedLicenseId(String licenseString) {
-        if (NOASSERTION.equals(licenseString) || NONE.equals(licenseString)
-                || LICENSE_ID_MAP.containsKey(licenseString)) {
+    private static void validateLicenseString(String licenseString) {
+        try {
+            AnyLicenseInfo anyLicenseInfo = parseSPDXLicenseString(licenseString);
+
+            if (anyLicenseInfo instanceof SpdxListedLicense) {
+                SpdxListedLicense spdxListedLicense = (SpdxListedLicense) anyLicenseInfo;
+                String licenseId = spdxListedLicense.getLicenseId();
+                validateSPDXListedLicenseId(licenseId);
+            }
+        } catch (InvalidLicenseStringException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void validateSPDXListedLicenseId(String licenseString) {
+        if (isUnknownLicenseId(licenseString) || isKnownLicenseId(licenseString)) {
             return;
         }
 
         throw new RuntimeException("License identifier '" + licenseString + "' is not in list of SPDX licenses");
     }
 
+    /**
+     * Returns whether this SPDX license identifier is known.
+     *
+     * @param licenseId the SPDX license identifier
+     */
+    public static boolean isKnownLicenseId(String licenseId) {
+        return LICENSE_IDS.contains(licenseId);
+    }
+
+    /**
+     * Returns whether this SPDX license identifier is unknown (<code>NOASSERTION</code> or <code>NONE</code>).
+     *
+     * @param licenseId the SPDX license identifier
+     */
+    public static boolean isUnknownLicenseId(String licenseId) {
+        return NOASSERTION.equals(licenseId) || NONE.equals(licenseId);
+    }
+
+    private static Map<String, String> loadLicenseDeprecated() throws IOException {
+        try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_DEPRECATED_FILENAME)) {
+            Map<String, String> map = new BuildFinderObjectMapper()
+                    .readValue(in, new TypeReference<LinkedHashMap<String, String>>() {
+                    });
+            validateLicenseDeprecated(map);
+            return Collections.unmodifiableMap(map);
+        }
+    }
+
+    private static void validateLicenseDeprecated(Map<String, String> map) {
+        map.forEach((key, value) -> {
+            validateLicenseString(key);
+            validateLicenseString(value);
+        });
+    }
+
     static String normalizeLicenseUrl(String licenseUrl) {
         URI uri = URI.create(licenseUrl).normalize();
         String host = Objects.requireNonNullElse(uri.getHost(), "");
         host = host.replace("www.", "");
-        host = host.replace("creativecommons", "cc"); // XXX: Helps match license id
+        // XXX: Helps match license id
+        host = host.replace("creativecommons", "cc");
+        host = host.replace('.', '-');
         String path = Objects.requireNonNullElse(uri.getPath(), "");
-        path = StringUtils.removeEnd(path, "/");
+        path = TWO_DIGIT_PATTERN.matcher(path).replaceAll("$1.$2");
+        path = LETTER_DIGIT_PATTERN.matcher(path).replaceAll("$1-$2");
+        path = path.replace("cc-0", "cc0");
 
-        if (StringUtils.endsWithAny(path, EXTENSIONS_TO_REMOVE)) {
-            path = FilenameUtils.removeExtension(path);
+        for (String extension : EXTENSIONS_TO_REMOVE) {
+            path = StringUtils.removeEnd(path, extension);
         }
+
+        path = StringUtils.removeEnd(path, "/");
 
         return host + path;
     }
 
-    private static boolean isUrl(String... strings) {
+    /**
+     * Returns whether all the given strings are URLs (contain <code>:/</code> and no whitespace).
+     *
+     * @param strings the strings
+     * @return whether all strings are URLs
+     */
+    public static boolean isUrl(String... strings) {
         for (String s : strings) {
-            if (s == null || !s.contains(URL_MARKER)) {
+            if (s == null || StringUtils.containsWhitespace(s) || !s.contains(URL_MARKER)) {
                 return false;
             }
         }
@@ -196,7 +291,7 @@ public final class LicenseUtils {
      * <ol>
      * <li>Call <code>URI::normalize</code></li>
      * <li>Remove www. from the host</li>
-     * <li>Replace creativecommins with cc in the host (since CC is used for the SPDX short license identifiers)</li>
+     * <li>Replace creativecommons with cc in the host (since CC is used for the SPDX short license identifiers)</li>
      * <li>Remove any trailing slash</li>
      * </ol>
      *
@@ -209,9 +304,9 @@ public final class LicenseUtils {
             return Optional.empty();
         }
 
-        Set<Map.Entry<String, List<String>>> entries = mapping.entrySet();
+        Set<Entry<String, List<String>>> entries = mapping.entrySet();
 
-        for (Map.Entry<String, List<String>> entry : entries) {
+        for (Entry<String, List<String>> entry : entries) {
             String licenseId = entry.getKey();
             List<String> licenseNamesOrUrls = entry.getValue();
 
@@ -221,10 +316,10 @@ public final class LicenseUtils {
                     String normalizedNameOrUrl = normalizeLicenseUrl(licenseNameOrUrl);
 
                     if (normalizedLicenseString.equals(normalizedNameOrUrl)) {
-                        return Optional.of(licenseId);
+                        return Optional.of(getCurrentLicenseId(licenseId));
                     }
                 } else if (licenseString.equalsIgnoreCase(licenseNameOrUrl)) {
-                    return Optional.of(licenseId);
+                    return Optional.of(getCurrentLicenseId(licenseId));
                 }
             }
         }
@@ -233,12 +328,26 @@ public final class LicenseUtils {
     }
 
     /**
+     * Gets the SPDX license identifier using the given mapping.
+     *
+     * @param mapping the mapping
+     * @param name the name
+     * @param url the URL
+     * @return the matching SPDX license identifier, or <code>NOASSERTION</code> if no match
+     */
+    public static String getSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
+        Optional<String> licenseMapping = StringUtils.isBlank(url) ? LicenseUtils.findLicenseMapping(mapping, name)
+                : LicenseUtils.findLicenseMapping(mapping, url);
+        return licenseMapping.or(() -> LicenseUtils.findMatchingLicense(name, url)).orElse(NOASSERTION);
+    }
+
+    /**
      * Gets the Version of the license list being used by the SPDX Java library.
      *
      *
      * @return the version of the license list
      */
-    public static String getSpdxLicenseListVersion() {
+    public static String getSPDXLicenseListVersion() {
         return LicenseInfoFactory.getLicenseListVersion();
     }
 
@@ -246,7 +355,7 @@ public final class LicenseUtils {
         return LicenseInfoFactory.parseSPDXLicenseString(licenseString, null, null, null);
     }
 
-    public static int getNumberOfSpdxLicenses() {
+    public static int getNumberOfSPDXLicenses() {
         return LICENSE_ID_MAP.size();
     }
 
@@ -262,7 +371,7 @@ public final class LicenseUtils {
         }
 
         SpdxListedLicense license = LICENSE_ID_MAP.get(licenseId);
-        return Optional.ofNullable(license != null ? license.getId() : null);
+        return Optional.ofNullable(license != null ? getCurrentLicenseId(license.getLicenseId()) : null);
     }
 
     /**
@@ -281,20 +390,22 @@ public final class LicenseUtils {
      * e.g, 1.0 is treated as the word 1 and the word 0.
      *
      * @param licenseName the license name
-     * @return the license URL (may be null)
+     * @return the license URL (which may be <code>null</code>)
      */
     public static Optional<String> findMatchingLicenseName(String licenseName, String licenseUrl) {
         for (String licenseId : LICENSE_IDS) {
-            if (containsWordsInSameOrder(licenseName, licenseId) || containsWordsInSameOrder(licenseUrl, licenseId)) {
-                return Optional.of(licenseId);
+            if (containsWordsInSameOrder(licenseName, StringUtils.replace(licenseId, "-only", ""))
+                    || containsWordsInSameOrder(licenseUrl, licenseId)) {
+                return Optional.of(getCurrentLicenseId(licenseId));
             }
         }
 
         for (String spdxLicenseName : LICENSE_NAMES) {
             if (spdxLicenseName.equalsIgnoreCase(licenseName)
-                    || containsWordsInSameOrder(licenseName, spdxLicenseName)) {
+                    || containsWordsInSameOrder(licenseName, StringUtils.replace(spdxLicenseName, " only", ""))
+                    || containsWordsInSameOrder(licenseUrl, spdxLicenseName)) {
                 SpdxListedLicense spdxListedLicense = LICENSE_NAME_MAP.get(spdxLicenseName);
-                String licenseId = spdxListedLicense.getLicenseId();
+                String licenseId = getCurrentLicenseId(spdxListedLicense.getLicenseId());
                 return Optional.of(licenseId);
             }
         }
@@ -302,17 +413,23 @@ public final class LicenseUtils {
         return Optional.empty();
     }
 
-    static String[] tokenizeLicenseString(String licenseString) {
-        if (isUrl(licenseString)) {
-            licenseString = normalizeLicenseUrl(licenseString);
-            licenseString = licenseString.replace('/', '-').replace('.', '-');
+    static List<String> tokenizeLicenseString(String licenseString) {
+        String newLicenseString = licenseString;
+
+        if (isUrl(newLicenseString)) {
+            newLicenseString = normalizeLicenseUrl(newLicenseString);
+            newLicenseString = StringUtils.replaceChars(newLicenseString, "/", "-");
         }
 
-        licenseString = licenseString.replace('.', '-').replace('-', ' ');
-        licenseString = PUNCT_PATTERN.matcher(licenseString).replaceAll("");
-        licenseString = NAME_VERSION_PATTERN.matcher(licenseString).replaceAll("${name} ${major} ${minor}");
-        licenseString = licenseString.toLowerCase(Locale.ROOT);
-        return WHITESPACE_PATTERN.split(licenseString);
+        newLicenseString = SINGLE_DIGIT_PATTERN.matcher(newLicenseString).replaceAll("${b}${major}.0${a}");
+        newLicenseString = StringUtils.replaceChars(newLicenseString, ".-", "_ ");
+        newLicenseString = PUNCT_PATTERN.matcher(newLicenseString).replaceAll("");
+        newLicenseString = NAME_VERSION_PATTERN.matcher(newLicenseString).replaceAll("${name} ${major} ${minor}");
+        newLicenseString = newLicenseString.toLowerCase(Locale.ROOT);
+        String[] split = WHITESPACE_PATTERN.split(newLicenseString);
+        List<String> list = new ArrayList<>(Arrays.asList(split));
+        list.remove("v");
+        return Collections.unmodifiableList(list);
     }
 
     static boolean containsWordsInSameOrder(String licenseStringCandidate, String licenseString) {
@@ -320,16 +437,18 @@ public final class LicenseUtils {
             return false;
         }
 
-        String[] array = tokenizeLicenseString(licenseStringCandidate);
-        String[] searchStrings = tokenizeLicenseString(licenseString);
+        String[] licenseCandidates = tokenizeLicenseString(licenseStringCandidate).toArray(new String[0]);
+        String[] searchStrings = tokenizeLicenseString(licenseString).toArray(new String[0]);
         int startIndex = 0;
 
         for (String objectToFind : searchStrings) {
-            int index = ArrayUtils.indexOf(array, objectToFind, startIndex);
+            int index = ArrayUtils.indexOf(licenseCandidates, objectToFind, startIndex);
 
-            if (index < startIndex++) {
+            if (index == -1) {
                 return false;
             }
+
+            startIndex = index + 1;
         }
 
         return true;
@@ -353,10 +472,10 @@ public final class LicenseUtils {
                 List<String> seeAlso = license.getSeeAlso()
                         .stream()
                         .map(LicenseUtils::normalizeLicenseUrl)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toUnmodifiableList());
 
                 if (seeAlso.contains(normalizeLicenseUrl(licenseUrl))) {
-                    return Optional.of(license.getLicenseId());
+                    return Optional.of(getCurrentLicenseId(license.getLicenseId()));
                 }
             } catch (InvalidSPDXAnalysisException ignored) {
 
@@ -382,5 +501,136 @@ public final class LicenseUtils {
     public static Optional<String> findMatchingLicense(String licenseName, String licenseUrl) {
         return findMatchingLicenseId(licenseName).or(() -> findMatchingLicenseName(licenseName, licenseUrl))
                 .or(() -> findMatchingLicenseSeeAlso(licenseUrl));
+    }
+
+    /**
+     * Returns whether the given file object is <code>META-INF/MANIFEST.MF</code>.
+     *
+     * @param fileObject the file object
+     * @return whether the given file object is <code>META-INF/MANIFEST.MF</code>
+     */
+    public static boolean isManifestMfFileName(FileObject fileObject) {
+        return MANIFEST_MF_PATTERN.matcher(fileObject.getName().getPath()).matches();
+    }
+
+    /**
+     * Returns whether the given file object is a license text file. Matches files such as
+     * <ul>
+     * <li>LICENSE.md</li>
+     * <li>LICENSE</li>
+     * <li>LICENSE.txt</li>
+     * <li>MIT-LICENSE</li>
+     * <li>&lt;SPDX-LICENSE-ID&gt;.txt</li>
+     * </ul>
+     *
+     * @param fileObject the file object
+     * @return whether the given file object is a license text file
+     */
+    public static boolean isLicenseFileName(FileObject fileObject) {
+        FileName name = fileObject.getName();
+        String fileName = name.getBaseName();
+
+        if (LICENSE_FILE_PATTERN.matcher(fileName).matches()) {
+            return true;
+        }
+
+        String extension = FilenameUtils.getExtension(fileName);
+
+        if (StringUtils.equalsAny(extension, "", "txt")) {
+            String baseName = StringUtils.removeEnd(fileName, extension);
+            return LicenseUtils.isKnownLicenseId(baseName);
+        }
+
+        return false;
+    }
+
+    /**
+     * Finds a matching SPDX license identifier for the text in the given license text file, if any.
+     *
+     * @param licenseFileObject the license text file
+     * @return the matching license identifier, if any
+     */
+    public static Optional<String> findMatchingLicense(FileObject licenseFileObject) {
+        try (FileContent fc = licenseFileObject.getContent(); InputStream in = fc.getInputStream()) {
+            String licenseText = new String(in.readAllBytes(), UTF_8);
+            return LICENSE_ID_TEXT_LIST.stream()
+                    .map(id -> LICENSE_ID_MAP.get(id))
+                    .map(license -> findMatchingSPDXLicenseIdentifier(license, licenseText))
+                    .findAny()
+                    .orElseGet(() -> findMatchingSPDXLicenseIdentifierOrLicense(licenseText));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Gets the matching SPDX license identifier for the text in the given license text file, or
+     * <code></code>NOASSERTION</code>.
+     *
+     * @param licenseFileObject the license text file
+     * @return the matching license identifier or <code>NOASSERTION</code> if no match
+     */
+    public static String getMatchingLicense(FileObject licenseFileObject) {
+        return findMatchingLicense(licenseFileObject).orElse(NOASSERTION);
+    }
+
+    private static Optional<String> findMatchingSPDXLicenseIdentifierOrLicense(String text) {
+        String lines = text.lines().limit(LINE_LIMIT).map(String::trim).collect(Collectors.joining(SPACE));
+        return findMatchingSPDXLicenseIdentifier(lines).or(() -> findMatchingLicense(lines, null));
+    }
+
+    /**
+     * Finds the license from the SPDX-License-Identifier token, if any
+     *
+     * @param licenseString the license string
+     * @return the optional matching license identifier, or empty if no match
+     */
+    public static Optional<String> findMatchingSPDXLicenseIdentifier(String licenseString) {
+        Matcher matcher = SPDX_LICENSE_IDENTIFIER_PATTERN.matcher(licenseString);
+
+        if (!matcher.find()) {
+            return Optional.empty();
+        }
+
+        String id = matcher.group(1);
+        return Optional.of(getCurrentLicenseId(id));
+    }
+
+    private static Optional<String> findMatchingSPDXLicenseIdentifier(SpdxListedLicense license, String licenseText) {
+        try {
+            if (!LicenseCompareHelper.isTextStandardLicense(license, licenseText).isDifferenceFound()) {
+                String licenseId = license.getLicenseId();
+                return Optional.of(getCurrentLicenseId(licenseId));
+            }
+        } catch (SpdxCompareException | InvalidSPDXAnalysisException e) {
+            // ignore
+        }
+
+        return Optional.empty();
+    }
+
+    static List<BundleLicense> getBundleLicenseFromManifest(String bundleLicense) throws IOException {
+        return BundleLicense.parse(bundleLicense);
+    }
+
+    /**
+     * Returns the list of licenses from the <code>Bundle-License</code> manifest header, if any.
+     *
+     * @param manifestFileObject the file object
+     * @return the list of licenses from the <code>Bundle-License</code> manifest header, if any
+     * @throws IOException if an error occurs reading from the file object
+     */
+    public static List<BundleLicense> getBundleLicenseFromManifest(FileObject manifestFileObject) throws IOException {
+        try (FileContent fc = manifestFileObject.getContent(); InputStream in = fc.getInputStream()) {
+            Manifest manifest = new Manifest(in);
+            Attributes mainAttributes = manifest.getMainAttributes();
+            String bundleLicense = mainAttributes.getValue(BUNDLE_LICENSE);
+            return getBundleLicenseFromManifest(bundleLicense);
+        }
+    }
+
+    static String getCurrentLicenseId(String licenseId) {
+        String currentId = DEPRECATED_LICENSE_IDS_MAP.get(licenseId);
+        return currentId != null ? currentId : licenseId;
     }
 }

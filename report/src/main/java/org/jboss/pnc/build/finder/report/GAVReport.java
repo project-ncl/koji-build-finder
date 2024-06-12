@@ -46,7 +46,6 @@ public final class GAVReport extends Report {
         setDescription("List of Maven artifacts in standard Maven <groupId>:<artifactId>:<version> format");
         setBaseFilename("gav");
         setOutputDirectory(outputDirectory);
-
         this.gavs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
                 .filter(build -> build.getTypes() != null && build.getTypes().contains("maven"))
@@ -57,7 +56,7 @@ public final class GAVReport extends Report {
                                 + localArchive.getArchive().getVersion())
                 .sorted()
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override

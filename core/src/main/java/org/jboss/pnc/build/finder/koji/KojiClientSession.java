@@ -240,7 +240,7 @@ public final class KojiClientSession extends KojiClient implements ClientSession
 
     @Override
     public List<List<KojiTagInfo>> listTags(List<KojiIdOrName> idsOrNames) throws KojiClientException {
-        List<Integer> buildIds = idsOrNames.stream().map(KojiIdOrName::getId).collect(Collectors.toList());
+        List<Integer> buildIds = idsOrNames.stream().map(KojiIdOrName::getId).collect(Collectors.toUnmodifiableList());
         return helper.listTagsByIds(buildIds, session);
     }
 

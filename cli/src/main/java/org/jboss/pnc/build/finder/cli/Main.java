@@ -19,6 +19,7 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -444,7 +445,6 @@ public final class Main implements Callable<Void> {
                 .segmented(true)
                 .shared(false)
                 .preload(true)
-                .fetchPersistentState(true)
                 .purgeOnStartup(false)
                 .dataLocation(cacheLocation)
                 .indexLocation(cacheLocation)
@@ -462,6 +462,8 @@ public final class Main implements Callable<Void> {
         cacheManager.defineConfiguration("builds", configuration);
         cacheManager.defineConfiguration("builds-pnc", configuration);
         cacheManager.defineConfiguration("artifact-pnc", configuration);
+
+        cacheManager.startCaches();
     }
 
     private void closeCaches() {
@@ -540,9 +542,16 @@ public final class Main implements Callable<Void> {
 
         LOGGER.debug("mkdirs returned {}", ret);
 
-        LOGGER.info(
-                "Checksum type: {}",
-                green(String.join(", ", checksumTypes.stream().map(String::valueOf).collect(Collectors.toSet()))));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(
+                    "Checksum type: {}",
+                    green(
+                            String.join(
+                                    ", ",
+                                    checksumTypes.stream()
+                                            .map(String::valueOf)
+                                            .collect(Collectors.toUnmodifiableSet()))));
+        }
 
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumsFromFile = new EnumMap<>(ChecksumType.class);
 
@@ -595,7 +604,7 @@ public final class Main implements Callable<Void> {
                 try {
                     checksums = futureChecksum.get();
                 } catch (ExecutionException e) {
-                    LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()));
+                    LOGGER.error("Error getting checksums: {}", boldRed(getAllErrorMessages(e)));
                     LOGGER.debug("Error", e);
                     System.exit(1);
                 } catch (InterruptedException e) {
@@ -710,7 +719,7 @@ public final class Main implements Callable<Void> {
                                         entry.getValue()
                                                 .stream()
                                                 .map(LocalFile::getFilename)
-                                                .collect(Collectors.toList()));
+                                                .collect(Collectors.toUnmodifiableList()));
                             }
                         }
                     }
@@ -766,7 +775,7 @@ public final class Main implements Callable<Void> {
                     try {
                         checksums = futureChecksum.get();
                     } catch (ExecutionException e) {
-                        LOGGER.error("Error getting checksums: {}", boldRed(e.getMessage()));
+                        LOGGER.error("Error getting checksums: {}", boldRed(getAllErrorMessages(e)));
                         LOGGER.debug("Error", e);
                         System.exit(1);
                     } catch (InterruptedException e) {

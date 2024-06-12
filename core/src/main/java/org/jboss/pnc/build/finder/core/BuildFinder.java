@@ -18,6 +18,8 @@ package org.jboss.pnc.build.finder.core;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
+import static org.jboss.pnc.build.finder.core.Utils.BANG_SLASH;
+import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +56,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.apache.commons.lang3.StringUtils;
 import org.infinispan.commons.api.BasicCache;
 import org.infinispan.commons.api.BasicCacheContainer;
 import org.jboss.pnc.build.finder.koji.ClientSession;
@@ -278,7 +281,7 @@ public class BuildFinder
                 .map(KojiRpmInfo::getBuildId)
                 .filter(Objects::nonNull)
                 .map(KojiIdOrName::getFor)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         Future<List<KojiBuildInfo>> futureRpmBuildInfos = pool.submit(() -> session.getBuild(rpmBuildIds));
         Future<List<List<KojiTagInfo>>> futureRpmTagInfos = pool.submit(() -> session.listTags(rpmBuildIds));
         Future<List<List<KojiRpmInfo>>> futureRpmRpmInfos = pool.submit(() -> session.listBuildRPMs(rpmBuildIds));
@@ -286,7 +289,7 @@ public class BuildFinder
         List<Integer> taskIds = rpmBuildInfos.stream()
                 .map(KojiBuildInfo::getTaskId)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         int taskIdsSize = taskIds.size();
         List<KojiTaskInfo> rpmTaskInfos = null;
         Future<List<KojiTaskInfo>> futureRpmTaskInfos = null;
@@ -436,7 +439,7 @@ public class BuildFinder
         List<Integer> candidateIds = candidates.stream()
                 .map(KojiBuild::getBuildInfo)
                 .map(KojiBuildInfo::getId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
 
         LOGGER.debug("Found {} builds containing archive with checksum {}: {}", candidatesSize, checksum, candidateIds);
 
@@ -458,7 +461,7 @@ public class BuildFinder
         List<KojiBuild> cachedBuilds = candidateIds.stream()
                 .map(id -> builds.get(new BuildSystemInteger(id, BuildSystem.koji)))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
 
         if (!cachedBuilds.isEmpty()) {
             KojiBuild build = cachedBuilds.get(cachedBuilds.size() - 1);
@@ -470,13 +473,13 @@ public class BuildFinder
 
         List<KojiBuild> completedBuilds = candidates.stream()
                 .filter(build -> build.getBuildInfo().getBuildState() == KojiBuildState.COMPLETE)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         List<KojiBuild> completedTaggedBuilds = completedBuilds.stream()
                 .filter(build -> build.getTags() != null && !build.getTags().isEmpty())
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         List<KojiBuild> completedTaggedBuiltBuilds = completedTaggedBuilds.stream()
                 .filter(build -> !build.isImport())
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
 
         if (!completedTaggedBuiltBuilds.isEmpty()) {
             KojiBuild build = completedTaggedBuiltBuilds.get(completedTaggedBuiltBuilds.size() - 1);
@@ -532,7 +535,7 @@ public class BuildFinder
     private Optional<String> handleNotFoundFile(String filename) {
         LOGGER.debug("Handle not found file: {}", filename);
 
-        int index = filename.lastIndexOf("!/");
+        int index = filename.lastIndexOf(BANG_SLASH);
 
         if (index == -1) {
             index = filename.length();
@@ -583,7 +586,7 @@ public class BuildFinder
     private Optional<String> handleFoundFile(String filename) {
         LOGGER.debug("Handle found file: {}", filename);
 
-        int index = filename.lastIndexOf("!/");
+        int index = filename.lastIndexOf(BANG_SLASH);
 
         if (index == -1) {
             index = filename.length();
@@ -632,7 +635,7 @@ public class BuildFinder
     public Map<BuildSystemInteger, KojiBuild> findBuilds(Map<Checksum, Collection<String>> checksumTable)
             throws KojiClientException {
         if (checksumTable == null || checksumTable.isEmpty()) {
-            LOGGER.warn("Checksum table is empty");
+            LOGGER.warn("Koji Checksum table is empty");
             return Collections.emptyMap();
         }
 
@@ -688,7 +691,7 @@ public class BuildFinder
                             green(
                                     cacheArchiveInfos.stream()
                                             .map(KojiArchiveInfo::getBuildId)
-                                            .collect(Collectors.toList())));
+                                            .collect(Collectors.toUnmodifiableList())));
                     cachedChecksums.add(entry);
                     cachedArchiveInfos.add(cacheArchiveInfos);
                 }
@@ -751,7 +754,7 @@ public class BuildFinder
                         archives.addAll(archiveFutures);
                     } catch (ExecutionException e) {
                         Utils.shutdownAndAwaitTermination(pool);
-                        LOGGER.error("Error getting Koji archives: {}", boldRed(e.getMessage()));
+                        LOGGER.error("Error getting Koji archives: {}", boldRed(getAllErrorMessages(e)));
                         LOGGER.debug("Error", e);
                         throw new KojiClientException("Error getting Koji archives", e);
                     }
@@ -759,13 +762,15 @@ public class BuildFinder
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 Utils.shutdownAndAwaitTermination(pool);
-                LOGGER.error("Koji archive thread interrupted: {}", boldRed(e.getMessage()));
+                LOGGER.error("Koji archive thread interrupted: {}", boldRed(getAllErrorMessages(e)));
                 LOGGER.debug("Error", e);
                 throw new KojiClientException("Koji archive thread interrupted", e);
             }
         }
 
-        List<KojiArchiveInfo> archivesToEnrich = archives.stream().flatMap(List::stream).collect(Collectors.toList());
+        List<KojiArchiveInfo> archivesToEnrich = archives.stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toUnmodifiableList());
 
         session.enrichArchiveTypeInfo(archivesToEnrich);
 
@@ -809,7 +814,7 @@ public class BuildFinder
         List<Integer> buildIds = Stream.concat(archiveBuildIds, cachedBuildIds)
                 .sorted()
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
         int buildIdsSize = buildIds.size();
 
         /*
@@ -852,7 +857,9 @@ public class BuildFinder
          * build. 3- find all the KojiTagInfo associated with each build.
          */
         if (!buildIds.isEmpty()) {
-            List<KojiIdOrName> idsOrNames = buildIds.stream().map(KojiIdOrName::getFor).collect(Collectors.toList());
+            List<KojiIdOrName> idsOrNames = buildIds.stream()
+                    .map(KojiIdOrName::getFor)
+                    .collect(Collectors.toUnmodifiableList());
             Future<List<KojiBuildInfo>> futureArchiveBuilds = pool.submit(() -> session.getBuild(idsOrNames));
             Future<List<List<KojiTagInfo>>> futureTagInfos = pool.submit(() -> session.listTags(idsOrNames));
             List<KojiArchiveQuery> queries = new ArrayList<>(buildIdsSize);
@@ -1117,7 +1124,7 @@ public class BuildFinder
                 String filename = it2.next();
                 Optional<String> optionalParentFilename = handleNotFoundFile(filename);
 
-                if (optionalParentFilename.isPresent() && optionalParentFilename.get().contains("!/")) {
+                if (optionalParentFilename.isPresent() && optionalParentFilename.get().contains(BANG_SLASH)) {
                     LOGGER.debug("Removing {} since we found a parent elsewhere", filename);
                     it2.remove();
                 } else {
@@ -1198,8 +1205,7 @@ public class BuildFinder
                 green(archiveInfos.get(0).getFilename()),
                 green(archiveInfos.size()));
 
-        Set<Integer> buildIds = archiveInfos.stream().map(KojiArchiveInfo::getBuildId).collect(Collectors.toSet());
-        List<KojiBuild> candidateBuilds = buildIds.stream().map(allBuilds::get).collect(Collectors.toList());
+        List<KojiBuild> candidateBuilds = getKojiBuildsForArchives(allBuilds, archiveInfos);
         KojiBuild build = findBestBuildFromCandidates(candidateBuilds, archiveInfos);
 
         LOGGER.debug(
@@ -1208,6 +1214,15 @@ public class BuildFinder
                 green(candidateBuilds.size()));
 
         return build;
+    }
+
+    private static List<KojiBuild> getKojiBuildsForArchives(
+            Map<Integer, KojiBuild> allBuilds,
+            List<KojiArchiveInfo> archiveInfos) {
+        Set<Integer> buildIds = archiveInfos.stream()
+                .map(KojiArchiveInfo::getBuildId)
+                .collect(Collectors.toCollection(HashSet::new));
+        return buildIds.stream().map(allBuilds::get).collect(Collectors.toUnmodifiableList());
     }
 
     public Map<Checksum, Collection<String>> getFoundChecksums() {
@@ -1276,7 +1291,7 @@ public class BuildFinder
 
             if (config.getBuildSystems().contains(BuildSystem.pnc) && config.getPncURL() != null) {
                 // The preferred checksumType for PNC is sha256, so replace the original map with a preferred map
-                LOGGER.info(
+                LOGGER.debug(
                         "Swapping the original MD5-based checksum map to a SHA256-based checksum map (whenever possible) for finding builds in PNC!");
                 Map<Checksum, Collection<String>> sha256BasedCheckumMap = BuildFinderUtils
                         .swapEntriesWithPreferredChecksum(map, analyzer.getFiles(), ChecksumType.sha256);
@@ -1296,7 +1311,7 @@ public class BuildFinder
                     LOGGER.debug(
                             "Need to search in Brew!! Not found checksums: {}",
                             pncBuildsNew.getNotFoundChecksums());
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Swapping back the SHA256-based checksum map to a MD5-based checksum map for finding builds in Brew!");
 
                     Map<Checksum, Collection<String>> md5BasedNotFoundCheckumMap = BuildFinderUtils
@@ -1313,9 +1328,9 @@ public class BuildFinder
                     kojiBuildsNew = findBuilds(md5BasedNotFoundCheckumMap);
                     allBuilds.putAll(kojiBuildsNew);
 
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed files (e.g. signed binaries)");
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more builds in Brew!");
 
                     Map<Checksum, Collection<String>> sha256BasedNotFoundCheckumMap = BuildFinderUtils
@@ -1341,9 +1356,9 @@ public class BuildFinder
             } else {
                 kojiBuildsNew = findBuilds(map);
                 allBuilds.putAll(kojiBuildsNew);
-                LOGGER.info(
+                LOGGER.debug(
                         "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed files (like the signed binaries)");
-                LOGGER.info(
+                LOGGER.debug(
                         "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more builds in Brew!");
 
                 Map<Checksum, Collection<String>> sha256BasedNotFoundCheckumMap = BuildFinderUtils
@@ -1368,9 +1383,10 @@ public class BuildFinder
             checksums.clear();
         }
 
+        int size = allBuilds.size();
+        int numBuilds = size >= 1 ? size - 1 : 0;
+
         if (LOGGER.isInfoEnabled()) {
-            int size = allBuilds.size();
-            int numBuilds = size >= 1 ? size - 1 : 0;
             Instant endTime = Instant.now();
             Duration duration = Duration.between(startTime, endTime).abs();
 
@@ -1381,9 +1397,9 @@ public class BuildFinder
                     green(numBuilds > 0 ? duration.dividedBy(numBuilds) : 0));
         }
 
-        Set<MavenLicense> allLicenses = addLicensesToBuilds(analyzer.getLicensesMap(), allBuilds);
+        Set<LicenseInfo> allLicenses = addLicensesToBuilds(analyzer.getLicensesMap(), allBuilds);
         List<String> uniqueLicenses = allLicenses.stream()
-                .map(MavenLicense::getSpdxLicenseId)
+                .map(LicenseInfo::getSpdxLicenseId)
                 .sorted()
                 .distinct()
                 .collect(Collectors.toUnmodifiableList());
@@ -1393,31 +1409,27 @@ public class BuildFinder
                     "Added {} unique SPDX licenses to builds: {}",
                     green(uniqueLicenses.size()),
                     green(String.join(", ", uniqueLicenses)));
-            List<KojiBuild> allMavenBuilds = allBuilds.values()
-                    .stream()
-                    .filter(KojiBuild::isMaven)
-                    .collect(Collectors.toList());
-            int numMavenBuilds = allMavenBuilds.size();
-            List<KojiBuild> buildsWithLicenses = allMavenBuilds.stream()
+            Collection<KojiBuild> values = allBuilds.values();
+            List<KojiBuild> buildsWithLicenses = values.stream()
                     .filter(kojiBuild -> !kojiBuild.getLicenses().isEmpty())
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toUnmodifiableList());
             int numBuildsWithLicenses = buildsWithLicenses.size();
             LOGGER.info(
-                    "{} / {} = {}% of Maven builds have license information",
+                    "{} / {} = {}% of builds have license information",
                     green(numBuildsWithLicenses),
-                    green(numMavenBuilds),
-                    green(Math.round(((double) numBuildsWithLicenses / (double) numMavenBuilds) * 100D)));
+                    green(numBuilds),
+                    green(Math.round(((double) numBuildsWithLicenses / (double) numBuilds) * 100D)));
 
             if (LOGGER.isWarnEnabled()) {
+                List<KojiBuild> allbuildsList = new ArrayList<>(values);
                 LOGGER.warn(
-                        "{} Maven builds are missing licenses: {}",
-                        red(numMavenBuilds - numBuildsWithLicenses),
+                        "{} builds are missing licenses: {}",
+                        red(numBuilds - numBuildsWithLicenses),
                         red(
-                                ListUtils.subtract(allMavenBuilds, buildsWithLicenses)
+                                ListUtils.subtract(allbuildsList, buildsWithLicenses)
                                         .stream()
                                         .map(KojiBuild::getBuildInfo)
-                                        .map(KojiBuildInfo::getGAV)
-                                        .map(Objects::toString)
+                                        .map(KojiBuildInfo::getNvr)
                                         .sorted()
                                         .collect(Collectors.joining(", "))));
             }
@@ -1426,82 +1438,51 @@ public class BuildFinder
         return allBuilds;
     }
 
-    private static Set<MavenLicense> addLicensesToBuilds(
-            Map<String, Set<MavenLicense>> licensesMap,
+    private static Set<LicenseInfo> addLicensesToBuilds(
+            Map<String, Collection<LicenseInfo>> licensesMap,
             Map<BuildSystemInteger, KojiBuild> allBuilds) {
-        Set<Entry<String, Set<MavenLicense>>> entries = licensesMap.entrySet();
-        Set<MavenLicense> allLicenses = new TreeSet<>();
+        Set<Entry<String, Collection<LicenseInfo>>> entries = licensesMap.entrySet();
+        Set<LicenseInfo> allLicenses = new TreeSet<>();
 
-        for (Entry<String, Set<MavenLicense>> licenseEntry : entries) {
-            String coords = licenseEntry.getKey();
-            String[] gav = coords.split(":");
+        for (Entry<String, Collection<LicenseInfo>> licenseEntry : entries) {
+            String filename = StringUtils.removeEnd(licenseEntry.getKey(), BANG_SLASH);
+            String parentFilename = filename;
+            Optional<KojiBuild> optKojiBuild = findBuildForFilename(parentFilename, allBuilds);
+            int index;
 
-            if (gav.length != 3) {
-                LOGGER.error("Error parsing Maven GAV {}", boldRed(coords));
-                continue;
+            while (optKojiBuild.isEmpty() && (index = parentFilename.lastIndexOf(BANG_SLASH)) != -1) {
+                parentFilename = parentFilename.substring(0, index);
+                optKojiBuild = findBuildForFilename(parentFilename, allBuilds);
             }
 
-            String groupId = gav[0];
-            String artifactId = gav[1];
-            String version = gav[2];
-            List<KojiBuild> matchingBuilds = allBuilds.values()
-                    .stream()
-                    .filter(KojiBuild::isMaven)
-                    .filter(
-                            kojiBuild -> buildInfoMatchesGav(kojiBuild.getBuildInfo(), groupId, artifactId, version)
-                                    || kojiBuild.getArchives()
-                                            .stream()
-                                            .anyMatch(
-                                                    kojiLocalArchive -> archiveInfoMatchesGav(
-                                                            kojiLocalArchive.getArchive(),
-                                                            groupId,
-                                                            artifactId,
-                                                            version)))
-                    .collect(Collectors.toList());
-
-            if (!matchingBuilds.isEmpty()) {
-                if (matchingBuilds.size() > 1) {
-                    if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn(
-                                "Multiple builds ({}) found for Maven GAV {} when matching licenses: {}",
-                                red(matchingBuilds.size()),
-                                red(coords),
-                                red(
-                                        matchingBuilds.stream()
-                                                .map(KojiBuild::getBuildInfo)
-                                                .map(KojiBuildInfo::getNvr)
-                                                .sorted()
-                                                .collect(Collectors.joining(", "))));
-                    }
-                }
-
-                Set<MavenLicense> mavenLicenses = licenseEntry.getValue();
-                matchingBuilds.forEach(kojiBuild -> {
-                    kojiBuild.getLicenses().addAll(mavenLicenses);
-                    allLicenses.addAll(mavenLicenses);
-                });
+            if (optKojiBuild.isPresent()) {
+                KojiBuild build = optKojiBuild.get();
+                Collection<LicenseInfo> licenseInfos = licenseEntry.getValue();
+                build.getLicenses().addAll(licenseInfos);
+                allLicenses.addAll(licenseInfos);
+            } else {
+                LOGGER.error("No matching build found for file {}", boldRed(filename));
             }
         }
 
         return Collections.unmodifiableSet(allLicenses);
     }
 
-    private static boolean archiveInfoMatchesGav(
-            KojiArchiveInfo archiveInfo,
-            String groupId,
-            String artifactId,
-            String version) {
-        return archiveInfo.getGroupId().equals(groupId) && archiveInfo.getArtifactId().equals(artifactId)
-                && archiveInfo.getVersion().equals(version);
-    }
+    private static Optional<KojiBuild> findBuildForFilename(
+            String filename,
+            Map<BuildSystemInteger, KojiBuild> allBuilds) {
+        for (KojiBuild build : allBuilds.values()) {
+            Optional<KojiLocalArchive> optArchive = build.getArchives()
+                    .stream()
+                    .filter(ar -> ar.getFilenames().contains(filename))
+                    .findFirst();
 
-    private static boolean buildInfoMatchesGav(
-            KojiBuildInfo buildInfo,
-            String groupId,
-            String artifactId,
-            String version) {
-        return buildInfo.getMavenGroupId().equals(groupId) && buildInfo.getMavenArtifactId().equals(artifactId)
-                && buildInfo.getMavenVersion().equals(version);
+            if (optArchive.isPresent()) {
+                return Optional.of(build);
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**

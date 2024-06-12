@@ -54,7 +54,7 @@ public final class JSONUtils {
         return MAPPER.readValue(file, typeReference);
     }
 
-    public static Map<String, List<String>> loadLicenseMappingUrls(InputStream in) throws IOException {
+    public static Map<String, List<String>> loadLicenseMapping(InputStream in) throws IOException {
         TypeReference<Map<String, List<String>>> typeReference = new LicensesMapTypeReference();
         return MAPPER.readValue(in, typeReference);
     }

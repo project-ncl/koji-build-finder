@@ -15,13 +15,28 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.util.Comparator.reverseOrder;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.function.Function.identity;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.LICENSE_MAPPING_FILENAME;
+import static org.jboss.pnc.build.finder.core.LicenseSource.BUNDLE_LICENSE;
+import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
+import static org.jboss.pnc.build.finder.core.LicenseSource.POM_XML;
+import static org.jboss.pnc.build.finder.core.LicenseSource.TEXT;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.NOASSERTION;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
+import static org.jboss.pnc.build.finder.core.MavenUtils.isPomXml;
+import static org.jboss.pnc.build.finder.core.Utils.BANG_SLASH;
+import static org.jboss.pnc.build.finder.core.Utils.byteCountToDisplaySize;
+import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
+import static org.jboss.pnc.build.finder.core.Utils.normalizePath;
+import static org.jboss.pnc.build.finder.core.Utils.shutdownAndAwaitTermination;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +45,6 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -60,11 +74,14 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileExtensionSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.InvertIncludeFileSelector;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.http5.Http5FileProvider;
 import org.codehaus.plexus.interpolation.InterpolationException;
@@ -86,6 +103,16 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
      * for {@code zip}/{@code gz} which is classified as {@code application/octet-stream}.
      */
     private static final List<String> NON_ARCHIVE_SCHEMES = List.of("tmp", "res", "ram", "file", "http", "https");
+
+    private static final List<String> JAR_EXTENSIONS = List
+            .of("jar", "war", "rar", "ear", "sar", "kar", "jdocbook", "jdocbook-style", "plugin");
+
+    private static final String[] JARS_TO_IGNORE = {
+            "-sources.jar" + BANG_SLASH,
+            "-javadoc.jar" + BANG_SLASH,
+            "-tests.jar" + BANG_SLASH };
+
+    private static final String JAR_URI = ".jar" + BANG_SLASH;
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
 
@@ -113,7 +140,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private Map<ChecksumType, MultiValuedMap<String, LocalFile>> map;
 
-    private final Map<String, Set<MavenLicense>> licensesMap;
+    private final Map<String, Collection<LicenseInfo>> licensesMap;
 
     private String root;
 
@@ -128,17 +155,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
-        this.inputs = inputs;
-        this.config = config;
-        checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
-        map = new EnumMap<>(ChecksumType.class);
-        licensesMap = new TreeMap<>();
-        String licenseListVersion = LicenseUtils.getSpdxLicenseListVersion();
-        int licenseListSize = LicenseUtils.getNumberOfSpdxLicenses();
-        LOGGER.info(
-                "Using SPDX License List {} containing {} licenses",
-                green(licenseListVersion),
-                green(licenseListSize));
         try {
             mapping = LicenseUtils.loadLicenseMapping();
 
@@ -150,9 +166,21 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             }
         } catch (IOException e) {
             mapping = Collections.emptyMap();
-            LOGGER.error("Error loading SPDX license URL mappings from {}", boldRed(LICENSE_MAPPING_FILENAME));
+            LOGGER.error("Error loading SPDX license URL mappings: {}", boldRed(getAllErrorMessages(e)));
             LOGGER.debug("Error", e);
         }
+
+        this.inputs = inputs;
+        this.config = config;
+        checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
+        map = new EnumMap<>(ChecksumType.class);
+        licensesMap = new TreeMap<>();
+        String licenseListVersion = LicenseUtils.getSPDXLicenseListVersion();
+        int licenseListSize = LicenseUtils.getNumberOfSPDXLicenses();
+        LOGGER.info(
+                "Using SPDX License List {} containing {} licenses",
+                green(licenseListVersion),
+                green(licenseListSize));
 
         for (ChecksumType checksumType : checksumTypesToCheck) {
             map.put(checksumType, new HashSetValuedHashMap<>());
@@ -171,16 +199,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
 
         level = new AtomicInteger();
-        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        pool = Executors.newWorkStealingPool();
         fileErrors = new ArrayList<>();
     }
 
-    private static boolean isJar(FileObject fo) {
-        String ext = fo.getName().getExtension();
-        List<String> exts = Arrays
-                .asList("jar", "war", "rar", "ear", "sar", "kar", "jdocbook", "jdocbook-style", "plugin");
-
-        return exts.contains(ext);
+    private static boolean isJavaArchive(FileObject fo) {
+        return FilenameUtils.isExtension(fo.getName().getBaseName(), JAR_EXTENSIONS);
     }
 
     public Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksumFiles() throws IOException {
@@ -223,8 +247,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                                 "Error loading cache {}: {}. The cache format has changed"
                                                         + " and you will have to manually delete the existing cache",
                                                 boldRed(ConfigDefaults.CACHE_LOCATION),
-                                                boldRed(e.getMessage()),
-                                                e);
+                                                boldRed(getAllErrorMessages(e)));
                                         throw e;
                                     }
 
@@ -275,7 +298,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                                     ", ",
                                                     checksumTypesToCheck.stream()
                                                             .map(String::valueOf)
-                                                            .collect(Collectors.toSet()))),
+                                                            .collect(Collectors.toUnmodifiableSet()))),
                                     green(fo.getName()));
                         }
 
@@ -311,32 +334,38 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 LOGGER.debug("Cleaning up VFS cache failed", e);
             }
 
-            Utils.shutdownAndAwaitTermination(pool);
+            shutdownAndAwaitTermination(pool);
         }
 
-        List<String> totalLicenses = licensesMap.values()
-                .stream()
-                .flatMap(Set::stream)
-                .map(MavenLicense::getSpdxLicenseId)
-                .collect(Collectors.toList());
-        Set<String> uniqueLicenses = new TreeSet<>(totalLicenses);
+        int numChecksums = map.values().iterator().next().size();
 
         if (LOGGER.isInfoEnabled()) {
+            List<String> totalLicenses = licensesMap.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .map(LicenseInfo::getSpdxLicenseId)
+                    .collect(Collectors.toUnmodifiableList());
+            Set<String> uniqueLicenses = new TreeSet<>(totalLicenses);
+            Map<String, Long> licenseCountMap = totalLicenses.stream().collect(groupingBy(identity(), counting()));
+            String licenseCounts = licenseCountMap.entrySet()
+                    .stream()
+                    .sorted(comparingByValue(reverseOrder()))
+                    .map(entry -> entry.getKey() + ": " + entry.getValue())
+                    .collect(Collectors.joining(", "));
             LOGGER.info(
                     "Found {} unique SPDX licenses (out of {} total SPDX licenses found): {}",
                     green(uniqueLicenses.size()),
                     green(totalLicenses.size()),
-                    green(String.join(", ", uniqueLicenses)));
-        }
+                    green(licenseCounts));
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime).abs();
+            LOGGER.info(
+                    "Total number of checksums: {}, time: {}, average: {}",
+                    green(numChecksums),
+                    green(duration),
+                    green((double) numChecksums > 0.0D ? duration.dividedBy(numChecksums) : 0.0D));
 
-        Instant endTime = Instant.now();
-        Duration duration = Duration.between(startTime, endTime).abs();
-        int numChecksums = map.values().iterator().next().size();
-        LOGGER.info(
-                "Total number of checksums: {}, time: {}, average: {}",
-                green(numChecksums),
-                green(duration),
-                green((double) numChecksums > 0.0D ? duration.dividedBy(numChecksums) : 0.0D));
+        }
 
         if (listener != null) {
             listener.checksumsComputed(new ChecksumsComputedEvent(numChecksums));
@@ -398,7 +427,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             String filename = fo.getPublicURIString();
 
             if (fo.isFile()) {
-                LOGGER.info("Analyzing: {} ({})", green(filename), green(Utils.byteCountToDisplaySize(fo)));
+                LOGGER.info("Analyzing: {} ({})", green(filename), green(byteCountToDisplaySize(fo)));
             } else {
                 LOGGER.info("Analyzing: {}", green(filename));
             }
@@ -415,13 +444,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private boolean isDistributionArchive(FileObject fo) {
-        return level.intValue() == 1 && !isJar(fo);
+        return level.intValue() == 1 && !isJavaArchive(fo);
     }
 
     private boolean isTarArchive(FileObject fo) throws FileSystemException {
         FileObject parent = fo.getParent();
 
-        return level.intValue() == 2 && parent.isFolder() && parent.getName().getFriendlyURI().endsWith("!/")
+        return level.intValue() == 2 && parent.isFolder() && parent.getName().getFriendlyURI().endsWith(BANG_SLASH)
                 && parent.getChildren().length == 1;
     }
 
@@ -431,7 +460,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private void listArchive(FileObject fo) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Creating file system for: {}", Utils.normalizePath(fo, root));
+            LOGGER.debug("Creating file system for: {}", normalizePath(fo, root));
         }
 
         FileSystem fileSystem = fo.getFileSystem();
@@ -444,7 +473,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             fs = layered.getFileSystem();
             listChildren(layered);
         } catch (IOException e) {
-            String filename = Utils.normalizePath(fo, root);
+            String filename = normalizePath(fo, root);
             String message = getMessage(e);
             fileErrors.add(new FileError(filename, message));
             LOGGER.warn("Unable to process archive/compressed file: {}: {}", red(filename), red(message));
@@ -540,20 +569,25 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private void listChildren(FileObject fo) throws IOException {
-        List<FileObject> localFiles = new ArrayList<>(1 << 15);
+        List<FileObject> localFiles = new ArrayList<>();
+        List<FileObject> localFiles2 = new ArrayList<>();
 
         try {
-            fo.findFiles(new AllFileSelector(), true, localFiles);
+            FileExtensionSelector pomSelector = new FileExtensionSelector("pom");
+            fo.findFiles(pomSelector, true, localFiles);
+            fo.findFiles(new InvertIncludeFileSelector(pomSelector), true, localFiles2);
+            localFiles.addAll(localFiles2);
             int numChildren = localFiles.size();
             Iterable<Future<Set<Checksum>>> futures;
             Collection<Callable<Set<Checksum>>> tasks = new ArrayList<>(numChildren);
 
+            if (isMainJar(fo)) {
+                List<LicenseInfo> licenseInfos = addLicensesFromJar(fo, localFiles);
+                putLicenses(Utils.normalizePath(fo, root), licenseInfos);
+            }
+
             for (FileObject file : localFiles) {
                 if (file.isFile()) {
-                    if (isPom(file)) {
-                        addLicenses(file);
-                    }
-
                     if (!checksumTypesToCheck.isEmpty()) {
                         if (includeFile(file)) {
                             if ("tar".equals(file.getName().getScheme())) {
@@ -562,6 +596,20 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                             } else {
                                 tasks.add(checksumTask(file));
                             }
+                        }
+                    }
+
+                    boolean pom = isPom(file);
+                    boolean pomXml = isPomXml(file);
+
+                    if (pom || pomXml) {
+                        List<LicenseInfo> licenseInfos = addLicensesFromPom(file, pom ? POM : POM_XML);
+
+                        try {
+                            Map<String, List<LicenseInfo>> map = getLicenses(root, file);
+                            putLicenses(map.keySet().iterator().next(), licenseInfos);
+                        } catch (XmlPullParserException | InterpolationException e) {
+                            LOGGER.warn("Error parsing POM file {}: {}", red(file), red(getAllErrorMessages(e)));
                         }
                     }
 
@@ -594,106 +642,157 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 }
             }
         } finally {
-            for (FileObject file : localFiles) {
+            for (FileObject file : localFiles2) {
                 file.close();
             }
         }
     }
 
-    private void addLicenses(FileObject fileObject) throws IOException {
-        try {
-            Map<String, List<MavenLicense>> map = getLicenses(fileObject);
-            Entry<String, List<MavenLicense>> entry = map.entrySet().iterator().next();
-            String coords = entry.getKey();
-            List<MavenLicense> licenses = entry.getValue();
+    private static boolean isMainJar(FileObject fo) {
+        String name = fo.getPublicURIString();
+        return name.endsWith(JAR_URI) && !StringUtils.endsWithAny(name, JARS_TO_IGNORE);
+    }
 
-            if (licensesMap.containsKey(coords)) {
-                return;
+    private List<LicenseInfo> addLicensesFromJar(FileObject jar, List<FileObject> localFiles) {
+        return localFiles.parallelStream()
+                .map(localFile -> addLicensesFromJar(jar, localFile))
+                .filter(not(Collection::isEmpty))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private List<LicenseInfo> addLicensesFromJar(FileObject jar, FileObject localFile) {
+        List<LicenseInfo> licenseInfos;
+
+        try {
+            if (isPomXml(localFile)) {
+                licenseInfos = addLicensesFromPom(localFile, POM_XML);
+            } else if (LicenseUtils.isManifestMfFileName(localFile)) {
+                licenseInfos = addLicensesFromBundleLicense(localFile);
+            } else if (LicenseUtils.isLicenseFileName(localFile)) {
+                licenseInfos = addLicenseFromTextFile(jar, localFile);
+            } else {
+                licenseInfos = Collections.emptyList();
+            }
+        } catch (IOException e) {
+            licenseInfos = Collections.emptyList();
+        }
+
+        return licenseInfos;
+    }
+
+    private static List<LicenseInfo> addLicenseFromTextFile(FileObject jar, FileObject licenseFile) throws IOException {
+        String licenseId = LicenseUtils.getMatchingLicense(licenseFile);
+        LicenseInfo licenseInfo = new LicenseInfo(
+                licenseId,
+                jar.getName().getRelativeName(licenseFile.getName()),
+                LicenseUtils.getCurrentLicenseId(licenseId),
+                TEXT);
+        return List.of(licenseInfo);
+    }
+
+    private List<LicenseInfo> addLicensesFromBundleLicense(FileObject fileObject) throws IOException {
+        List<LicenseInfo> licenses = new ArrayList<>(3);
+        List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
+
+        for (BundleLicense bundleLicense : bundlesLicenses) {
+            String name = bundleLicense.getLicenseIdentifier();
+
+            if (name == null) {
+                name = bundleLicense.getDescription();
             }
 
-            Set<MavenLicense> mavenLicenses = new TreeSet<>();
+            String url = bundleLicense.getLink();
+            String licenseId = LicenseUtils.getSPDXLicenseId(mapping, name, url);
 
-            for (MavenLicense license : licenses) {
+            if (licenseId.equals(NOASSERTION)) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn(
+                            "Missing mapping for Bundle-License: name: {}, URL: {} for file {}",
+                            red(name),
+                            red(url),
+                            red(fileObject));
+                }
+            }
+
+            LicenseInfo licenseInfo = new LicenseInfo(name, url, licenseId, BUNDLE_LICENSE);
+            licenses.add(licenseInfo);
+        }
+
+        return licenses;
+    }
+
+    private List<LicenseInfo> addLicensesFromPom(FileObject fileObject, LicenseSource source) throws IOException {
+        try {
+            Map<String, List<LicenseInfo>> map = getLicenses(root, fileObject);
+            Entry<String, List<LicenseInfo>> entry = map.entrySet().iterator().next();
+            String pomOrJarFile = entry.getKey();
+            List<LicenseInfo> licenses = entry.getValue();
+            List<LicenseInfo> licenseInfos = new ArrayList<>(3);
+
+            for (LicenseInfo license : licenses) {
                 String name = license.getName() != null ? SPACE_PATTERN.matcher(license.getName()).replaceAll(" ")
                         : null;
                 String url = license.getUrl();
 
                 if ((name == null || name.isBlank()) && (url == null || url.isBlank())) {
-                    LOGGER.warn("No licenses found for in POM for {}", red(coords));
+                    LOGGER.warn("No licenses found for in POM for {}", red(pomOrJarFile));
                     continue;
                 }
 
-                String licenseId;
-                Optional<String> optLicenseId = LicenseUtils.findMatchingLicense(name, url)
-                        .or(() -> LicenseUtils.findLicenseMapping(mapping, url))
-                        .or(() -> LicenseUtils.findLicenseMapping(mapping, name));
+                String licenseId = LicenseUtils.getSPDXLicenseId(mapping, name, url);
 
-                if (optLicenseId.isEmpty()) {
+                if (licenseId.equals(NOASSERTION)) {
                     if (LOGGER.isWarnEnabled()) {
                         LOGGER.warn(
-                                "Missing mapping for {} license: name: {}, URL: {} in {}",
-                                red(coords),
+                                "Missing mapping for POM license: name: {}, URL: {} for file {}",
                                 red(name),
                                 red(url),
-                                red(LICENSE_MAPPING_FILENAME));
+                                red(fileObject));
                     }
                 }
 
-                licenseId = optLicenseId.orElse(NOASSERTION);
+                license.setSource(source);
                 license.setSpdxLicenseId(licenseId);
-                mavenLicenses.add(license);
+                licenseInfos.add(license);
+                LOGGER.debug("Found license {} for {}", licenseId, pomOrJarFile);
             }
 
-            if (!licenses.isEmpty() && mavenLicenses.isEmpty()) {
-                mavenLicenses.add(new MavenLicense());
+            if (!licenses.isEmpty() && licenseInfos.isEmpty()) {
+                LicenseInfo licenseInfo = new LicenseInfo();
+                licenseInfo.setSource(source);
+                licenseInfos.add(licenseInfo);
             }
 
             if (LOGGER.isDebugEnabled()) {
-                if (!mavenLicenses.isEmpty()) {
+                if (!licenseInfos.isEmpty()) {
                     LOGGER.debug(
                             "Found {} SPDX licenses for {}: {}",
-                            mavenLicenses.size(),
-                            coords,
-
+                            licenseInfos.size(),
+                            pomOrJarFile,
                             String.join(
                                     ", ",
-                                    mavenLicenses.stream()
-                                            .map(MavenLicense::getSpdxLicenseId)
+                                    licenseInfos.stream()
+                                            .map(LicenseInfo::getSpdxLicenseId)
                                             .collect(Collectors.toUnmodifiableSet())));
                 }
             }
 
-            licensesMap.put(coords, mavenLicenses);
+            return licenseInfos;
         } catch (XmlPullParserException | InterpolationException e) {
             LOGGER.warn("Unable to read licenses from file {}: {}", red(fileObject), red(getAllErrorMessages(e)));
+            throw new IOException(e);
         }
     }
 
-    private static String getAllErrorMessages(Throwable t) {
-        StringBuilder sb = new StringBuilder();
-        Throwable t2 = t;
-        String message = t2.getMessage();
+    private void putLicenses(String pomOrJarFile, Collection<LicenseInfo> licenseInfos) {
+        Collection<LicenseInfo> existingLicenses = licensesMap.get(pomOrJarFile);
 
-        while (true) {
-            if (message != null) {
-                sb.append(message);
-            }
-
-            Throwable cause = t2.getCause();
-
-            if (cause == null) {
-                break;
-            }
-
-            t2 = cause;
-            message = t2.getMessage();
-
-            if (message != null) {
-                sb.append(" ");
-            }
+        if (existingLicenses != null) {
+            existingLicenses.addAll(licenseInfos);
+        } else {
+            licensesMap.put(pomOrJarFile, licenseInfos);
         }
-
-        return sb.toString();
     }
 
     public List<String> getInputs() {
@@ -708,7 +807,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return new File(config.getOutputDirectory(), LICENSES_FILENAME_BASENAME + ".json");
     }
 
-    public Map<String, Set<MavenLicense>> getLicensesMap() {
+    public Map<String, Collection<LicenseInfo>> getLicensesMap() {
         return Collections.unmodifiableMap(licensesMap);
     }
 

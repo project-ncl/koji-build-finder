@@ -17,8 +17,6 @@ package org.jboss.pnc.build.finder.koji;
 
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
-import static org.apache.commons.collections4.MapUtils.getMap;
-import static org.apache.commons.collections4.MapUtils.getString;
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.PNC;
 
 import java.util.ArrayList;
@@ -28,7 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jboss.pnc.build.finder.core.MavenLicense;
+import org.apache.commons.collections4.MapUtils;
+import org.jboss.pnc.build.finder.core.LicenseInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
@@ -50,7 +49,7 @@ public class KojiBuild {
 
     private KojiTaskInfo taskInfo;
 
-    private Set<MavenLicense> licenses;
+    private Set<LicenseInfo> licenses;
 
     private transient KojiTaskRequest taskRequest;
 
@@ -105,7 +104,7 @@ public class KojiBuild {
             return null;
         }
 
-        String externalBuildId = getString(buildInfo.getExtra(), EXTERNAL_BUILD_ID);
+        String externalBuildId = MapUtils.getString(buildInfo.getExtra(), EXTERNAL_BUILD_ID);
         return externalBuildId != null ? externalBuildId : String.valueOf(buildInfo.getId());
     }
 
@@ -189,17 +188,17 @@ public class KojiBuild {
         this.duplicateArchives = duplicateArchives;
     }
 
-    public Set<MavenLicense> getLicenses() {
+    public Set<LicenseInfo> getLicenses() {
         return licenses;
     }
 
-    public void setLicenses(Set<MavenLicense> licenses) {
+    public void setLicenses(Set<LicenseInfo> licenses) {
         this.licenses = licenses;
     }
 
     @JsonIgnore
     public boolean isPnc() {
-        return buildInfo != null && PNC.equals(getString(buildInfo.getExtra(), BUILD_SYSTEM));
+        return buildInfo != null && PNC.equals(MapUtils.getString(buildInfo.getExtra(), BUILD_SYSTEM));
     }
 
     @JsonIgnore
@@ -249,13 +248,14 @@ public class KojiBuild {
 
     @JsonIgnore
     public boolean isImport() {
-        return buildInfo == null || (getString(buildInfo.getExtra(), BUILD_SYSTEM) == null && taskInfo == null);
+        return buildInfo == null
+                || (MapUtils.getString(buildInfo.getExtra(), BUILD_SYSTEM) == null && taskInfo == null);
     }
 
     @JsonIgnore
     public boolean isMaven() {
         return (taskInfo != null && TASK_METHOD_MAVEN.equals(taskInfo.getMethod()))
-                || (buildInfo != null && getMap(buildInfo.getExtra(), KEY_MAVEN) != null) || isPnc();
+                || (buildInfo != null && MapUtils.getMap(buildInfo.getExtra(), KEY_MAVEN) != null) || isPnc();
     }
 
     @JsonIgnore

@@ -66,7 +66,7 @@ public class PncBuildFinder {
     public FindBuildsResult findBuildsPnc(Map<Checksum, Collection<String>> checksumTable)
             throws RemoteResourceException {
         if (checksumTable == null || checksumTable.isEmpty()) {
-            LOGGER.warn("Checksum table is empty");
+            LOGGER.warn("PNC Checksum table is empty");
             return new FindBuildsResult();
         }
 

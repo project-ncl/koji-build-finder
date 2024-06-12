@@ -15,16 +15,27 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.NONE;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.VFS;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -43,9 +54,9 @@ class LicenseUtilsTest {
     @Test
     void testNormalizeLicenseUrl() {
         assertThat(LicenseUtils.normalizeLicenseUrl("https://www.opensource.org/licenses/cddl1.php"))
-                .isEqualTo("opensource.org/licenses/cddl1");
+                .isEqualTo("opensource-org/licenses/cddl-1");
         assertThat(LicenseUtils.normalizeLicenseUrl("https://creativecommons.org/publicdomain/zero/1.0/"))
-                .isEqualTo("cc.org/publicdomain/zero/1.0");
+                .isEqualTo("cc-org/publicdomain/zero/1.0");
     }
 
     @Test
@@ -55,24 +66,25 @@ class LicenseUtilsTest {
         assertThat(LicenseUtils.containsWordsInSameOrder(name, id)).isTrue();
     }
 
+    // FIXME: Number format should probably be "1.0" instead of "10" or "1 0", but this works well enough for now
     static Stream<Arguments> stringListStringProvider() {
         return Stream.of(
                 arguments(
                         "https://repository.jboss.org/licenses/apache-2.0.txt",
-                        List.of("apache", "2", "0"),
+                        List.of("apache", "20"),
                         "Apache-2.0"),
-                arguments("https://repository.jboss.org/licenses/cc0-1.0.txt", List.of("cc0", "1", "0"), "CC0-1.0"),
-                arguments("https://www.eclipse.org/legal/epl-2.0/", List.of("epl", "2", "0"), "EPL-2.0"),
-                arguments("http://www.eclipse.org/org/documents/epl-v10.php", List.of("epl", "1", "0"), "EPL-1.0"),
-                arguments("http://www.eclipse.org/legal/epl-v20.html", List.of("epl", "2", "0"), "EPL-2.0"),
-                arguments("http://www.opensource.org/licenses/cpl1.0.txt", List.of("cpl", "1", "0"), "CPL-1.0"),
+                arguments("https://repository.jboss.org/licenses/cc0-1.0.txt", List.of("cc0", "10"), "CC0-1.0"),
+                arguments("https://www.eclipse.org/legal/epl-2.0/", List.of("epl", "20"), "EPL-2.0"),
+                arguments("http://www.eclipse.org/org/documents/epl-v10.php", List.of("epl", "10"), "EPL-1.0"),
+                arguments("http://www.eclipse.org/legal/epl-v20.html", List.of("epl", "20"), "EPL-2.0"),
+                arguments("http://www.opensource.org/licenses/cpl1.0.txt", List.of("cpl", "10"), "CPL-1.0"),
                 arguments("http://oss.oracle.com/licenses/upl", List.of("upl"), "UPL"));
     }
 
     @ParameterizedTest
     @MethodSource("stringListStringProvider")
     void tesContainsWordsInSameOrderUrl1(String licenseUrl, List<String> tokens, String licenseId) {
-        String[] tokens1 = LicenseUtils.tokenizeLicenseString(licenseUrl);
+        List<String> tokens1 = LicenseUtils.tokenizeLicenseString(licenseUrl);
         assertThat(tokens1).containsAll(tokens);
         assertThat(LicenseUtils.containsWordsInSameOrder(licenseUrl, licenseId)).isTrue();
     }
@@ -87,6 +99,34 @@ class LicenseUtilsTest {
     void testFindMatchingLicenseName() {
         assertThat(LicenseUtils.findMatchingLicenseName("Apache License, Version 2.0", null)).hasValue("Apache-2.0");
         assertThat(LicenseUtils.findMatchingLicenseName("Apache-2.0", null)).hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findMatchingLicenseName("# Eclipse Public License - v 2.0", null)).hasValue("EPL-2.0");
+        String s = "This software is dual-licensed under: - the Lesser General Public License (LGPL) version 3.0 or, at your option, any later version";
+        assertThat(LicenseUtils.findMatchingLicenseName(s, null)).hasValue("LGPL-3.0-or-later");
+        assertThat(LicenseUtils.findMatchingLicenseName("GNU Lesser General Public License v3.0 only", null))
+                .hasValue("LGPL-3.0-only");
+    }
+
+    @Test
+    void testGetSPDXLicenseId() {
+        Map<String, List<String>> mapping = Map.of(NONE, List.of("Public Domain"));
+        assertThat(LicenseUtils.getSPDXLicenseId(mapping, "Public Domain", null)).isEqualTo(NONE);
+        assertThat(LicenseUtils.getSPDXLicenseId(mapping, null, "http://repository.jboss.org/licenses/cc0-1.0.txt"))
+                .isEqualTo("CC0-1.0");
+        assertThat(
+                LicenseUtils
+                        .getSPDXLicenseId(mapping, "Public Domain", "http://repository.jboss.org/licenses/cc0-1.0.txt"))
+                .isEqualTo("CC0-1.0");
+    }
+
+    @Test
+    void testFindMatchingLicenseNameInText() {
+        String s = "This software is dual-licensed under:  - the Lesser General Public License (LGPL) version 3.0 or, at your option, any later version;"
+                + "- the Apache Software License (ASL) version 2.0.";
+        assertThat(LicenseUtils.findMatchingLicenseName(s, null)).hasValue("LGPL-3.0-or-later");
+        s = "GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999";
+        assertThat(LicenseUtils.findMatchingLicenseName(s, null)).hasValue("LGPL-2.1-only");
+        s = "The GNU General Public License (GPL) Version 2, June 1991";
+        assertThat(LicenseUtils.findMatchingLicenseName(s, null)).hasValue("GPL-2.0-only");
     }
 
     @Test
@@ -102,13 +142,13 @@ class LicenseUtilsTest {
     }
 
     @Test
-    void testGetNumberOfSpdxLicenses() {
-        assertThat(LicenseUtils.getNumberOfSpdxLicenses()).isPositive();
+    void testGetNumberOfSPDXLicenses() {
+        assertThat(LicenseUtils.getNumberOfSPDXLicenses()).isPositive();
     }
 
     @Test
-    void testGetSpdxLicenseListVersion() {
-        assertThat(LicenseUtils.getSpdxLicenseListVersion()).isNotEmpty();
+    void testGetSPDXLicenseListVersion() {
+        assertThat(LicenseUtils.getSPDXLicenseListVersion()).isNotEmpty();
     }
 
     @Test
@@ -122,6 +162,14 @@ class LicenseUtilsTest {
         assertThat(LicenseUtils.findLicenseMapping(MAPPING, "Apache License")).hasValue("Apache-2.0");
         assertThat(LicenseUtils.findLicenseMapping(MAPPING, "https://www.freemarker.org/LICENSE.txt"))
                 .hasValue("Apache-2.0");
+        assertThat(
+                LicenseUtils.findLicenseMapping(MAPPING, "https://projects.eclipse.org/license/secondary-gpl-2.0-cp"))
+                .hasValue("GPL-2.0-only WITH Classpath-exception-2.0");
+        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "http://repository.jboss.org/licenses/lgpl-2.1.txt"))
+                .hasValue("LGPL-2.1-only");
+        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "http://www.gnu.org/licenses/lgpl-2.1.txt"))
+                .hasValue("LGPL-2.1-only");
+
     }
 
     @Test
@@ -130,5 +178,92 @@ class LicenseUtilsTest {
                 .hasValue("Apache-2.0");
         assertThat(LicenseUtils.findMatchingLicense("AL2", "https://repository.jboss.org/licenses/apache-2.0.txt"))
                 .hasValue("Apache-2.0");
+        assertThat(
+                LicenseUtils
+                        .findMatchingLicense(null, "https://projects.eclipse.org/content/eclipse-public-license-1.0"))
+                .hasValue("EPL-1.0");
+        assertThat(LicenseUtils.findMatchingLicense(null, "http://www.opensource.org/licenses/cpl1.0.txt"))
+                .hasValue("CPL-1.0");
+        assertThat(LicenseUtils.findMatchingLicense(null, "http://www.eclipse.org/legal/epl-v20.html"))
+                .hasValue("EPL-2.0");
+        assertThat(LicenseUtils.findMatchingLicense(null, "http://www.opensource.org/licenses/apache2.0.php"))
+                .hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findMatchingLicense(null, "http://creativecommons.org/licenses/by/2.5/"))
+                .hasValue("CC-BY-2.5");
+        assertThat(LicenseUtils.findMatchingLicense(null, "http://repository.jboss.org/licenses/cc0-1.0.txt"))
+                .hasValue("CC0-1.0");
+    }
+
+    @Test
+    void testGetBundleLicenseFromManifest() throws IOException {
+        String actual = "\"Apache-2.0\";link=\"https://www.apache.org/licenses/LICENSE-2.0.txt\"";
+        List<BundleLicense> bundleLicenses = LicenseUtils.getBundleLicenseFromManifest(actual);
+        assertThat(bundleLicenses).hasSize(1)
+                .element(0)
+                .extracting("licenseIdentifier", "link")
+                .containsExactly("Apache-2.0", "https://www.apache.org/licenses/LICENSE-2.0.txt");
+        actual = "Apache-2.0; link=\"https://www.apache.org/licenses/LICENSE-2.0\"; description=\"Apache License, Version 2.0\"";
+        bundleLicenses = LicenseUtils.getBundleLicenseFromManifest(actual);
+        assertThat(bundleLicenses).hasSize(1)
+                .element(0)
+                .extracting("licenseIdentifier", "link", "description")
+                .containsExactly(
+                        "Apache-2.0",
+                        "https://www.apache.org/licenses/LICENSE-2.0",
+                        "Apache License, Version 2.0");
+        actual = "http://www.eclipse.org/legal/epl-2.0," + " https://www.gnu.org/software/classpath/license.html,"
+                + " http://www.eclipse.org/org/documents/edl-v10.php";
+        bundleLicenses = LicenseUtils.getBundleLicenseFromManifest(actual);
+        assertThat(bundleLicenses).hasSize(3)
+                .flatMap(BundleLicense::getLink)
+                .containsExactly(
+                        "http://www.eclipse.org/legal/epl-2.0",
+                        "https://www.gnu.org/software/classpath/license.html",
+                        "http://www.eclipse.org/org/documents/edl-v10.php");
+        actual = "MIT";
+        bundleLicenses = LicenseUtils.getBundleLicenseFromManifest(actual);
+        assertThat(bundleLicenses).hasSize(1).flatMap(BundleLicense::getLicenseIdentifier).containsExactly("MIT");
+        actual = "LICENSE.txt";
+        bundleLicenses = LicenseUtils.getBundleLicenseFromManifest(actual);
+        assertThat(bundleLicenses).hasSize(1)
+                .flatMap(BundleLicense::getLicenseIdentifier)
+                .containsExactly("LICENSE.txt");
+    }
+
+    @Test
+    void testGetBundleLicenseFromManifestThrowsException() {
+        String s = "Apache License, Version 2.0; see: http://www.apache.org/\n" + " licenses/LICENSE-2.0.txt";
+        assertThatCode(() -> LicenseUtils.getBundleLicenseFromManifest(s)).isInstanceOf(IOException.class)
+                .hasMessage(
+                        "Expected key=value pair, but got see: http://www.apache.org/\n" + " licenses/LICENSE-2.0.txt");
+    }
+
+    @Test
+    void testGetBundleLicenseFromManifestFile(@TempDir Path tempDir) throws IOException {
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().put(MANIFEST_VERSION, "1.0");
+        manifest.getMainAttributes().putValue("Bundle-License", "http://repository.jboss.org/licenses/cc0-1.0.txt");
+        Path metaInfPath = tempDir.resolve("META-INF");
+        Files.createDirectory(metaInfPath);
+        Path manifestMfPath = metaInfPath.resolve("MANIFEST.MF");
+
+        try (OutputStream outputStream = Files.newOutputStream(manifestMfPath, CREATE_NEW)) {
+            manifest.write(outputStream);
+        }
+
+        FileObject fileObject = VFS.getManager().resolveFile(manifestMfPath.toUri());
+        List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
+        assertThat(bundlesLicenses).hasSize(1);
+        BundleLicense bundleLicense = bundlesLicenses.get(0);
+        assertThat(bundleLicense).extracting("licenseIdentifier").isNull();
+        assertThat(bundleLicense).extracting("link").isEqualTo("http://repository.jboss.org/licenses/cc0-1.0.txt");
+        assertThat(LicenseUtils.getSPDXLicenseId(Map.of(), null, bundleLicense.getLink())).isEqualTo("CC0-1.0");
+    }
+
+    // TODO: No support for SPDX license expressions, so returns only first license for now
+    @Test
+    void testFindMatchingSPDXLicenseIdentifier() {
+        String s = "// SPDX-License-Identifier: Apache-2.0 OR LGPL-2.1";
+        assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifier(s)).hasValue("Apache-2.0");
     }
 }

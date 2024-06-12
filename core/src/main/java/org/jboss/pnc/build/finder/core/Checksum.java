@@ -255,7 +255,7 @@ public class Checksum implements Serializable {
     static Optional<Checksum> findByType(Collection<Checksum> checksums, ChecksumType type) {
         List<Checksum> list = checksums.stream()
                 .filter(checksum -> checksum.getType() == type)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         Checksum checksum = null;
 
         if (!list.isEmpty()) {

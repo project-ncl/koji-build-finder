@@ -351,7 +351,7 @@ public final class BuildFinderUtils {
         List<String> allArchiveTypes = allArchiveTypesMap.values()
                 .stream()
                 .map(KojiArchiveType::getName)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         List<String> archiveTypes = config.getArchiveTypes();
         List<String> archiveTypesToCheck;
 
@@ -367,7 +367,7 @@ public final class BuildFinderUtils {
 
             archiveTypesToCheck = archiveTypes.stream()
                     .filter(allArchiveTypesMap::containsKey)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toUnmodifiableList());
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
@@ -387,7 +387,7 @@ public final class BuildFinderUtils {
                 .stream()
                 .map(KojiArchiveType::getExtensions)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         List<String> extensions = config.getArchiveExtensions();
         List<String> extensionsToCheck;
 
@@ -399,7 +399,9 @@ public final class BuildFinderUtils {
                         String.join(", ", extensions));
             }
 
-            extensionsToCheck = extensions.stream().filter(allArchiveExtensions::contains).collect(Collectors.toList());
+            extensionsToCheck = extensions.stream()
+                    .filter(allArchiveExtensions::contains)
+                    .collect(Collectors.toUnmodifiableList());
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
@@ -419,7 +421,7 @@ public final class BuildFinderUtils {
             extensionsToCheck = allArchiveExtensions;
         }
 
-        return Collections.unmodifiableList(extensionsToCheck);
+        return extensionsToCheck;
     }
 
     public static Map<Checksum, Collection<String>> swapEntriesWithPreferredChecksum(
@@ -440,7 +442,9 @@ public final class BuildFinderUtils {
             }
 
             Collection<Checksum> fileChecksums = fileInverseMap.get(files.iterator().next());
-            Optional<Checksum> preferredChecksum = Checksum.findByType(fileChecksums, preferredChecksumType);
+            Optional<Checksum> preferredChecksum = fileChecksums != null
+                    ? Checksum.findByType(fileChecksums, preferredChecksumType)
+                    : Optional.empty();
 
             if (preferredChecksum.isPresent()) {
                 // The preferred checksum was found, use it

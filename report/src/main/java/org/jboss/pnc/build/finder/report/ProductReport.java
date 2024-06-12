@@ -25,6 +25,8 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.counting;
 import static org.apache.commons.collections.IteratorUtils.unmodifiableIterator;
 import static org.apache.commons.collections4.IteratorUtils.arrayListIterator;
 
@@ -38,7 +40,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -76,15 +77,12 @@ public final class ProductReport extends Report {
                         build -> build.getTaskRequest() != null && build.getTaskRequest().asBuildRequest() != null
                                 && build.getTaskRequest().asBuildRequest().getTarget() != null)
                 .map(build -> build.getTaskRequest().asBuildRequest().getTarget())
-                .collect(Collectors.toList());
-        Map<String, Long> map = targets.stream()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+                .collect(Collectors.toUnmodifiableList());
+        Map<String, Long> map = targets.stream().collect(Collectors.groupingBy(identity(), counting()));
         List<Entry<String, Long>> countList = map.entrySet()
                 .stream()
-                .sorted(Entry.comparingByValue())
-                .collect(Collectors.toList());
-        Collections.reverse(countList);
-
+                .sorted(Entry.<String, Long> comparingByValue().reversed())
+                .collect(Collectors.toUnmodifiableList());
         MultiValuedMap<String, KojiBuild> prodMap = new ArrayListValuedHashMap<>();
 
         for (KojiBuild build : builds) {
@@ -117,7 +115,7 @@ public final class ProductReport extends Report {
             Collection<KojiBuild> prodBuilds = entry.getValue();
             List<String> buildList = prodBuilds.stream()
                     .map(build -> build.getBuildInfo().getNvr())
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toUnmodifiableList());
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} ({}): {}", target, targetToProduct(target), buildList);

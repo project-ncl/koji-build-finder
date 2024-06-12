@@ -104,7 +104,7 @@ class DistributionAnalyzerTest {
     @Test
     void testCacheClearance(@TempDir File folder) throws IOException {
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
-            Collection<Path> ls = stream.collect(Collectors.toList());
+            Collection<Path> ls = stream.collect(Collectors.toUnmodifiableList());
             assertThat(ls).hasSize(1);
         }
 
@@ -115,7 +115,7 @@ class DistributionAnalyzerTest {
         da.checksumFiles();
 
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
-            Collection<Path> files = stream.collect(Collectors.toList());
+            Collection<Path> files = stream.collect(Collectors.toUnmodifiableList());
             assertThat(files).hasSize(1);
         }
     }

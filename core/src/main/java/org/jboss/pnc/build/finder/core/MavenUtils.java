@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -48,6 +47,8 @@ public final class MavenUtils {
     private static final Pattern POM_XML_PATTERN = Pattern.compile(
             String.join(SEPARATOR, "^", "META-INF", "maven", "(?<groupId>.*)", "(?<artifactId>.*)", "pom.xml$"));
 
+    private static final String POM_EXTENSION = "pom";
+
     private static final Pattern MAVEN_PROPERTY_PATTERN = Pattern.compile(".*\\$\\{.*}.*");
 
     private MavenUtils() {
@@ -55,21 +56,24 @@ public final class MavenUtils {
     }
 
     /**
-     * Determines whether the given file object is a POM file. A pom file is a file that has extension <code>pom</code>,
-     * or a file inside a jar named <code>pom.xml</code>, if it is inside the <code>META-INF/maven</code> directory.
+     * Determines whether the given file object is a POM file. A pom file is a file that has extension <code>pom</code>.
      *
      * @param fileObject the file object
      * @return true if the file object is a POM file and false otherwise
      */
     public static boolean isPom(FileObject fileObject) {
-        FileName name = fileObject.getName();
-        String extension = name.getExtension();
+        return POM_EXTENSION.equals(fileObject.getName().getExtension());
+    }
 
-        if (extension.equals("pom")) {
-            return true;
-        }
-
-        String path = name.getPath();
+    /**
+     * Determines whether the given file object is a POM file inside a JAR file. This method returns <code>true</code>
+     * for a file inside a jar named <code>pom.xml</code> if it is inside the <code>META-INF/maven</code> directory.
+     *
+     * @param fileObject the file object
+     * @return true if the file object is a POM file and false otherwise
+     */
+    public static boolean isPomXml(FileObject fileObject) {
+        String path = fileObject.getName().getPath();
         Matcher matcher = POM_XML_PATTERN.matcher(path);
         return matcher.matches();
     }
@@ -143,8 +147,8 @@ public final class MavenUtils {
      * @param project the Maven project
      * @return the list of Maven projects (may be empty)
      */
-    public static List<MavenLicense> getLicenses(MavenProject project) {
-        return project.getLicenses().stream().map(MavenLicense::new).collect(Collectors.toUnmodifiableList());
+    public static List<LicenseInfo> getLicenses(MavenProject project) {
+        return project.getLicenses().stream().map(LicenseInfo::new).collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -157,9 +161,9 @@ public final class MavenUtils {
      * @throws IOException if an error occurs when reading from the file
      * @throws XmlPullParserException if an error occurs when parsing the POM file
      */
-    public static Map<String, List<MavenLicense>> getLicenses(FileObject pomFileObject)
+    public static Map<String, List<LicenseInfo>> getLicenses(String root, FileObject pomFileObject)
             throws IOException, XmlPullParserException, InterpolationException {
         MavenProject project = getMavenProject(pomFileObject);
-        return Collections.singletonMap(getGAV(project), getLicenses(project));
+        return Collections.singletonMap(Utils.normalizePath(pomFileObject, root), getLicenses(project));
     }
 }

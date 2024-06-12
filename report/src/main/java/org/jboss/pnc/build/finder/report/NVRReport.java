@@ -56,7 +56,7 @@ public final class NVRReport extends Report {
                 .map(KojiBuildInfo::getNvr)
                 .sorted(String::compareToIgnoreCase)
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
