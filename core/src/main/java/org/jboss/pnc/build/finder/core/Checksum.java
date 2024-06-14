@@ -29,6 +29,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -50,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Checksum implements Serializable {
+public class Checksum implements Comparable<Checksum>, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Checksum.class);
 
     private static final long serialVersionUID = -7347509034711302799L;
@@ -64,6 +66,7 @@ public class Checksum implements Serializable {
     @JsonIgnore
     private String filename;
 
+    @JsonIgnore
     private long fileSize;
 
     public Checksum() {
@@ -295,6 +298,35 @@ public class Checksum implements Serializable {
 
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
+    }
+
+    @Override
+    public int compareTo(Checksum o) {
+        if (o == null) {
+            return 1;
+        }
+
+        int i = Integer.compare(type.ordinal(), o.getType().ordinal());
+        return i != 0 ? i : StringUtils.compare(value, o.value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Checksum checksum = (Checksum) o;
+        return type == checksum.type && Objects.equals(value, checksum.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, value);
     }
 
     @Override

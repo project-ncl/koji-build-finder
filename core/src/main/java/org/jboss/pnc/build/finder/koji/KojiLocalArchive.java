@@ -16,7 +16,6 @@
 package org.jboss.pnc.build.finder.koji;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.TreeSet;
 
 import org.jboss.pnc.build.finder.core.Checksum;
@@ -41,21 +40,21 @@ public class KojiLocalArchive {
 
     public KojiLocalArchive() {
         this.filenames = new TreeSet<>();
-        this.checksums = new HashSet<>();
+        this.checksums = new TreeSet<>();
         this.unmatchedFilenames = new TreeSet<>();
     }
 
     public KojiLocalArchive(KojiArchiveInfo archive, Collection<String> filenames, Collection<Checksum> checksums) {
         this.archive = archive;
         this.filenames = new TreeSet<>(filenames);
-        this.checksums = checksums;
+        this.checksums = new TreeSet<>(checksums);
         this.unmatchedFilenames = new TreeSet<>();
     }
 
     public KojiLocalArchive(KojiRpmInfo rpm, Collection<String> filenames, Collection<Checksum> checksums) {
         this.rpm = rpm;
         this.filenames = new TreeSet<>(filenames);
-        this.checksums = checksums;
+        this.checksums = new TreeSet<>(checksums);
         this.unmatchedFilenames = new TreeSet<>();
     }
 
@@ -112,7 +111,7 @@ public class KojiLocalArchive {
     }
 
     public void setChecksums(Collection<Checksum> checksums) {
-        this.checksums = checksums;
+        this.checksums = new TreeSet<>(checksums);
     }
 
     @JsonIgnore
