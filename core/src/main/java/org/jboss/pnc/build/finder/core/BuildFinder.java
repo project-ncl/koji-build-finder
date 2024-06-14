@@ -1241,8 +1241,12 @@ public class BuildFinder
         this.outputDirectory = outputDirectory;
     }
 
+    public static File getBuildsFile(File outputDirectory) {
+        return new File(outputDirectory, BUILDS_FILENAME);
+    }
+
     public void outputToFile() throws IOException {
-        JSONUtils.dumpObjectToFile(builds, new File(outputDirectory, getBuildsFilename()));
+        JSONUtils.dumpObjectToFile(builds, getBuildsFile(outputDirectory));
     }
 
     @Override

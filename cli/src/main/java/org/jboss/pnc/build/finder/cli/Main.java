@@ -653,7 +653,7 @@ public final class Main implements Callable<Void> {
 
         BuildFinder finder;
         Map<BuildSystemInteger, KojiBuild> builds = null;
-        File buildsFile = new File(outputDirectory, BuildFinder.getBuildsFilename());
+        File buildsFile = BuildFinder.getBuildsFile(outputDirectory);
 
         if (Boolean.TRUE.equals(config.getUseBuildsFile())) {
             if (buildsFile.exists()) {
@@ -820,7 +820,7 @@ public final class Main implements Callable<Void> {
                     }
 
                     try {
-                        JSONUtils.dumpObjectToFile(builds, buildsFile);
+                        finder.outputToFile();
                     } catch (IOException e) {
                         LOGGER.error("Error writing builds file: {}", boldRed(e.getMessage()));
                         LOGGER.debug("Error", e);
