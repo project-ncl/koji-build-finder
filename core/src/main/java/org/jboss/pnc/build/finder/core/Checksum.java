@@ -306,8 +306,25 @@ public class Checksum implements Comparable<Checksum>, Serializable {
             return 1;
         }
 
-        int i = Integer.compare(type.ordinal(), o.getType().ordinal());
-        return i != 0 ? i : StringUtils.compare(value, o.value);
+        int i = Integer.compare(type.ordinal(), o.type.ordinal());
+
+        if (i != 0) {
+            return i;
+        }
+
+        int j = StringUtils.compare(value, o.value);
+
+        if (j != 0) {
+            return j;
+        }
+
+        int k = StringUtils.compare(filename, o.filename);
+
+        if (k != 0) {
+            return k;
+        }
+
+        return Long.compare(fileSize, o.fileSize);
     }
 
     @Override
@@ -321,12 +338,13 @@ public class Checksum implements Comparable<Checksum>, Serializable {
         }
 
         Checksum checksum = (Checksum) o;
-        return type == checksum.type && Objects.equals(value, checksum.value);
+        return fileSize == checksum.fileSize && type == checksum.type && Objects.equals(value, checksum.value)
+                && Objects.equals(filename, checksum.filename);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, value);
+        return Objects.hash(type, value, filename, fileSize);
     }
 
     @Override
