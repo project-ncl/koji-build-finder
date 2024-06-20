@@ -1411,7 +1411,10 @@ public class BuildFinder
                     green(String.join(", ", uniqueLicenses)));
             Collection<KojiBuild> values = allBuilds.values();
             List<KojiBuild> buildsWithLicenses = values.stream()
-                    .filter(kojiBuild -> !kojiBuild.getLicenses().isEmpty())
+                    .filter(
+                            kojiBuild -> kojiBuild.getArchives()
+                                    .stream()
+                                    .anyMatch(kojiLocalArchive -> !kojiLocalArchive.getLicenses().isEmpty()))
                     .collect(Collectors.toUnmodifiableList());
             int numBuildsWithLicenses = buildsWithLicenses.size();
             LOGGER.info(
@@ -1419,6 +1422,19 @@ public class BuildFinder
                     green(numBuildsWithLicenses),
                     green(numBuilds),
                     green(Math.round(((double) numBuildsWithLicenses / (double) numBuilds) * 100D)));
+
+            List<KojiLocalArchive> archives = values.stream()
+                    .flatMap(kojiBuild -> kojiBuild.getArchives().stream())
+                    .collect(Collectors.toUnmodifiableList());
+            int numArchives = archives.size();
+            long numArchivesWithLicenses = archives.stream()
+                    .filter(kojiLocalArchive -> !kojiLocalArchive.getLicenses().isEmpty())
+                    .count();
+            LOGGER.info(
+                    "{} / {} = {}% of archives have license information",
+                    green(numArchivesWithLicenses),
+                    green(numArchives),
+                    green(Math.round(((double) numArchivesWithLicenses / (double) numArchives) * 100D)));
 
             if (LOGGER.isWarnEnabled()) {
                 List<KojiBuild> allbuildsList = new ArrayList<>(values);
@@ -1446,29 +1462,22 @@ public class BuildFinder
 
         for (Entry<String, Collection<LicenseInfo>> licenseEntry : entries) {
             String filename = StringUtils.removeEnd(licenseEntry.getKey(), BANG_SLASH);
-            String parentFilename = filename;
-            Optional<KojiBuild> optKojiBuild = findBuildForFilename(parentFilename, allBuilds);
-            int index;
+            Optional<KojiLocalArchive> optLocalArchive = findLocalArchiveForFilename(filename, allBuilds);
 
-            while (optKojiBuild.isEmpty() && (index = parentFilename.lastIndexOf(BANG_SLASH)) != -1) {
-                parentFilename = parentFilename.substring(0, index);
-                optKojiBuild = findBuildForFilename(parentFilename, allBuilds);
-            }
-
-            if (optKojiBuild.isPresent()) {
-                KojiBuild build = optKojiBuild.get();
+            if (optLocalArchive.isPresent()) {
+                KojiLocalArchive localArchive = optLocalArchive.get();
                 Collection<LicenseInfo> licenseInfos = licenseEntry.getValue();
-                build.getLicenses().addAll(licenseInfos);
+                localArchive.getLicenses().addAll(licenseInfos);
                 allLicenses.addAll(licenseInfos);
             } else {
-                LOGGER.error("No matching build found for file {}", boldRed(filename));
+                LOGGER.error("No matching archive found for file {}", boldRed(filename));
             }
         }
 
         return Collections.unmodifiableSet(allLicenses);
     }
 
-    private static Optional<KojiBuild> findBuildForFilename(
+    private static Optional<KojiLocalArchive> findLocalArchiveForFilename(
             String filename,
             Map<BuildSystemInteger, KojiBuild> allBuilds) {
         for (KojiBuild build : allBuilds.values()) {
@@ -1478,7 +1487,7 @@ public class BuildFinder
                     .findFirst();
 
             if (optArchive.isPresent()) {
-                return Optional.of(build);
+                return optArchive;
             }
         }
 

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.TreeSet;
 
 import org.jboss.pnc.build.finder.core.Checksum;
+import org.jboss.pnc.build.finder.core.LicenseInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,10 +39,13 @@ public class KojiLocalArchive {
     @JsonProperty("unmatchedFiles")
     private Collection<String> unmatchedFilenames;
 
+    private Collection<LicenseInfo> licenses;
+
     public KojiLocalArchive() {
         this.filenames = new TreeSet<>();
         this.checksums = new TreeSet<>();
         this.unmatchedFilenames = new TreeSet<>();
+        this.licenses = new TreeSet<>();
     }
 
     public KojiLocalArchive(KojiArchiveInfo archive, Collection<String> filenames, Collection<Checksum> checksums) {
@@ -49,6 +53,7 @@ public class KojiLocalArchive {
         this.filenames = new TreeSet<>(filenames);
         this.checksums = new TreeSet<>(checksums);
         this.unmatchedFilenames = new TreeSet<>();
+        this.licenses = new TreeSet<>();
     }
 
     public KojiLocalArchive(KojiRpmInfo rpm, Collection<String> filenames, Collection<Checksum> checksums) {
@@ -56,6 +61,7 @@ public class KojiLocalArchive {
         this.filenames = new TreeSet<>(filenames);
         this.checksums = new TreeSet<>(checksums);
         this.unmatchedFilenames = new TreeSet<>();
+        this.licenses = new TreeSet<>();
     }
 
     public static boolean isMissingBuildTypeInfo(KojiArchiveInfo archive) {
@@ -127,9 +133,17 @@ public class KojiLocalArchive {
         this.unmatchedFilenames = new TreeSet<>(unmatchedFilenames);
     }
 
+    public Collection<LicenseInfo> getLicenses() {
+        return licenses;
+    }
+
+    public void setLicenses(Collection<LicenseInfo> licenses) {
+        this.licenses = licenses;
+    }
+
     @Override
     public String toString() {
         return "KojiLocalArchive [archive=" + archive + ", rpm=" + rpm + ", filenames=" + filenames + ", checksums="
-                + checksums + ", unmatchedFilenames=" + unmatchedFilenames + "]";
+                + checksums + ", unmatchedFilenames=" + unmatchedFilenames + ", licenses=" + licenses + "]";
     }
 }
