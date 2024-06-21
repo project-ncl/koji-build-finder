@@ -65,20 +65,25 @@ Finder will ask the Koji server for all known Koji archive types. The
 default set of types is meant to give a reasonable default, particularly
 for Java-based distributions.
 
-Build Finder operates in three stages:
+Build Finder operates in stages:
 
 1. Checksums are calculated offline for all files in the distribution,
    including files inside archives. Checksum information is stored in
    JSON format.
 
-2. An online Koji archive lookup in performed for each checksum in stage
+2. License information is searched for in all POM and JAR files in the
+   distribution, including `pom.xml`, `MANIFEST.MF`, and license text
+   files inside the JAR files. Heuristics are used to match the license URL
+   or license name to a valid SPDX license identifier.
+
+3. An online Koji archive lookup in performed for each checksum in stage
    one and the respective archive, if found, is mapped to the
    corresponding Koji build. The build is either an *import* and has no
    corresponding Koji task information or is *built from source* and
    includes corresponding Koji task information. Build information is
    stored in JSON format.
 
-3. Reports are generated from the archive and build information gathered
+4. Reports are generated from the archive and build information gathered
    in the first two stages. The format of the reports is HTML and/or
    text.
 
@@ -325,6 +330,20 @@ partial list of what is contained is in the value maps is: Koji Build
 Info, Koji Task Info, Koji Task Request, Koji Archive, a list of all
 remote archives associated with the build and a list of local files from
 the distribution associated with this build.
+
+### Licenses
+
+The `licenses.json` file contains a map where the key is the local archive file
+name and the value is the license information. The license information consists
+of, at minimum, the SPDX license identifier, the name and/or URL if present,
+and the source of the license information. In addtion, Maven licenses will
+contain the Maven `distribution` value. The `source` can be one of the
+following: `POM` (a standalone `.pom` file), `POM_XML` (a `pom.xml` inside a
+JAR), `BUNDLE_LICENSE` (the `META-INF/MANIFEST.MF` `Bundle-License` value), or
+`TEXT` (a license text file, e.g., `LICENSE` or `<spdxLicenseId>`). The SPDX
+license identifier may use the special values `NONE` (for public domain or "no"
+license), or `NOASSERTION` (some license information was found, but a match was
+not determined).
 
 ## Reports
 
