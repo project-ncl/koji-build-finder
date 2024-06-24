@@ -183,7 +183,7 @@ public class PncBuildFinder {
      * @param artifacts All found artifacts
      * @return A map pncBuildId,pncBuild
      */
-    private static ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Iterable<EnhancedArtifact> artifacts) {
+    private ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Iterable<EnhancedArtifact> artifacts) {
         ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>();
         Build buildZero = Build.builder().id(BUILD_ID_ZERO).build();
 
@@ -201,12 +201,14 @@ public class PncBuildFinder {
                 build = buildZero;
             }
 
-            if (pncBuilds.containsKey(build.getId())) {
-                pncBuilds.get(build.getId()).getBuiltArtifacts().add(artifact);
-            } else {
-                PncBuild pncBuild = new PncBuild(build);
-                pncBuild.getBuiltArtifacts().add(artifact);
-                pncBuilds.put(build.getId(), pncBuild);
+            synchronized (this) {
+                pncBuilds.computeIfAbsent(build.getId(), k -> {
+                    LOGGER.debug(
+                            "Creating new build {} and adding artifact filenames {}",
+                            build.getId(),
+                            String.join(", ", artifact.getFilenames()));
+                    return new PncBuild(build);
+                }).getBuiltArtifacts().add(artifact);
             }
         });
 
@@ -300,7 +302,8 @@ public class PncBuildFinder {
     }
 
     private KojiBuild convertPncBuildToKojiBuild(PncBuild pncBuild) {
-        KojiBuild kojibuild = PncUtils.pncBuildToKojiBuild(pncBuild);
+        KojiBuild kojiBuild = PncUtils.pncBuildToKojiBuild(pncBuild);
+        LOGGER.info("Converted PncBuild {} to KojiBuild {}", pncBuild.getBuild().getId(), kojiBuild.getId());
 
         for (EnhancedArtifact artifact : pncBuild.getBuiltArtifacts()) {
             Optional<Artifact> optionalArtifact = artifact.getArtifact();
@@ -312,8 +315,8 @@ public class PncBuildFinder {
             }
 
             KojiArchiveInfo kojiArchive = PncUtils.artifactToKojiArchiveInfo(pncBuild, optionalArtifact.get());
-            PncUtils.fixNullVersion(kojibuild, kojiArchive);
-            buildFinderUtils.addArchiveToBuild(kojibuild, kojiArchive, artifact.getFilenames());
+            PncUtils.fixNullVersion(kojiBuild, kojiArchive);
+            buildFinderUtils.addArchiveToBuild(kojiBuild, kojiArchive, artifact.getFilenames());
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(
@@ -326,7 +329,7 @@ public class PncBuildFinder {
             }
         }
 
-        return kojibuild;
+        return kojiBuild;
     }
 
     private KojiBuild convertPncBuildZeroToKojiBuild(PncBuild pncBuild) {

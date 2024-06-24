@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.collections4.MapUtils;
@@ -193,7 +194,7 @@ public final class PncUtils {
     }
 
     public static String getNVRFromBuildRecord(PncBuild build) {
-        return getBrewName(build) + "-" + getBrewVersion(build) + "-1";
+        return String.join("-", getBrewName(build), getBrewVersion(build), "1");
     }
 
     public static KojiBuild pncBuildToKojiBuild(PncBuild pncBuild) {
@@ -208,7 +209,7 @@ public final class PncUtils {
         try {
             buildInfo.setId(Integer.parseInt(build.getId()));
         } catch (NumberFormatException e) {
-            buildInfo.setId(-1);
+            buildInfo.setId(Objects.hash(build.getId()));
         }
 
         buildInfo.setName(getBrewName(pncBuild));
@@ -249,7 +250,7 @@ public final class PncUtils {
             try {
                 tag.setId(Integer.parseInt(productVersion.getId()));
             } catch (NumberFormatException e) {
-                tag.setId(-1);
+                tag.setId(Objects.hash(productVersion.getId()));
             }
 
             tag.setArches(Collections.singletonList("noarch"));
@@ -305,18 +306,16 @@ public final class PncUtils {
         try {
             archiveInfo.setBuildId(Integer.parseInt(build.getId()));
         } catch (NumberFormatException e) {
-            archiveInfo.setBuildId(-1);
+            archiveInfo.setBuildId(Objects.hash(build.getId()));
         }
 
         try {
             archiveInfo.setArchiveId(Integer.parseInt(artifact.getId()));
         } catch (NumberFormatException e) {
-            archiveInfo.setArchiveId(-1);
+            archiveInfo.setArchiveId(Objects.hash(artifact.getId()));
         }
 
-        Map<String, Object> extra = new HashMap<>(2, 1.0F);
-        extra.put(EXTERNAL_BUILD_ID, build.getId());
-        extra.put(EXTERNAL_ARCHIVE_ID, artifact.getId());
+        Map<String, Object> extra = Map.of(EXTERNAL_BUILD_ID, build.getId(), EXTERNAL_ARCHIVE_ID, artifact.getId());
         archiveInfo.setExtra(extra);
         archiveInfo.setArch("noarch");
         archiveInfo.setFilename(artifact.getFilename());
@@ -328,7 +327,7 @@ public final class PncUtils {
         try {
             archiveInfo.setSize(Math.toIntExact(artifact.getSize()));
         } catch (ArithmeticException e) {
-            archiveInfo.setSize(-1);
+            archiveInfo.setSize(0);
         }
 
         switch (pncbuild.getBuild().getBuildConfigRevision().getBuildType()) {

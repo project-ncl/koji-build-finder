@@ -1320,18 +1320,20 @@ public class BuildFinder
                                     analyzer.getFiles(),
                                     ChecksumType.md5);
 
-                    LOGGER.debug(
-                            "Original SHA256-based not found checksum map: {}",
-                            pncBuildsNew.getNotFoundChecksums());
-                    LOGGER.debug("New MD5-based not found checksum map: {}", md5BasedNotFoundCheckumMap);
+                    // LOGGER.debug(
+                    // "Original SHA256-based not found checksum map: {}",
+                    // pncBuildsNew.getNotFoundChecksums());
+                    // LOGGER.debug("New MD5-based not found checksum map: {}", md5BasedNotFoundCheckumMap);
 
                     kojiBuildsNew = findBuilds(md5BasedNotFoundCheckumMap);
                     allBuilds.putAll(kojiBuildsNew);
 
-                    LOGGER.debug(
-                            "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed files (e.g. signed binaries)");
-                    LOGGER.debug(
-                            "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more builds in Brew!");
+                    // LOGGER.debug(
+                    // "Searching again in Brew the not found checksums with a SHA256-based map, to find the missed
+                    // files (e.g. signed binaries)");
+                    // LOGGER.debug(
+                    // "Swapping the MD5-based not found checksum map to a SHA256-based checksum map for finding more
+                    // builds in Brew!");
 
                     Map<Checksum, Collection<String>> sha256BasedNotFoundCheckumMap = BuildFinderUtils
                             .swapEntriesWithPreferredChecksum(
@@ -1339,15 +1341,15 @@ public class BuildFinder
                                     analyzer.getFiles(),
                                     ChecksumType.sha256);
 
-                    LOGGER.debug("Original MD5-based not found checksum map: {}", notFoundChecksums);
-                    LOGGER.debug("New SHA256-based not found checksum map: {}", sha256BasedNotFoundCheckumMap);
+                    // LOGGER.debug("Original MD5-based not found checksum map: {}", notFoundChecksums);
+                    // LOGGER.debug("New SHA256-based not found checksum map: {}", sha256BasedNotFoundCheckumMap);
 
                     // In case the same checksum has already been processed, remove them from the new checksum map
                     sha256BasedNotFoundCheckumMap.keySet().removeAll(notFoundChecksums.keySet());
 
-                    LOGGER.debug(
-                            "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
-                            sha256BasedNotFoundCheckumMap);
+                    // LOGGER.debug(
+                    // "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
+                    // sha256BasedNotFoundCheckumMap);
 
                     kojiBuildsNew = findBuilds(sha256BasedNotFoundCheckumMap);
                     LOGGER.debug("Found more Brew builds which were missed initially: {}", kojiBuildsNew);
@@ -1370,9 +1372,9 @@ public class BuildFinder
                 // In case the same checksum has already been processed, remove them from the new checksum map
                 sha256BasedNotFoundCheckumMap.keySet().removeAll(notFoundChecksums.keySet());
 
-                LOGGER.debug(
-                        "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
-                        sha256BasedNotFoundCheckumMap);
+                // LOGGER.debug(
+                // "New SHA256-based not found checksum map after the removal of already processed checksums: {}",
+                // sha256BasedNotFoundCheckumMap);
 
                 kojiBuildsNew = findBuilds(sha256BasedNotFoundCheckumMap);
                 LOGGER.debug("Found more Brew builds which were missed initially: {}", kojiBuildsNew);
@@ -1454,7 +1456,7 @@ public class BuildFinder
         return allBuilds;
     }
 
-    private static Set<LicenseInfo> addLicensesToBuilds(
+    private Set<LicenseInfo> addLicensesToBuilds(
             Map<String, Collection<LicenseInfo>> licensesMap,
             Map<BuildSystemInteger, KojiBuild> allBuilds) {
         Set<Entry<String, Collection<LicenseInfo>>> entries = licensesMap.entrySet();
@@ -1470,7 +1472,11 @@ public class BuildFinder
                 localArchive.getLicenses().addAll(licenseInfos);
                 allLicenses.addAll(licenseInfos);
             } else {
-                LOGGER.error("No matching archive found for file {}", boldRed(filename));
+                if (notFoundChecksums.values().stream().noneMatch(v -> v.contains(filename))) {
+                    LOGGER.error("No matching archive found for file {}", boldRed(filename));
+                } else {
+                    LOGGER.warn("Checksum not found for {} so can't add to license archive", red(filename));
+                }
             }
         }
 

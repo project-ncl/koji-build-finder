@@ -139,12 +139,14 @@ public final class BuildFinderUtils {
     }
 
     public void addArchiveToBuild(KojiBuild build, KojiArchiveInfo archive, Collection<String> filenames) {
-        LOGGER.debug(
-                "Found build id {} for file {} (checksum {}) matching local files {}",
-                build.getId(),
-                archive.getFilename(),
-                archive.getChecksum(),
-                filenames);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "Found build id {} for file {} (checksum {}) matching local files {}",
+                    build.getId(),
+                    archive.getFilename(),
+                    archive.getChecksum(),
+                    String.join(", ", filenames));
+        }
 
         Optional<KojiLocalArchive> matchingArchive = build.getArchives()
                 .stream()
@@ -153,32 +155,35 @@ public final class BuildFinderUtils {
 
         if (matchingArchive.isPresent()) {
             LOGGER.debug(
-                    "Adding existing archive id {} to build id {} with {} archives and filenames {}",
+                    "For build id {}, adding existing archive id {} to build id {} with {} archives and filenames {}",
+                    build.getId(),
                     archive.getArchiveId(),
                     archive.getBuildId(),
                     build.getArchives().size(),
                     filenames);
-
             KojiLocalArchive existingArchive = matchingArchive.get();
-
             existingArchive.getFilenames().addAll(filenames);
+            LOGGER.debug(
+                    "For build id {}, added filenames {} to existing local archive {}",
+                    build.getId(),
+                    existingArchive.getFilenames(),
+                    existingArchive.getArchive().getArchiveId());
         } else {
             LOGGER.debug(
-                    "Adding new archive id {} to build id {} with {} archives and filenames {}",
+                    "For build id {}, adding new archive id {} to build id {} with {} archives and filenames {}",
+                    build.getId(),
                     archive.getArchiveId(),
                     archive.getBuildId(),
                     build.getArchives().size(),
                     filenames);
-
             KojiLocalArchive localArchive = new KojiLocalArchive(
                     archive,
                     filenames,
                     distributionAnalyzer != null ? distributionAnalyzer.getFiles().get(filenames.iterator().next())
                             : Collections.emptySet());
             List<KojiLocalArchive> buildArchives = build.getArchives();
-
             buildArchives.add(localArchive);
-
+            LOGGER.debug("For build id {}, added local archive {}", build.getId(), localArchive);
             buildArchives.sort(Comparator.comparing(a -> a.getArchive().getFilename()));
         }
     }

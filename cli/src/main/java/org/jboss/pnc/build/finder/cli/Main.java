@@ -437,7 +437,6 @@ public final class Main implements Callable<Void> {
         GlobalConfiguration globalConfiguration = globalConfig.build();
         Configuration configuration = new ConfigurationBuilder().expiration()
                 .lifespan(config.getCacheLifespan())
-                .maxIdle(config.getCacheMaxIdle())
                 .wakeUpInterval(-1L)
                 .persistence()
                 .passivation(true)
