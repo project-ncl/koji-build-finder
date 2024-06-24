@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.util.jar.Attributes.Name.MANIFEST_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +24,9 @@ import static org.jboss.pnc.build.finder.core.LicenseUtils.NONE;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -31,6 +34,8 @@ import java.util.Map;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,7 +44,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.InvalidLicenseStringException;
+import org.spdx.library.model.license.LicenseInfoFactory;
+import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.library.model.license.WithExceptionOperator;
 
 class LicenseUtilsTest {
@@ -251,8 +259,8 @@ class LicenseUtilsTest {
             manifest.write(outputStream);
         }
 
-        FileObject fileObject = VFS.getManager().resolveFile(manifestMfPath.toUri());
-        List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
+        FileObject fo = VFS.getManager().resolveFile(manifestMfPath.toUri());
+        List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fo);
         assertThat(bundlesLicenses).hasSize(1);
         BundleLicense bundleLicense = bundlesLicenses.get(0);
         assertThat(bundleLicense).extracting("licenseIdentifier").isNull();
@@ -265,5 +273,51 @@ class LicenseUtilsTest {
     void testFindMatchingSPDXLicenseIdentifier() {
         String s = "// SPDX-License-Identifier: Apache-2.0 OR LGPL-2.1";
         assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifier(s)).hasValue("Apache-2.0");
+    }
+
+    @Test
+    void testGetMatchingLicense() throws IOException, InvalidSPDXAnalysisException {
+        Path path = Files.createTempFile("file1-", null);
+        URL url = new URL("https://www.apache.org/licenses/LICENSE-2.0.txt");
+        FileUtils.copyURLToFile(url, path.toFile());
+        String s1 = Files.readString(path);
+        String s2 = s1.replace("http://www.apache.org/licenses/", "https://www.apache.org/licenses/");
+        Path path2 = Files.createTempFile("file2-", null);
+        Files.writeString(path2, s2);
+
+        String http = "                                 Apache License\n"
+                + "                           Version 2.0, January 2004\n"
+                + "                        http://www.apache.org/licenses/\n" + "\n";
+        String https = "                                 Apache License\n"
+                + "                           Version 2.0, January 2004\n"
+                + "                        https://www.apache.org/licenses/\n" + "\n";
+
+        assertThat(LicenseUtils.licenseFileToText(path)).isEqualToIgnoringWhitespace(http);
+        assertThat(LicenseUtils.licenseFileToText(path2)).isEqualToIgnoringWhitespace(https);
+
+        SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById("Apache-2.0");
+        assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifier(spdxListedLicense, s1)).hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifier(spdxListedLicense, s2)).hasValue("Apache-2.0");
+
+        assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifierOrLicense(s1)).hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findMatchingSPDXLicenseIdentifierOrLicense(s2)).hasValue("Apache-2.0");
+
+        try (FileObject fo = VFS.getManager().resolveFile(path.toUri())) {
+            try (FileContent fc = fo.getContent(); InputStream in = fc.getInputStream()) {
+                String s = new String(in.readAllBytes(), UTF_8);
+                assertThat(s).isEqualTo(s1);
+            }
+
+            assertThat(LicenseUtils.getMatchingLicense(fo)).isEqualTo("Apache-2.0");
+        }
+
+        try (FileObject fo = VFS.getManager().resolveFile(path2.toUri())) {
+            try (FileContent fc = fo.getContent(); InputStream in = fc.getInputStream()) {
+                String s = new String(in.readAllBytes(), UTF_8);
+                assertThat(s).isEqualTo(s2);
+            }
+
+            assertThat(LicenseUtils.getMatchingLicense(fo)).isEqualTo("Apache-2.0");
+        }
     }
 }

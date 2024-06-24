@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
 import static org.spdx.library.SpdxConstants.NONE_VALUE;
@@ -25,6 +26,8 @@ import static org.spdx.library.SpdxConstants.NONE_VALUE;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +45,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -556,8 +560,9 @@ public final class LicenseUtils {
             return LICENSE_ID_TEXT_LIST.stream()
                     .map(id -> LICENSE_ID_MAP.get(id))
                     .map(license -> findMatchingSPDXLicenseIdentifier(license, licenseText))
+                    .flatMap(Optional::stream)
                     .findAny()
-                    .orElseGet(() -> findMatchingSPDXLicenseIdentifierOrLicense(licenseText));
+                    .or(() -> findMatchingSPDXLicenseIdentifierOrLicense(licenseText));
         } catch (IOException e) {
             return Optional.empty();
         }
@@ -574,8 +579,20 @@ public final class LicenseUtils {
         return findMatchingLicense(licenseFileObject).orElse(NOASSERTION);
     }
 
-    private static Optional<String> findMatchingSPDXLicenseIdentifierOrLicense(String text) {
-        String lines = text.lines().limit(LINE_LIMIT).map(String::trim).collect(Collectors.joining(SPACE));
+    static String licenseFileToText(Path path) {
+        try (Stream<String> stream = Files.lines(path)) {
+            return stream.limit(LINE_LIMIT).map(String::trim).collect(Collectors.joining(SPACE));
+        } catch (IOException e) {
+            return EMPTY;
+        }
+    }
+
+    static String licenseFileToText(String text) {
+        return text.lines().limit(LINE_LIMIT).map(String::trim).collect(Collectors.joining(SPACE));
+    }
+
+    static Optional<String> findMatchingSPDXLicenseIdentifierOrLicense(String text) {
+        String lines = licenseFileToText(text);
         return findMatchingSPDXLicenseIdentifier(lines).or(() -> findMatchingLicense(lines, null));
     }
 
@@ -596,7 +613,7 @@ public final class LicenseUtils {
         return Optional.of(getCurrentLicenseId(id));
     }
 
-    private static Optional<String> findMatchingSPDXLicenseIdentifier(SpdxListedLicense license, String licenseText) {
+    static Optional<String> findMatchingSPDXLicenseIdentifier(SpdxListedLicense license, String licenseText) {
         try {
             if (!LicenseCompareHelper.isTextStandardLicense(license, licenseText).isDifferenceFound()) {
                 String licenseId = license.getLicenseId();
