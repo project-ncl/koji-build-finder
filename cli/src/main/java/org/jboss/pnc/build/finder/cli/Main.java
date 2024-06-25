@@ -737,7 +737,7 @@ public final class Main implements Callable<Void> {
                     initCaches(config);
                 }
 
-                pool = Executors.newFixedThreadPool(2);
+                pool = Executors.newFixedThreadPool(1);
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum = pool.submit(analyzer);
