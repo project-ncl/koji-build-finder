@@ -104,6 +104,8 @@ public final class Main implements Callable<Void> {
 
     private ExecutorService pool;
 
+    private ExecutorService finderPool;
+
     private EmbeddedCacheManager cacheManager;
 
     @Spec
@@ -481,6 +483,9 @@ public final class Main implements Callable<Void> {
         if (pool != null) {
             Utils.shutdownAndAwaitTermination(pool);
         }
+        if (finderPool != null) {
+            Utils.shutdownAndAwaitTermination(finderPool);
+        }
     }
 
     private static void writeConfiguration(File configFile, BuildConfig config) {
@@ -738,6 +743,7 @@ public final class Main implements Callable<Void> {
                 }
 
                 pool = Executors.newFixedThreadPool(2);
+                finderPool = Executors.newSingleThreadExecutor();
 
                 DistributionAnalyzer analyzer = new DistributionAnalyzer(files, config, cacheManager);
                 Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum = pool.submit(analyzer);
@@ -770,8 +776,6 @@ public final class Main implements Callable<Void> {
 
                     finder.setOutputDirectory(outputDirectory);
 
-                    Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-
                     try {
                         checksums = futureChecksum.get();
                     } catch (ExecutionException e) {
@@ -800,6 +804,7 @@ public final class Main implements Callable<Void> {
                         LOGGER.warn("The list of checksums is empty");
                     }
 
+                    Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = finderPool.submit(finder);
                     try {
                         builds = futureBuilds.get();
                     } catch (ExecutionException e) {
