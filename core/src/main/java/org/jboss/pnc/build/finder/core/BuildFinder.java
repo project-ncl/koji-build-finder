@@ -1469,7 +1469,7 @@ public class BuildFinder
                 localArchive.getLicenses().addAll(licenseInfos);
                 allLicenses.addAll(licenseInfos);
             } else {
-                LOGGER.error("No matching archive found for file {}", boldRed(filename));
+                LOGGER.warn("No matching archive found for file {}", red(filename));
             }
         }
 
