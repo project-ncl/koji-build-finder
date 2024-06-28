@@ -483,6 +483,7 @@ public final class Main implements Callable<Void> {
         if (pool != null) {
             Utils.shutdownAndAwaitTermination(pool);
         }
+
         if (finderPool != null) {
             Utils.shutdownAndAwaitTermination(finderPool);
         }
@@ -805,6 +806,7 @@ public final class Main implements Callable<Void> {
                     }
 
                     Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = finderPool.submit(finder);
+
                     try {
                         builds = futureBuilds.get();
                     } catch (ExecutionException e) {
