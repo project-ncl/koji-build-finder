@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.apache.commons.lang3.ArrayUtils.EMPTY_BYTE_ARRAY;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 
@@ -97,17 +98,16 @@ public final class BuildFinderUtils {
     }
 
     private static byte[] emptyZipBytes() {
-        byte[] toReturn = new byte[0];
         try (ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream()) {
             try (ZipOutputStream zos = new ZipOutputStream(byteOutputStream)) {
                 zos.finish();
             }
             byteOutputStream.flush();
-            toReturn = byteOutputStream.toByteArray();
+            return byteOutputStream.toByteArray();
         } catch (IOException e) {
             LOGGER.warn("Error creating empty zip file: {}", red(e.getMessage()));
         }
-        return toReturn;
+        return EMPTY_BYTE_ARRAY;
     }
 
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {

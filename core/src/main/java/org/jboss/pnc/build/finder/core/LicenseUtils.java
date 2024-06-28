@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
+import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
@@ -441,8 +442,8 @@ public final class LicenseUtils {
             return false;
         }
 
-        String[] licenseCandidates = tokenizeLicenseString(licenseStringCandidate).toArray(new String[0]);
-        String[] searchStrings = tokenizeLicenseString(licenseString).toArray(new String[0]);
+        String[] licenseCandidates = tokenizeLicenseString(licenseStringCandidate).toArray(EMPTY_STRING_ARRAY);
+        String[] searchStrings = tokenizeLicenseString(licenseString).toArray(EMPTY_STRING_ARRAY);
         int startIndex = 0;
 
         for (String objectToFind : searchStrings) {

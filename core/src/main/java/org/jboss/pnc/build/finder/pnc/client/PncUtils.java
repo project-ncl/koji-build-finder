@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.pnc.client;
 
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION;
@@ -184,7 +185,7 @@ public final class PncUtils {
                 .min(Comparator.comparing(ArtifactRef::getId));
         if (optionalArtifact.isEmpty()) {
             // SHOULD NEVER HAPPEN
-            return new String[0];
+            return EMPTY_STRING_ARRAY;
         }
 
         Artifact firstArtifact = optionalArtifact.get();
