@@ -517,13 +517,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     && config.getExcludes().stream().map(Pattern::pattern).anyMatch(friendlyURI::matches);
         }
 
-        boolean include = !excludeFile && !excludeExtension;
-
-        // if (LOGGER.isDebugEnabled()) {
-        // LOGGER.debug("Include {}: {}", Utils.normalizePath(fo, root), include);
-        // }
-
-        return include;
+        return !excludeFile && !excludeExtension;
     }
 
     private Callable<Set<Checksum>> checksumTask(FileObject fo) {
