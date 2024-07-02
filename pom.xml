@@ -27,7 +27,7 @@
 
   <groupId>org.jboss.pnc.build.finder</groupId>
   <artifactId>parent</artifactId>
-  <version>2.4.0</version>
+  <version>2.4.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Build Finder Parent</name>
@@ -57,16 +57,16 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/build-finder.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/build-finder.git</developerConnection>
-    <tag>2.4.0</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/project-ncl/build-finder</url>
   </scm>
 
   <properties>
-    <koji.hub.url></koji.hub.url>
-    <koji.web.url></koji.web.url>
+    <koji.hub.url />
+    <koji.web.url />
     <maven.compiler.release>11</maven.compiler.release>
     <mavenVersion>3.6.3</mavenVersion>
-    <pnc.url></pnc.url>
+    <pnc.url />
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipITs>true</skipITs>
     <version.ch.qos.logback>1.5.6</version.ch.qos.logback>
@@ -323,23 +323,23 @@
       <dependency>
         <groupId>org.jboss.pnc.build.finder</groupId>
         <artifactId>cli</artifactId>
-        <version>2.4.0</version>
+        <version>2.4.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.pnc.build.finder</groupId>
         <artifactId>core</artifactId>
-        <version>2.4.0</version>
+        <version>2.4.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.pnc.build.finder</groupId>
         <artifactId>core</artifactId>
-        <version>2.4.0</version>
+        <version>2.4.1-SNAPSHOT</version>
         <type>test-jar</type>
       </dependency>
       <dependency>
         <groupId>org.jboss.pnc.build.finder</groupId>
         <artifactId>report</artifactId>
-        <version>2.4.0</version>
+        <version>2.4.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -1116,7 +1116,7 @@ limitations under the License.]]></inlineHeader>
                 <requireMavenVersion>
                   <version>${mavenVersion}</version>
                 </requireMavenVersion>
-                <requireSameVersions></requireSameVersions>
+                <requireSameVersions />
               </rules>
             </configuration>
           </execution>
