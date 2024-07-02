@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -85,11 +84,7 @@ class EmptyBuildsTest extends AbstractWireMockTest {
         Checksum checksum2 = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", "random.jar", -1L);
         Collection<String> filenames1 = Collections.singletonList("random.jar!random.jar");
         Collection<String> filenames2 = Collections.singletonList("random.jar");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum1, filenames1);
-        checksumTable.put(checksum2, filenames2);
-        return checksumTable;
+        return Map.of(checksum1, filenames1, checksum2, filenames2);
     }
 
     @Test

@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -70,9 +69,7 @@ class DeletedBuildTest extends AbstractWireMockTest {
                 "infinispan-bom-9.4.16.Final-redhat-00001.pom",
                 23476L);
         Collection<String> filenames = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum, filenames);
+        Map<Checksum, Collection<String>> checksumTable = Map.of(checksum, filenames);
         return checksumTable;
     }
 }

@@ -24,7 +24,6 @@ import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_VERSION;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -264,7 +263,7 @@ public final class PncUtils {
 
             KojiTaskInfo taskInfo = new KojiTaskInfo();
             KojiTaskRequest taskRequest = new KojiTaskRequest();
-            List<Object> request = Collections.unmodifiableList(Arrays.asList(pncBuild.getSource(), tagName));
+            List<Object> request = List.of(pncBuild.getSource(), tagName);
 
             taskRequest.setRequest(request);
 

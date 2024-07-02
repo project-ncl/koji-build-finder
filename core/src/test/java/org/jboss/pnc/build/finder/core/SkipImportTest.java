@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,10 +78,6 @@ class SkipImportTest extends AbstractWireMockTest {
                 17931L);
         List<String> filenames1 = Collections.singletonList("commons-lang-2.6-redhat-2.jar");
         List<String> filenames2 = Collections.singletonList("commons-lang-2.6-redhat-2.pom");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum1, filenames1);
-        checksumTable.put(checksum2, filenames2);
-        return checksumTable;
+        return Map.of(checksum1, filenames1, checksum2, filenames2);
     }
 }

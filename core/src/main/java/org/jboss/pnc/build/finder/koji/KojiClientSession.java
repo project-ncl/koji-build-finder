@@ -18,7 +18,6 @@ package org.jboss.pnc.build.finder.koji;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -232,7 +231,7 @@ public final class KojiClientSession extends KojiClient implements ClientSession
         List<Object> args = new ArrayList<>(taskIdsSize);
 
         for (int i = 0; i < taskIdsSize; i++) {
-            args.add(Collections.unmodifiableList(Arrays.asList(taskIds.get(i), requests.get(i))));
+            args.add(List.of(taskIds.get(i), requests.get(i)));
         }
 
         return multiCall(Constants.GET_TASK_INFO, Collections.unmodifiableList(args), KojiTaskInfo.class, session);

@@ -22,7 +22,6 @@ import static org.jboss.pnc.enums.BuildType.MVN;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -167,6 +166,6 @@ class PncBuildFinderTest {
     }
 
     private static StaticRemoteCollection<Artifact> createArtifactsRemoteCollection(Artifact... artifacts) {
-        return new StaticRemoteCollection<>(Collections.unmodifiableList(Arrays.asList(artifacts)));
+        return new StaticRemoteCollection<>(List.of(artifacts));
     }
 }
