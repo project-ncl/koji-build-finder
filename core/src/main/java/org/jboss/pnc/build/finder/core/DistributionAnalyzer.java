@@ -597,10 +597,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     boolean pomXml = isPomXml(file);
 
                     if (pom || pomXml) {
-                        List<LicenseInfo> licenseInfos = addLicensesFromPom(file, pom ? POM : POM_XML);
+                        LicenseSource source = pom ? POM : POM_XML;
+                        List<LicenseInfo> licenseInfos = addLicensesFromPom(file, source);
 
                         try {
-                            Map<String, List<LicenseInfo>> map = getLicenses(root, file);
+                            Map<String, List<LicenseInfo>> map = getLicenses(root, file, source);
                             putLicenses(map.keySet().iterator().next(), licenseInfos);
                         } catch (XmlPullParserException | InterpolationException e) {
                             LOGGER.warn("Error parsing POM file {}: {}", red(file), red(getAllErrorMessages(e)));
@@ -685,7 +686,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return List.of(licenseInfo);
     }
 
-    private List<LicenseInfo> addLicensesFromBundleLicense(FileObject fileObject) throws IOException {
+    private static List<LicenseInfo> addLicensesFromBundleLicense(FileObject fileObject) throws IOException {
         List<LicenseInfo> licenses = new ArrayList<>(3);
         List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
 
@@ -697,7 +698,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             }
 
             String url = bundleLicense.getLink();
-            String licenseId = LicenseUtils.getSPDXLicenseId(mapping, name, url);
+            LicenseInfo licenseInfo = new LicenseInfo(name, url, BUNDLE_LICENSE);
+            String licenseId = licenseInfo.getSpdxLicenseId();
 
             if (licenseId.equals(NOASSERTION)) {
                 if (LOGGER.isWarnEnabled()) {
@@ -709,7 +711,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 }
             }
 
-            LicenseInfo licenseInfo = new LicenseInfo(name, url, licenseId, BUNDLE_LICENSE);
             licenses.add(licenseInfo);
         }
 
@@ -718,43 +719,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private List<LicenseInfo> addLicensesFromPom(FileObject fileObject, LicenseSource source) throws IOException {
         try {
-            Map<String, List<LicenseInfo>> map = getLicenses(root, fileObject);
+            Map<String, List<LicenseInfo>> map = getLicenses(root, fileObject, source);
             Entry<String, List<LicenseInfo>> entry = map.entrySet().iterator().next();
             String pomOrJarFile = entry.getKey();
-            List<LicenseInfo> licenses = entry.getValue();
-            List<LicenseInfo> licenseInfos = new ArrayList<>(3);
+            List<LicenseInfo> licenseInfos = entry.getValue();
 
-            for (LicenseInfo license : licenses) {
-                String name = license.getName() != null ? SPACE_PATTERN.matcher(license.getName()).replaceAll(" ")
-                        : null;
-                String url = license.getUrl();
-
-                if ((name == null || name.isBlank()) && (url == null || url.isBlank())) {
-                    LOGGER.warn("No licenses found for in POM for {}", red(pomOrJarFile));
-                    continue;
-                }
-
-                String licenseId = LicenseUtils.getSPDXLicenseId(mapping, name, url);
-
-                if (licenseId.equals(NOASSERTION)) {
-                    if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn(
-                                "Missing mapping for POM license: name: {}, URL: {} for file {}",
-                                red(name),
-                                red(url),
-                                red(fileObject));
-                    }
-                }
-
-                license.setSource(source);
-                license.setSpdxLicenseId(licenseId);
-                licenseInfos.add(license);
-                LOGGER.debug("Found license {} for {}", licenseId, pomOrJarFile);
-            }
-
-            if (!licenses.isEmpty() && licenseInfos.isEmpty()) {
-                LicenseInfo licenseInfo = new LicenseInfo();
-                licenseInfo.setSource(source);
+            if (licenseInfos.isEmpty()) {
+                LicenseInfo licenseInfo = new LicenseInfo(source);
                 licenseInfos.add(licenseInfo);
             }
 

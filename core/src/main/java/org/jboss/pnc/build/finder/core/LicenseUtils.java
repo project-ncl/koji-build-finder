@@ -102,6 +102,8 @@ public final class LicenseUtils {
     private static final Pattern SPDX_LICENSE_IDENTIFIER_PATTERN = Pattern
             .compile("SPDX-License-Identifier:\\s*(" + IDSTRING_PATTERN.pattern() + ")");
 
+    private static volatile Map<String, List<String>> MAPPING;
+
     private static Map<String, SpdxListedLicense> LICENSE_ID_MAP;
 
     private static Map<String, SpdxListedLicense> LICENSE_NAME_MAP;
@@ -175,15 +177,19 @@ public final class LicenseUtils {
      * @throws IOException if an error occurs reading the file or parsing the JSON
      */
     public static Map<String, List<String>> loadLicenseMapping() throws IOException {
-        try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_MAPPING_FILENAME)) {
-            Map<String, List<String>> mapping = JSONUtils.loadLicenseMapping(in);
-            validateLicenseMapping(mapping);
-            return Collections.unmodifiableMap(mapping);
+        if (MAPPING == null) {
+            try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_MAPPING_FILENAME)) {
+                MAPPING = JSONUtils.loadLicenseMapping(in);
+                validateLicenseMapping();
+            }
         }
+
+        return Collections.unmodifiableMap(MAPPING);
+
     }
 
-    private static void validateLicenseMapping(Map<String, List<String>> mapping) {
-        Set<String> licenseStrings = mapping.keySet();
+    private static void validateLicenseMapping() {
+        Set<String> licenseStrings = MAPPING.keySet();
 
         for (String licenseString : licenseStrings) {
             if (IDSTRING_PATTERN.matcher(licenseString).matches()) {
@@ -300,12 +306,19 @@ public final class LicenseUtils {
      * <li>Remove any trailing slash</li>
      * </ol>
      *
-     * @param mapping the license mapping
      * @param licenseString the license string (either a name or URL)
      * @return the mapping (or empty if none)
      */
-    public static Optional<String> findLicenseMapping(Map<String, List<String>> mapping, String licenseString) {
-        if (licenseString == null || licenseString.isBlank()) {
+    public static Optional<String> findLicenseMapping(String licenseString) {
+        return findLicenseMapping(MAPPING, licenseString);
+    }
+
+    static Optional<String> findLicenseMapping(Map<String, List<String>> mapping, String licenseString) {
+        if (licenseString == null) {
+            return Optional.empty();
+        }
+
+        if (licenseString.isBlank()) {
             return Optional.empty();
         }
 
@@ -323,8 +336,12 @@ public final class LicenseUtils {
                     if (normalizedLicenseString.equals(normalizedNameOrUrl)) {
                         return Optional.of(getCurrentLicenseId(licenseId));
                     }
-                } else if (licenseString.equalsIgnoreCase(licenseNameOrUrl)) {
-                    return Optional.of(getCurrentLicenseId(licenseId));
+                } else {
+                    String normalizedString = StringUtils.normalizeSpace(licenseString);
+
+                    if (StringUtils.equalsIgnoreCase(licenseNameOrUrl, normalizedString)) {
+                        return Optional.of(getCurrentLicenseId(licenseId));
+                    }
                 }
             }
         }
@@ -333,14 +350,17 @@ public final class LicenseUtils {
     }
 
     /**
-     * Gets the SPDX license identifier using the given mapping.
+     * Gets the SPDX license identifier using the loaded mappings.
      *
-     * @param mapping the mapping
      * @param name the name
      * @param url the URL
      * @return the matching SPDX license identifier, or <code>NOASSERTION</code> if no match
      */
-    public static String getSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
+    public static String getSPDXLicenseId(String name, String url) {
+        return getSPDXLicenseId(MAPPING, name, url);
+    }
+
+    static String getSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
         Optional<String> licenseMapping = StringUtils.isBlank(url) ? LicenseUtils.findLicenseMapping(mapping, name)
                 : LicenseUtils.findLicenseMapping(mapping, url);
         return licenseMapping.or(() -> LicenseUtils.findMatchingLicense(name, url)).orElse(NOASSERTION);

@@ -33,7 +33,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     private String spdxLicenseId;
 
-    private LicenseSource source;
+    private final LicenseSource source;
 
     public LicenseInfo() {
         comments = null;
@@ -44,6 +44,33 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         source = UNKNOWN;
     }
 
+    public LicenseInfo(LicenseSource source) {
+        comments = null;
+        distribution = null;
+        this.name = null;
+        this.url = null;
+        this.spdxLicenseId = null;
+        this.source = source;
+    }
+
+    public LicenseInfo(License license, LicenseSource source) {
+        comments = license.getComments();
+        distribution = license.getDistribution();
+        name = license.getName();
+        url = license.getUrl();
+        this.spdxLicenseId = LicenseUtils.getSPDXLicenseId(name, url);
+        this.source = source;
+    }
+
+    public LicenseInfo(String name, String url, LicenseSource source) {
+        comments = null;
+        distribution = null;
+        this.name = name;
+        this.url = url;
+        this.spdxLicenseId = LicenseUtils.getSPDXLicenseId(name, url);
+        this.source = source;
+    }
+
     public LicenseInfo(String name, String url, String spdxLicenseId, LicenseSource source) {
         comments = null;
         distribution = null;
@@ -51,13 +78,6 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         this.url = url;
         this.spdxLicenseId = spdxLicenseId;
         this.source = source;
-    }
-
-    public LicenseInfo(License license) {
-        comments = license.getComments();
-        distribution = license.getDistribution();
-        name = license.getName();
-        url = license.getUrl();
     }
 
     public String getComments() {
@@ -86,10 +106,6 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     public LicenseSource getSource() {
         return source;
-    }
-
-    public void setSource(LicenseSource source) {
-        this.source = source;
     }
 
     @Override
@@ -124,7 +140,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     @Override
     public String toString() {
-        return "MavenLicense: " + ", comments: '" + comments + '\'' + ", distribution: '" + distribution + '\''
+        return "LicenseInfo: " + ", comments: '" + comments + '\'' + ", distribution: '" + distribution + '\''
                 + ", name: '" + name + '\'' + ", url: '" + url + '\'' + ", spdxLicenseId: '" + spdxLicenseId + '\''
                 + ", source: " + source;
     }

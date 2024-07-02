@@ -167,17 +167,14 @@ class LicenseUtilsTest {
 
     @Test
     void testFindLicenseMapping() {
-        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "Apache License")).hasValue("Apache-2.0");
-        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "https://www.freemarker.org/LICENSE.txt"))
-                .hasValue("Apache-2.0");
-        assertThat(
-                LicenseUtils.findLicenseMapping(MAPPING, "https://projects.eclipse.org/license/secondary-gpl-2.0-cp"))
+        assertThat(LicenseUtils.findLicenseMapping("Apache License")).hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findLicenseMapping("https://www.freemarker.org/LICENSE.txt")).hasValue("Apache-2.0");
+        assertThat(LicenseUtils.findLicenseMapping("http://repository.jboss.org/licenses/lgpl-2.1.txt"))
+                .hasValue("LGPL-2.1-only");
+        assertThat(LicenseUtils.findLicenseMapping("http://www.gnu.org/licenses/lgpl-2.1.txt"))
+                .hasValue("LGPL-2.1-only");
+        assertThat(LicenseUtils.findLicenseMapping("https://projects.eclipse.org/license/secondary-gpl-2.0-cp"))
                 .hasValue("GPL-2.0-only WITH Classpath-exception-2.0");
-        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "http://repository.jboss.org/licenses/lgpl-2.1.txt"))
-                .hasValue("LGPL-2.1-only");
-        assertThat(LicenseUtils.findLicenseMapping(MAPPING, "http://www.gnu.org/licenses/lgpl-2.1.txt"))
-                .hasValue("LGPL-2.1-only");
-
     }
 
     @Test

@@ -145,10 +145,14 @@ public final class MavenUtils {
      * objects.
      *
      * @param project the Maven project
+     * @param source the license source
      * @return the list of Maven projects (may be empty)
      */
-    public static List<LicenseInfo> getLicenses(MavenProject project) {
-        return project.getLicenses().stream().map(LicenseInfo::new).collect(Collectors.toUnmodifiableList());
+    public static List<LicenseInfo> getLicenses(MavenProject project, LicenseSource source) {
+        return project.getLicenses()
+                .stream()
+                .map(license -> new LicenseInfo(license, source))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -156,14 +160,17 @@ public final class MavenUtils {
      * the value (which may be empty).
      *
      * @param pomFileObject the POM file object
+     * @param source the license source
      * @return a map with the key the GAV of the POM file and the value the list of licenses (may be empty)
      * @throws InterpolationException if an error occurs interpolating the Maven properties
      * @throws IOException if an error occurs when reading from the file
      * @throws XmlPullParserException if an error occurs when parsing the POM file
      */
-    public static Map<String, List<LicenseInfo>> getLicenses(String root, FileObject pomFileObject)
-            throws IOException, XmlPullParserException, InterpolationException {
+    public static Map<String, List<LicenseInfo>> getLicenses(
+            String root,
+            FileObject pomFileObject,
+            LicenseSource source) throws IOException, XmlPullParserException, InterpolationException {
         MavenProject project = getMavenProject(pomFileObject);
-        return Collections.singletonMap(Utils.normalizePath(pomFileObject, root), getLicenses(project));
+        return Collections.singletonMap(Utils.normalizePath(pomFileObject, root), getLicenses(project, source));
     }
 }
