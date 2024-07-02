@@ -27,27 +27,27 @@ import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.github.sparkmuse.wiremock.Wiremock;
-import com.github.sparkmuse.wiremock.WiremockExtension;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.redhat.red.build.koji.KojiClientException;
 
-@ExtendWith(WiremockExtension.class)
-class EmptyBuildsTest {
-    @Wiremock
-    private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("empty-builds-test").dynamicPort());
+class EmptyBuildsTest extends AbstractWireMockTest {
+    @RegisterExtension
+    private static final WireMockExtension WIRE_MOCK_EXTENSION = newWireMockExtensionForClass(EmptyBuildsTest.class);
+
+    private static BuildConfig config;
+
+    @BeforeAll
+    static void setup() throws MalformedURLException {
+        config = new BuildConfig();
+        config.setKojiHubURL(new URL(WIRE_MOCK_EXTENSION.baseUrl()));
+    }
 
     @Test
     void testEmptyChecksums() throws IOException, KojiClientException {
-        BuildConfig config = new BuildConfig();
-
-        config.setKojiHubURL(new URL(server.baseUrl()));
-
         DistributionAnalyzer da = new DistributionAnalyzer(Collections.emptyList(), config);
 
         da.checksumFiles();
@@ -61,11 +61,8 @@ class EmptyBuildsTest {
     }
 
     @Test
-    void testEmptyBuilds() throws KojiClientException, MalformedURLException {
+    void testEmptyBuilds() throws KojiClientException {
         Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
-        BuildConfig config = new BuildConfig();
-
-        config.setKojiHubURL(new URL(server.baseUrl()));
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
@@ -78,7 +75,8 @@ class EmptyBuildsTest {
         }
     }
 
-    private static Map<Checksum, Collection<String>> getChecksumTable() {
+    @Override
+    Map<Checksum, Collection<String>> getChecksumTable() {
         Checksum checksum1 = new Checksum(
                 ChecksumType.md5,
                 "ca5330166ccd4e2b205bed4b88f924b0",
@@ -100,9 +98,6 @@ class EmptyBuildsTest {
         String filename = "empty.zip";
         Collection<String> filenames = Collections.singletonList("empty.zip");
         Checksum checksum = new Checksum(ChecksumType.md5, "76cdb2bad9582d23c1f6f4d868218d6c", filename, 22);
-
-        BuildConfig config = new BuildConfig();
-        config.setKojiHubURL(new URL(server.baseUrl()));
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinderUtils utils = new BuildFinderUtils(config, null, session);

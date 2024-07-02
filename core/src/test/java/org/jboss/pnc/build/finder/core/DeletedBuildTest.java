@@ -26,41 +26,31 @@ import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.github.sparkmuse.wiremock.Wiremock;
-import com.github.sparkmuse.wiremock.WiremockExtension;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 
-@ExtendWith(WiremockExtension.class)
-class DeletedBuildTest {
-    @Wiremock
-    private final WireMockServer server = new WireMockServer(
-            WireMockConfiguration.options().usingFilesUnderClasspath("deleted-build-test").dynamicPort());
+class DeletedBuildTest extends AbstractWireMockTest {
+    @RegisterExtension
+    private static final WireMockExtension WIRE_MOCK_EXTENSION = newWireMockExtensionForClass(DeletedBuildTest.class);
+
+    private static BuildConfig config;
+
+    @BeforeAll
+    static void setup() throws MalformedURLException {
+        config = new BuildConfig();
+        config.setKojiHubURL(new URL(WIRE_MOCK_EXTENSION.baseUrl()));
+    }
 
     @Test
     void testDeletedBuild() throws KojiClientException, MalformedURLException {
-        Checksum checksum = new Checksum(
-                ChecksumType.md5,
-                "a8c05c0ff2b61c3e205fb21010581bbe",
-                "infinispan-bom-9.4.16.Final-redhat-00001.pom",
-                23476L);
-        Collection<String> filenames = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
-        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
-
-        checksumTable.put(checksum, filenames);
-
-        BuildConfig config = new BuildConfig();
-
-        config.setKojiHubURL(new URL(server.baseUrl()));
-
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
-            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(checksumTable);
+            Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(getChecksumTable());
 
             assertThat(builds).hasSize(2);
             assertThat(builds).hasEntrySatisfying(
@@ -70,5 +60,19 @@ class DeletedBuildTest {
                     new BuildSystemInteger(966480, BuildSystem.koji),
                     build -> assertThat(build.getBuildInfo().getBuildState()).isEqualTo(KojiBuildState.DELETED));
         }
+    }
+
+    @Override
+    Map<Checksum, Collection<String>> getChecksumTable() {
+        Checksum checksum = new Checksum(
+                ChecksumType.md5,
+                "a8c05c0ff2b61c3e205fb21010581bbe",
+                "infinispan-bom-9.4.16.Final-redhat-00001.pom",
+                23476L);
+        Collection<String> filenames = Collections.singletonList("wildfly-core-security-7.5.9.Final-redhat-2.jar");
+        Map<Checksum, Collection<String>> checksumTable = new LinkedHashMap<>(2, 1.0f);
+
+        checksumTable.put(checksum, filenames);
+        return checksumTable;
     }
 }
