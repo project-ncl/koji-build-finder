@@ -57,7 +57,7 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/build-finder.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/build-finder.git</developerConnection>
-    <tag>2.4.0</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/project-ncl/build-finder</url>
   </scm>
 
