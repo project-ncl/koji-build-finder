@@ -292,17 +292,11 @@ public class KojiBuild {
         return Optional.empty();
     }
 
-    private static String taskToString(KojiTaskInfo taskInfo) {
-        return taskInfo != null ? String
-                .format("KojiTaskInfo[%s-%s-%s]", taskInfo.getTaskId(), taskInfo.getMethod(), taskInfo.getArch())
-                : "null";
-    }
-
     @Override
     public String toString() {
-        return "KojiBuild [buildInfo=" + buildInfo + ", taskInfo=" + taskToString(taskInfo) + ", taskRequest="
-                + taskRequest + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags
-                + ", remoteRpms=" + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
+        return "KojiBuild [buildInfo=" + buildInfo + ", taskInfo=" + taskInfo + ", taskRequest=" + taskRequest
+                + ", archives=" + archives + ", remoteArchives=" + remoteArchives + ", tags=" + tags + ", remoteRpms="
+                + remoteRpms + ", duplicateArchives=" + duplicateArchives + "]";
     }
 
 }
