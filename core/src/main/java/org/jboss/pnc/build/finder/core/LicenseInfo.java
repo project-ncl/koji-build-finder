@@ -17,6 +17,7 @@ package org.jboss.pnc.build.finder.core;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.License;
 
 public class LicenseInfo implements Comparable<LicenseInfo> {
@@ -89,11 +90,35 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     @Override
     public int compareTo(LicenseInfo o) {
-        if (spdxLicenseId != null && o.spdxLicenseId != null) {
-            return spdxLicenseId.compareTo(o.spdxLicenseId);
+        if (o == null) {
+            return 1;
         }
 
-        return 0;
+        int compare = StringUtils.compare(spdxLicenseId, o.spdxLicenseId);
+
+        if (compare != 0) {
+            return compare;
+        }
+
+        compare = StringUtils.compare(name, o.name);
+
+        if (compare != 0) {
+            return compare;
+        }
+
+        compare = Integer.compare(source.ordinal(), o.source.ordinal());
+
+        if (compare != 0) {
+            return compare;
+        }
+
+        compare = StringUtils.compare(distribution, o.distribution);
+
+        if (compare != 0) {
+            return compare;
+        }
+
+        return StringUtils.compare(comments, o.comments);
     }
 
     @Override
@@ -114,7 +139,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(comments, distribution, name, url, spdxLicenseId);
+        return Objects.hash(comments, distribution, name, url, spdxLicenseId, source);
     }
 
     @Override
