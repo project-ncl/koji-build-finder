@@ -8,7 +8,10 @@
         "https://raw.githubusercontent.com/googleapis/java-cloud-bom/libraries-bom-v25.4.0/LICENSE",
         "AL2",
         "Apache License",
-        "src/assemble/EHCACHE-CORE-LICENSE.txt"
+        "see: http://freemarker.org/LICENSE.txt",
+        "src/assemble/EHCACHE-CORE-LICENSE.txt",
+        "The Apache License",
+        "Version 2.0"
     ],
     "BSD-2-Clause": [
         "http://www.opensource.org/licenses/bsd-license.html",
@@ -22,6 +25,7 @@
         "http://jaxen.codehaus.org/license.html",
         "http://repository.jboss.org/licenses/edl-1.0.txt",
         "http://www.antlr.org/license.html",
+        "http://www.jcraft.com/jzlib/LICENSE.txt",
         "http://www.thaiopensource.com/relaxng/copying.html",
         "http://xmlunit.svn.sourceforge.net/viewvc/*checkout*/xmlunit/trunk/xmlunit/LICENSE.txt",
         "http://x-stream.github.io/license.html",

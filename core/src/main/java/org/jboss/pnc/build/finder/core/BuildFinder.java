@@ -1409,7 +1409,8 @@ public class BuildFinder
                     "Added {} unique SPDX licenses to builds: {}",
                     green(uniqueLicenses.size()),
                     green(String.join(", ", uniqueLicenses)));
-            List<KojiBuild> buildsWithLicenses = buildsFoundList.stream()
+            List<KojiBuild> buildsWithLicenses = allBuilds.values()
+                    .stream()
                     .filter(
                             kojiBuild -> kojiBuild.getArchives()
                                     .stream()
@@ -1422,7 +1423,8 @@ public class BuildFinder
                     green(numBuilds),
                     green(Math.round(((double) numBuildsWithLicenses / (double) numBuilds) * 100D)));
 
-            List<KojiLocalArchive> archives = buildsFoundList.stream()
+            List<KojiLocalArchive> archives = allBuilds.values()
+                    .stream()
                     .flatMap(kojiBuild -> kojiBuild.getArchives().stream())
                     .collect(Collectors.toUnmodifiableList());
             int numArchives = archives.size();
@@ -1436,11 +1438,13 @@ public class BuildFinder
                     green(Math.round(((double) numArchivesWithLicenses / (double) numArchives) * 100D)));
 
             if (LOGGER.isWarnEnabled()) {
-                List<KojiBuild> buildsWithoutLicenses = new ArrayList<>(buildsFoundList);
+                List<KojiBuild> buildsWithoutLicenses = new ArrayList<>(allBuilds.values());
+                buildsWithoutLicenses.removeIf(BuildFinderUtils::isBuildZero);
                 buildsWithoutLicenses.removeAll(buildsWithLicenses);
+                int numBuildsWithoutLicenses = buildsWithoutLicenses.size();
                 LOGGER.warn(
                         "{} builds are missing licenses: {}",
-                        red(numBuilds - numBuildsWithLicenses),
+                        red(numBuildsWithoutLicenses),
                         red(
                                 buildsWithoutLicenses.stream()
                                         .map(KojiBuild::getBuildInfo)

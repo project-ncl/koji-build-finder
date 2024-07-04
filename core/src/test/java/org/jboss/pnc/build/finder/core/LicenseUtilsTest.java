@@ -117,7 +117,7 @@ class LicenseUtilsTest {
     @Test
     void testGetSPDXLicenseId() {
         Map<String, List<String>> mapping = Map.of(NONE, List.of("Public Domain"));
-        assertThat(LicenseUtils.getSPDXLicenseId(mapping, "Public Domain", null)).isEqualTo(NONE);
+        assertThat(LicenseUtils.getSPDXLicenseId(mapping, "  Public Domain\n", null)).isEqualTo(NONE);
         assertThat(LicenseUtils.getSPDXLicenseId(mapping, null, "http://repository.jboss.org/licenses/cc0-1.0.txt"))
                 .isEqualTo("CC0-1.0");
         assertThat(
@@ -175,6 +175,8 @@ class LicenseUtilsTest {
                 .hasValue("LGPL-2.1-only");
         assertThat(LicenseUtils.findLicenseMapping("https://projects.eclipse.org/license/secondary-gpl-2.0-cp"))
                 .hasValue("GPL-2.0-only WITH Classpath-exception-2.0");
+        assertThat(LicenseUtils.findLicenseMapping("http://www.jcraft.com/jzlib/LICENSE.txt")).hasValue("BSD-3-Clause");
+        assertThat(LicenseUtils.findLicenseMapping("see: http://freemarker.org/LICENSE.txt")).hasValue("Apache-2.0");
     }
 
     @Test

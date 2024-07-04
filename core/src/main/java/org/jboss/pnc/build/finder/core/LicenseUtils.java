@@ -287,7 +287,7 @@ public final class LicenseUtils {
      */
     public static boolean isUrl(String... strings) {
         for (String s : strings) {
-            if (s == null || StringUtils.containsWhitespace(s) || !s.contains(URL_MARKER)) {
+            if (s == null || !s.contains(URL_MARKER) || StringUtils.containsWhitespace(s)) {
                 return false;
             }
         }
@@ -314,11 +314,7 @@ public final class LicenseUtils {
     }
 
     static Optional<String> findLicenseMapping(Map<String, List<String>> mapping, String licenseString) {
-        if (licenseString == null) {
-            return Optional.empty();
-        }
-
-        if (licenseString.isBlank()) {
+        if (StringUtils.isBlank(licenseString)) {
             return Optional.empty();
         }
 
@@ -338,8 +334,9 @@ public final class LicenseUtils {
                     }
                 } else {
                     String normalizedString = StringUtils.normalizeSpace(licenseString);
+                    String normalizedNameOrUrl = StringUtils.normalizeSpace(licenseNameOrUrl);
 
-                    if (StringUtils.equalsIgnoreCase(licenseNameOrUrl, normalizedString)) {
+                    if (StringUtils.equalsIgnoreCase(normalizedNameOrUrl, normalizedString)) {
                         return Optional.of(getCurrentLicenseId(licenseId));
                     }
                 }
@@ -347,6 +344,10 @@ public final class LicenseUtils {
         }
 
         return Optional.empty();
+    }
+
+    static String getSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
+        return findSPDXLicenseId(mapping, name, url).orElse(NOASSERTION);
     }
 
     /**
@@ -360,10 +361,10 @@ public final class LicenseUtils {
         return getSPDXLicenseId(MAPPING, name, url);
     }
 
-    static String getSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
-        Optional<String> licenseMapping = StringUtils.isBlank(url) ? LicenseUtils.findLicenseMapping(mapping, name)
-                : LicenseUtils.findLicenseMapping(mapping, url);
-        return licenseMapping.or(() -> LicenseUtils.findMatchingLicense(name, url)).orElse(NOASSERTION);
+    static Optional<String> findSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
+        Optional<String> optSPDXLicenseId = LicenseUtils.findLicenseMapping(mapping, url)
+                .or(() -> LicenseUtils.findMatchingLicense(name, url));
+        return optSPDXLicenseId.or(() -> LicenseUtils.findLicenseMapping(mapping, name));
     }
 
     /**
@@ -479,13 +480,7 @@ public final class LicenseUtils {
         return true;
     }
 
-    /**
-     * Finds a match for the URL (after normalization) in the SPDX seeAlso URL list.
-     *
-     * @param licenseUrl the license URL
-     * @return the matching SPDX license URL if found, otherwise empty
-     */
-    public static Optional<String> findMatchingLicenseSeeAlso(String licenseUrl) {
+    static Optional<String> findMatchingLicenseSeeAlso(String licenseUrl) {
         if (licenseUrl == null || licenseUrl.isBlank()) {
             return Optional.empty();
         }
@@ -513,6 +508,7 @@ public final class LicenseUtils {
     /**
      * Finds a match for the given license name and license URL, if any, in the SPDX license list. A match is searched
      * for in the following order:
+     *
      * <ol>
      * <li>Search for a matching SPDX license identifier</li>
      * <li>Search for a match SPDX license name</li>
@@ -670,5 +666,31 @@ public final class LicenseUtils {
     static String getCurrentLicenseId(String licenseId) {
         String currentId = DEPRECATED_LICENSE_IDS_MAP.get(licenseId);
         return currentId != null ? currentId : licenseId;
+    }
+
+    /**
+     * Gets the first non-blank string.
+     *
+     * @param strings the strings
+     * @return the first non-blank string. or null
+     */
+    public static String getFirstNonBlankString(String... strings) {
+        return findFirstNonBlankString(strings).orElse(null);
+    }
+
+    /**
+     * Finds the first non-blank string.
+     *
+     * @param strings the strings
+     * @return the first non-blank string. or empty.
+     */
+    public static Optional<String> findFirstNonBlankString(String... strings) {
+        for (String string : strings) {
+            if (!StringUtils.isBlank(string)) {
+                return Optional.of(string);
+            }
+        }
+
+        return Optional.empty();
     }
 }

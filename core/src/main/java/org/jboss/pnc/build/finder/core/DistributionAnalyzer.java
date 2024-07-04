@@ -29,6 +29,7 @@ import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
 import static org.jboss.pnc.build.finder.core.LicenseSource.POM_XML;
 import static org.jboss.pnc.build.finder.core.LicenseSource.TEXT;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.NOASSERTION;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.isUrl;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPomXml;
@@ -148,15 +149,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private DistributionAnalyzerListener listener;
 
-    private Map<String, List<String>> mapping;
-
     public DistributionAnalyzer(List<String> inputs, BuildConfig config) {
         this(inputs, config, null);
     }
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
         try {
-            mapping = LicenseUtils.loadLicenseMapping();
+            Map<String, List<String>> mapping = LicenseUtils.loadLicenseMapping();
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(
@@ -165,7 +164,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                         green(String.join(", ", mapping.keySet())));
             }
         } catch (IOException e) {
-            mapping = Collections.emptyMap();
             LOGGER.error("Error loading SPDX license URL mappings: {}", boldRed(getAllErrorMessages(e)));
             LOGGER.debug("Error", e);
         }
@@ -679,7 +677,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private static List<LicenseInfo> addLicenseFromTextFile(FileObject jar, FileObject licenseFile) throws IOException {
         String licenseId = LicenseUtils.getMatchingLicense(licenseFile);
         LicenseInfo licenseInfo = new LicenseInfo(
-                licenseId,
+                null,
                 jar.getName().getRelativeName(licenseFile.getName()),
                 LicenseUtils.getCurrentLicenseId(licenseId),
                 TEXT);
@@ -691,26 +689,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
 
         for (BundleLicense bundleLicense : bundlesLicenses) {
-            String name = bundleLicense.getLicenseIdentifier();
-
-            if (name == null) {
-                name = bundleLicense.getDescription();
-            }
-
+            String licenseIdentifier = bundleLicense.getLicenseIdentifier();
+            String description = bundleLicense.getDescription();
+            String name = LicenseUtils.getFirstNonBlankString(licenseIdentifier, description);
             String url = bundleLicense.getLink();
             LicenseInfo licenseInfo = new LicenseInfo(name, url, BUNDLE_LICENSE);
-            String licenseId = licenseInfo.getSpdxLicenseId();
-
-            if (licenseId.equals(NOASSERTION)) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn(
-                            "Missing mapping for Bundle-License: name: {}, URL: {} for file {}",
-                            red(name),
-                            red(url),
-                            red(fileObject));
-                }
-            }
-
             licenses.add(licenseInfo);
         }
 
@@ -725,22 +708,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             List<LicenseInfo> licenseInfos = entry.getValue();
 
             if (licenseInfos.isEmpty()) {
-                LicenseInfo licenseInfo = new LicenseInfo(source);
-                licenseInfos.add(licenseInfo);
+                return Collections.emptyList();
             }
 
             if (LOGGER.isDebugEnabled()) {
-                if (!licenseInfos.isEmpty()) {
-                    LOGGER.debug(
-                            "Found {} SPDX licenses for {}: {}",
-                            licenseInfos.size(),
-                            pomOrJarFile,
-                            String.join(
-                                    ", ",
-                                    licenseInfos.stream()
-                                            .map(LicenseInfo::getSpdxLicenseId)
-                                            .collect(Collectors.toUnmodifiableSet())));
-                }
+                LOGGER.debug(
+                        "Found {} SPDX licenses for {}: {}",
+                        licenseInfos.size(),
+                        pomOrJarFile,
+                        String.join(
+                                ", ",
+                                licenseInfos.stream()
+                                        .map(LicenseInfo::getSpdxLicenseId)
+                                        .collect(Collectors.toUnmodifiableSet())));
             }
 
             return licenseInfos;
@@ -757,6 +737,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             existingLicenses.addAll(licenseInfos);
         } else {
             licensesMap.put(pomOrJarFile, licenseInfos);
+        }
+
+        if (LOGGER.isWarnEnabled()) {
+            for (LicenseInfo licenseInfo : licenseInfos) {
+                if (licenseInfo.getSpdxLicenseId().equals(NOASSERTION)) {
+                    String name = licenseInfo.getName();
+                    String url = licenseInfo.getUrl();
+
+                    if (name != null || isUrl(url)) {
+                        LOGGER.warn("Missing SPDX license mapping for name: {}, URL: {}", red(name), red(url));
+                    }
+                }
+            }
         }
     }
 

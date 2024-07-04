@@ -15,9 +15,6 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import static org.jboss.pnc.build.finder.core.LicenseSource.UNKNOWN;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.NONE;
-
 import java.util.Objects;
 
 import org.apache.maven.model.License;
@@ -34,24 +31,6 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
     private String spdxLicenseId;
 
     private final LicenseSource source;
-
-    public LicenseInfo() {
-        comments = null;
-        distribution = null;
-        name = null;
-        url = null;
-        spdxLicenseId = NONE;
-        source = UNKNOWN;
-    }
-
-    public LicenseInfo(LicenseSource source) {
-        comments = null;
-        distribution = null;
-        this.name = null;
-        this.url = null;
-        this.spdxLicenseId = null;
-        this.source = source;
-    }
 
     public LicenseInfo(License license, LicenseSource source) {
         comments = license.getComments();
