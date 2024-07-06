@@ -44,6 +44,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.InvalidLicenseStringException;
 import org.spdx.library.model.license.LicenseInfoFactory;
@@ -318,5 +319,11 @@ class LicenseUtilsTest {
 
             assertThat(LicenseUtils.getMatchingLicense(fo)).isEqualTo("Apache-2.0");
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "LICENSE", "LICENSE.md", "LICENSE.txt", "MIT-LICENSE", "MIT", "MIT.md", "MIT.txt" })
+    void testIsLicenseFileName(String fileName) {
+        assertThat(LicenseUtils.isLicenseFileName(fileName)).isTrue();
     }
 }

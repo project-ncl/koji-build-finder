@@ -662,7 +662,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 licenseInfos = addLicensesFromPom(localFile, POM_XML);
             } else if (LicenseUtils.isManifestMfFileName(localFile)) {
                 licenseInfos = addLicensesFromBundleLicense(localFile);
-            } else if (LicenseUtils.isLicenseFileName(localFile)) {
+            } else if (LicenseUtils.isLicenseFileName(localFile.getName().getBaseName())) {
                 licenseInfos = addLicenseFromTextFile(jar, localFile);
             } else {
                 licenseInfos = Collections.emptyList();

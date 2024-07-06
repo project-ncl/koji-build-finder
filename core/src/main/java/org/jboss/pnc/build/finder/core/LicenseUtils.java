@@ -52,7 +52,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
@@ -114,7 +113,7 @@ public final class LicenseUtils {
 
     private static final String URL_MARKER = ":/";
 
-    private static final List<String> EXTENSIONS_TO_REMOVE = List.of(".html", ".php", ".txt");
+    private static final List<String> EXTENSIONS_TO_REMOVE = List.of(".html", ".md", ".php", ".txt");
 
     private static final Pattern NAME_VERSION_PATTERN = Pattern
             .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>[0-9]+))?");
@@ -535,7 +534,8 @@ public final class LicenseUtils {
     }
 
     /**
-     * Returns whether the given file object is a license text file. Matches files such as
+     * Returns whether the given file name is a license text file. Matches files such as
+     *
      * <ul>
      * <li>LICENSE.md</li>
      * <li>LICENSE</li>
@@ -544,25 +544,16 @@ public final class LicenseUtils {
      * <li>&lt;SPDX-LICENSE-ID&gt;.txt</li>
      * </ul>
      *
-     * @param fileObject the file object
-     * @return whether the given file object is a license text file
+     * @param fileName the file name
+     * @return whether the given file name is a license text file
      */
-    public static boolean isLicenseFileName(FileObject fileObject) {
-        FileName name = fileObject.getName();
-        String fileName = name.getBaseName();
-
+    public static boolean isLicenseFileName(String fileName) {
         if (LICENSE_FILE_PATTERN.matcher(fileName).matches()) {
             return true;
         }
 
-        String extension = FilenameUtils.getExtension(fileName);
-
-        if (StringUtils.equalsAny(extension, "", "txt")) {
-            String baseName = StringUtils.removeEnd(fileName, extension);
-            return LicenseUtils.isKnownLicenseId(baseName);
-        }
-
-        return false;
+        String baseName = FilenameUtils.removeExtension(fileName);
+        return LicenseUtils.isKnownLicenseId(baseName);
     }
 
     /**
