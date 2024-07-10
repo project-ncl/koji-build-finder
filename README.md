@@ -299,13 +299,12 @@ examine. In this execution, Build Finder will read through the file
 the Koji database provided that the file name matches one of the
 specified Koji archive types and does not match the exclusion pattern.
 
-On the first completed run, the software will create a
+When a run completes, and Build Finder will create a
 `checksum-<checksum-type>.json` file to cache the file checksums and a
-`builds.json` file to cache the Koji build information. Currently, if
-you wish to perform a clean run, you must *manually* remove the JSON
-files. Otherwise, the cache will be loaded and the information will not
-be recalculated. Alternatively, you may specify a different output
-directory for each run using the `--output-directory` option.
+`builds.json` file to cache the Koji build information. These cache files will
+not be loaded unless the `use-checksums-file` and `use-builds-file` options,
+respectlively, are used. These files are written to the current directory or
+to the value given for `--output-directory`, if present.
 
 ## Output File Formats
 
@@ -314,12 +313,15 @@ information between runs in more detail.
 
 ### Checksums
 
-The `checksum-md5.json` file contains a map where the key is the MD5
-checksum of the file and the value is a list of all files (and their sizes) with the
-checksum. Note that it is possible to have more than one file with the
-given checksum. For completeness, the `checksum-md5.json` file contains
-every single file found in the input, including any files found by
-recursively scanning compressed files or inside archive files.
+The `checksum-<checksum_type>.json` file contains a map where the key is the
+checksum type (currently one of `md5`, `sha1`, and/or `sha256`). The value
+`md5` should always be present for Koji support, and the value `sha256`
+should be present for newer Koji and for PNC support. The map value is a list
+of all files with that checksum. Note that it is possible to have more than one
+file with the given checksum. For completeness, the
+`checksum-<checksum_type>.json` file contains every single file found in the
+input, including any files found by recursively scanning compressed files or
+inside archive files.
 
 ### Builds
 
@@ -350,7 +352,8 @@ not determined).
 After a completed run, several output files are produced in the current
 directory. These files are overwritten on additional runs, so if the
 output files need to be saved between multiple runs, then specify unique
-directories for each run.
+directories for each run. These files are written to the current directory or
+to the value given for `--output-directory`, if present.
 
 ### Builds Report
 
@@ -379,7 +382,8 @@ This is an HTML-based report which displays various statistics about the
 distribution, including the number and percentage of builds and
 artifacts built from source. Note that the total number of artifacts
 includes *not-found* artifacts. If you wish to exclude these not-found
-artifacts, use the `--excludes` option with the appropriate pattern(s).
+artifacts, use the `--excludes` option with the appropriate
+regular-expression pattern(s).
 
 ### Products Report
 
