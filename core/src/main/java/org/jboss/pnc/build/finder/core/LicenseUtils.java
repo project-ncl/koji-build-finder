@@ -399,6 +399,25 @@ public final class LicenseUtils {
         return Optional.ofNullable(license != null ? getCurrentLicenseId(license.getLicenseId()) : null);
     }
 
+    public static String getSPDXLicenseName(String licenseId) {
+        if (licenseId == null) {
+            return EMPTY;
+        }
+
+        String currentLicenseId = getCurrentLicenseId(licenseId);
+        SpdxListedLicense spdxListedLicense = LICENSE_ID_MAP.get(currentLicenseId);
+
+        if (spdxListedLicense == null) {
+            return EMPTY;
+        }
+
+        try {
+            return spdxListedLicense.getName();
+        } catch (InvalidSPDXAnalysisException e) {
+            return EMPTY;
+        }
+    }
+
     /**
      * Finds a match for the given Maven license name or URL in the SPDX license id list or SPDX license name list. The
      * SPDX lists are first sorted in order of descending length, then in natural order. This ensures that the match is

@@ -57,8 +57,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.pnc.build.finder.core.LicenseInfo;
+import org.jboss.pnc.build.finder.core.LicenseUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -224,6 +228,22 @@ public final class HTMLReport extends Report {
         return span(build.getSource().orElse(""));
     }
 
+    private static boolean hl(KojiBuild build) {
+        return build.getArchives().stream().anyMatch(kojiLocalArchive -> !kojiLocalArchive.getLicenses().isEmpty());
+    }
+
+    private static List<String> gln(KojiBuild build) {
+        return build.getArchives()
+                .stream()
+                .flatMap(a -> a.getLicenses().stream())
+                .map(LicenseInfo::getSpdxLicenseId)
+                .map(LicenseUtils::getSPDXLicenseName)
+                .filter(StringUtils::isNotEmpty)
+                .sorted()
+                .distinct()
+                .collect(Collectors.toUnmodifiableList());
+    }
+
     @Override
     public ContainerTag<HtmlTag> toHTML() {
         return html(
@@ -262,6 +282,7 @@ public final class HTMLReport extends Report {
                                                                 th(text("Name")),
                                                                 th(text("Version")),
                                                                 th(text("Artifacts")),
+                                                                th(text("Licenses")),
                                                                 th(text("Tags")),
                                                                 th(text("Type")),
                                                                 th(text("Sources")),
@@ -317,6 +338,9 @@ public final class HTMLReport extends Report {
                                                                                                                         ", ",
                                                                                                                         a.getFilenames())))))
                                                                                         : text("")),
+                                                                        td(
+                                                                                hl(
+                                                                                        build) ? ul(each(gln(build), n -> li(text(n)))) : text("")),
                                                                         td(
                                                                                 build.getTags() != null
                                                                                         ? ul(

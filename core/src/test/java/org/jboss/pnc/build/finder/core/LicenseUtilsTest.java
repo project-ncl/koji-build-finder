@@ -326,4 +326,9 @@ class LicenseUtilsTest {
     void testIsLicenseFileName(String fileName) {
         assertThat(LicenseUtils.isLicenseFileName(fileName)).isTrue();
     }
+
+    @Test
+    void testGetSPDXLicenseName() {
+        assertThat(LicenseUtils.getSPDXLicenseName("Apache-2.0")).isEqualTo("Apache License 2.0");
+    }
 }
