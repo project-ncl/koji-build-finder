@@ -122,7 +122,7 @@
     <version.org.assertj>3.26.3</version.org.assertj>
     <version.org.bouncycastle>1.78.1</version.org.bouncycastle>
     <version.org.codehaus.mojo.buildnumber-maven-plugin>3.2.0</version.org.codehaus.mojo.buildnumber-maven-plugin>
-    <version.org.codehaus.mojo.versions-maven-plugin>2.17.0</version.org.codehaus.mojo.versions-maven-plugin>
+    <version.org.codehaus.mojo.versions-maven-plugin>2.17.1</version.org.codehaus.mojo.versions-maven-plugin>
     <version.org.codehaus.plexus.plexus-component-metadata>2.2.0</version.org.codehaus.plexus.plexus-component-metadata>
     <version.org.commonjava.rwx>2.3</version.org.commonjava.rwx>
     <version.org.commonjava.util.jhttpc>1.13</version.org.commonjava.util.jhttpc>
