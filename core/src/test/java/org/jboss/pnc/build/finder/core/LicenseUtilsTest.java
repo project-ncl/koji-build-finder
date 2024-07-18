@@ -52,12 +52,11 @@ import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.library.model.license.WithExceptionOperator;
 
 class LicenseUtilsTest {
-    private static Map<String, List<String>> MAPPING;
 
     @BeforeAll
     static void setup() throws IOException {
-        MAPPING = LicenseUtils.loadLicenseMapping();
-        assertThat(MAPPING).isNotEmpty();
+        Map<String, List<String>> mapping = LicenseUtils.loadLicenseMapping();
+        assertThat(mapping).isNotEmpty();
     }
 
     @Test
@@ -322,9 +321,24 @@ class LicenseUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "LICENSE", "LICENSE.md", "LICENSE.txt", "MIT-LICENSE", "MIT", "MIT.md", "MIT.txt" })
+    @ValueSource(
+            strings = {
+                    "LICENSE",
+                    "LICENSE.md",
+                    "LICENSE.txt",
+                    "LICENSE-2.0.txt",
+                    "MIT-LICENSE",
+                    "MIT",
+                    "MIT.md",
+                    "MIT.txt",
+                    "META-INF/LGPL-3.0.txt" })
     void testIsLicenseFileName(String fileName) {
         assertThat(LicenseUtils.isLicenseFileName(fileName)).isTrue();
+    }
+
+    @Test
+    void testIsLicenseFileName2() {
+        assertThat(LicenseUtils.isLicenseFileName("org/dom4j/xpp")).isTrue();
     }
 
     @Test

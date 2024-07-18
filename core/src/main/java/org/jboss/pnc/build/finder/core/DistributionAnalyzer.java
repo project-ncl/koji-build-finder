@@ -29,7 +29,17 @@ import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
 import static org.jboss.pnc.build.finder.core.LicenseSource.POM_XML;
 import static org.jboss.pnc.build.finder.core.LicenseSource.TEXT;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.NOASSERTION;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getBundleLicenseFromManifest;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getCurrentLicenseId;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getFirstNonBlankString;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getMatchingLicense;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getNumberOfSPDXLicenses;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.getSPDXLicenseListVersion;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFile;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFileName;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.isManifestMfFileName;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isUrl;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.loadLicenseMapping;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPomXml;
@@ -119,8 +129,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String LICENSES_FILENAME_BASENAME = "licenses";
 
-    private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
-
     private final List<String> inputs;
 
     private final MultiValuedMap<String, Checksum> inverseMap;
@@ -155,7 +163,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
         try {
-            Map<String, List<String>> mapping = LicenseUtils.loadLicenseMapping();
+            Map<String, List<String>> mapping = loadLicenseMapping();
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(
@@ -164,7 +172,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                         green(String.join(", ", mapping.keySet())));
             }
         } catch (IOException e) {
-            LOGGER.error("Error loading SPDX license URL mappings: {}", boldRed(getAllErrorMessages(e)));
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Error loading SPDX license URL mappings: {}", boldRed(getAllErrorMessages(e)));
+            }
+
             LOGGER.debug("Error", e);
         }
 
@@ -173,8 +184,8 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         checksumTypesToCheck = EnumSet.copyOf(config.getChecksumTypes());
         map = new EnumMap<>(ChecksumType.class);
         licensesMap = new TreeMap<>();
-        String licenseListVersion = LicenseUtils.getSPDXLicenseListVersion();
-        int licenseListSize = LicenseUtils.getNumberOfSPDXLicenses();
+        String licenseListVersion = getSPDXLicenseListVersion();
+        int licenseListSize = getNumberOfSPDXLicenses();
         LOGGER.info(
                 "Using SPDX License List {} containing {} licenses",
                 green(licenseListVersion),
@@ -241,11 +252,14 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                                     new Checksum(checksumType, entry.getKey(), entry.getValue()));
                                         }
                                     } catch (ClassCastException e) {
-                                        LOGGER.error(
-                                                "Error loading cache {}: {}. The cache format has changed"
-                                                        + " and you will have to manually delete the existing cache",
-                                                boldRed(ConfigDefaults.CACHE_LOCATION),
-                                                boldRed(getAllErrorMessages(e)));
+                                        if (LOGGER.isErrorEnabled()) {
+                                            LOGGER.error(
+                                                    "Error loading cache {}: {}. The cache format has changed"
+                                                            + " and you will have to manually delete the existing cache",
+                                                    boldRed(ConfigDefaults.CACHE_LOCATION),
+                                                    boldRed(getAllErrorMessages(e)));
+                                        }
+
                                         throw e;
                                     }
 
@@ -271,17 +285,20 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                     if (listener != null) {
                                         listener.checksumsComputed(new ChecksumsComputedEvent(size));
                                     }
-
-                                    LOGGER.info(
-                                            "Loaded {} checksums for file: {} (checksum: {}) from cache",
-                                            green(size),
-                                            green(fo.getName()),
-                                            green(value));
+                                    if (LOGGER.isInfoEnabled()) {
+                                        LOGGER.info(
+                                                "Loaded {} checksums for file: {} (checksum: {}) from cache",
+                                                green(size),
+                                                green(normalizePath(fo, root)),
+                                                green(value));
+                                    }
                                 } else {
-                                    LOGGER.info(
-                                            "File: {} (checksum: {}) not found in cache",
-                                            green(fo.getName()),
-                                            green(value));
+                                    if (LOGGER.isInfoEnabled()) {
+                                        LOGGER.info(
+                                                "File: {} (checksum: {}) not found in cache",
+                                                green(normalizePath(fo, root)),
+                                                green(value));
+                                    }
                                 }
                             }
                         }
@@ -297,7 +314,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                                     checksumTypesToCheck.stream()
                                                             .map(String::valueOf)
                                                             .collect(Collectors.toUnmodifiableSet()))),
-                                    green(fo.getName()));
+                                    green(normalizePath(fo, root)));
                         }
 
                         listChildren(fo);
@@ -602,7 +619,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                             Map<String, List<LicenseInfo>> map = getLicenses(root, file, source);
                             putLicenses(map.keySet().iterator().next(), licenseInfos);
                         } catch (XmlPullParserException | InterpolationException e) {
-                            LOGGER.warn("Error parsing POM file {}: {}", red(file), red(getAllErrorMessages(e)));
+                            if (LOGGER.isErrorEnabled()) {
+                                LOGGER.error(
+                                        "Error parsing POM file {}: {}",
+                                        boldRed(file),
+                                        boldRed(getAllErrorMessages(e)));
+                            }
                         }
                     }
 
@@ -660,9 +682,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         try {
             if (isPomXml(localFile)) {
                 licenseInfos = addLicensesFromPom(localFile, POM_XML);
-            } else if (LicenseUtils.isManifestMfFileName(localFile)) {
+            } else if (isManifestMfFileName(localFile)) {
                 licenseInfos = addLicensesFromBundleLicense(localFile);
-            } else if (LicenseUtils.isLicenseFileName(localFile.getName().getBaseName())) {
+            } else if (isLicenseFile(localFile)) {
                 licenseInfos = addLicenseFromTextFile(jar, localFile);
             } else {
                 licenseInfos = Collections.emptyList();
@@ -671,33 +693,46 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             licenseInfos = Collections.emptyList();
         }
 
-        return licenseInfos;
+        // Second license pass which looks for relative file URLs, e.g., names such as META-INF/LICENSE
+        licenseInfos.stream()
+                .filter(licenseInfo -> NOASSERTION.equals(licenseInfo.getSpdxLicenseId()))
+                .forEach(licenseInfo -> handleRelativeURL(jar, localFile, licenseInfo));
+
+        // If there are any licenses still unmatched, print them, but ignore unmatched files that were already checked
+        // in the last step
+        if (LOGGER.isWarnEnabled()) {
+            licenseInfos.stream()
+                    .filter(licenseInfo -> NOASSERTION.equals(licenseInfo.getSpdxLicenseId()))
+                    .forEach(licenseInfo -> checkMissingMapping(localFile, licenseInfo));
+        }
+
+        return Collections.unmodifiableList(licenseInfos);
     }
 
     private static List<LicenseInfo> addLicenseFromTextFile(FileObject jar, FileObject licenseFile) throws IOException {
-        String licenseId = LicenseUtils.getMatchingLicense(licenseFile);
+        String licenseId = getMatchingLicense(licenseFile);
         LicenseInfo licenseInfo = new LicenseInfo(
                 null,
                 jar.getName().getRelativeName(licenseFile.getName()),
-                LicenseUtils.getCurrentLicenseId(licenseId),
+                getCurrentLicenseId(licenseId),
                 TEXT);
-        return List.of(licenseInfo);
+        return Collections.singletonList(licenseInfo);
     }
 
     private static List<LicenseInfo> addLicensesFromBundleLicense(FileObject fileObject) throws IOException {
         List<LicenseInfo> licenses = new ArrayList<>(3);
-        List<BundleLicense> bundlesLicenses = LicenseUtils.getBundleLicenseFromManifest(fileObject);
+        List<BundleLicense> bundlesLicenses = getBundleLicenseFromManifest(fileObject);
 
         for (BundleLicense bundleLicense : bundlesLicenses) {
             String licenseIdentifier = bundleLicense.getLicenseIdentifier();
             String description = bundleLicense.getDescription();
-            String name = LicenseUtils.getFirstNonBlankString(licenseIdentifier, description);
+            String name = getFirstNonBlankString(licenseIdentifier, description);
             String url = bundleLicense.getLink();
             LicenseInfo licenseInfo = new LicenseInfo(name, url, BUNDLE_LICENSE);
             licenses.add(licenseInfo);
         }
 
-        return licenses;
+        return Collections.unmodifiableList(licenses);
     }
 
     private List<LicenseInfo> addLicensesFromPom(FileObject fileObject, LicenseSource source) throws IOException {
@@ -723,10 +758,109 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                                         .collect(Collectors.toUnmodifiableSet())));
             }
 
-            return licenseInfos;
+            return Collections.unmodifiableList(licenseInfos);
         } catch (XmlPullParserException | InterpolationException e) {
-            LOGGER.warn("Unable to read licenses from file {}: {}", red(fileObject), red(getAllErrorMessages(e)));
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(
+                        "Unable to read licenses from file {}: {}",
+                        boldRed(fileObject),
+                        boldRed(getAllErrorMessages(e)));
+            }
+
             throw new IOException(e);
+        }
+    }
+
+    private void checkMissingMapping(FileObject localFile, LicenseInfo licenseInfo) {
+        String name = licenseInfo.getName();
+        String url = licenseInfo.getUrl();
+
+        if (name == null && url == null) {
+            return;
+        }
+
+        if (isLicenseFileName(name)) {
+            return;
+        }
+
+        if (isLicenseFileName(url)) {
+            return;
+        }
+
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn(
+                    "Missing SPDX license mapping for name: {}, URL: {}, filename: {}",
+                    red(name),
+                    red(url),
+                    red(normalizePath(localFile, root)));
+        }
+    }
+
+    private void handleRelativeURL(FileObject jar, FileObject localFile, LicenseInfo licenseInfo) {
+        String name = licenseInfo.getName();
+        String url = licenseInfo.getUrl();
+
+        if (name == null && url == null) {
+            return;
+        }
+
+        // URL is not relative, ignore
+        if (isUrl(url)) {
+            return;
+        }
+
+        if (name == null) {
+            name = url;
+        }
+
+        try {
+            // If the URL is absent, consider the possibility that the name refers to a file inside the JAR
+            FileObject licenseFile = jar.resolveFile(name);
+
+            if (!isLicenseFile(licenseFile)) {
+                return;
+            }
+
+            if (licenseFile.isFolder()) {
+                return;
+            }
+
+            if (!licenseFile.exists()) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn(
+                            "License file {} from {} does not exist",
+                            red(name),
+                            red(normalizePath(localFile, root)));
+                }
+
+                return;
+            }
+
+            List<LicenseInfo> licenseInfos = addLicenseFromTextFile(jar, licenseFile);
+
+            if (licenseInfos.isEmpty()) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn(
+                            "Failed to add licenses from file {} located in JAR {}",
+                            red(normalizePath(licenseFile, root)),
+                            red(normalizePath(jar, root)));
+                }
+
+                return;
+            }
+
+            // XXX: Currently, the API returns either 0 or 1 licenses, which we rely on here
+            LicenseInfo licenseInfo2 = licenseInfos.get(0);
+            String spdxLicenseId = licenseInfo2.getSpdxLicenseId();
+            licenseInfo.setSpdxLicense(spdxLicenseId);
+        } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(
+                        "Error adding relative license URL name {} for {}: {}",
+                        boldRed(name),
+                        boldRed(normalizePath(jar, root)),
+                        boldRed(getAllErrorMessages(e)));
+            }
         }
     }
 
@@ -737,19 +871,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             existingLicenses.addAll(licenseInfos);
         } else {
             licensesMap.put(pomOrJarFile, licenseInfos);
-        }
-
-        if (LOGGER.isWarnEnabled()) {
-            for (LicenseInfo licenseInfo : licenseInfos) {
-                if (licenseInfo.getSpdxLicenseId().equals(NOASSERTION)) {
-                    String name = licenseInfo.getName();
-                    String url = licenseInfo.getUrl();
-
-                    if (name != null || isUrl(url)) {
-                        LOGGER.warn("Missing SPDX license mapping for name: {}, URL: {}", red(name), red(url));
-                    }
-                }
-            }
         }
     }
 

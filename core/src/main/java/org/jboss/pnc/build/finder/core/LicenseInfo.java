@@ -29,7 +29,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     private final String url;
 
-    private final String spdxLicenseId;
+    private String spdxLicenseId;
 
     private final LicenseSource source;
 
@@ -78,6 +78,10 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     public String getSpdxLicenseId() {
         return spdxLicenseId;
+    }
+
+    public void setSpdxLicense(String spdxLicenseId) {
+        this.spdxLicenseId = spdxLicenseId;
     }
 
     public LicenseSource getSource() {

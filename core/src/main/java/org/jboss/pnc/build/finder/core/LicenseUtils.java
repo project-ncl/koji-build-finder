@@ -53,6 +53,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
 import org.spdx.library.model.license.InvalidLicenseStringException;
@@ -80,13 +81,13 @@ public final class LicenseUtils {
 
     private static final Pattern IDSTRING_PATTERN = Pattern.compile("[a-zA-Z0-9-.]+");
 
-    private static final Pattern LICENSE_FILE_PATTERN = Pattern.compile("^([A-Z-]+)?LICENSE(.md|.txt)?$");
-
     private static final Pattern MANIFEST_MF_PATTERN = Pattern.compile("^.*META-INF/MANIFEST.MF$");
 
     private static final int EXPECTED_NUM_SPDX_LICENSES = 1024;
 
     private static final String BUNDLE_LICENSE = "Bundle-License";
+
+    private static final String LICENSE = "LICENSE";
 
     private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
 
@@ -113,7 +114,9 @@ public final class LicenseUtils {
 
     private static final String URL_MARKER = ":/";
 
-    private static final List<String> EXTENSIONS_TO_REMOVE = List.of(".html", ".md", ".php", ".txt");
+    private static final String DOT = ".";
+
+    private static final List<String> TEXT_EXTENSIONS = List.of(".html", ".md", ".php", ".txt");
 
     private static final Pattern NAME_VERSION_PATTERN = Pattern
             .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>[0-9]+))?");
@@ -269,7 +272,7 @@ public final class LicenseUtils {
         path = LETTER_DIGIT_PATTERN.matcher(path).replaceAll("$1-$2");
         path = path.replace("cc-0", "cc0");
 
-        for (String extension : EXTENSIONS_TO_REMOVE) {
+        for (String extension : TEXT_EXTENSIONS) {
             path = StringUtils.removeEnd(path, extension);
         }
 
@@ -361,9 +364,8 @@ public final class LicenseUtils {
     }
 
     static Optional<String> findSPDXLicenseId(Map<String, List<String>> mapping, String name, String url) {
-        Optional<String> optSPDXLicenseId = LicenseUtils.findLicenseMapping(mapping, url)
-                .or(() -> LicenseUtils.findMatchingLicense(name, url));
-        return optSPDXLicenseId.or(() -> LicenseUtils.findLicenseMapping(mapping, name));
+        Optional<String> optSPDXLicenseId = findLicenseMapping(mapping, url).or(() -> findMatchingLicense(name, url));
+        return optSPDXLicenseId.or(() -> findLicenseMapping(mapping, name));
     }
 
     /**
@@ -563,16 +565,86 @@ public final class LicenseUtils {
      * <li>&lt;SPDX-LICENSE-ID&gt;.txt</li>
      * </ul>
      *
+     * @param fileObject the file object
+     * @return whether the given file object is a license text file
+     */
+    public static boolean isLicenseFile(FileObject fileObject) {
+        try {
+            if (!fileObject.isFile()) {
+                return false;
+            }
+        } catch (FileSystemException e) {
+            return false;
+        }
+
+        String path = fileObject.getName().getPath();
+        return isLicenseFileName(path);
+    }
+
+    private static Optional<String> findSPDXIdentifierFromFileName(FileObject fileObject) {
+        try {
+            if (!fileObject.isFile()) {
+                return Optional.empty();
+            }
+        } catch (FileSystemException e) {
+            return Optional.empty();
+        }
+
+        String path = fileObject.getName().getPath();
+        String name = FilenameUtils.getName(path);
+        String baseName = FilenameUtils.removeExtension(name);
+
+        if (isKnownLicenseId(baseName)) {
+            return Optional.of(baseName);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Returns whether the given file name is a license text file. Matches files such as
+     *
+     * <ul>
+     * <li>LICENSE.md</li>
+     * <li>LICENSE</li>
+     * <li>LICENSE.txt</li>
+     * <li>MIT-LICENSE</li>
+     * <li>&lt;SPDX-LICENSE-ID&gt;.txt</li>
+     * </ul>
+     *
      * @param fileName the file name
      * @return whether the given file name is a license text file
      */
     public static boolean isLicenseFileName(String fileName) {
-        if (LICENSE_FILE_PATTERN.matcher(fileName).matches()) {
+        if (StringUtils.isBlank(fileName)) {
+            return false;
+        }
+
+        String extension = FilenameUtils.getExtension(fileName);
+
+        if (!isTextExtension(extension)) {
+            return false;
+        }
+
+        String name = FilenameUtils.getName(fileName);
+        String baseName = FilenameUtils.removeExtension(name);
+
+        return StringUtils.containsIgnoreCase(baseName, LICENSE) || isKnownLicenseId(baseName);
+    }
+
+    /**
+     * Returns whether this extension is a plain-text file extension.
+     *
+     * @param extension the extension
+     * @return whether this extension is a plain-text file extension
+     */
+    public static boolean isTextExtension(String extension) {
+        if (EMPTY.equals(extension)) {
             return true;
         }
 
-        String baseName = FilenameUtils.removeExtension(fileName);
-        return LicenseUtils.isKnownLicenseId(baseName);
+        String ext = StringUtils.prependIfMissing(extension, DOT);
+        return TEXT_EXTENSIONS.contains(ext);
     }
 
     /**
@@ -582,6 +654,12 @@ public final class LicenseUtils {
      * @return the matching license identifier, if any
      */
     public static Optional<String> findMatchingLicense(FileObject licenseFileObject) {
+        Optional<String> optionalId = findSPDXIdentifierFromFileName(licenseFileObject);
+
+        if (optionalId.isPresent()) {
+            return optionalId;
+        }
+
         try (FileContent fc = licenseFileObject.getContent(); InputStream in = fc.getInputStream()) {
             String licenseText = new String(in.readAllBytes(), UTF_8);
             return LICENSE_ID_TEXT_LIST.stream()
