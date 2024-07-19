@@ -147,7 +147,7 @@
     <version.org.slf4j>2.0.13</version.org.slf4j>
     <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.7.0</version.org.sonatype.plugins.nexus-staging-maven-plugin>
     <version.org.spdx>1.1.11</version.org.spdx>
-    <version.org.wiremock>3.8.0</version.org.wiremock>
+    <version.org.wiremock>3.9.0</version.org.wiremock>
   </properties>
 
   <dependencyManagement>
