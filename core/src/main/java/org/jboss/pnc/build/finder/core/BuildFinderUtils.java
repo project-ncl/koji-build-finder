@@ -60,6 +60,8 @@ public final class BuildFinderUtils {
 
     public static final String BUILD_ID_ZERO = "0";
 
+    private static final List<String> NATIVE_EXTENSIONS = List.of("so", "dll", "dylib");
+
     private List<String> archiveExtensions;
 
     private final BuildConfig config;
@@ -456,5 +458,9 @@ public final class BuildFinderUtils {
         }
 
         return preferredChecksumMap;
+    }
+
+    public static boolean isNativeFilename(String filename) {
+        return FilenameUtils.isExtension(filename, NATIVE_EXTENSIONS);
     }
 }

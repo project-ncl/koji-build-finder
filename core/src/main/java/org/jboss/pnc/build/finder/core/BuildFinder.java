@@ -554,7 +554,10 @@ public class BuildFinder
             if (a.isPresent()) {
                 KojiLocalArchive matchedArchive = a.get();
                 KojiArchiveInfo archive = matchedArchive.getArchive();
-                matchedArchive.getUnmatchedFilenames().add(filename);
+
+                if (!BuildFinderUtils.isNativeFilename(filename)) {
+                    matchedArchive.getUnmatchedFilenames().add(filename);
+                }
 
                 LOGGER.debug(
                         "Archive {} ({}) contains not found file {} (built from source: {})",
