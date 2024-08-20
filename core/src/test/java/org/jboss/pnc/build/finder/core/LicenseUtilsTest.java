@@ -52,7 +52,6 @@ import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.library.model.license.WithExceptionOperator;
 
 class LicenseUtilsTest {
-
     @BeforeAll
     static void setup() throws IOException {
         Map<String, List<String>> mapping = LicenseUtils.loadLicenseMapping();

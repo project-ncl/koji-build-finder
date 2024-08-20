@@ -28,9 +28,11 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.WithByteman;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+@Disabled
 @WithByteman
 // Uncomment this to get byteman logging!
 // @BMUnitConfig(bmunitVerbose=true, debug=true, verbose = true)

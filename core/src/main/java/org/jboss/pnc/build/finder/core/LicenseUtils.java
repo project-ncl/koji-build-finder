@@ -27,6 +27,7 @@ import static org.spdx.library.SpdxConstants.NONE_VALUE;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
 import org.spdx.library.model.license.InvalidLicenseStringException;
@@ -180,7 +182,9 @@ public final class LicenseUtils {
      */
     public static Map<String, List<String>> loadLicenseMapping() throws IOException {
         if (MAPPING == null) {
-            try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_MAPPING_FILENAME)) {
+            try (FileObject fo = VFS.getManager().resolveFile(getUriForResource(LICENSE_MAPPING_FILENAME));
+                    FileContent fc = fo.getContent();
+                    InputStream in = fc.getInputStream()) {
                 MAPPING = JSONUtils.loadLicenseMapping(in);
                 validateLicenseMapping();
             }
@@ -244,7 +248,9 @@ public final class LicenseUtils {
     }
 
     private static Map<String, String> loadLicenseDeprecated() throws IOException {
-        try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_DEPRECATED_FILENAME)) {
+        try (FileObject fo = VFS.getManager().resolveFile(getUriForResource(LICENSE_DEPRECATED_FILENAME));
+                FileContent fc = fo.getContent();
+                InputStream in = fc.getInputStream()) {
             Map<String, String> map = new BuildFinderObjectMapper()
                     .readValue(in, new TypeReference<LinkedHashMap<String, String>>() {
                     });
@@ -780,5 +786,10 @@ public final class LicenseUtils {
         }
 
         return Optional.empty();
+    }
+
+    static URI getUriForResource(String resourceName) throws IOException {
+        URL location = LicenseUtils.class.getProtectionDomain().getCodeSource().getLocation();
+        return URI.create(location.toExternalForm()).resolve(resourceName);
     }
 }

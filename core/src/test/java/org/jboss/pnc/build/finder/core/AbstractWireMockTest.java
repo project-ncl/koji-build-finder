@@ -35,7 +35,7 @@ import com.google.common.io.Resources;
 abstract class AbstractWireMockTest {
     static WireMockExtension newWireMockExtensionForClass(Class<?> clazz) {
         String path = getDirectoryForClass(clazz);
-        Options options = WireMockConfiguration.wireMockConfig().usingFilesUnderDirectory(path);
+        Options options = WireMockConfiguration.wireMockConfig().dynamicPort().usingFilesUnderDirectory(path);
         return WireMockExtension.newInstance().options(options).build();
     }
 
