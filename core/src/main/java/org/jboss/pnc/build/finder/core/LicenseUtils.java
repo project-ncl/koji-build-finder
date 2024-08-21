@@ -75,9 +75,9 @@ public final class LicenseUtils {
     private static final List<String> LICENSE_ID_TEXT_LIST = List
             .of("Apache-2.0", "BSD-3-Clause", "EPL-1.0", "BSD-2-Clause", "MIT", "xpp", "Plexus");
 
-    private static final String LICENSE_MAPPING_FILENAME = "license-mapping.json";
+    private static final String LICENSE_MAPPING_FILENAME = "build-finder-license-mapping.json";
 
-    private static final String LICENSE_DEPRECATED_FILENAME = "license-deprecated.json";
+    private static final String LICENSE_DEPRECATED_FILENAME = "build-finder-license-deprecated.json";
 
     private static final Pattern IDSTRING_PATTERN = Pattern.compile("[a-zA-Z0-9-.]+");
 
@@ -166,10 +166,11 @@ public final class LicenseUtils {
     }
 
     /**
-     * Loads the licenses mapping JSON file (<code>license-mapping.json</code>) into a map. The map keys consist of SPDX
-     * license short identifiers, e.g., <code>Apache-2.0</code>). The values are either a license URL or license name.
-     * These fields correspond to the values in the Maven POM for the license. It is generally preferred to use a URL as
-     * a name may be ambiguous, e.g., how do we know which BSD license the name &quot;BSD&quot; refers to.
+     * Loads the licenses mapping JSON file (<code>build-finder-license-mapping.json</code>) into a map. The map keys
+     * consist of SPDX license short identifiers, e.g., <code>Apache-2.0</code>). The values are either a license URL or
+     * license name. These fields correspond to the values in the Maven POM for the license. It is generally preferred
+     * to use a URL as a name may be ambiguous, e.g., how do we know which BSD license the name &quot;BSD&quot; refers
+     * to.
      * <p/>
      * The license file is validated while loading in order to make sure that the license identifiers are valid.
      * <em>Note that even though SPDX identifiers are considered to be case-insensitive, the mapping file requires the

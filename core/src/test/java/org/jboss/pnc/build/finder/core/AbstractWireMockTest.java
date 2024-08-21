@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
@@ -35,8 +34,10 @@ import com.google.common.io.Resources;
 abstract class AbstractWireMockTest {
     static WireMockExtension newWireMockExtensionForClass(Class<?> clazz) {
         String path = getDirectoryForClass(clazz);
-        Options options = WireMockConfiguration.wireMockConfig().usingFilesUnderDirectory(path);
-        return WireMockExtension.newInstance().options(options).build();
+        WireMockConfiguration configuration = WireMockConfiguration.wireMockConfig()
+                .dynamicPort()
+                .usingFilesUnderDirectory(path);
+        return WireMockExtension.newInstance().options(configuration).build();
     }
 
     private static String getDirectoryForClass(Class<?> clazz) {
