@@ -21,6 +21,7 @@ import static java.util.Comparator.naturalOrder;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
 import static org.spdx.library.SpdxConstants.NONE_VALUE;
 
@@ -54,6 +55,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
 import org.spdx.library.model.license.InvalidLicenseStringException;
@@ -68,6 +71,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * Utilities for working with SPDX licenses.
  */
 public final class LicenseUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LicenseUtils.class);
+
     static final String NOASSERTION = NOASSERTION_VALUE;
 
     static final String NONE = NONE_VALUE;
@@ -144,7 +149,11 @@ public final class LicenseUtils {
                 LICENSE_NAME_MAP.put(licenseName, spdxListedLicense);
                 LICENSE_NAMES.add(licenseName);
             } catch (InvalidSPDXAnalysisException e) {
-                throw new RuntimeException(e);
+                LOGGER.error(
+                        "Error getting listed license by ID for ID {}: {}",
+                        boldRed(id),
+                        boldRed(e.getMessage()),
+                        e);
             }
         }
 
