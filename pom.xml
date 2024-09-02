@@ -135,7 +135,7 @@
     <version.org.jacoco>0.8.12</version.org.jacoco>
     <version.org.jboss.byteman>4.0.23</version.org.jboss.byteman>
     <version.org.jboss.logmanager>3.0.6.Final</version.org.jboss.logmanager>
-    <version.org.jboss.pnc>3.0.0</version.org.jboss.pnc>
+    <version.org.jboss.pnc>3.0.1</version.org.jboss.pnc>
     <version.org.jboss.pnc.pnc-api>3.0.4</version.org.jboss.pnc.pnc-api>
     <version.org.jeasy>5.0.0</version.org.jeasy>
     <version.org.json.json>20200518</version.org.json.json>
