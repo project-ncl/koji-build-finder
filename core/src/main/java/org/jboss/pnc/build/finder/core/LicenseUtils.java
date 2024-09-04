@@ -21,7 +21,6 @@ import static java.util.Comparator.naturalOrder;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.spdx.library.SpdxConstants.NOASSERTION_VALUE;
 import static org.spdx.library.SpdxConstants.NONE_VALUE;
 
@@ -133,28 +132,14 @@ public final class LicenseUtils {
 
     static {
         LICENSE_ID_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
-        LICENSE_IDS = LicenseInfoFactory.getSpdxListedLicenseIds()
-                .stream()
+        LICENSE_IDS = getSpdxListedLicenseIds().stream()
                 .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
                 .collect(Collectors.toUnmodifiableList());
         LICENSE_NAME_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
         LICENSE_NAMES = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
 
         for (String id : LICENSE_IDS) {
-            try {
-                SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
-                String licenseId = spdxListedLicense.getLicenseId();
-                LICENSE_ID_MAP.put(licenseId, spdxListedLicense);
-                String licenseName = spdxListedLicense.getName();
-                LICENSE_NAME_MAP.put(licenseName, spdxListedLicense);
-                LICENSE_NAMES.add(licenseName);
-            } catch (InvalidSPDXAnalysisException e) {
-                LOGGER.error(
-                        "Error getting listed license by ID for ID {}: {}",
-                        boldRed(id),
-                        boldRed(e.getMessage()),
-                        e);
-            }
+            Utils.retry(() -> addLicenseIdToMaps(id));
         }
 
         LICENSE_ID_MAP = Collections.unmodifiableMap(LICENSE_ID_MAP);
@@ -166,6 +151,24 @@ public final class LicenseUtils {
         try {
             DEPRECATED_LICENSE_IDS_MAP = loadLicenseDeprecated();
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static List<String> getSpdxListedLicenseIds() {
+        return Utils.retry(LicenseInfoFactory::getSpdxListedLicenseIds);
+    }
+
+    private static SpdxListedLicense addLicenseIdToMaps(String id) {
+        try {
+            SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById(id);
+            String licenseId = spdxListedLicense.getLicenseId();
+            String licenseName = spdxListedLicense.getName();
+            LICENSE_ID_MAP.put(licenseId, spdxListedLicense);
+            LICENSE_NAME_MAP.put(licenseName, spdxListedLicense);
+            LICENSE_NAMES.add(licenseName);
+            return spdxListedLicense;
+        } catch (InvalidSPDXAnalysisException e) {
             throw new RuntimeException(e);
         }
     }

@@ -22,6 +22,7 @@ import static org.jboss.pnc.build.finder.core.Utils.byteCountToDisplaySize;
 import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderScmRevision;
 import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderVersion;
 import static org.jboss.pnc.build.finder.core.Utils.getUserHome;
+import static org.jboss.pnc.build.finder.core.Utils.retry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
@@ -104,5 +105,12 @@ class UtilsTest {
         assertThat(byteCountToDisplaySize(Character.MAX_VALUE)).isEqualTo("64K");
         assertThat(byteCountToDisplaySize(Short.MAX_VALUE)).isEqualTo("32K");
         assertThat(byteCountToDisplaySize(Integer.MAX_VALUE)).isEqualTo("2.0G");
+    }
+
+    @Test
+    void testRetry() {
+        assertThatCode(() -> retry(() -> {
+            throw new IllegalArgumentException();
+        })).isInstanceOf(RuntimeException.class).hasCauseInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.apache.commons.lang3.ThreadUtils.sleep;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.cyan;
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -46,6 +48,10 @@ public final class Utils {
     public static final long TIMEOUT = Duration.ofSeconds(10L).toMillis();
 
     public static final String BANG_SLASH = "!/";
+
+    private static final Duration RETRY_DURATION = Duration.ofMillis(500L);
+
+    private static final int NUM_RETRIES = 3;
 
     static {
         PROPERTIES = new Properties();
@@ -202,5 +208,30 @@ public final class Utils {
         }
 
         return sb.toString();
+    }
+
+    public static <T> T retry(Supplier<T> supplier) {
+        int numRetries = 0;
+        Exception exception = null;
+
+        while (numRetries < NUM_RETRIES) {
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                numRetries++;
+                exception = e;
+
+                try {
+                    sleep(RETRY_DURATION);
+                } catch (InterruptedException e2) {
+                    Thread.currentThread().interrupt();
+                    exception = e2;
+                    break;
+                }
+            }
+        }
+
+        LOGGER.error("Retry attempt failed after {} of {} tries", boldRed(numRetries), boldRed(NUM_RETRIES));
+        throw new RuntimeException(exception);
     }
 }
