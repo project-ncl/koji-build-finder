@@ -23,6 +23,7 @@
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
     <version>46</version>
+    <relativePath></relativePath>
   </parent>
 
   <groupId>org.jboss.pnc.build.finder</groupId>
