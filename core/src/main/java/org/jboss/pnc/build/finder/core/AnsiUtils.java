@@ -29,13 +29,7 @@ public final class AnsiUtils {
 
     private static void install() {
         AnsiConsole.systemInstall();
-        Runtime.getRuntime().addShutdownHook(new Thread(AnsiUtils::uninstall));
-    }
-
-    private static void uninstall() {
-        System.out.print(Ansi.ansi().reset());
-        System.out.flush();
-        AnsiConsole.systemUninstall();
+        Runtime.getRuntime().addShutdownHook(new Thread(AnsiConsole::systemUninstall));
     }
 
     public static Object cyan(Object o) {
