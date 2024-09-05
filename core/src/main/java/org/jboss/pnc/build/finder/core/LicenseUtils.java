@@ -54,8 +54,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.AnyLicenseInfo;
 import org.spdx.library.model.license.InvalidLicenseStringException;
@@ -70,8 +68,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * Utilities for working with SPDX licenses.
  */
 public final class LicenseUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LicenseUtils.class);
-
     static final String NOASSERTION = NOASSERTION_VALUE;
 
     static final String NONE = NONE_VALUE;
@@ -112,6 +108,9 @@ public final class LicenseUtils {
 
     private static Map<String, SpdxListedLicense> LICENSE_NAME_MAP;
 
+    // XXX: Should be moved to an external file
+    private static Map<String, String> DEPRECATED_LICENSE_IDS_MAP;
+
     private static List<String> LICENSE_IDS;
 
     private static List<String> LICENSE_NAMES;
@@ -127,10 +126,7 @@ public final class LicenseUtils {
 
     private static final Pattern SINGLE_DIGIT_PATTERN = Pattern.compile("(?<b>[^0-9.])(?<major>[1-9])(?<a>[^0-9.])");
 
-    // XXX: Should be moved to an external file
-    private static final Map<String, String> DEPRECATED_LICENSE_IDS_MAP;
-
-    static {
+    private static void init() {
         LICENSE_ID_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
         LICENSE_IDS = getSpdxListedLicenseIds().stream()
                 .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
@@ -191,8 +187,10 @@ public final class LicenseUtils {
      * @return the license mapping map
      * @throws IOException if an error occurs reading the file or parsing the JSON
      */
-    public static Map<String, List<String>> loadLicenseMapping() throws IOException {
+    public static Map<String, List<String>> loadSpdxLicenses() throws IOException {
         if (MAPPING == null) {
+            init();
+
             try (InputStream in = LicenseUtils.class.getClassLoader().getResourceAsStream(LICENSE_MAPPING_FILENAME)) {
                 MAPPING = JSONUtils.loadLicenseMapping(in);
                 validateLicenseMapping();

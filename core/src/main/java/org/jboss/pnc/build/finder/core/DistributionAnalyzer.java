@@ -39,7 +39,7 @@ import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFile;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFileName;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isManifestMfFileName;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isUrl;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.loadLicenseMapping;
+import static org.jboss.pnc.build.finder.core.LicenseUtils.loadSpdxLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPomXml;
@@ -163,7 +163,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
         try {
-            Map<String, List<String>> mapping = loadLicenseMapping();
+            Map<String, List<String>> mapping = loadSpdxLicenses();
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(
