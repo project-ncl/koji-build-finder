@@ -15,12 +15,18 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static org.apache.commons.lang3.BooleanUtils.FALSE;
+
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 public final class AnsiUtils {
     static {
-        install();
+        String isNative = System.getProperty("native", FALSE);
+
+        if (!FALSE.equals(isNative)) {
+            install();
+        }
     }
 
     private AnsiUtils() {
