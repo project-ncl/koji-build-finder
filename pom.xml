@@ -1432,7 +1432,7 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <formatter.skip>true</formatter.skip>
         <impsort.skip>true</impsort.skip>
         <jacoco.skip>true</jacoco.skip>
-        <jandex.skip>true</jandex.skip>
+        <jandex.skip>false</jandex.skip>
         <license.skip>true</license.skip>
         <maven.buildNumber.skip>true</maven.buildNumber.skip>
         <skipITs>true</skipITs>
