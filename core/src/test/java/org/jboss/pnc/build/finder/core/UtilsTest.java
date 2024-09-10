@@ -17,13 +17,13 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jboss.pnc.build.finder.core.Utils.byteCountToDisplaySize;
 import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderScmRevision;
 import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderVersion;
 import static org.jboss.pnc.build.finder.core.Utils.getUserHome;
 import static org.jboss.pnc.build.finder.core.Utils.retry;
 
+import org.apache.commons.lang3.SystemProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -36,33 +36,31 @@ import org.slf4j.LoggerFactory;
 class UtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsTest.class);
 
-    private static void userHome() {
+    private static String userHome() {
         String userHome = getUserHome();
         LOGGER.debug("user.home={}", userHome);
+        return userHome;
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @SetSystemProperty(key = "user.home", value = "?")
     @Test
     void testUserHomeQuestionMark() {
-        assertThatThrownBy(UtilsTest::userHome).isExactlyInstanceOf(RuntimeException.class)
-                .hasMessage("Invalid user.home: ?")
-                .hasNoCause();
+        assertThat(userHome()).isEqualTo(SystemProperties.getJavaIoTmpdir());
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)
     @ClearSystemProperty(key = "user.home")
     @Test
     void testUserHomeNull() {
-        assertThatThrownBy(UtilsTest::userHome).isExactlyInstanceOf(RuntimeException.class)
-                .hasMessage("Invalid user.home: null")
-                .hasNoCause();
+        assertThat(userHome()).isEqualTo(SystemProperties.getJavaIoTmpdir());
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ)
     @Test
     void testUserHome() {
-        assertThatCode(UtilsTest::userHome).doesNotThrowAnyException();
+        assertThat(userHome()).isEqualTo(SystemProperties.getUserHome());
+
     }
 
     @Test

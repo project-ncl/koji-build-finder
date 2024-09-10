@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.SystemProperties;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -103,12 +104,15 @@ public final class Utils {
     }
 
     public static String getUserHome() {
-        String userHome = System.getProperty("user.home");
+        String userHome = SystemProperties.getUserHome();
 
         if (userHome == null || "?".equals(userHome)) {
-            LOGGER.error("Got bogus user.home value: {}", boldRed(userHome));
-
-            throw new RuntimeException("Invalid user.home: " + userHome);
+            String javaIoTmpdir = SystemProperties.getJavaIoTmpdir();
+            LOGGER.error(
+                    "Using java.io.tmpdir {} instead of bogus user.home value {}",
+                    boldRed(javaIoTmpdir),
+                    boldRed(userHome));
+            return javaIoTmpdir;
         }
 
         return userHome;
