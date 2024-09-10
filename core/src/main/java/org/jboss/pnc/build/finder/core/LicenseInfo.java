@@ -38,7 +38,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         distribution = license.getDistribution();
         name = license.getName();
         url = license.getUrl();
-        this.spdxLicenseId = LicenseUtils.getSPDXLicenseId(name, url);
+        this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
         this.source = source;
     }
 
@@ -47,7 +47,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         distribution = null;
         this.name = name;
         this.url = url;
-        this.spdxLicenseId = LicenseUtils.getSPDXLicenseId(name, url);
+        this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
         this.source = source;
     }
 

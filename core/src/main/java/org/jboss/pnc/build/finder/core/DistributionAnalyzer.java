@@ -28,21 +28,22 @@ import static org.jboss.pnc.build.finder.core.LicenseSource.BUNDLE_LICENSE;
 import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
 import static org.jboss.pnc.build.finder.core.LicenseSource.POM_XML;
 import static org.jboss.pnc.build.finder.core.LicenseSource.TEXT;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.NOASSERTION;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.getBundleLicenseFromManifest;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.getCurrentLicenseId;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.getFirstNonBlankString;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.getMatchingLicense;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.getNumberOfSPDXLicenses;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.getSPDXLicenseListVersion;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFile;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.isLicenseFileName;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isManifestMfFileName;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isUrl;
-import static org.jboss.pnc.build.finder.core.LicenseUtils.loadSpdxLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.getLicenses;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPom;
 import static org.jboss.pnc.build.finder.core.MavenUtils.isPomXml;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.NOASSERTION;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getCurrentLicenseId;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getMatchingLicense;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getNumberOfSPDXLicenses;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getSPDXLicenseListVersion;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getSpdxLicenseMapping;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.initLicenseMaps;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.isLicenseFile;
+import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.isLicenseFileName;
 import static org.jboss.pnc.build.finder.core.Utils.BANG_SLASH;
 import static org.jboss.pnc.build.finder.core.Utils.byteCountToDisplaySize;
 import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
@@ -162,21 +163,14 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
-        try {
-            Map<String, List<String>> mapping = loadSpdxLicenses();
+        initLicenseMaps();
+        Map<String, List<String>> mapping = getSpdxLicenseMapping();
 
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(
-                        "Loaded URL mappings for {} SPDX licenses: {}",
-                        green(mapping.size()),
-                        green(String.join(", ", mapping.keySet())));
-            }
-        } catch (IOException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Error loading SPDX license URL mappings: {}", boldRed(getAllErrorMessages(e)));
-            }
-
-            LOGGER.debug("Error", e);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(
+                    "Loaded URL mappings for {} SPDX licenses: {}",
+                    green(mapping.size()),
+                    green(String.join(", ", mapping.keySet())));
         }
 
         this.inputs = inputs;

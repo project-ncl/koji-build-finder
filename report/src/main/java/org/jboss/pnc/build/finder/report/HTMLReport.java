@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.build.finder.core.LicenseInfo;
-import org.jboss.pnc.build.finder.core.LicenseUtils;
+import org.jboss.pnc.build.finder.core.SpdxLicenseUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiLocalArchive;
@@ -237,7 +237,7 @@ public final class HTMLReport extends Report {
                 .stream()
                 .flatMap(a -> a.getLicenses().stream())
                 .map(LicenseInfo::getSpdxLicenseId)
-                .map(LicenseUtils::getSPDXLicenseName)
+                .map(SpdxLicenseUtils::getSPDXLicenseName)
                 .filter(StringUtils::isNotEmpty)
                 .sorted()
                 .distinct()
