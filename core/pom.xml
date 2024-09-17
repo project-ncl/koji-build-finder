@@ -47,6 +47,10 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.redhat.red.build</groupId>
       <artifactId>kojiji</artifactId>
     </dependency>

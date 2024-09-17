@@ -68,6 +68,8 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveQuery;
@@ -86,6 +88,18 @@ public class BuildFinder
     private static final String BUILDS_FILENAME = "builds.json";
 
     private static final String CHECKSUMS_FILENAME_BASENAME = "checksums-";
+
+    private static final int CHECKSUMS_SIZE = 18130;
+
+    private static final int ALL_BUILDS_SIZE = 2048;
+
+    private static final int BUILDS_SIZE = 1330;
+
+    private static final int FOUND_CHECKSUMS_SIZE = 5112;
+
+    private static final int NOT_FOUND_CHECKSUMS_SIZE = 8996;
+
+    private static final int ALL_KOJI_BUILDS_SIZE = 1835;
 
     private final ClientSession session;
 
@@ -148,8 +162,8 @@ public class BuildFinder
         this.outputDirectory = new File("");
         this.analyzer = analyzer;
         this.cacheManager = cacheManager;
-        this.allKojiBuilds = new HashMap<>();
-
+        // this.allKojiBuilds = Maps.newHashMapWithExpectedSize(ALL_KOJI_BUILDS_SIZE);
+        this.allKojiBuilds = new HashMap<>(); // FIXME
         this.buildFinderUtils = new BuildFinderUtils(config, analyzer, session);
         this.pncBuildFinder = new PncBuildFinder(pncclient, buildFinderUtils, config);
 
@@ -167,8 +181,8 @@ public class BuildFinder
             }
         }
 
-        this.foundChecksums = new HashMap<>();
-        this.notFoundChecksums = new HashMap<>();
+        this.foundChecksums = Maps.newHashMapWithExpectedSize(FOUND_CHECKSUMS_SIZE);
+        this.notFoundChecksums = Maps.newHashMapWithExpectedSize(NOT_FOUND_CHECKSUMS_SIZE);
 
         initBuilds();
     }
@@ -182,7 +196,7 @@ public class BuildFinder
     }
 
     private void initBuilds() {
-        builds = new HashMap<>();
+        builds = Maps.newHashMapWithExpectedSize(BUILDS_SIZE);
         KojiBuild build = BuildFinderUtils.createKojiBuildZero();
         builds.put(new BuildSystemInteger(0), build);
     }
@@ -948,7 +962,6 @@ public class BuildFinder
              * Find the optional scmSourceZip, projectSourceZip and patchesZip and them to each archive
              */
             List<KojiArchiveInfo> archivesToUpdate = new ArrayList<>(3 * archiveBuilds.size());
-
             Collection<KojiBuild> values = allKojiBuilds.values();
 
             for (KojiBuild build : values) {
@@ -1000,7 +1013,6 @@ public class BuildFinder
                 LOGGER.debug("Got empty archive list for checksum: {}", green(checksum));
                 markNotFound(entry);
             } else {
-
                 KojiArchiveInfo archive;
                 Integer buildId;
                 String archiveFilenames;
@@ -1048,8 +1060,10 @@ public class BuildFinder
 
                 BuildSystemInteger buildSystemBuildId = new BuildSystemInteger(buildId, BuildSystem.koji);
                 KojiBuild build = builds.get(buildSystemBuildId);
+
                 if (build == null) {
                     build = allKojiBuilds.get(buildId);
+
                     if (build != null) {
                         builds.put(buildSystemBuildId, build);
 
@@ -1064,6 +1078,7 @@ public class BuildFinder
                         }
                     }
                 }
+
                 if (build != null) {
                     // It's ok to not create a new build for the same local archive if it already exists, but we
                     // always need to mark the checksum as found. This handles the scenario where there is a file
@@ -1238,11 +1253,14 @@ public class BuildFinder
     @Override
     public Map<BuildSystemInteger, KojiBuild> call() throws KojiClientException {
         Instant startTime = Instant.now();
-        MultiValuedMap<Checksum, String> localchecksumMap = new ArrayListValuedHashMap<>();
-        Collection<Checksum> checksums = new HashSet<>();
+        int initialMapCapacity;
+        int initialListCapacity;
+        MultiValuedMap<Checksum, String> localchecksumMap = new ArrayListValuedHashMap<>(CHECKSUMS_SIZE); // TODO: fix
+                                                                                                          // size
+        Collection<Checksum> checksums = Sets.newHashSetWithExpectedSize(CHECKSUMS_SIZE);
         Checksum checksum;
         boolean finished = false;
-        Map<BuildSystemInteger, KojiBuild> allBuilds = new HashMap<>();
+        Map<BuildSystemInteger, KojiBuild> allBuilds = Maps.newHashMapWithExpectedSize(ALL_BUILDS_SIZE);
 
         while (!finished) {
             try {

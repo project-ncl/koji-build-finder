@@ -26,6 +26,8 @@ import org.jboss.pnc.dto.ProductVersion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class PncBuild {
+    private static final int BUILT_ARTIFACTS_SIZE = 2498;
+
     private Build build;
 
     private BuildPushResult buildPushResult;
@@ -35,12 +37,12 @@ public class PncBuild {
     private List<EnhancedArtifact> builtArtifacts;
 
     public PncBuild() {
-        this.builtArtifacts = new ArrayList<>();
+        this.builtArtifacts = new ArrayList<>(BUILT_ARTIFACTS_SIZE);
     }
 
     public PncBuild(Build build) {
         this.build = build;
-        this.builtArtifacts = new ArrayList<>();
+        this.builtArtifacts = new ArrayList<>(BUILT_ARTIFACTS_SIZE);
     }
 
     public PncBuild(

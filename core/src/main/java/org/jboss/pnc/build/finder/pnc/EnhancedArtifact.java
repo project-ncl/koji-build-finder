@@ -35,7 +35,7 @@ public class EnhancedArtifact {
     private Collection<String> fileNames;
 
     public EnhancedArtifact() {
-        fileNames = new ArrayList<>();
+        fileNames = new ArrayList<>(1);
     }
 
     public EnhancedArtifact(Artifact artifact, Checksum checksum, Collection<String> fileNames) {

@@ -16,10 +16,11 @@
 package org.jboss.pnc.build.finder.core;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.pnc.build.finder.koji.KojiBuild;
+
+import com.google.common.collect.Maps;
 
 /**
  * Container holding results of the findBuilds methods
@@ -27,13 +28,17 @@ import org.jboss.pnc.build.finder.koji.KojiBuild;
  * @author Jakub Bartecek
  */
 public class FindBuildsResult {
+    private static final int FOUND_BUILDS_SIZE = 755;
+
+    private static final int NOT_FOUND_CHECKSUMS_SIZE = 5174;
+
     private final Map<BuildSystemInteger, KojiBuild> foundBuilds;
 
     private final Map<Checksum, Collection<String>> notFoundChecksums;
 
     public FindBuildsResult() {
-        this.foundBuilds = new HashMap<>();
-        this.notFoundChecksums = new HashMap<>();
+        this.foundBuilds = Maps.newHashMapWithExpectedSize(FOUND_BUILDS_SIZE);
+        this.notFoundChecksums = Maps.newHashMapWithExpectedSize(NOT_FOUND_CHECKSUMS_SIZE);
     }
 
     public FindBuildsResult(

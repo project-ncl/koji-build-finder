@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 public final class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
+    private static final int ERROR_MESSAGE_SIZE = 483;
+
     private static final String PROPERTIES_FILE = "build-finder.properties";
 
     private static final Properties PROPERTIES;
@@ -188,7 +190,7 @@ public final class Utils {
     }
 
     public static String getAllErrorMessages(Throwable t) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(ERROR_MESSAGE_SIZE);
         Throwable t2 = t;
         String message = t2.getMessage();
 

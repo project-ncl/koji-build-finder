@@ -227,7 +227,7 @@ public final class PncUtils {
                         + build.getScmRepository().getInternalUrl()
                         + (build.getScmRevision() != null ? "#" + build.getScmRevision() : ""));
 
-        Map<String, Object> extra = new HashMap<>(8, 1.0F);
+        Map<String, Object> extra = new HashMap<>(8, 1.0f);
 
         extra.put(BUILD_SYSTEM, PNC);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
@@ -315,7 +315,7 @@ public final class PncUtils {
             archiveInfo.setArchiveId(-1);
         }
 
-        Map<String, Object> extra = new HashMap<>(2, 1.0F);
+        Map<String, Object> extra = new HashMap<>(2, 1.0f);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
         extra.put(EXTERNAL_ARCHIVE_ID, artifact.getId());
         archiveInfo.setExtra(extra);

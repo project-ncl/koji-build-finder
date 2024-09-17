@@ -130,6 +130,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String LICENSES_FILENAME_BASENAME = "licenses";
 
+    private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
+
+    private static final int FILE_ERRORS_SIZE = 2;
+
+    private static final int LOCAL_FILES_SIZE = 44515;
+
     private final List<String> inputs;
 
     private final MultiValuedMap<String, Checksum> inverseMap;
@@ -186,10 +192,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 green(licenseListSize));
 
         for (ChecksumType checksumType : checksumTypesToCheck) {
-            map.put(checksumType, new HashSetValuedHashMap<>());
+            map.put(checksumType, new HashSetValuedHashMap<>()); // TODO: size
         }
 
-        inverseMap = new HashSetValuedHashMap<>();
+        inverseMap = new HashSetValuedHashMap<>(); // TODO: size
 
         this.cacheManager = cacheManager;
 
@@ -203,7 +209,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         level = new AtomicInteger();
         pool = Executors.newWorkStealingPool();
-        fileErrors = new ArrayList<>();
+        fileErrors = new ArrayList<>(FILE_ERRORS_SIZE);
     }
 
     private static boolean isJavaArchive(FileObject fo) {
@@ -571,24 +577,24 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     private void listChildren(FileObject fo) throws IOException {
-        List<FileObject> localFiles = new ArrayList<>();
-        List<FileObject> localFiles2 = new ArrayList<>();
+        List<FileObject> pomFiles = new ArrayList<>(LOCAL_FILES_SIZE);
+        List<FileObject> localFiles = new ArrayList<>(LOCAL_FILES_SIZE);
 
         try {
             FileExtensionSelector pomSelector = new FileExtensionSelector("pom");
-            fo.findFiles(pomSelector, true, localFiles);
-            fo.findFiles(new InvertIncludeFileSelector(pomSelector), true, localFiles2);
-            localFiles.addAll(localFiles2);
-            int numChildren = localFiles.size();
+            fo.findFiles(pomSelector, true, pomFiles);
+            fo.findFiles(new InvertIncludeFileSelector(pomSelector), true, localFiles);
+            pomFiles.addAll(localFiles);
+            int numChildren = pomFiles.size();
             Iterable<Future<Set<Checksum>>> futures;
             Collection<Callable<Set<Checksum>>> tasks = new ArrayList<>(numChildren);
 
             if (isMainJar(fo)) {
-                List<LicenseInfo> licenseInfos = addLicensesFromJar(fo, localFiles);
+                List<LicenseInfo> licenseInfos = addLicensesFromJar(fo, pomFiles);
                 putLicenses(Utils.normalizePath(fo, root), licenseInfos);
             }
 
-            for (FileObject file : localFiles) {
+            for (FileObject file : pomFiles) {
                 if (file.isFile()) {
                     if (!checksumTypesToCheck.isEmpty()) {
                         if (includeFile(file)) {
@@ -650,7 +656,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 }
             }
         } finally {
-            for (FileObject file : localFiles2) {
+            for (FileObject file : localFiles) {
                 file.close();
             }
         }

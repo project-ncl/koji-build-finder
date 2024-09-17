@@ -15,7 +15,6 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.infinispan.commons.api.BasicCacheContainer;
@@ -27,6 +26,8 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductVersion;
 
+import com.google.common.collect.Maps;
+
 /**
  * Implementation of adapter to communicate with PNC Orchestrator REST API, which caches the results in HashMaps or ISPN
  * (if enabled) to improve performance of the application
@@ -34,18 +35,25 @@ import org.jboss.pnc.dto.ProductVersion;
  * @author Jakub Bartecek
  */
 public class CachingPncClient implements PncClient {
+    private static final int ARTIFACT_CACHE_SIZE = 10844;
+
+    private static final int GET_BUILD_PUSH_RESULT_CACHE_SIZE = 535;
+
+    private static final int GET_PRODUC_VERSION_CACHE_SIZE = 108;
 
     private final PncClient pncClient;
 
     private final Map<String, ArtifactStaticRemoteCollection> artifactCache;
 
-    private final Map<String, BuildPushResult> getBuildPushResultCache = new HashMap<>();
+    private final Map<String, BuildPushResult> getBuildPushResultCache = Maps
+            .newHashMapWithExpectedSize(GET_BUILD_PUSH_RESULT_CACHE_SIZE);
 
-    private final Map<String, ProductVersion> getProductVersionCache = new HashMap<>();
+    private final Map<String, ProductVersion> getProductVersionCache = Maps
+            .newHashMapWithExpectedSize(GET_PRODUC_VERSION_CACHE_SIZE);
 
     public CachingPncClient(BuildConfig config, BasicCacheContainer cacheManager) {
         if (cacheManager == null) {
-            artifactCache = new HashMap<>();
+            artifactCache = Maps.newHashMapWithExpectedSize(ARTIFACT_CACHE_SIZE);
         } else {
             artifactCache = cacheManager.getCache("artifact-pnc");
         }
@@ -54,7 +62,7 @@ public class CachingPncClient implements PncClient {
 
     public CachingPncClient(PncClient pncClient, BasicCacheContainer cacheManager) {
         if (cacheManager == null) {
-            artifactCache = new HashMap<>();
+            artifactCache = Maps.newHashMapWithExpectedSize(ARTIFACT_CACHE_SIZE);
         } else {
             artifactCache = cacheManager.getCache("artifact-pnc");
         }

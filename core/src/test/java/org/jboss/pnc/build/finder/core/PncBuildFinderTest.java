@@ -88,7 +88,7 @@ class PncBuildFinderTest {
         PncClient pncClient = Mockito.mock(PncClient.class);
         String buildId = "100";
 
-        Map<String, String> attributes = new HashMap<>(2);
+        Map<String, String> attributes = new HashMap<>(2, 1.0f);
         attributes.put(BUILD_BREW_NAME, "org.empty-empty");
         attributes.put(BUILD_BREW_VERSION, "1.0.0");
 

@@ -49,6 +49,8 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 public class PncBuildFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PncBuildFinder.class);
 
+    private static final int PNC_BUILDS_SIZE = 774;
+
     private final long concurrentMapParallelismThreshold;
 
     private final PncClient pncClient;
@@ -184,7 +186,7 @@ public class PncBuildFinder {
      * @return A map pncBuildId,pncBuild
      */
     private static ConcurrentHashMap<String, PncBuild> groupArtifactsAsPncBuilds(Iterable<EnhancedArtifact> artifacts) {
-        ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, PncBuild> pncBuilds = new ConcurrentHashMap<>(PNC_BUILDS_SIZE);
         Build buildZero = Build.builder().id(BUILD_ID_ZERO).build();
 
         artifacts.forEach(artifact -> {

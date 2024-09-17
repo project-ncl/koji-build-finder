@@ -42,6 +42,10 @@ public class KojiBuild {
 
     private static final String TASK_METHOD_MAVEN = "maven";
 
+    private static final int ARCHIVES_SIZE = 4436;
+
+    private static final int DUPLICATE_ARCHIVES_SIZE = 14;
+
     private KojiBuildInfo buildInfo;
 
     private KojiTaskInfo taskInfo;
@@ -61,14 +65,14 @@ public class KojiBuild {
     private transient List<KojiArchiveInfo> duplicateArchives;
 
     public KojiBuild() {
-        archives = new ArrayList<>();
-        duplicateArchives = new ArrayList<>();
+        archives = new ArrayList<>(ARCHIVES_SIZE);
+        duplicateArchives = new ArrayList<>(DUPLICATE_ARCHIVES_SIZE);
     }
 
     public KojiBuild(KojiBuildInfo buildInfo) {
         this.buildInfo = buildInfo;
-        archives = new ArrayList<>();
-        duplicateArchives = new ArrayList<>();
+        archives = new ArrayList<>(ARCHIVES_SIZE);
+        duplicateArchives = new ArrayList<>(DUPLICATE_ARCHIVES_SIZE);
     }
 
     public KojiBuild(

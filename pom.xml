@@ -193,6 +193,11 @@
         <version>${version.ch.qos.logback}</version>
       </dependency>
       <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${version.com.google.guava}</version>
+      </dependency>
+      <dependency>
         <groupId>com.j2html</groupId>
         <artifactId>j2html</artifactId>
         <version>${version.com.j2html}</version>
@@ -454,13 +459,6 @@
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
         <version>${version.com.github.luben}</version>
-        <scope>runtime</scope>
-      </dependency>
-      <!-- Required dependency for packager-rpm -->
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${version.com.google.guava}</version>
         <scope>runtime</scope>
       </dependency>
       <!-- Required dependency for commons-vfs2 to unpack various types -->

@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -73,6 +72,7 @@ import org.jboss.pnc.build.finder.report.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.redhat.red.build.koji.KojiClientException;
 
 import ch.qos.logback.classic.Level;
@@ -101,6 +101,8 @@ import picocli.CommandLine.Spec;
         versionProvider = Main.ManifestVersionProvider.class)
 public final class Main implements Callable<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
+    private static final int NEWMAP_SIZE = 45858;
 
     private ExecutorService pool;
 
@@ -556,7 +558,7 @@ public final class Main implements Callable<Void> {
                 File checksumFile = new File(outputDirectory, BuildFinder.getChecksumFilename(checksumType));
 
                 if (checksumFile.exists()) {
-                    checksumsFromFile.put(checksumType, new ArrayListValuedHashMap<>());
+                    checksumsFromFile.put(checksumType, new ArrayListValuedHashMap<>()); // TODO: size
 
                     LOGGER.info("Loading checksums from file: {}", green(checksumFile));
 
@@ -703,7 +705,7 @@ public final class Main implements Callable<Void> {
                         finder = new BuildFinder(session, config, analyzer, cacheManager);
                     }
 
-                    Map<Checksum, Collection<String>> newMap = new HashMap<>();
+                    Map<Checksum, Collection<String>> newMap = Maps.newHashMapWithExpectedSize(NEWMAP_SIZE);
 
                     for (ChecksumType checksumType : checksumTypes) {
                         Map<String, Collection<LocalFile>> map = checksums.get(checksumType).asMap();
@@ -718,7 +720,6 @@ public final class Main implements Callable<Void> {
                     }
 
                     finder.setOutputDirectory(outputDirectory);
-
                     builds = finder.findBuilds(newMap);
                 } catch (KojiClientException e) {
                     LOGGER.error("Error finding builds: {}", boldRed(e.getMessage()));

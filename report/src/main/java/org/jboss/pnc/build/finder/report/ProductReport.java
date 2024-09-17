@@ -33,7 +33,6 @@ import static org.apache.commons.collections4.IteratorUtils.arrayListIterator;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +47,8 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.TableTag;
@@ -83,7 +84,7 @@ public final class ProductReport extends Report {
                 .stream()
                 .sorted(Entry.<String, Long> comparingByValue().reversed())
                 .toList();
-        MultiValuedMap<String, KojiBuild> prodMap = new ArrayListValuedHashMap<>();
+        MultiValuedMap<String, KojiBuild> prodMap = new ArrayListValuedHashMap<>(); // TODO: size
 
         for (KojiBuild build : builds) {
             if (build.getTaskRequest() == null || build.getTaskRequest().asBuildRequest() == null
@@ -107,7 +108,7 @@ public final class ProductReport extends Report {
 
         LOGGER.debug("Product List ({}):", size);
 
-        this.productMap = new HashMap<>(size);
+        this.productMap = Maps.newHashMapWithExpectedSize(size);
         Set<Entry<String, Collection<KojiBuild>>> entrySet = pm.entrySet();
 
         for (Entry<String, Collection<KojiBuild>> entry : entrySet) {

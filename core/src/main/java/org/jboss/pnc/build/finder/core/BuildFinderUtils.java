@@ -302,7 +302,9 @@ public final class BuildFinderUtils {
 
     public void addFilesInError(KojiBuild buildZero) {
         if (distributionAnalyzer != null) {
-            for (FileError fileError : distributionAnalyzer.getFileErrors()) {
+            Collection<FileError> fileErrors = distributionAnalyzer.getFileErrors();
+
+            for (FileError fileError : fileErrors) {
                 String filename = fileError.getFilename();
                 String extension = FilenameUtils.getExtension(filename);
                 List<String> archiveExtensions = config.getArchiveExtensions();
