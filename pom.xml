@@ -738,14 +738,14 @@
           <artifactId>sortpom-maven-plugin</artifactId>
           <version>${version.com.github.ekryd.sortpom}</version>
           <configuration>
-            <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
-            <lineSeparator>\n</lineSeparator>
             <encoding>${project.build.sourceEncoding}</encoding>
-            <sortProperties>true</sortProperties>
-            <keepBlankLines>true</keepBlankLines>
+            <expandEmptyElements>false</expandEmptyElements>
+            <lineSeparator>\n</lineSeparator>
             <sortDependencies>scope,groupId,artifactId</sortDependencies>
             <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
             <sortPlugins>scope,groupId,artifactId</sortPlugins>
+            <sortProperties>true</sortProperties>
+            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
           </configuration>
         </plugin>
         <plugin>
