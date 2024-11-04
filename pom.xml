@@ -86,7 +86,6 @@
     <version.commons-io>2.17.0</version.commons-io>
     <version.info.picocli>4.7.6</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.28</version.io.dropwizard.metrics>
-    <version.io.smallrye.jandex-maven-plugin>3.2.3</version.io.smallrye.jandex-maven-plugin>
     <version.net.revelc.code.formatter>2.23.0</version.net.revelc.code.formatter>
     <version.net.revelc.code.impsort-maven-plugin>1.9.0</version.net.revelc.code.impsort-maven-plugin>
     <version.net.sourceforge.pmd>7.7.0</version.net.sourceforge.pmd>
@@ -774,11 +773,6 @@
           <version>${version.com.mycila}</version>
         </plugin>
         <plugin>
-          <groupId>io.smallrye</groupId>
-          <artifactId>jandex-maven-plugin</artifactId>
-          <version>${version.io.smallrye.jandex-maven-plugin}</version>
-        </plugin>
-        <plugin>
           <groupId>net.revelc.code</groupId>
           <artifactId>impsort-maven-plugin</artifactId>
           <version>${version.net.revelc.code.impsort-maven-plugin}</version>
@@ -1432,7 +1426,6 @@ junit.jupiter.execution.parallel.config.dynamic.factor=1</configurationParameter
         <formatter.skip>true</formatter.skip>
         <impsort.skip>true</impsort.skip>
         <jacoco.skip>true</jacoco.skip>
-        <jandex.skip>false</jandex.skip>
         <license.skip>true</license.skip>
         <maven.buildNumber.skip>true</maven.buildNumber.skip>
         <skipITs>true</skipITs>
