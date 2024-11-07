@@ -40,16 +40,6 @@
         <ignoreVersion type="regex">([^1]\..+|1\.[^4].*)</ignoreVersion>
       </ignoreVersions>
     </rule>
-    <rule groupId="org.infinispan" comparisonMethod="maven">
-      <ignoreVersions>
-        <ignoreVersion type="regex">([2-9]+|1[^4].*)</ignoreVersion>
-      </ignoreVersions>
-    </rule>
-    <rule groupId="org.infinispan.protostream" comparisonMethod="maven">
-      <ignoreVersions>
-        <ignoreVersion type="regex">([^4]\..+|4\.[^6].*)</ignoreVersion>
-      </ignoreVersions>
-    </rule>
     <rule groupId="org.jboss.resteasy" comparisonMethod="maven">
       <ignoreVersions>
         <ignoreVersion type="regex">[^3]\..+</ignoreVersion>

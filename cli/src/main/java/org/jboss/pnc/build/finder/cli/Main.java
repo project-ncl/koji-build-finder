@@ -127,9 +127,6 @@ public final class Main implements Callable<Void> {
     @Option(names = "--cache-lifespan", paramLabel = "LONG", description = "Specify cache lifespan.")
     private Long cacheLifespan = ConfigDefaults.CACHE_LIFESPAN;
 
-    @Option(names = "--cache-max-idle", paramLabel = "LONG", description = "Specify cache maximum idle time.")
-    private Long cacheMaxIdle = ConfigDefaults.CACHE_MAX_IDLE;
-
     @Option(names = { "-c", "--config" }, paramLabel = "FILE", description = "Specify configuration file to use.")
     private File configFile = new File(ConfigDefaults.CONFIG);
 
@@ -319,21 +316,16 @@ public final class Main implements Callable<Void> {
             config.setCacheLifespan(cacheLifespan);
         }
 
-        if (commandSpec.commandLine().getParseResult().hasMatchedOption("--cache-max-idle")) {
-            config.setCacheMaxIdle(cacheMaxIdle);
-        }
-
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--disable-cache")) {
             config.setDisableCache(disableCache);
             LOGGER.info("Local cache: {}", green("disabled"));
         } else {
             LOGGER.info(
-                    "Local cache: {} ({} {}), lifespan: {}, maxIdle: {}",
+                    "Local cache: {} ({} {}), lifespan: {}",
                     green("enabled"),
                     green(Version.getBrandName()),
                     green(Version.getVersion()),
-                    green(config.getCacheLifespan()),
-                    green(config.getCacheMaxIdle()));
+                    green(config.getCacheLifespan()));
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("--disable-recursion")) {
@@ -439,10 +431,8 @@ public final class Main implements Callable<Void> {
         GlobalConfiguration globalConfiguration = globalConfig.build();
         Configuration configuration = new ConfigurationBuilder().expiration()
                 .lifespan(config.getCacheLifespan())
-                .maxIdle(config.getCacheMaxIdle())
                 .wakeUpInterval(-1L)
                 .persistence()
-                .passivation(true)
                 .addSoftIndexFileStore()
                 .segmented(true)
                 .shared(false)

@@ -187,18 +187,6 @@ public class BuildConfig {
         this.cacheLifespan = cacheLifespan;
     }
 
-    public Long getCacheMaxIdle() {
-        if (cacheMaxIdle == null) {
-            cacheMaxIdle = ConfigDefaults.CACHE_MAX_IDLE;
-        }
-
-        return cacheMaxIdle;
-    }
-
-    public void setCacheMaxIdle(Long cacheMaxIdle) {
-        this.cacheMaxIdle = cacheMaxIdle;
-    }
-
     public Boolean getChecksumOnly() {
         if (checksumOnly == null) {
             checksumOnly = ConfigDefaults.CHECKSUM_ONLY;

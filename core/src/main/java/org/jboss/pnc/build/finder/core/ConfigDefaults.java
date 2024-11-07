@@ -44,7 +44,6 @@ public abstract class ConfigDefaults {
             "xml");
     public static final List<BuildSystem> BUILD_SYSTEMS = List.of(BuildSystem.pnc, BuildSystem.koji);
     public static final Long CACHE_LIFESPAN = TimeUnit.HOURS.toMillis(1L);
-    public static final Long CACHE_MAX_IDLE = TimeUnit.HOURS.toMillis(1L);
     public static final Boolean CHECKSUM_ONLY = Boolean.FALSE;
     public static final Set<ChecksumType> CHECKSUM_TYPES = Collections
             .unmodifiableSet(EnumSet.allOf(ChecksumType.class));

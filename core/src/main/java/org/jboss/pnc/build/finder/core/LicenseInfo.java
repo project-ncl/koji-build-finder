@@ -21,17 +21,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.License;
 
 public class LicenseInfo implements Comparable<LicenseInfo> {
-    private final String comments;
+    private String comments;
 
-    private final String distribution;
+    private String distribution;
 
-    private final String name;
+    private String name;
 
-    private final String url;
+    private String url;
 
     private String spdxLicenseId;
 
-    private final LicenseSource source;
+    private LicenseSource source;
+
+    public LicenseInfo() {
+
+    }
 
     public LicenseInfo(License license, LicenseSource source) {
         comments = license.getComments();

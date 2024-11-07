@@ -88,7 +88,6 @@ class BuildConfigTest {
         assertThat(bc.getArchiveExtensions()).isEqualTo(ConfigDefaults.ARCHIVE_EXTENSIONS);
         assertThat(bc.getBuildSystems()).isEqualTo(ConfigDefaults.BUILD_SYSTEMS);
         assertThat(bc.getCacheLifespan()).isEqualTo(ConfigDefaults.CACHE_LIFESPAN);
-        assertThat(bc.getCacheMaxIdle()).isEqualTo(ConfigDefaults.CACHE_MAX_IDLE);
         assertThat(bc.getChecksumOnly()).isEqualTo(ConfigDefaults.CHECKSUM_ONLY);
         assertThat(bc.getChecksumTypes()).isEqualTo(ConfigDefaults.CHECKSUM_TYPES);
         assertThat(bc.getDisableCache()).isEqualTo(ConfigDefaults.DISABLE_CACHE);
