@@ -56,7 +56,7 @@ public final class GAVReport extends Report {
                                 + localArchive.getArchive().getVersion())
                 .sorted()
                 .distinct()
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     @Override

@@ -48,7 +48,7 @@ class CompletedAndDeletedBuildTest extends AbstractWireMockTest {
     }
 
     @Test
-    void testDeletedAndCompleteBuilds() throws KojiClientException, MalformedURLException {
+    void testDeletedAndCompleteBuilds() throws KojiClientException {
         Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {

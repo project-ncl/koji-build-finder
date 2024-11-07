@@ -93,7 +93,7 @@ class EmptyBuildsTest extends AbstractWireMockTest {
     }
 
     @Test
-    void shouldSkipOnEmptyZipFile() throws MalformedURLException, KojiClientException {
+    void shouldSkipOnEmptyZipFile() throws KojiClientException {
         // 76cdb2bad9582d23c1f6f4d868218d6c is md5 for empty zip file with size of 22 bytes
         String filename = "empty.zip";
         Collection<String> filenames = Collections.singletonList("empty.zip");

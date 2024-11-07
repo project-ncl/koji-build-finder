@@ -722,10 +722,7 @@ public final class Main implements Callable<Void> {
                             for (LocalFile filename : entry.getValue()) {
                                 newMap.put(
                                         new Checksum(checksumType, entry.getKey(), filename),
-                                        entry.getValue()
-                                                .stream()
-                                                .map(LocalFile::getFilename)
-                                                .collect(Collectors.toUnmodifiableList()));
+                                        entry.getValue().stream().map(LocalFile::getFilename).toList());
                             }
                         }
                     }

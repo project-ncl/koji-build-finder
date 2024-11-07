@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -149,10 +148,7 @@ public final class MavenUtils {
      * @return the list of Maven projects (may be empty)
      */
     public static List<LicenseInfo> getLicenses(MavenProject project, LicenseSource source) {
-        return project.getLicenses()
-                .stream()
-                .map(license -> new LicenseInfo(license, source))
-                .collect(Collectors.toUnmodifiableList());
+        return project.getLicenses().stream().map(license -> new LicenseInfo(license, source)).toList();
     }
 
     /**

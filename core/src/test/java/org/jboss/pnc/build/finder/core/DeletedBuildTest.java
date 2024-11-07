@@ -47,7 +47,7 @@ class DeletedBuildTest extends AbstractWireMockTest {
     }
 
     @Test
-    void testDeletedBuild() throws KojiClientException, MalformedURLException {
+    void testDeletedBuild() throws KojiClientException {
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinder finder = new BuildFinder(session, config);
             Map<BuildSystemInteger, KojiBuild> builds = finder.findBuilds(getChecksumTable());

@@ -240,46 +240,30 @@ public class PncBuildFinder {
     }
 
     private Collection<Artifact> lookupPncArtifactsByChecksum(Checksum checksum) throws RemoteResourceException {
-        switch (checksum.getType()) {
-            case md5:
-                return pncClient.getArtifactsByMd5(checksum.getValue()).getAll();
-
-            case sha1:
-                return pncClient.getArtifactsBySha1(checksum.getValue()).getAll();
-
-            case sha256:
-                return pncClient.getArtifactsBySha256(checksum.getValue()).getAll();
-
-            default:
-                throw new IllegalArgumentException(
-                        "Unsupported checksum type requested! Checksum type " + checksum.getType()
-                                + " is not supported.");
-        }
+        return switch (checksum.getType()) {
+            case md5 -> pncClient.getArtifactsByMd5(checksum.getValue()).getAll();
+            case sha1 -> pncClient.getArtifactsBySha1(checksum.getValue()).getAll();
+            case sha256 -> pncClient.getArtifactsBySha256(checksum.getValue()).getAll();
+        };
     }
 
     private static int getArtifactQuality(Object obj) {
         Artifact a = (Artifact) obj;
         ArtifactQuality quality = a.getArtifactQuality();
 
-        switch (quality) {
-            case NEW:
-                return 1;
-            case VERIFIED:
-                return 2;
-            case TESTED:
-                return 3;
-            case DEPRECATED:
-                return -1;
-            case BLACKLISTED:
-                return -2;
-            case TEMPORARY:
-                return -3;
-            case DELETED:
-                return -4;
-            default:
+        return switch (quality) {
+            case NEW -> 1;
+            case VERIFIED -> 2;
+            case TESTED -> 3;
+            case DEPRECATED -> -1;
+            case BLACKLISTED -> -2;
+            case TEMPORARY -> -3;
+            case DELETED -> -4;
+            default -> {
                 LOGGER.warn("Unsupported ArtifactQuality! Got: {}", quality);
-                return -100;
-        }
+                yield -100;
+            }
+        };
     }
 
     private static Optional<Artifact> getBestPncArtifact(Collection<Artifact> artifacts) {

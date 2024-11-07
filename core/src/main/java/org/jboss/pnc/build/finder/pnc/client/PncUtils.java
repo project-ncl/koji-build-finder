@@ -357,19 +357,12 @@ public final class PncUtils {
     private static String getBuildType(PncBuild pncBuild) {
         BuildType buildType = pncBuild.getBuild().getBuildConfigRevision().getBuildType();
 
-        switch (buildType) {
-            case MVN:
-                return MAVEN;
-            case GRADLE:
-                return GRADLE;
-            case NPM:
-                return NPM;
-            case SBT:
-                return SBT;
-            default:
-                LOGGER.warn("Unsupported build type conversion for: {}", buildType);
-                return UNKNOWN;
-        }
+        return switch (buildType) {
+            case MVN -> MAVEN;
+            case GRADLE -> GRADLE;
+            case NPM -> NPM;
+            case SBT -> SBT;
+        };
     }
 
     public static void fixNullVersion(KojiBuild kojibuild, KojiArchiveInfo archiveInfo) {

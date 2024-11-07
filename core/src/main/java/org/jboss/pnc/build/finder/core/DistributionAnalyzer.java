@@ -353,7 +353,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     .stream()
                     .flatMap(Collection::stream)
                     .map(LicenseInfo::getSpdxLicenseId)
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
             Set<String> uniqueLicenses = new TreeSet<>(totalLicenses);
             Map<String, Long> licenseCountMap = totalLicenses.stream().collect(groupingBy(identity(), counting()));
             String licenseCounts = licenseCountMap.entrySet()
@@ -497,11 +497,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private static String getMessage(Throwable t) {
         StringBuilder sb = new StringBuilder(32);
 
-        if (t instanceof java.nio.file.FileSystemException) {
-            java.nio.file.FileSystemException fse = (java.nio.file.FileSystemException) t;
+        if (t instanceof java.nio.file.FileSystemException fse) {
 
             if (fse instanceof DirectoryNotEmptyException) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(": ");
                 }
 
@@ -667,7 +666,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 .map(localFile -> addLicensesFromJar(jar, localFile))
                 .filter(not(Collection::isEmpty))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     private List<LicenseInfo> addLicensesFromJar(FileObject jar, FileObject localFile) {

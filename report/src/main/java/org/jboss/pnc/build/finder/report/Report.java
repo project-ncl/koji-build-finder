@@ -17,7 +17,6 @@ package org.jboss.pnc.build.finder.report;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -74,9 +73,7 @@ public abstract class Report {
             return;
         }
 
-        Files.write(
-                new File(outputDirectory, baseFilename + ".txt").toPath(),
-                renderText.get().getBytes(StandardCharsets.UTF_8));
+        Files.writeString(new File(outputDirectory, baseFilename + ".txt").toPath(), renderText.get());
     }
 
     public abstract ContainerTag<? extends Tag<?>> toHTML();
@@ -88,9 +85,7 @@ public abstract class Report {
             return;
         }
 
-        Files.write(
-                new File(outputDirectory, baseFilename + ".html").toPath(),
-                renderText.get().getBytes(StandardCharsets.UTF_8));
+        Files.writeString(new File(outputDirectory, baseFilename + ".html").toPath(), renderText.get());
     }
 
     public String getName() {

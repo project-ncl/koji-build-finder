@@ -30,8 +30,6 @@ import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.TestUtils;
 import org.jboss.pnc.build.finder.core.Utils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
@@ -54,7 +52,6 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_18)
     void testHelp(StdOut out) {
         String[] args = { "--help" };
 
@@ -70,7 +67,6 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_18)
     void testVersion(StdOut out) {
         String[] args = { "--version" };
         ParseResult parseResult = parseCommandLine(new Main(), args);
@@ -170,7 +166,6 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_18)
     void testConfig(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
@@ -210,7 +205,6 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_18)
     void testDebug(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");
@@ -267,7 +261,6 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_18)
     void testQuiet(@TempDir File folder, StdOut out) throws IOException {
         File configFile = TestUtils.loadFile("config.json");
         File inputFile = TestUtils.loadFile("nested.war");

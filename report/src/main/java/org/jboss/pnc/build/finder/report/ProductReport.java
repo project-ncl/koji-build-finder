@@ -77,12 +77,12 @@ public final class ProductReport extends Report {
                         build -> build.getTaskRequest() != null && build.getTaskRequest().asBuildRequest() != null
                                 && build.getTaskRequest().asBuildRequest().getTarget() != null)
                 .map(build -> build.getTaskRequest().asBuildRequest().getTarget())
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         Map<String, Long> map = targets.stream().collect(Collectors.groupingBy(identity(), counting()));
         List<Entry<String, Long>> countList = map.entrySet()
                 .stream()
                 .sorted(Entry.<String, Long> comparingByValue().reversed())
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         MultiValuedMap<String, KojiBuild> prodMap = new ArrayListValuedHashMap<>();
 
         for (KojiBuild build : builds) {
@@ -113,9 +113,7 @@ public final class ProductReport extends Report {
         for (Entry<String, Collection<KojiBuild>> entry : entrySet) {
             String target = entry.getKey();
             Collection<KojiBuild> prodBuilds = entry.getValue();
-            List<String> buildList = prodBuilds.stream()
-                    .map(build -> build.getBuildInfo().getNvr())
-                    .collect(Collectors.toUnmodifiableList());
+            List<String> buildList = prodBuilds.stream().map(build -> build.getBuildInfo().getNvr()).toList();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} ({}): {}", target, targetToProduct(target), buildList);

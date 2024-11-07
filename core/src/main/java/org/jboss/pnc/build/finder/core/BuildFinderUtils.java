@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.binary.Hex;
@@ -348,10 +347,7 @@ public final class BuildFinderUtils {
             throws KojiClientException {
         Map<String, KojiArchiveType> allArchiveTypesMap = session.getArchiveTypeMap();
 
-        List<String> allArchiveTypes = allArchiveTypesMap.values()
-                .stream()
-                .map(KojiArchiveType::getName)
-                .collect(Collectors.toUnmodifiableList());
+        List<String> allArchiveTypes = allArchiveTypesMap.values().stream().map(KojiArchiveType::getName).toList();
         List<String> archiveTypes = config.getArchiveTypes();
         List<String> archiveTypesToCheck;
 
@@ -365,9 +361,7 @@ public final class BuildFinderUtils {
                         String.join(", ", archiveTypes));
             }
 
-            archiveTypesToCheck = archiveTypes.stream()
-                    .filter(allArchiveTypesMap::containsKey)
-                    .collect(Collectors.toUnmodifiableList());
+            archiveTypesToCheck = archiveTypes.stream().filter(allArchiveTypesMap::containsKey).toList();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
@@ -387,7 +381,7 @@ public final class BuildFinderUtils {
                 .stream()
                 .map(KojiArchiveType::getExtensions)
                 .flatMap(List::stream)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         List<String> extensions = config.getArchiveExtensions();
         List<String> extensionsToCheck;
 
@@ -399,9 +393,7 @@ public final class BuildFinderUtils {
                         String.join(", ", extensions));
             }
 
-            extensionsToCheck = extensions.stream()
-                    .filter(allArchiveExtensions::contains)
-                    .collect(Collectors.toUnmodifiableList());
+            extensionsToCheck = extensions.stream().filter(allArchiveExtensions::contains).toList();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(

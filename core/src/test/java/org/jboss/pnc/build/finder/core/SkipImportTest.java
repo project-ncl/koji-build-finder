@@ -47,7 +47,7 @@ class SkipImportTest extends AbstractWireMockTest {
     }
 
     @Test
-    void testMultiImportsKeepEarliest() throws KojiClientException, MalformedURLException {
+    void testMultiImportsKeepEarliest() throws KojiClientException {
         Map<Checksum, Collection<String>> checksumTable = getChecksumTable();
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {

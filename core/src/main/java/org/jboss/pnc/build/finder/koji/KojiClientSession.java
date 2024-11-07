@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.util.jhttpc.auth.MemoryPasswordManager;
@@ -240,7 +239,7 @@ public final class KojiClientSession extends KojiClient implements ClientSession
 
     @Override
     public List<List<KojiTagInfo>> listTags(List<KojiIdOrName> idsOrNames) throws KojiClientException {
-        List<Integer> buildIds = idsOrNames.stream().map(KojiIdOrName::getId).collect(Collectors.toUnmodifiableList());
+        List<Integer> buildIds = idsOrNames.stream().map(KojiIdOrName::getId).toList();
         return helper.listTagsByIds(buildIds, session);
     }
 

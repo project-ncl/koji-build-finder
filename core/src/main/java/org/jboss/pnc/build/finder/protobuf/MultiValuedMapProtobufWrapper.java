@@ -16,7 +16,6 @@
 package org.jboss.pnc.build.finder.protobuf;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -59,7 +58,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
                 .entrySet()
                 .stream()
                 .map(a -> new MultiValuedMapProtobufEntry<>(a.getKey(), a.getValue()))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     /**
@@ -93,7 +92,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
         @ProtoFactory
         MultiValuedMapProtobufEntry(WrappedMessage key, Collection<WrappedMessage> values) {
             this.key = (K) key.getValue();
-            this.values = values.stream().map(a -> (V) a.getValue()).collect(Collectors.toUnmodifiableList());
+            this.values = values.stream().map(a -> (V) a.getValue()).toList();
         }
 
         @ProtoField(number = 1)
@@ -103,7 +102,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
 
         @ProtoField(number = 2)
         Collection<WrappedMessage> getValues() {
-            return this.values.stream().map(WrappedMessage::new).collect(Collectors.toUnmodifiableList());
+            return this.values.stream().map(WrappedMessage::new).toList();
         }
     }
 }

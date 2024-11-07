@@ -75,17 +75,12 @@ public class KojiLocalArchive {
             return false;
         }
 
-        switch (archiveBuildType) {
-            case "image":
-                return archive.getArch() == null;
-            case "maven":
-                return archive.getGroupId() == null;
-            case "win":
-                return archive.getPlatforms() == null;
-            case "rpm":
-            default:
-                return false;
-        }
+        return switch (archiveBuildType) {
+            case "image" -> archive.getArch() == null;
+            case "maven" -> archive.getGroupId() == null;
+            case "win" -> archive.getPlatforms() == null;
+            default -> false;
+        };
     }
 
     public KojiArchiveInfo getArchive() {
