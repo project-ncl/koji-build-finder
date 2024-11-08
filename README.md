@@ -21,7 +21,7 @@ Additionally, it writes various reports about the builds.
 | CI         | Build Status          | [![Build Finder CI](https://github.com/project-ncl/build-finder/workflows/Build%20Finder%20CI/badge.svg)](https://github.com/project-ncl/build-finder/actions?query=workflow%3A%22Build+Finder+CI%22)            |
 | Codecov    | Code Coverage         | [![Code Coverage](https://codecov.io/gh/project-ncl/build-finder/graph/badge.svg)](https://codecov.io/gh/project-ncl/build-finder)                                                                               |
 | Snyk       | Known Vulnerabilities | [![Known Vulnerabilities](https://snyk.io/test/github/project-ncl/build-finder/badge.svg)](https://snyk.io/test/github/project-ncl/build-finder)                                                                 |
-| Dependabot | Dependencies          | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=project-ncl/build-finder)](https://dependabot.com)                                                                               |
+| Dependabot | Dependencies          | [![Dependabot Status](https://img.shields.io/badge/Dependabot-enabled-brightgreen)](https://dependabot.com)                                                                               |
 
 ## Development
 
