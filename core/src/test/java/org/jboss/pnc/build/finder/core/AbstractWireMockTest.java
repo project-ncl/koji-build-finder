@@ -27,10 +27,8 @@ import java.util.Map;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.google.common.io.Resources;
 
-@WireMockTest
 abstract class AbstractWireMockTest {
     static WireMockExtension newWireMockExtensionForClass(Class<?> clazz) {
         String path = getDirectoryForClass(clazz);
