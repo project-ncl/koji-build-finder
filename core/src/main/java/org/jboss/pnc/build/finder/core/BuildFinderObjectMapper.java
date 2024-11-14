@@ -15,6 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.redhat.red.build.koji.model.json.util.KojiObjectMapper;
 
 public final class BuildFinderObjectMapper extends KojiObjectMapper {
+    @Serial
     private static final long serialVersionUID = -6336680901444277747L;
 
     public BuildFinderObjectMapper() {

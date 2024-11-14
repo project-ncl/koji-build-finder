@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.protobuf;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -30,6 +31,7 @@ import org.infinispan.protostream.annotations.ProtoField;
  * @param <V> The value type
  */
 public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K, V> {
+    @Serial
     private static final long serialVersionUID = -4929571021288563518L;
 
     /**

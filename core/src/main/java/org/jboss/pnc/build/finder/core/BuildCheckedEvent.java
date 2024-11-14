@@ -15,9 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class BuildCheckedEvent implements Serializable {
+    @Serial
     private static final long serialVersionUID = 8207145169396750092L;
 
     private final Checksum checksum;

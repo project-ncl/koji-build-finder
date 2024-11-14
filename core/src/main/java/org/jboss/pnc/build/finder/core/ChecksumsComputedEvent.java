@@ -15,9 +15,11 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class ChecksumsComputedEvent implements Serializable {
+    @Serial
     private static final long serialVersionUID = 7899812493670777120L;
 
     private final int count;

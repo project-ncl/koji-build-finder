@@ -15,10 +15,13 @@
  */
 package org.jboss.pnc.build.finder.pnc.client;
 
+import java.io.Serial;
+
 /**
  * Exception thrown by PncClient
  */
 public class PncClientException extends Exception {
+    @Serial
     private static final long serialVersionUID = 356746667206075787L;
 
     public PncClientException(Throwable cause) {

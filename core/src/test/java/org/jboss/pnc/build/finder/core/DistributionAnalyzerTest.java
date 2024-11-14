@@ -199,8 +199,7 @@ class DistributionAnalyzerTest {
         }
 
         assertThat(checksums.values()).hasSize(3);
-        assertThat(checksums.values().stream().mapToInt(MultiValuedMap::size).sum())
-                .isEqualTo(25 * checksums.values().size());
+        assertThat(checksums.values().stream().mapToInt(MultiValuedMap::size).sum()).isEqualTo(25 * checksums.size());
     }
 
     static Stream<Arguments> stringIntProvider() {

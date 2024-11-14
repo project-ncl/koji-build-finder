@@ -326,10 +326,7 @@ public final class SpdxLicenseUtils {
 
         for (SpdxListedLicense license : values) {
             try {
-                List<String> seeAlso = license.getSeeAlso()
-                        .stream()
-                        .map(LicenseUtils::normalizeLicenseUrl)
-                        .collect(Collectors.toList());
+                List<String> seeAlso = license.getSeeAlso().stream().map(LicenseUtils::normalizeLicenseUrl).toList();
 
                 if (seeAlso.contains(LicenseUtils.normalizeLicenseUrl(licenseUrl))) {
                     return Optional.of(getCurrentLicenseId(license.getLicenseId()));
@@ -405,8 +402,7 @@ public final class SpdxLicenseUtils {
         try {
             AnyLicenseInfo anyLicenseInfo = parseSPDXLicenseString(licenseString);
 
-            if (anyLicenseInfo instanceof SpdxListedLicense) {
-                SpdxListedLicense spdxListedLicense = (SpdxListedLicense) anyLicenseInfo;
+            if (anyLicenseInfo instanceof SpdxListedLicense spdxListedLicense) {
                 String licenseId = spdxListedLicense.getLicenseId();
                 validateSPDXListedLicenseId(licenseId);
             }
