@@ -85,6 +85,7 @@
     <version.com.redhat.red.build.kojiji>2.20</version.com.redhat.red.build.kojiji>
     <version.commons-codec>1.17.1</version.commons-codec>
     <version.commons-io>2.17.0</version.commons-io>
+    <version.commons-validator>1.7</version.commons-validator>
     <version.info.picocli>4.7.6</version.info.picocli>
     <version.io.dropwizard.metrics>4.2.28</version.io.dropwizard.metrics>
     <version.jakarta.validation>3.1.0</version.jakarta.validation>
@@ -234,6 +235,17 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${version.commons-io}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-validator</groupId>
+        <artifactId>commons-validator</artifactId>
+        <version>${version.commons-validator}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
