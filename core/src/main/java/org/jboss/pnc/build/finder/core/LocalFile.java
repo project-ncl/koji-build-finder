@@ -35,12 +35,12 @@ public class LocalFile {
         this.size = size;
     }
 
-    @ProtoField(value = 1, required = true)
+    @ProtoField(value = 1)
     public String getFilename() {
         return filename;
     }
 
-    @ProtoField(value = 2, required = true)
+    @ProtoField(value = 2, defaultValue = "0")
     public long getSize() {
         return size;
     }

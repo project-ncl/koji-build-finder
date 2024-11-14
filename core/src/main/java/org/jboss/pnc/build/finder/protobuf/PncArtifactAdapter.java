@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ProtoAdapter(Artifact.class)
 public class PncArtifactAdapter {
-
     @ProtoFactory
     Artifact create(String jsonData) {
         try {
@@ -35,7 +34,7 @@ public class PncArtifactAdapter {
         }
     }
 
-    @ProtoField(number = 1, required = true)
+    @ProtoField(number = 1)
     String getJsonData(Artifact artifact) {
         try {
             return KojiJSONUtils.writeValueAsString(artifact);

@@ -41,7 +41,7 @@ public class KojiBuildAdapter {
         }
     }
 
-    @ProtoField(number = 1, required = true)
+    @ProtoField(number = 1)
     String getJsonData(KojiBuild kojiBuild) {
         try {
             return KojiJSONUtils.writeValueAsString(kojiBuild);
