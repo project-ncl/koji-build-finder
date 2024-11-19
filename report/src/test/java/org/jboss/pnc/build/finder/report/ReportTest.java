@@ -199,9 +199,13 @@ class ReportTest {
 
     @Test
     void testNVRReport(@TempDir File folder) throws IOException {
-        final String nvrExpected = "artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6\n"
-                + "commons-beanutils-commons-beanutils-1.9.2.redhat_1-1\ncommons-lang-commons-lang-2.6-1\n"
-                + "commons-lang-commons-lang-2.6-2\norg.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1\n";
+        final String nvrExpected = """
+                artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6
+                commons-beanutils-commons-beanutils-1.9.2.redhat_1-1
+                commons-lang-commons-lang-2.6-1
+                commons-lang-commons-lang-2.6-2
+                org.wildfly.swarm-config-api-parent-1.1.0.Final_redhat_14-1
+                """;
         NVRReport report = new NVRReport(folder, builds);
         assertThat(report.renderText()).get(as(STRING)).isEqualTo(nvrExpected);
         report.outputText();
@@ -211,9 +215,12 @@ class ReportTest {
 
     @Test
     void testGAVReport(@TempDir File folder) throws IOException {
-        final String gavExpected = "commons-beanutils:commons-beanutils:1.9.2.redhat-1\n"
-                + "commons-lang:commons-lang:2.6\norg.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1\n"
-                + "org.wildfly.swarm:config-api:1.1.0.Final-redhat-14\n";
+        final String gavExpected = """
+                commons-beanutils:commons-beanutils:1.9.2.redhat-1
+                commons-lang:commons-lang:2.6
+                org.apache.activemq:libartemis-native-32:2.3.0.amq_710003-redhat-1
+                org.wildfly.swarm:config-api:1.1.0.Final-redhat-14
+                """;
         GAVReport report = new GAVReport(folder, builds);
         assertThat(report.renderText()).get(as(STRING)).isEqualTo(gavExpected);
         report.outputText();

@@ -67,6 +67,8 @@
     <koji.hub.url />
     <koji.web.url />
     <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <mavenVersion>3.6.3</mavenVersion>
     <pnc.url />
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

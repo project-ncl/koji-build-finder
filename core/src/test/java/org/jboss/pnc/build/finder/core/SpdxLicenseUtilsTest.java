@@ -173,12 +173,18 @@ class SpdxLicenseUtilsTest {
         Path path2 = Files.createTempFile("file2-", null);
         Files.writeString(path2, s2);
 
-        String http = "                                 Apache License\n"
-                + "                           Version 2.0, January 2004\n"
-                + "                        http://www.apache.org/licenses/\n" + "\n";
-        String https = "                                 Apache License\n"
-                + "                           Version 2.0, January 2004\n"
-                + "                        https://www.apache.org/licenses/\n" + "\n";
+        String http = """
+                                                 Apache License
+                                           Version 2.0, January 2004
+                                        http://www.apache.org/licenses/
+
+                """;
+        String https = """
+                                                 Apache License
+                                           Version 2.0, January 2004
+                                        https://www.apache.org/licenses/
+
+                """;
 
         assertThat(LicenseUtils.licenseFileToText(path)).isEqualToIgnoringWhitespace(http);
         assertThat(LicenseUtils.licenseFileToText(path2)).isEqualToIgnoringWhitespace(https);
