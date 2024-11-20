@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -104,7 +103,7 @@ class DistributionAnalyzerTest {
     @Test
     void testCacheClearance(@TempDir File folder) throws IOException {
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
-            Collection<Path> ls = stream.collect(Collectors.toUnmodifiableList());
+            Collection<Path> ls = stream.toList();
             assertThat(ls).hasSize(1);
         }
 
@@ -115,7 +114,7 @@ class DistributionAnalyzerTest {
         da.checksumFiles();
 
         try (Stream<Path> stream = Files.walk(folder.toPath())) {
-            Collection<Path> files = stream.collect(Collectors.toUnmodifiableList());
+            Collection<Path> files = stream.toList();
             assertThat(files).hasSize(1);
         }
     }

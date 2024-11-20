@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -115,10 +114,7 @@ class BuildConfigTest {
         assertThat(bc.getChecksumOnly()).isTrue();
         assertThat(bc.getChecksumTypes()).containsExactly(ChecksumType.md5);
 
-        List<String> excludes = bc.getExcludes()
-                .stream()
-                .map(Pattern::pattern)
-                .collect(Collectors.toUnmodifiableList());
+        List<String> excludes = bc.getExcludes().stream().map(Pattern::pattern).toList();
 
         assertThat(excludes).containsExactly(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$").pattern());
     }
