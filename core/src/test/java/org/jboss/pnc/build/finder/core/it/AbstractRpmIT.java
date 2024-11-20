@@ -36,6 +36,7 @@ import org.jboss.pnc.build.finder.core.Checksum;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.LocalFile;
+import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
@@ -66,29 +67,34 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
     void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
         Timer timer = REGISTRY.timer(name(AbstractRpmIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
-        DistributionAnalyzer analyzer;
-        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Context ignored = timer.time()) {
-            analyzer = new DistributionAnalyzer(getFiles(), getConfig());
-            futureChecksum = pool.submit(analyzer);
-        }
+        try {
+            DistributionAnalyzer analyzer;
+            Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        Timer timer2 = REGISTRY.timer(name(AbstractRpmIT.class, "builds"));
+            try (Context ignored = timer.time()) {
+                analyzer = new DistributionAnalyzer(getFiles(), getConfig());
+                futureChecksum = pool.submit(analyzer);
+            }
 
-        try (Context ignored = timer2.time()) {
-            ClientSession session = getSession();
-            BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder);
-            Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
+            Timer timer2 = REGISTRY.timer(name(AbstractRpmIT.class, "builds"));
 
-            futureChecksum.get();
-            futureBuilds.get();
+            try (Context ignored = timer2.time()) {
+                ClientSession session = getSession();
+                BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
+                finder.setOutputDirectory(folder);
+                Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
 
-            verify(analyzer, finder);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw e;
+                futureChecksum.get();
+                futureBuilds.get();
+
+                verify(analyzer, finder);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+        } finally {
+            Utils.shutdownAndAwaitTermination(pool);
         }
     }
 }

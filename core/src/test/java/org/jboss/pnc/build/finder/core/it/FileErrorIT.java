@@ -39,6 +39,7 @@ import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.FileError;
 import org.jboss.pnc.build.finder.core.LocalFile;
+import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
@@ -55,68 +56,74 @@ class FileErrorIT extends AbstractKojiIT {
     void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
         Timer timer = REGISTRY.timer(name(FileErrorIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
-        DistributionAnalyzer analyzer;
-        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Context ignored = timer.time()) {
-            analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
-            futureChecksum = pool.submit(analyzer);
-        }
+        try {
+            DistributionAnalyzer analyzer;
+            Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        Timer timer2 = REGISTRY.timer(name(FileErrorIT.class, "builds"));
+            try (Context ignored = timer.time()) {
+                analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
+                futureChecksum = pool.submit(analyzer);
+            }
 
-        try (Context ignored = timer2.time()) {
-            ClientSession session = getSession();
-            BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder);
-            Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
-            Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
-            Collection<FileError> fileErrors = analyzer.getFileErrors();
-            Map<String, Collection<Checksum>> files = analyzer.getFiles();
-            Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
-            Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
-            List<KojiBuild> buildsFound = finder.getBuildsFound();
+            Timer timer2 = REGISTRY.timer(name(FileErrorIT.class, "builds"));
 
-            assertThat(map).hasSize(3);
-            assertThat(builds).hasSize(2);
-            assertThat(fileErrors).hasSize(1)
-                    .extracting("filename", "message")
-                    .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", "Invalid relative file name."));
-            assertThat(files).hasSize(1)
-                    .hasEntrySatisfying(
-                            "jboss-jaxb-intros-1.0.2.GA-sources.jar",
-                            cksums -> assertThat(cksums).hasSize(3)
-                                    .extracting("filename")
-                                    .containsOnly("jboss-jaxb-intros-1.0.2.GA-sources.jar"));
-            assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
-                    .hasEntrySatisfying(
-                            "ac2a6ab1fbf6afba37789e2e88a916a6",
-                            cksums -> assertThat(cksums).extracting("filename", "size")
-                                    .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L)));
-            assertThat(analyzer.getChecksums(ChecksumType.sha1)).hasSize(1)
-                    .hasEntrySatisfying(
-                            "ab2f490dd83035bee3a719d2118cbab90508082f",
-                            cksums -> assertThat(cksums).singleElement()
-                                    .extracting("filename", "size")
-                                    .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
-            assertThat(analyzer.getChecksums(sha256)).hasSize(1)
-                    .hasEntrySatisfying(
-                            "987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48",
-                            cksums -> assertThat(cksums).singleElement()
-                                    .extracting("filename", "size")
-                                    .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
-            assertThat(notFoundChecksums).isEmpty();
-            assertThat(foundChecksums).hasSize(1);
-            assertThat(buildsFound).hasSize(1);
-            assertThat(builds.get(new BuildSystemInteger(0)).getArchives()).isEmpty();
+            try (Context ignored = timer2.time()) {
+                ClientSession session = getSession();
+                BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
+                finder.setOutputDirectory(folder);
+                Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
+                Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
+                Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
+                Collection<FileError> fileErrors = analyzer.getFileErrors();
+                Map<String, Collection<Checksum>> files = analyzer.getFiles();
+                Map<Checksum, Collection<String>> foundChecksums = finder.getFoundChecksums();
+                Map<Checksum, Collection<String>> notFoundChecksums = finder.getNotFoundChecksums();
+                List<KojiBuild> buildsFound = finder.getBuildsFound();
 
-            LOGGER.info("Map size: {}", map.size());
-            LOGGER.info("Builds size: {}", builds.size());
-            LOGGER.info("File errors: {}", fileErrors.size());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw e;
+                assertThat(map).hasSize(3);
+                assertThat(builds).hasSize(2);
+                assertThat(fileErrors).hasSize(1)
+                        .extracting("filename", "message")
+                        .containsExactly(
+                                tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", "Invalid relative file name."));
+                assertThat(files).hasSize(1)
+                        .hasEntrySatisfying(
+                                "jboss-jaxb-intros-1.0.2.GA-sources.jar",
+                                cksums -> assertThat(cksums).hasSize(3)
+                                        .extracting("filename")
+                                        .containsOnly("jboss-jaxb-intros-1.0.2.GA-sources.jar"));
+                assertThat(analyzer.getChecksums(ChecksumType.md5)).hasSize(1)
+                        .hasEntrySatisfying(
+                                "ac2a6ab1fbf6afba37789e2e88a916a6",
+                                cksums -> assertThat(cksums).extracting("filename", "size")
+                                        .containsExactly(tuple("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L)));
+                assertThat(analyzer.getChecksums(ChecksumType.sha1)).hasSize(1)
+                        .hasEntrySatisfying(
+                                "ab2f490dd83035bee3a719d2118cbab90508082f",
+                                cksums -> assertThat(cksums).singleElement()
+                                        .extracting("filename", "size")
+                                        .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
+                assertThat(analyzer.getChecksums(sha256)).hasSize(1)
+                        .hasEntrySatisfying(
+                                "987dd27e51ba77cb067dbec1baa5169eb184313688640e3951e3cb34d9a85c48",
+                                cksums -> assertThat(cksums).singleElement()
+                                        .extracting("filename", "size")
+                                        .containsExactly("jboss-jaxb-intros-1.0.2.GA-sources.jar", 29537L));
+                assertThat(notFoundChecksums).isEmpty();
+                assertThat(foundChecksums).hasSize(1);
+                assertThat(buildsFound).hasSize(1);
+                assertThat(builds.get(new BuildSystemInteger(0)).getArchives()).isEmpty();
+
+                LOGGER.info("Map size: {}", map.size());
+                LOGGER.info("Builds size: {}", builds.size());
+                LOGGER.info("File errors: {}", fileErrors.size());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+        } finally {
+            Utils.shutdownAndAwaitTermination(pool);
         }
     }
 }

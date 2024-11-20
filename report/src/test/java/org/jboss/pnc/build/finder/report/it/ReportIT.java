@@ -35,6 +35,7 @@ import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.LocalFile;
+import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.core.it.AbstractKojiIT;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
@@ -61,48 +62,56 @@ class ReportIT extends AbstractKojiIT {
 
         ExecutorService pool = newFixedThreadPool(2);
 
-        DistributionAnalyzer analyzer;
+        try {
+            DistributionAnalyzer analyzer;
 
-        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
+            Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Context ignored = timer.time()) {
-            analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
-            futureChecksum = pool.submit(analyzer);
-        }
+            try (Context ignored = timer.time()) {
+                analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
+                futureChecksum = pool.submit(analyzer);
+            }
 
-        Timer timer2 = REGISTRY.timer(name(ReportIT.class, "builds"));
+            Timer timer2 = REGISTRY.timer(name(ReportIT.class, "builds"));
 
-        try (Context ignored = timer2.time()) {
-            ClientSession session = getSession();
-            BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder);
-            Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
-            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
+            try (Context ignored = timer2.time()) {
+                ClientSession session = getSession();
+                BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
+                finder.setOutputDirectory(folder);
+                Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
+                Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
+                Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
 
-            assertThat(map).hasSize(3);
-            assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
+                assertThat(map).hasSize(3);
+                assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
 
-            LOGGER.info("Map size: {}", map.size());
-            LOGGER.info("Builds size: {}", builds.size());
+                LOGGER.info("Map size: {}", map.size());
+                LOGGER.info("Builds size: {}", builds.size());
 
-            // FIXME: Don't hardcode filenames
-            Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
+                // FIXME: Don't hardcode filenames
+                Report.generateReports(
+                        getConfig(),
+                        finder.getBuilds(),
+                        finder.getOutputDirectory(),
+                        analyzer.getInputs());
 
-            File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
+                File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
 
-            assertThat(contentOf(nvrTxt, StandardCharsets.UTF_8)).isNotEmpty();
+                assertThat(contentOf(nvrTxt, StandardCharsets.UTF_8)).isNotEmpty();
 
-            File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
+                File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
 
-            assertThat(contentOf(gavTxt)).isNotEmpty();
+                assertThat(contentOf(gavTxt)).isNotEmpty();
 
-            File outputHtml = new File(finder.getOutputDirectory(), "output.html");
+                File outputHtml = new File(finder.getOutputDirectory(), "output.html");
 
-            assertThat(contentOf(outputHtml)).startsWith("<!DOCTYPE html>").endsWith("</html>");
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw e;
+                assertThat(contentOf(outputHtml)).startsWith("<!DOCTYPE html>").endsWith("</html>");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+        } finally {
+            Utils.shutdownAndAwaitTermination(pool);
         }
     }
 }

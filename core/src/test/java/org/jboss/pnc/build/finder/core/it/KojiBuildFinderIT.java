@@ -33,6 +33,7 @@ import org.jboss.pnc.build.finder.core.BuildSystemInteger;
 import org.jboss.pnc.build.finder.core.ChecksumType;
 import org.jboss.pnc.build.finder.core.DistributionAnalyzer;
 import org.jboss.pnc.build.finder.core.LocalFile;
+import org.jboss.pnc.build.finder.core.Utils;
 import org.jboss.pnc.build.finder.koji.ClientSession;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.junit.jupiter.api.Test;
@@ -54,37 +55,40 @@ class KojiBuildFinderIT extends AbstractKojiIT {
                 .isNotNull();
 
         Timer timer = REGISTRY.timer(name(KojiBuildFinderIT.class, "checksums"));
-
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
-        DistributionAnalyzer analyzer;
+        try {
+            DistributionAnalyzer analyzer;
 
-        Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
+            Future<Map<ChecksumType, MultiValuedMap<String, LocalFile>>> futureChecksum;
 
-        try (Context ignored = timer.time()) {
-            analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
-            futureChecksum = pool.submit(analyzer);
-        }
+            try (Context ignored = timer.time()) {
+                analyzer = new DistributionAnalyzer(Collections.singletonList(URL), getConfig());
+                futureChecksum = pool.submit(analyzer);
+            }
 
-        Timer timer2 = REGISTRY.timer(name(KojiBuildFinderIT.class, "builds"));
+            Timer timer2 = REGISTRY.timer(name(KojiBuildFinderIT.class, "builds"));
 
-        try (Context ignored = timer2.time()) {
-            ClientSession session = getSession();
-            BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
-            finder.setOutputDirectory(folder);
-            Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
-            Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
-            Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
+            try (Context ignored = timer2.time()) {
+                ClientSession session = getSession();
+                BuildFinder finder = new BuildFinder(session, getConfig(), analyzer, null, getPncClient());
+                finder.setOutputDirectory(folder);
+                Future<Map<BuildSystemInteger, KojiBuild>> futureBuilds = pool.submit(finder);
+                Map<BuildSystemInteger, KojiBuild> builds = futureBuilds.get();
+                Map<ChecksumType, MultiValuedMap<String, LocalFile>> map = futureChecksum.get();
 
-            assertThat(getConfig().getChecksumTypes()).hasSizeGreaterThanOrEqualTo(1);
-            assertThat(map).hasSize(getConfig().getChecksumTypes().size());
-            assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
+                assertThat(getConfig().getChecksumTypes()).hasSizeGreaterThanOrEqualTo(1);
+                assertThat(map).hasSize(getConfig().getChecksumTypes().size());
+                assertThat(builds).hasSizeGreaterThanOrEqualTo(1);
 
-            LOGGER.info("Map size: {}", map.size());
-            LOGGER.info("Builds size: {}", builds.size());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw e;
+                LOGGER.info("Map size: {}", map.size());
+                LOGGER.info("Builds size: {}", builds.size());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+        } finally {
+            Utils.shutdownAndAwaitTermination(pool);
         }
     }
 }
