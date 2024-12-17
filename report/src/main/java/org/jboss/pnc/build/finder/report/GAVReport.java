@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.report;
 
+import static com.redhat.red.build.koji.model.xmlrpc.KojiBtype.maven;
 import static j2html.TagCreator.attrs;
 import static j2html.TagCreator.caption;
 import static j2html.TagCreator.each;
@@ -48,7 +49,9 @@ public final class GAVReport extends Report {
         setOutputDirectory(outputDirectory);
         this.gavs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
-                .filter(build -> build.getTypes() != null && build.getTypes().contains("maven"))
+                .filter(
+                        build -> build.getBuildInfo() != null && build.getBuildInfo().getTypeNames() != null
+                                && build.getBuildInfo().getTypeNames().contains(maven))
                 .flatMap(build -> build.getArchives().stream())
                 .map(
                         localArchive -> localArchive.getArchive().getGroupId() + ":"

@@ -21,6 +21,7 @@ import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BU
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_URL;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.GROUP_ID;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.VERSION;
+import static com.redhat.red.build.koji.model.xmlrpc.KojiBtype.maven;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
@@ -67,7 +68,7 @@ class ReportTest {
 
         builds = Collections.unmodifiableList(buildList);
 
-        assertThat(buildList).hasSameSizeAs(buildMap.entrySet());
+        assertThat(builds).hasSameSizeAs(buildMap.entrySet());
 
         testLoad(folder);
     }
@@ -130,7 +131,7 @@ class ReportTest {
         KojiBuild build = builds.get(3);
         assertThat(build.isMaven()).isTrue();
         assertThat(build.isImport()).isFalse();
-        assertThat(build.getTypes()).containsExactly("maven");
+        assertThat(build.getBuildInfo().getTypeNames()).containsExactly(maven);
         assertThat(build.getSource()).get(as(STRING))
                 .isEqualTo("svn+http://svn.apache.org/repos/asf/commons/proper/beanutils/tags/BEANUTILS_1_9_2#1598386");
         assertThat(build.getScmSourcesZip()).get().extracting("filename", as(STRING)).endsWith("-scm-sources.zip");

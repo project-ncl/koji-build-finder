@@ -17,6 +17,8 @@ package org.jboss.pnc.build.finder.pnc.client;
 
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.BUILD_SYSTEM;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static com.redhat.red.build.koji.model.xmlrpc.KojiBtype.maven;
+import static com.redhat.red.build.koji.model.xmlrpc.KojiBtype.npm;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
 import static org.jboss.pnc.api.constants.Attributes.BREW_TAG_PREFIX;
 import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
@@ -40,10 +42,9 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBtype;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 import com.redhat.red.build.koji.model.xmlrpc.KojiChecksumType;
@@ -52,8 +53,6 @@ import com.redhat.red.build.koji.model.xmlrpc.KojiTaskInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiTaskRequest;
 
 public final class PncUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PncUtils.class);
-
     public static final String EXTERNAL_ARCHIVE_ID = "external_archive_id";
 
     public static final String EXTERNAL_BREW_BUILD_ID = "external_brew_build_id";
@@ -67,6 +66,8 @@ public final class PncUtils {
     public static final String EXTERNAL_PROJECT_ID = "external_project_id";
 
     public static final String EXTERNAL_VERSION_ID = "external_version_id";
+
+    public static final String EXTERNAL_BUILD_TYPE = "external_build_type";
 
     public static final String GRADLE = "gradle";
 
@@ -201,8 +202,6 @@ public final class PncUtils {
         KojiBuild kojiBuild = new KojiBuild();
         Build build = pncBuild.getBuild();
 
-        setKojiBuildType(pncBuild, kojiBuild);
-
         KojiBuildInfo buildInfo = new KojiBuildInfo();
         setMavenBuildInfoFromBuildRecord(pncBuild, buildInfo);
 
@@ -227,7 +226,7 @@ public final class PncUtils {
                         + build.getScmRepository().getInternalUrl()
                         + (build.getScmRevision() != null ? "#" + build.getScmRevision() : ""));
 
-        Map<String, Object> extra = new HashMap<>(8, 1.0f);
+        Map<String, Object> extra = new HashMap<>(9, 1.0f);
 
         extra.put(BUILD_SYSTEM, PNC);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
@@ -275,32 +274,45 @@ public final class PncUtils {
             kojiBuild.setTaskRequest(taskRequest);
         });
 
+        addPncBuildTypeToExtra(pncBuild.getBuild().getBuildConfigRevision().getBuildType(), extra);
         buildInfo.setExtra(extra);
+        buildInfo.setTypeNames(List.of(getBuildType(pncBuild)));
 
         kojiBuild.setBuildInfo(buildInfo);
 
         return kojiBuild;
     }
 
-    private static void setKojiBuildType(PncBuild pncBuild, KojiBuild kojiBuild) {
-        switch (pncBuild.getBuild().getBuildConfigRevision().getBuildType()) {
+    private static void addPncBuildTypeToExtra(BuildType buildType, Map<String, Object> extra) {
+        switch (buildType) {
             case NPM:
-                kojiBuild.setTypes(Collections.singletonList(NPM));
+                extra.put(EXTERNAL_BUILD_TYPE, NPM);
                 break;
             case GRADLE:
-                kojiBuild.setTypes(Collections.singletonList(GRADLE));
+                extra.put(EXTERNAL_BUILD_TYPE, GRADLE);
                 break;
             case SBT:
-                kojiBuild.setTypes(Collections.singletonList(SBT));
+                extra.put(EXTERNAL_BUILD_TYPE, SBT);
                 break;
             case MVN:
+                extra.put(EXTERNAL_BUILD_TYPE, MAVEN);
+                break;
             default:
-                kojiBuild.setTypes(Collections.singletonList(MAVEN));
+                extra.put(EXTERNAL_BUILD_TYPE, UNKNOWN);
         }
     }
 
-    public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncbuild, ArtifactRef artifact) {
-        Build build = pncbuild.getBuild();
+    private static KojiBtype getBuildType(PncBuild pncBuild) {
+        BuildType buildType = pncBuild.getBuild().getBuildConfigRevision().getBuildType();
+
+        return switch (buildType) {
+            case MVN, GRADLE, SBT -> maven;
+            case NPM -> npm;
+        };
+    }
+
+    public static KojiArchiveInfo artifactToKojiArchiveInfo(PncBuild pncBuild, ArtifactRef artifact) {
+        Build build = pncBuild.getBuild();
         KojiArchiveInfo archiveInfo = new KojiArchiveInfo();
 
         try {
@@ -315,14 +327,17 @@ public final class PncUtils {
             archiveInfo.setArchiveId(-1);
         }
 
-        Map<String, Object> extra = new HashMap<>(2, 1.0f);
+        Map<String, Object> extra = new HashMap<>(3, 1.0f);
         extra.put(EXTERNAL_BUILD_ID, build.getId());
         extra.put(EXTERNAL_ARCHIVE_ID, artifact.getId());
+        BuildType buildType = pncBuild.getBuild().getBuildConfigRevision().getBuildType();
+        addPncBuildTypeToExtra(buildType, extra);
         archiveInfo.setExtra(extra);
+
         archiveInfo.setArch("noarch");
         archiveInfo.setFilename(artifact.getFilename());
 
-        archiveInfo.setBuildType(getBuildType(pncbuild));
+        archiveInfo.setBuildType(getBuildType(pncBuild));
         archiveInfo.setChecksumType(KojiChecksumType.md5);
         archiveInfo.setChecksum(artifact.getMd5());
 
@@ -332,7 +347,7 @@ public final class PncUtils {
             archiveInfo.setSize(-1);
         }
 
-        switch (pncbuild.getBuild().getBuildConfigRevision().getBuildType()) {
+        switch (buildType) {
             case NPM:
                 // How do we set ArtifactInfo for NPM builds?
                 break;
@@ -352,17 +367,6 @@ public final class PncUtils {
         }
 
         return archiveInfo;
-    }
-
-    private static String getBuildType(PncBuild pncBuild) {
-        BuildType buildType = pncBuild.getBuild().getBuildConfigRevision().getBuildType();
-
-        return switch (buildType) {
-            case MVN -> MAVEN;
-            case GRADLE -> GRADLE;
-            case NPM -> NPM;
-            case SBT -> SBT;
-        };
     }
 
     public static void fixNullVersion(KojiBuild kojibuild, KojiArchiveInfo archiveInfo) {

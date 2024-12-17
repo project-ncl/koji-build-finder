@@ -24,6 +24,7 @@ import org.jboss.pnc.build.finder.core.LicenseInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBtype;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
 
 public class KojiLocalArchive {
@@ -69,16 +70,16 @@ public class KojiLocalArchive {
             return false;
         }
 
-        String archiveBuildType = archive.getBuildType();
+        KojiBtype archiveBuildType = archive.getBuildType();
 
         if (archiveBuildType == null) {
             return false;
         }
 
         return switch (archiveBuildType) {
-            case "image" -> archive.getArch() == null;
-            case "maven" -> archive.getGroupId() == null;
-            case "win" -> archive.getPlatforms() == null;
+            case maven -> archive.getGroupId() == null;
+            case win -> archive.getPlatforms() == null;
+            case image -> archive.getArch() == null;
             default -> false;
         };
     }

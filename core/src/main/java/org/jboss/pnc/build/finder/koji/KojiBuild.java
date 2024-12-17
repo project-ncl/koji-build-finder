@@ -28,6 +28,7 @@ import org.apache.commons.collections4.MapUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBtype;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildRequest;
 import com.redhat.red.build.koji.model.xmlrpc.KojiRpmInfo;
@@ -58,7 +59,7 @@ public class KojiBuild {
 
     private List<KojiTagInfo> tags;
 
-    private transient List<String> types;
+    private transient List<KojiBtype> types;
 
     private List<KojiRpmInfo> remoteRpms;
 
@@ -82,7 +83,7 @@ public class KojiBuild {
             List<KojiLocalArchive> archives,
             List<KojiArchiveInfo> remoteArchives,
             List<KojiTagInfo> tags,
-            List<String> types,
+            List<KojiBtype> types,
             List<KojiRpmInfo> remoteRpms) {
         this.buildInfo = buildInfo;
         this.taskInfo = taskInfo;
@@ -156,7 +157,14 @@ public class KojiBuild {
         this.tags = tags;
     }
 
-    public List<String> getTypes() {
+    /**
+     * Gets the types.
+     *
+     * @return the types
+     * @deprecated Use {@link KojiBuildInfo#getTypeNames()}
+     */
+    @Deprecated(since = "2.7.0", forRemoval = true)
+    public List<KojiBtype> getTypes() {
         if (types == null && buildInfo != null && buildInfo.getTypeNames() != null) {
             types = buildInfo.getTypeNames();
         }
@@ -164,7 +172,18 @@ public class KojiBuild {
         return types;
     }
 
-    public void setTypes(List<String> types) {
+    /**
+     * Sets the types.
+     *
+     * @param types the types to set
+     * @deprecated Use {@link KojiBuildInfo#setTypeNames(List)}.
+     */
+    @Deprecated(since = "2.7.0", forRemoval = true)
+    public void setTypes(List<KojiBtype> types) {
+        if (buildInfo != null) {
+            buildInfo.setTypeNames(types);
+        }
+
         this.types = types;
     }
 

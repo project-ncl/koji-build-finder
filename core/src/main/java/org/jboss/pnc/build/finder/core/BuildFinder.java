@@ -73,6 +73,7 @@ import com.google.common.collect.Sets;
 import com.redhat.red.build.koji.KojiClientException;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveQuery;
+import com.redhat.red.build.koji.model.xmlrpc.KojiBtype;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildState;
 import com.redhat.red.build.koji.model.xmlrpc.KojiIdOrName;
@@ -416,7 +417,7 @@ public class BuildFinder
             if (cacheManager != null) {
                 KojiBuild cachedBuild = buildCache.put(id, build);
 
-                if (cachedBuild != null && !cachedBuild.getBuildInfo().getTypeNames().contains("rpm")) {
+                if (cachedBuild != null && !cachedBuild.getBuildInfo().getTypeNames().contains(KojiBtype.rpm)) {
                     LOGGER.warn("Build id {} was already cached, but this should never happen", red(id));
                 }
             }
