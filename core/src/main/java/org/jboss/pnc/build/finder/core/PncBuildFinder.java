@@ -16,6 +16,7 @@
 package org.jboss.pnc.build.finder.core;
 
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
+import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.BUILD_ID_ZERO;
 import static org.jboss.pnc.build.finder.core.BuildFinderUtils.isBuildIdZero;
 
@@ -225,8 +226,19 @@ public class PncBuildFinder {
      */
     private Optional<Artifact> findArtifactInPnc(Checksum checksum, Collection<String> fileNames)
             throws RemoteResourceException {
-        if (buildFinderUtils.shouldSkipChecksum(checksum, fileNames)) {
-            LOGGER.debug("Skipped checksum {} for fileNames {}", checksum, fileNames);
+        if (buildFinderUtils.isEmptyFileDigest(checksum)) {
+            LOGGER.warn(
+                    "Skipped empty file checksum {} for files: {}",
+                    red(checksum),
+                    red(String.join(", ", fileNames)));
+            return Optional.empty();
+        }
+
+        if (buildFinderUtils.isEmptyZipDigest(checksum)) {
+            LOGGER.warn(
+                    "Skipped empty zip checksum {} for files: {}",
+                    red(checksum),
+                    red(String.join(", ", fileNames)));
             return Optional.empty();
         }
 
@@ -262,7 +274,7 @@ public class PncBuildFinder {
             case TEMPORARY -> -3;
             case DELETED -> -4;
             default -> {
-                LOGGER.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                LOGGER.warn("Unsupported ArtifactQuality! Got: {}", red(quality));
                 yield -100;
             }
         };
@@ -293,7 +305,7 @@ public class PncBuildFinder {
 
             // XXX: Can this ever happen?
             if (optionalArtifact.isEmpty()) {
-                LOGGER.warn("Enhanced artifact with checksum {} has missing artifact", artifact.getChecksum());
+                LOGGER.warn("Enhanced artifact with checksum {} has missing artifact", red(artifact.getChecksum()));
                 continue;
             }
 

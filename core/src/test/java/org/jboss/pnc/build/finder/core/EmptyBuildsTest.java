@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jboss.pnc.build.finder.koji.KojiBuild;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.junit.jupiter.api.BeforeAll;
@@ -93,15 +94,48 @@ class EmptyBuildsTest extends AbstractWireMockTest {
     }
 
     @Test
-    void shouldSkipOnEmptyZipFile() throws KojiClientException {
+    void testSkipOnEmptyZipFile() throws KojiClientException {
         // 76cdb2bad9582d23c1f6f4d868218d6c is md5 for empty zip file with size of 22 bytes
         String filename = "empty.zip";
-        Collection<String> filenames = Collections.singletonList("empty.zip");
+        Collection<String> filenames = Collections.singletonList(filename);
         Checksum checksum = new Checksum(ChecksumType.md5, "76cdb2bad9582d23c1f6f4d868218d6c", filename, 22);
 
         try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
             BuildFinderUtils utils = new BuildFinderUtils(config, null, session);
+            assertThat(utils.isEmptyZipDigest(checksum)).isTrue();
             assertThat(utils.shouldSkipChecksum(checksum, filenames)).isTrue();
+        }
+    }
+
+    @Test
+    void testSkipExtension() throws KojiClientException {
+        String filename = "file.foo";
+        String extension = FilenameUtils.getExtension(filename);
+
+        assertThat(config.getArchiveExtensions()).doesNotContain(extension);
+
+        Collection<String> filenames = Collections.singletonList(filename);
+        Checksum checksum = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", filename, -1L);
+
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinderUtils utils = new BuildFinderUtils(config, null, session);
+            assertThat(utils.shouldSkipChecksum(checksum, filenames)).isTrue();
+        }
+    }
+
+    @Test
+    void testNotSkipExtension() throws KojiClientException {
+        String filename = "file.dll";
+        String extension = FilenameUtils.getExtension(filename);
+
+        assertThat(config.getArchiveExtensions()).contains(extension);
+
+        Collection<String> filenames = Collections.singletonList(filename);
+        Checksum checksum = new Checksum(ChecksumType.md5, "b3ba80c13aa555c3eb428dbf62e2c48e", filename, -1L);
+
+        try (KojiClientSession session = new KojiClientSession(config.getKojiHubURL())) {
+            BuildFinderUtils utils = new BuildFinderUtils(config, null, session);
+            assertThat(utils.shouldSkipChecksum(checksum, filenames)).isFalse();
         }
     }
 }

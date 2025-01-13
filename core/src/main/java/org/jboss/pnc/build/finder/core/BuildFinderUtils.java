@@ -65,7 +65,7 @@ public final class BuildFinderUtils {
 
     private final DistributionAnalyzer distributionAnalyzer;
 
-    private final Map<ChecksumType, String> emptyDigests;
+    private final Map<ChecksumType, String> emptyFileDigests;
 
     private final Map<ChecksumType, String> emptyZipDigests;
 
@@ -75,14 +75,12 @@ public final class BuildFinderUtils {
 
         loadArchiveExtensions(config, session);
 
-        LOGGER.debug("Archive extensions: {}", green(archiveExtensions));
-
-        emptyDigests = new EnumMap<>(ChecksumType.class);
+        emptyFileDigests = new EnumMap<>(ChecksumType.class);
         emptyZipDigests = new EnumMap<>(ChecksumType.class);
 
         config.getChecksumTypes()
                 .forEach(
-                        checksumType -> emptyDigests.put(
+                        checksumType -> emptyFileDigests.put(
                                 checksumType,
                                 Hex.encodeHexString(DigestUtils.getDigest(checksumType.getAlgorithm()).digest())));
 
@@ -109,29 +107,46 @@ public final class BuildFinderUtils {
         return EMPTY_BYTE_ARRAY;
     }
 
+    public boolean isEmptyFileDigest(Checksum checksum) {
+        return checksum.getValue().equals(emptyFileDigests.get(checksum.getType()));
+    }
+
+    public boolean isEmptyZipDigest(Checksum checksum) {
+        return checksum.getValue().equals(emptyZipDigests.get(checksum.getType()));
+    }
+
     public boolean shouldSkipChecksum(Checksum checksum, Collection<String> filenames) {
-        if (checksum.getValue().equals(emptyDigests.get(checksum.getType()))) {
+        if (isEmptyFileDigest(checksum)) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Skipped empty digest for files: {}", red(String.join(", ", filenames)));
+                LOGGER.warn("Skipped empty file digest for files: {}", red(String.join(", ", filenames)));
             }
+
             return true;
         }
 
-        if (checksum.getValue().equals(emptyZipDigests.get(checksum.getType()))) {
+        if (isEmptyZipDigest(checksum)) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Skipped empty zip digest for files: {}", red(String.join(", ", filenames)));
             }
+
             return true;
         }
 
+        return shouldSkipExtension(filenames);
+    }
+
+    private boolean shouldSkipExtension(Collection<String> filenames) {
         Collection<String> newArchiveExtensions = new ArrayList<>(archiveExtensions.size() + 1);
 
         newArchiveExtensions.addAll(archiveExtensions);
         newArchiveExtensions.add("rpm");
 
-        if (filenames.stream().noneMatch(filename -> newArchiveExtensions.stream().anyMatch(filename::endsWith))) {
-            LOGGER.warn("Skipped due to invalid archive extension for files: {}", red(filenames));
-            return false;
+        if (filenames.stream()
+                .noneMatch(
+                        filename -> newArchiveExtensions.stream()
+                                .anyMatch(extension -> filename.endsWith("." + extension)))) {
+            LOGGER.warn("Skipped due to invalid archive extension for files: {}", red(String.join(", ", filenames)));
+            return true;
         }
 
         return false;
@@ -353,7 +368,8 @@ public final class BuildFinderUtils {
         List<String> archiveTypes = config.getArchiveTypes();
         List<String> archiveTypesToCheck;
 
-        LOGGER.debug("Archive types: {}", green(archiveTypes));
+        LOGGER.info("Koji archive types: {}", green(allArchiveTypes));
+        LOGGER.info("Configured archive types: {}", green(archiveTypes));
 
         if (!archiveTypes.isEmpty()) {
             if (LOGGER.isDebugEnabled()) {
@@ -385,6 +401,10 @@ public final class BuildFinderUtils {
                 .flatMap(List::stream)
                 .toList();
         List<String> extensions = config.getArchiveExtensions();
+
+        LOGGER.info("Koji archive extensions: {}", green(allArchiveExtensions));
+        LOGGER.info("Configured archive extensions: {}", green(extensions));
+
         List<String> extensionsToCheck;
 
         if (!extensions.isEmpty()) {
