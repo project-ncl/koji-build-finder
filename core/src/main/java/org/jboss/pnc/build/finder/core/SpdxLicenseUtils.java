@@ -124,7 +124,7 @@ public final class SpdxLicenseUtils {
                     validateLicenseMapping();
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         }
     }
@@ -143,7 +143,7 @@ public final class SpdxLicenseUtils {
             LICENSE_NAMES.add(licenseName);
             return spdxListedLicense;
         } catch (InvalidSPDXAnalysisException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -395,7 +395,8 @@ public final class SpdxLicenseUtils {
             return;
         }
 
-        throw new RuntimeException("License identifier '" + licenseString + "' is not in list of SPDX licenses");
+        throw new IllegalArgumentException(
+                "License identifier '" + licenseString + "' is not in list of SPDX licenses");
     }
 
     static void validateLicenseString(String licenseString) {
@@ -407,7 +408,7 @@ public final class SpdxLicenseUtils {
                 validateSPDXListedLicenseId(licenseId);
             }
         } catch (InvalidLicenseStringException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

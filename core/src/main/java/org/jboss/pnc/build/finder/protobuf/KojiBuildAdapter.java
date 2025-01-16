@@ -37,7 +37,7 @@ public class KojiBuildAdapter {
         try {
             return KojiJSONUtils.readValue(jsonData, KojiBuild.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -46,7 +46,7 @@ public class KojiBuildAdapter {
         try {
             return KojiJSONUtils.writeValueAsString(kojiBuild);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 }

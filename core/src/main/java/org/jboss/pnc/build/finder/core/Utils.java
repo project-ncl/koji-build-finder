@@ -238,6 +238,6 @@ public final class Utils {
         }
 
         LOGGER.error("Retry attempt failed after {} of {} tries", boldRed(numRetries), boldRed(NUM_RETRIES));
-        throw new RuntimeException(exception);
+        throw new IllegalStateException(exception);
     }
 }

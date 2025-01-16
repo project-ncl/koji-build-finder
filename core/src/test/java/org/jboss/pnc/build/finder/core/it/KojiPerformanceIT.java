@@ -60,7 +60,7 @@ class KojiPerformanceIT extends AbstractKojiPerformanceIT {
                         try {
                             getSession().getBuildInfo(buildId, null);
                         } catch (KojiClientException e) {
-                            throw new RuntimeException(e);
+                            throw new IllegalArgumentException(e);
                         }
                     });
 

@@ -30,7 +30,7 @@ public class PncArtifactAdapter {
         try {
             return KojiJSONUtils.readValue(jsonData, Artifact.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -39,7 +39,7 @@ public class PncArtifactAdapter {
         try {
             return KojiJSONUtils.writeValueAsString(artifact);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 }
