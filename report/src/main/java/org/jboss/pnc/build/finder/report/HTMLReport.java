@@ -50,8 +50,8 @@ import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_PRODUCT_ID
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_PROJECT_ID;
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.EXTERNAL_VERSION_ID;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,7 +79,13 @@ import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.SpanTag;
 
 public final class HTMLReport extends Report {
-    private static final String NAME = "Build Finder";
+    private static final String NAME = "Build Report for ";
+
+    private static final String DESCRIPTION = "List of analyzed artifacts whether or not they were found in a Koji build";
+
+    private static final String BASE_FILENAME = "output";
+
+    private static final String REPORT_NAME = "Build Finder";
 
     private static final String GITHUB_URL = "https://github.com/project-ncl/build-finder/";
 
@@ -103,17 +109,13 @@ public final class HTMLReport extends Report {
     private final List<Report> reports;
 
     public HTMLReport(
-            File outputDirectory,
+            Path outputDirectory,
             Iterable<String> files,
             List<KojiBuild> builds,
             URL kojiwebUrl,
             URL pncUrl,
             List<Report> reports) {
-        setName("Build Report for " + join(", ", files));
-        setDescription("List of analyzed artifacts whether or not they were found in a Koji build");
-        setBaseFilename("output");
-        setOutputDirectory(outputDirectory);
-
+        super(NAME + join(", ", files), DESCRIPTION, BASE_FILENAME, outputDirectory);
         this.builds = builds;
         this.kojiwebUrl = kojiwebUrl;
         this.pncUrl = pncUrl;
@@ -432,7 +434,7 @@ public final class HTMLReport extends Report {
                                         .attr(Attr.ID, "footer")
                                         .with(
                                                 text("Created: " + LocalDateTime.now() + " by "),
-                                                a().withHref(GITHUB_URL).with(text(NAME)),
+                                                a().withHref(GITHUB_URL).with(text(REPORT_NAME)),
                                                 text(" " + Utils.getBuildFinderVersion() + " (SHA: "),
                                                 a().withHref(
                                                         GITHUB_URL + "/commit/" + Utils.getBuildFinderScmRevision())

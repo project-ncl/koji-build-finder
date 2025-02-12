@@ -17,13 +17,15 @@ package org.jboss.pnc.build.finder.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,36 +36,44 @@ class BuildFinderTest {
 
     @BeforeAll
     static void setTarget() throws IOException {
-        File target = new File(TestUtils.resolveFileResource("./", "").getParentFile().getParentFile(), "pom.xml");
-        assertThat(target).isFile().isReadable();
-        files = Collections.singletonList(target.getPath());
+        Path path = TestUtils.resolveFileResource();
+        assertThat(path).isDirectory();
+        Path parent = path.getParent();
+        assertThat(parent).isDirectory();
+        Path grandparent = parent.getParent();
+        assertThat(grandparent).isDirectory();
+        Path target = grandparent.resolve("pom.xml");
+        assertThat(target).isRegularFile().isReadable();
+        files = Collections.singletonList(target.toAbsolutePath().toString());
     }
 
     @Test
-    void testDirectory(@TempDir File folder) throws IOException {
+    void testDirectory(@TempDir Path folder) throws IOException {
         ChecksumType checksumType = ChecksumType.sha1;
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));
-        config.setOutputDirectory(folder.getAbsolutePath());
+        config.setOutputDirectory(folder.toAbsolutePath().toString());
 
         DistributionAnalyzer da = new DistributionAnalyzer(files, config);
         da.checksumFiles();
         da.outputToFile(checksumType);
 
-        File[] file = folder.listFiles();
-
-        assertThat(file).isNotNull().hasSize(1);
-        assertThat(da.getChecksumFile(checksumType).getCanonicalPath()).isEqualTo(file[0].getCanonicalPath());
+        try (Stream<Path> stream = Files.list(folder)) {
+            List<Path> paths = stream.toList();
+            assertThat(paths).hasSize(1);
+            Path path = paths.get(0);
+            assertThat(path).isRegularFile().isEqualTo(da.getChecksumFile(checksumType));
+        }
     }
 
     @Test
-    void testLoadChecksumsFile(@TempDir File folder) throws IOException {
+    void testLoadChecksumsFile(@TempDir Path folder) throws IOException {
         ChecksumType checksumType = ChecksumType.md5;
         BuildConfig config = new BuildConfig();
 
         config.setChecksumTypes(EnumSet.of(checksumType));
-        config.setOutputDirectory(folder.getAbsolutePath());
+        config.setOutputDirectory(folder.toAbsolutePath().toString());
 
         DistributionAnalyzer da = new DistributionAnalyzer(files, config);
         da.checksumFiles();

@@ -26,7 +26,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 
 import org.jboss.pnc.build.finder.core.BuildStatistics;
@@ -36,16 +36,18 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.TableTag;
 
 public final class BuildStatisticsReport extends Report {
+    private static final String NAME = "Statistics";
+
+    private static final String DESCRIPTION = "Number of builds/artifacts built from source";
+
+    private static final String BASE_FILENAME = "statistics";
+
     private static final double ONE_HUNDRED_PERCENT = 100.00D;
 
     private final BuildStatistics buildStatistics;
 
-    public BuildStatisticsReport(File outputDirectory, Collection<KojiBuild> builds) {
-        setOutputDirectory(outputDirectory);
-        setName("Statistics");
-        setDescription("Number of builds/artifacts built from source");
-        setBaseFilename("statistics");
-
+    public BuildStatisticsReport(Path outputDirectory, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
         buildStatistics = new BuildStatistics(builds);
     }
 

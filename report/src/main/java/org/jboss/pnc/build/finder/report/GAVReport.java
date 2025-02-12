@@ -27,7 +27,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -40,13 +40,16 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.TableTag;
 
 public final class GAVReport extends Report {
+    private static final String NAME = "Maven artifacts";
+
+    private static final String DESCRIPTION = "List of Maven artifacts in standard Maven <groupId>:<artifactId>:<version> format";
+
+    private static final String BASE_FILENAME = "gav";
+
     private final List<String> gavs;
 
-    public GAVReport(File outputDirectory, Collection<KojiBuild> builds) {
-        setName("Maven artifacts");
-        setDescription("List of Maven artifacts in standard Maven <groupId>:<artifactId>:<version> format");
-        setBaseFilename("gav");
-        setOutputDirectory(outputDirectory);
+    public GAVReport(Path outputDirectory, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
         this.gavs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
                 .filter(

@@ -15,10 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,18 +40,18 @@ public final class JSONUtils {
         return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     }
 
-    public static void dumpObjectToFile(Object obj, File file) throws IOException {
-        dumpObjectToFile(obj, file, MAPPER);
+    public static void dumpObjectToFile(Object obj, Path path) throws IOException {
+        dumpObjectToFile(obj, path, MAPPER);
     }
 
-    public static void dumpObjectToFile(Object obj, File file, ObjectMapper mapper) throws IOException {
-        mapper.writerWithDefaultPrettyPrinter().writeValue(file, obj);
-        Files.write(file.toPath(), Collections.singletonList(""), StandardOpenOption.APPEND);
+    public static void dumpObjectToFile(Object obj, Path path, ObjectMapper mapper) throws IOException {
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), obj);
+        Files.write(path, Collections.singletonList(""), StandardOpenOption.APPEND);
     }
 
-    public static Map<String, Collection<LocalFile>> loadChecksumsFile(File file) throws IOException {
+    public static Map<String, Collection<LocalFile>> loadChecksumsFile(Path path) throws IOException {
         TypeReference<Map<String, Collection<LocalFile>>> typeReference = new ChecksumsMapTypeReference();
-        return MAPPER.readValue(file, typeReference);
+        return MAPPER.readValue(path.toFile(), typeReference);
     }
 
     public static Map<String, List<String>> loadLicenseMapping(InputStream in) throws IOException {

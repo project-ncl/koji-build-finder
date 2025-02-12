@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +53,7 @@ class FileErrorIT extends AbstractKojiIT {
     private static final String URL = "https://repo1.maven.org/maven2/jboss/jaxbintros/jboss-jaxb-intros/1.0.2.GA/jboss-jaxb-intros-1.0.2.GA-sources.jar";
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
+    void testChecksumsAndFindBuilds(@TempDir Path folder) throws Exception {
         Timer timer = REGISTRY.timer(name(FileErrorIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
 

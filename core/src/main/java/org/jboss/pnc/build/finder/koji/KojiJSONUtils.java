@@ -15,8 +15,8 @@
  */
 package org.jboss.pnc.build.finder.koji;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.jboss.pnc.build.finder.core.BuildFinderObjectMapper;
@@ -47,10 +47,10 @@ public final class KojiJSONUtils {
         return MAPPER.writeValueAsString(value);
     }
 
-    public static Map<BuildSystemInteger, KojiBuild> loadBuildsFile(File file) throws IOException {
+    public static Map<BuildSystemInteger, KojiBuild> loadBuildsFile(Path path) throws IOException {
         TypeReference<Map<BuildSystemInteger, KojiBuild>> typeReference = new MapTypeReference();
 
-        return MAPPER.readValue(file, typeReference);
+        return MAPPER.readValue(path.toFile(), typeReference);
     }
 
 }

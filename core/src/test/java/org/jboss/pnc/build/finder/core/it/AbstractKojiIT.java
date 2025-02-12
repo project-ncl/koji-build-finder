@@ -19,9 +19,9 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jboss.pnc.build.finder.core.ConfigDefaults.CONFIG;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -70,24 +70,23 @@ public abstract class AbstractKojiIT {
 
     @BeforeEach
     void setup() throws IOException, KojiClientException {
-        Path configPath = Paths.get(CONFIG);
-        File configFile = configPath.toFile();
+        Path configFile = Paths.get(CONFIG);
 
-        if (!configFile.exists()) {
-            throw new IOException("File not found: " + configFile.getAbsolutePath());
+        if (!Files.isRegularFile(configFile) || !Files.isReadable(configFile)) {
+            throw new IOException("File not found: " + configFile.toAbsolutePath());
         }
 
         this.config = BuildConfig.load(configFile);
         URL kojiHubURL = config.getKojiHubURL();
 
         if (kojiHubURL == null) {
-            throw new IOException("You must set koji-hub-url in: " + configFile.getAbsolutePath());
+            throw new IOException("You must set koji-hub-url in: " + configFile.toAbsolutePath());
         }
 
         URL pncURL = config.getPncURL();
 
         if (pncURL == null) {
-            throw new IOException("You must set pnc-url in: " + configFile.getAbsolutePath());
+            throw new IOException("You must set pnc-url in: " + configFile.toAbsolutePath());
         }
 
         SimpleKojiConfig kojiConfig = new SimpleKojiConfigBuilder().withKojiURL(kojiHubURL.toExternalForm())

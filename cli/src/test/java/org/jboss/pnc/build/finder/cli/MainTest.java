@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -81,14 +81,14 @@ class MainTest {
     }
 
     @Test
-    void testParsing(@TempDir File folder) throws IOException {
-        File configFile = TestUtils.loadFile("config.json");
-        File inputFile = TestUtils.loadFile("nested.war");
+    void testParsing(@TempDir Path folder) throws IOException {
+        Path configFile = TestUtils.loadFile("config.json");
+        Path inputFile = TestUtils.loadFile("nested.war");
 
         URL hubURL = new URL("http://a.b");
         URL webURL = new URL("http://c.d");
-        File krbCcache = new File(folder, "krb5-cache");
-        File krbKeytab = new File(folder, "krb5-keytab");
+        Path krbCcache = folder.resolve("krb5-cache");
+        Path krbKeytab = folder.resolve("krb5-keytab");
         String krbPassword = "test";
         String krbPrincipal = "test@TEST.ABC";
         String krbService = "testService";
@@ -129,11 +129,11 @@ class MainTest {
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
+        Path outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
         assertThat(outputDirectory).isEqualTo(folder);
 
-        File parsedConfigFile = parseResult.matchedOption("--config").getValue();
+        Path parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
         assertThat(parsedConfigFile).isEqualTo(configFile);
 
@@ -155,8 +155,8 @@ class MainTest {
 
         assertThat(archiveExtensions).hasSize(1);
 
-        assertThat((File) parseResult.matchedOption("--krb-ccache").getValue()).isEqualTo(krbCcache);
-        assertThat((File) parseResult.matchedOption("--krb-keytab").getValue()).isEqualTo(krbKeytab);
+        assertThat((Path) parseResult.matchedOption("--krb-ccache").getValue()).isEqualTo(krbCcache);
+        assertThat((Path) parseResult.matchedOption("--krb-keytab").getValue()).isEqualTo(krbKeytab);
         assertThat((String) parseResult.matchedOption("--krb-password").getValue()).isEqualTo(krbPassword);
         assertThat((String) parseResult.matchedOption("--krb-principal").getValue()).isEqualTo(krbPrincipal);
         assertThat((String) parseResult.matchedOption("--krb-service").getValue()).isEqualTo(krbService);
@@ -166,9 +166,9 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void testConfig(@TempDir File folder, StdOut out) throws IOException {
-        File configFile = TestUtils.loadFile("config.json");
-        File inputFile = TestUtils.loadFile("nested.war");
+    void testConfig(@TempDir Path folder, StdOut out) throws IOException {
+        Path configFile = TestUtils.loadFile("config.json");
+        Path inputFile = TestUtils.loadFile("nested.war");
 
         String[] args = {
                 "--output-directory",
@@ -183,11 +183,11 @@ class MainTest {
 
         ParseResult parseResult = parseCommandLine(new Main(), args);
 
-        File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
+        Path outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
         assertThat(outputDirectory).isEqualTo(folder);
 
-        File parsedConfigFile = parseResult.matchedOption("--config").getValue();
+        Path parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
         assertThat(parsedConfigFile).isEqualTo(configFile);
 
@@ -205,9 +205,9 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void testDebug(@TempDir File folder, StdOut out) throws IOException {
-        File configFile = TestUtils.loadFile("config.json");
-        File inputFile = TestUtils.loadFile("nested.war");
+    void testDebug(@TempDir Path folder, StdOut out) throws IOException {
+        Path configFile = TestUtils.loadFile("config.json");
+        Path inputFile = TestUtils.loadFile("nested.war");
 
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
                 .getLogger(Logger.ROOT_LOGGER_NAME);
@@ -232,11 +232,11 @@ class MainTest {
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
-            File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
+            Path outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
             assertThat(outputDirectory).isEqualTo(folder);
 
-            File parsedConfigFile = parseResult.matchedOption("--config").getValue();
+            Path parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
             assertThat(parsedConfigFile).isEqualTo(configFile);
 
@@ -261,9 +261,9 @@ class MainTest {
     @ExpectSystemExitWithStatus(0)
     @StdIo
     @Test
-    void testQuiet(@TempDir File folder, StdOut out) throws IOException {
-        File configFile = TestUtils.loadFile("config.json");
-        File inputFile = TestUtils.loadFile("nested.war");
+    void testQuiet(@TempDir Path folder, StdOut out) throws IOException {
+        Path configFile = TestUtils.loadFile("config.json");
+        Path inputFile = TestUtils.loadFile("nested.war");
 
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
                 .getLogger(Logger.ROOT_LOGGER_NAME);
@@ -288,11 +288,11 @@ class MainTest {
 
             ParseResult parseResult = parseCommandLine(new Main(), args);
 
-            File outputDirectory = parseResult.matchedOption("--output-directory").getValue();
+            Path outputDirectory = parseResult.matchedOption("--output-directory").getValue();
 
             assertThat(outputDirectory).isEqualTo(folder);
 
-            File parsedConfigFile = parseResult.matchedOption("--config").getValue();
+            Path parsedConfigFile = parseResult.matchedOption("--config").getValue();
 
             assertThat(parsedConfigFile).isEqualTo(configFile);
 

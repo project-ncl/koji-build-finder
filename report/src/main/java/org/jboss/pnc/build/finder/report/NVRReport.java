@@ -26,7 +26,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -42,14 +42,16 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.TableTag;
 
 public final class NVRReport extends Report {
+    private static final String NAME = "Koji builds";
+
+    private static final String DESCRIPTION = "List of builds in standard Koji <name>-<version>-<release> format";
+
+    private static final String BASE_FILENAME = "nvr";
+
     private final List<String> nvrs;
 
-    public NVRReport(File outputDirectory, Collection<KojiBuild> builds) {
-        setName("Koji builds");
-        setDescription("List of builds in standard Koji <name>-<version>-<release> format");
-        setBaseFilename("nvr");
-        setOutputDirectory(outputDirectory);
-
+    public NVRReport(Path outputDirectory, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
         this.nvrs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
                 .map(KojiBuild::getBuildInfo)

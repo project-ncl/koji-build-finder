@@ -27,12 +27,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.spdx.library.InvalidSPDXAnalysisException;
@@ -164,13 +164,17 @@ class SpdxLicenseUtilsTest {
     }
 
     @Test
-    void testGetMatchingLicense() throws IOException, InvalidSPDXAnalysisException {
-        Path path = Files.createTempFile("file1-", null);
+    void testGetMatchingLicense(@TempDir Path folder) throws IOException, InvalidSPDXAnalysisException {
         URL url = new URL("https://www.apache.org/licenses/LICENSE-2.0.txt");
-        FileUtils.copyURLToFile(url, path.toFile());
+        Path path = folder.resolve("LICENSE-2.0-1.txt");
+
+        try (InputStream in = url.openStream()) {
+            Files.copy(in, path);
+        }
+
         String s1 = Files.readString(path);
         String s2 = s1.replace("http://www.apache.org/licenses/", "https://www.apache.org/licenses/");
-        Path path2 = Files.createTempFile("file2-", null);
+        Path path2 = folder.resolve("LICENSE-2.0-2.txt");
         Files.writeString(path2, s2);
 
         String http = """

@@ -22,16 +22,15 @@ import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BU
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.GROUP_ID;
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.VERSION;
 import static com.redhat.red.build.koji.model.xmlrpc.KojiBtype.maven;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.assertj.core.api.InstanceOfAssertFactories.map;
 import static org.jboss.pnc.build.finder.pnc.client.PncUtils.PNC;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,8 +55,8 @@ class ReportTest {
     private static List<KojiBuild> builds;
 
     @BeforeAll
-    static void setupBuilds(@TempDir File folder) throws IOException {
-        File buildsFile = TestUtils.loadFile("report-test/builds.json");
+    static void setupBuilds(@TempDir Path folder) throws IOException {
+        Path buildsFile = TestUtils.loadFile("report-test/builds.json");
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
 
         assertThat(buildMap).hasSize(6);
@@ -73,18 +72,18 @@ class ReportTest {
         testLoad(folder);
     }
 
-    private static void testLoad(File folder) throws IOException {
-        File buildsFile = TestUtils.loadFile("report-test/builds.json");
+    private static void testLoad(Path folder) throws IOException {
+        Path buildsFile = TestUtils.loadFile("report-test/builds.json");
         Map<BuildSystemInteger, KojiBuild> buildMap = KojiJSONUtils.loadBuildsFile(buildsFile);
-        File newBuildsFile = new File(folder, "builds.json");
+        Path newBuildsFile = folder.resolve("builds.json");
 
         assertThat(newBuildsFile).isNotNull();
 
         JSONUtils.dumpObjectToFile(buildMap, newBuildsFile);
 
         ObjectMapper mapper = new BuildFinderObjectMapper();
-        JsonNode buildsNode = mapper.readTree(buildsFile);
-        JsonNode newBuildsNode = mapper.readTree(newBuildsFile);
+        JsonNode buildsNode = mapper.readTree(buildsFile.toFile());
+        JsonNode newBuildsNode = mapper.readTree(newBuildsFile.toFile());
 
         assertThat(buildsNode).isEqualTo(newBuildsNode);
     }
@@ -199,7 +198,7 @@ class ReportTest {
     }
 
     @Test
-    void testNVRReport(@TempDir File folder) throws IOException {
+    void testNVRReport(@TempDir Path folder) throws IOException {
         final String nvrExpected = """
                 artemis-native-linux-2.3.0.amq_710003-1.redhat_1.el6
                 commons-beanutils-commons-beanutils-1.9.2.redhat_1-1
@@ -210,12 +209,13 @@ class ReportTest {
         NVRReport report = new NVRReport(folder, builds);
         assertThat(report.renderText()).get(as(STRING)).isEqualTo(nvrExpected);
         report.outputText();
-        File textReport = new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt");
-        assertThat(contentOf(textReport, StandardCharsets.UTF_8)).hasLineCount(5).isEqualTo(nvrExpected);
+        assertThat(report.getOutputDirectory().resolve(report.getBaseFilename() + ".txt")).content(UTF_8)
+                .hasLineCount(5)
+                .isEqualTo(nvrExpected);
     }
 
     @Test
-    void testGAVReport(@TempDir File folder) throws IOException {
+    void testGAVReport(@TempDir Path folder) throws IOException {
         final String gavExpected = """
                 commons-beanutils:commons-beanutils:1.9.2.redhat-1
                 commons-lang:commons-lang:2.6
@@ -225,12 +225,13 @@ class ReportTest {
         GAVReport report = new GAVReport(folder, builds);
         assertThat(report.renderText()).get(as(STRING)).isEqualTo(gavExpected);
         report.outputText();
-        File textReport = new File(report.getOutputDirectory(), report.getBaseFilename() + ".txt");
-        assertThat(contentOf(textReport, StandardCharsets.UTF_8)).hasLineCount(4).isEqualTo(gavExpected);
+        assertThat(report.getOutputDirectory().resolve(report.getBaseFilename() + ".txt")).content(UTF_8)
+                .hasLineCount(4)
+                .isEqualTo(gavExpected);
     }
 
     @Test
-    void testBuildStatisticsReport(@TempDir File folder) throws IOException {
+    void testBuildStatisticsReport(@TempDir Path folder) throws IOException {
         BuildStatisticsReport report = new BuildStatisticsReport(folder, builds);
         report.outputText();
         assertThat(report.getBuildStatistics().getNumberOfBuilds()).isEqualTo(builds.size() - 1L);
@@ -243,7 +244,7 @@ class ReportTest {
     }
 
     @Test
-    void testBuildStatisticsReportEmptyBuilds(@TempDir File folder) throws IOException {
+    void testBuildStatisticsReportEmptyBuilds(@TempDir Path folder) throws IOException {
         BuildStatisticsReport report = new BuildStatisticsReport(folder, Collections.emptyList());
         report.outputText();
         assertThat(report.getBuildStatistics().getNumberOfBuilds()).isZero();
@@ -255,7 +256,7 @@ class ReportTest {
     }
 
     @Test
-    void testProductReport(@TempDir File folder) throws IOException {
+    void testProductReport(@TempDir Path folder) throws IOException {
         ProductReport report = new ProductReport(folder, builds);
         report.outputText();
 
@@ -269,7 +270,7 @@ class ReportTest {
     }
 
     @Test
-    void testHTMLReport(@TempDir File folder) throws IOException {
+    void testHTMLReport(@TempDir Path folder) throws IOException {
         List<String> files = Collections.emptyList();
         List<Report> reports = List.of(
                 new BuildStatisticsReport(folder, builds),
@@ -286,8 +287,8 @@ class ReportTest {
 
         htmlReport.outputHTML();
 
-        File htmlReportFile = new File(htmlReport.getOutputDirectory(), htmlReport.getBaseFilename() + ".html");
-
-        assertThat(contentOf(htmlReportFile, StandardCharsets.UTF_8)).startsWith("<!DOCTYPE html>").endsWith("</html>");
+        assertThat(htmlReport.getOutputDirectory().resolve(htmlReport.getBaseFilename() + ".html")).content(UTF_8)
+                .startsWith("<!DOCTYPE html>")
+                .endsWith("</html>");
     }
 }

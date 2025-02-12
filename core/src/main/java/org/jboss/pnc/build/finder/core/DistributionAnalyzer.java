@@ -50,10 +50,11 @@ import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
 import static org.jboss.pnc.build.finder.core.Utils.normalizePath;
 import static org.jboss.pnc.build.finder.core.Utils.shutdownAndAwaitTermination;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -85,7 +86,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileExtensionSelector;
@@ -394,8 +394,15 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         String tmpDir = System.getProperty("java.io.tmpdir");
 
         if (tmpDir != null) {
-            File vfsCacheDir = new File(tmpDir, "vfs_cache");
-            FileUtils.deleteDirectory(vfsCacheDir);
+            Path vfsCacheDir = Path.of(tmpDir, "vfs_cache").toAbsolutePath();
+
+            try (Stream<Path> stream = Files.walk(vfsCacheDir)) {
+                List<Path> paths = stream.sorted(reverseOrder()).toList();
+
+                for (Path path : paths) {
+                    Files.delete(path);
+                }
+            }
         }
     }
 
@@ -429,13 +436,13 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             URI uri = URI.create(input);
             fo = manager.resolveFile(uri);
         } catch (IllegalArgumentException | FileSystemException e) {
-            File file = new File(input);
+            Path path = Path.of(input);
 
-            if (!file.exists()) {
-                throw new IOException("Input file " + file + " does not exist");
+            if (!Files.exists(path) || !Files.isRegularFile(path) || !Files.isReadable(path)) {
+                throw new IOException("Input path " + path + " does not exist, is not a file, or is not readable");
             }
 
-            fo = manager.resolveFile(file.toURI());
+            fo = manager.resolveFile(path.toUri());
         }
 
         if (LOGGER.isInfoEnabled()) {
@@ -824,10 +831,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                 return;
             }
 
-            if (!licenseFile.exists()) {
+            if (!licenseFile.isReadable()) {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn(
-                            "License file {} from {} does not exist",
+                            "License file {} from {} is not a file or is not readable",
                             red(name),
                             red(normalizePath(localFile, root)));
                 }
@@ -877,12 +884,12 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         return Collections.unmodifiableList(inputs);
     }
 
-    public File getChecksumFile(ChecksumType checksumType) {
-        return new File(config.getOutputDirectory(), CHECKSUMS_FILENAME_BASENAME + checksumType + ".json");
+    public Path getChecksumFile(ChecksumType checksumType) {
+        return Path.of(config.getOutputDirectory(), CHECKSUMS_FILENAME_BASENAME + checksumType + ".json");
     }
 
-    public File getLicensesFile() {
-        return new File(config.getOutputDirectory(), LICENSES_FILENAME_BASENAME + ".json");
+    public Path getLicensesFile() {
+        return Path.of(config.getOutputDirectory(), LICENSES_FILENAME_BASENAME + ".json");
     }
 
     public Map<String, Collection<LicenseInfo>> getLicensesMap() {

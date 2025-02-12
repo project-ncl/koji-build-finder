@@ -18,7 +18,7 @@ package org.jboss.pnc.build.finder.core.it;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -49,7 +49,7 @@ class KojiBuildFinderIT extends AbstractKojiIT {
     private static final String URL = System.getProperty(PROPERTY);
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
+    void testChecksumsAndFindBuilds(@TempDir Path folder) throws Exception {
         assertThat(URL)
                 .as("You must set the property %s pointing to the URL of the distribution to test with", PROPERTY)
                 .isNotNull();

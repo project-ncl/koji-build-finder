@@ -15,13 +15,12 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -53,7 +52,7 @@ class ReportIT extends AbstractKojiIT {
     private static final String URL = System.getProperty(PROPERTY);
 
     @Test
-    void testChecksumsAndFindBuildsAndGenerateReports(@TempDir File folder) throws Exception {
+    void testChecksumsAndFindBuildsAndGenerateReports(@TempDir Path folder) throws Exception {
         assertThat(URL)
                 .as("You must set the property %s pointing to the URL of the distribution to test with", PROPERTY)
                 .isNotEmpty();
@@ -95,17 +94,11 @@ class ReportIT extends AbstractKojiIT {
                         finder.getOutputDirectory(),
                         analyzer.getInputs());
 
-                File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
-
-                assertThat(contentOf(nvrTxt, StandardCharsets.UTF_8)).isNotEmpty();
-
-                File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
-
-                assertThat(contentOf(gavTxt)).isNotEmpty();
-
-                File outputHtml = new File(finder.getOutputDirectory(), "output.html");
-
-                assertThat(contentOf(outputHtml)).startsWith("<!DOCTYPE html>").endsWith("</html>");
+                assertThat(finder.getOutputDirectory().resolve("nvr.txt")).content(UTF_8).isNotEmpty();
+                assertThat(finder.getOutputDirectory().resolve("gav.txt")).content(UTF_8).isNotEmpty();
+                assertThat(finder.getOutputDirectory().resolve("output.html")).content(UTF_8)
+                        .startsWith("<!DOCTYPE html>")
+                        .endsWith("</html>");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw e;

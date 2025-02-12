@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.counting;
 import static org.apache.commons.collections.IteratorUtils.unmodifiableIterator;
 import static org.apache.commons.collections4.IteratorUtils.arrayListIterator;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -56,6 +56,12 @@ import j2html.tags.specialized.TableTag;
 public final class ProductReport extends Report {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductReport.class);
 
+    private static final String NAME = "Products";
+
+    private static final String DESCRIPTION = "List of builds partitioned by product (build target)";
+
+    private static final String BASE_FILENAME = "products";
+
     private static final Pattern NAME_VER_PATTERN = Pattern.compile("(?<name>[\\p{Lower}\\-]+)(?<version>[0-9.?]+)?.*");
 
     private static final Pattern SPACE_PATTERN = Pattern.compile("-+");
@@ -66,12 +72,8 @@ public final class ProductReport extends Report {
 
     private final Map<String, List<String>> productMap;
 
-    public ProductReport(File outputDirectory, Collection<KojiBuild> builds) {
-        setName("Products");
-        setDescription("List of builds partitioned by product (build target)");
-        setBaseFilename("products");
-        setOutputDirectory(outputDirectory);
-
+    public ProductReport(Path outputDirectory, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
         List<String> targets = builds.stream()
                 .filter(build -> build.getBuildInfo() != null && build.getBuildInfo().getId() > 0)
                 .filter(

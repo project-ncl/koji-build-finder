@@ -17,7 +17,7 @@ package org.jboss.pnc.build.finder.core.it;
 
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public abstract class AbstractRpmIT extends AbstractKojiIT {
     }
 
     @Test
-    void testChecksumsAndFindBuilds(@TempDir File folder) throws Exception {
+    void testChecksumsAndFindBuilds(@TempDir Path folder) throws Exception {
         Timer timer = REGISTRY.timer(name(AbstractRpmIT.class, "checksums"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
 

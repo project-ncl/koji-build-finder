@@ -15,17 +15,15 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -100,17 +98,18 @@ class RpmReportIT extends AbstractRpmIT {
         // FIXME: Don't hardcode filenames
         Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
 
-        File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
-
-        assertThat(nvrTxt).isFile().isReadable().content().hasLineCount(1).containsPattern("^basesystem-11-13.el9$");
-
-        File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
-
-        assertThat(gavTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
-
-        File outputHtml = new File(finder.getOutputDirectory(), "output.html");
-
-        assertThat(contentOf(outputHtml, StandardCharsets.UTF_8)).startsWith("<!DOCTYPE html>")
+        assertThat(finder.getOutputDirectory().resolve("nvr.txt")).isRegularFile()
+                .isReadable()
+                .content(UTF_8)
+                .hasLineCount(1)
+                .containsPattern("^basesystem-11-13.el9$");
+        assertThat(finder.getOutputDirectory().resolve("gav.txt")).isRegularFile()
+                .isReadable()
+                .content(UTF_8)
+                .hasLineCount(1)
+                .containsOnlyWhitespaces();
+        assertThat(finder.getOutputDirectory().resolve("gav.txt")).content(UTF_8)
+                .startsWith("<!DOCTYPE html>")
                 .contains("rpmID=")
                 .doesNotContain("color:red;font-weight:bold")
                 .endsWith("</html>");

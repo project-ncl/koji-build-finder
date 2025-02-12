@@ -15,9 +15,9 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -93,8 +93,8 @@ public class BuildConfig {
     @JsonAlias("use-checksums-file")
     private Boolean useChecksumsFile;
 
-    public static BuildConfig load(File file) throws IOException {
-        return MAPPER.readValue(file, BuildConfig.class);
+    public static BuildConfig load(Path path) throws IOException {
+        return MAPPER.readValue(path.toFile(), BuildConfig.class);
     }
 
     public static BuildConfig load(String json) throws IOException {
@@ -116,9 +116,9 @@ public class BuildConfig {
         return config;
     }
 
-    public static BuildConfig merge(BuildConfig config, File file) throws IOException {
+    public static BuildConfig merge(BuildConfig config, Path path) throws IOException {
         ObjectReader reader = MAPPER.readerForUpdating(config);
-        return reader.readValue(file);
+        return reader.readValue(path.toFile());
     }
 
     public static BuildConfig merge(BuildConfig config, String json) throws IOException {
@@ -135,8 +135,8 @@ public class BuildConfig {
         return MAPPER.convertValue(baseConfig, BuildConfig.class);
     }
 
-    public void save(File file) throws IOException {
-        JSONUtils.dumpObjectToFile(this, file, MAPPER);
+    public void save(Path path) throws IOException {
+        JSONUtils.dumpObjectToFile(this, path, MAPPER);
     }
 
     public List<String> getArchiveExtensions() {

@@ -15,8 +15,8 @@
  */
 package org.jboss.pnc.build.finder.koji;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,16 +96,16 @@ public final class KojiClientSession extends KojiClient implements ClientSession
             String krbService,
             String krbPrincipal,
             String krbPassword,
-            File krbCCache,
-            File krbKeytab) throws KojiClientException {
+            Path krbCCache,
+            Path krbKeytab) throws KojiClientException {
         super(
                 new SimpleKojiConfigBuilder().withMaxConnections(DEFAULT_MAX_CONNECTIONS)
                         .withTimeout(DEFAULT_TIMEOUT)
                         .withConnectionPoolTimeout(DEFAULT_TIMEOUT)
                         .withKojiURL(url != null ? url.toExternalForm() : null)
                         .withKrbService(krbService)
-                        .withKrbCCache(krbCCache != null ? krbCCache.getPath() : null)
-                        .withKrbKeytab(krbKeytab != null ? krbKeytab.getPath() : null)
+                        .withKrbCCache(krbCCache != null ? krbCCache.toAbsolutePath().toString() : null)
+                        .withKrbKeytab(krbKeytab != null ? krbKeytab.toAbsolutePath().toString() : null)
                         .withKrbPrincipal(krbPrincipal)
                         .withKrbPassword(krbPassword)
                         .build(),

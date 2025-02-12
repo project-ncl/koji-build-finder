@@ -18,8 +18,8 @@ package org.jboss.pnc.build.finder.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.INTEGER;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,12 +86,12 @@ class FileObjectTrackingTest {
                             targetLocation = "AT ENTRY",
                             action = "return linked(\"fileObjectCounter\")") })
     @Test
-    void testObjectCreation(@TempDir File folder) throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+    void testObjectCreation(@TempDir Path folder) throws IOException {
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").toAbsolutePath().toString());
 
         BuildConfig config = new BuildConfig();
 
-        config.setOutputDirectory(folder.getPath());
+        config.setOutputDirectory(folder.toAbsolutePath().toString());
         config.setArchiveExtensions(Collections.emptyList());
 
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);

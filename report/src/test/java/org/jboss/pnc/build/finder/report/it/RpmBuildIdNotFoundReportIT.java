@@ -15,15 +15,13 @@
  */
 package org.jboss.pnc.build.finder.report.it;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
 import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -113,18 +111,18 @@ class RpmBuildIdNotFoundReportIT extends AbstractRpmIT {
 
         // FIXME: Don't hardcode filenames
         Report.generateReports(getConfig(), finder.getBuilds(), finder.getOutputDirectory(), analyzer.getInputs());
-
-        File nvrTxt = new File(finder.getOutputDirectory(), "nvr.txt");
-
-        assertThat(nvrTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
-
-        File gavTxt = new File(finder.getOutputDirectory(), "gav.txt");
-
-        assertThat(gavTxt).isFile().isReadable().content().hasLineCount(1).containsOnlyWhitespaces();
-
-        File outputHtml = new File(finder.getOutputDirectory(), "output.html");
-
-        assertThat(contentOf(outputHtml, StandardCharsets.UTF_8)).startsWith("<!DOCTYPE html>")
+        assertThat(finder.getOutputDirectory().resolve("nvr.txt")).isRegularFile()
+                .isReadable()
+                .content(UTF_8)
+                .hasLineCount(1)
+                .containsOnlyWhitespaces();
+        assertThat(finder.getOutputDirectory().resolve("gav.txt")).isRegularFile()
+                .isReadable()
+                .content(UTF_8)
+                .hasLineCount(1)
+                .containsOnlyWhitespaces();
+        assertThat(finder.getOutputDirectory().resolve("output.html")).content(UTF_8)
+                .startsWith("<!DOCTYPE html>")
                 .contains("rpmID=", "color:red;font-weight:700")
                 .endsWith("</html>");
     }

@@ -15,13 +15,12 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -139,17 +138,17 @@ class BuildConfigTest {
     }
 
     @Test
-    void testSave(@TempDir File folder) throws IOException {
+    void testSave(@TempDir Path folder) throws IOException {
         String json = "{\"archive-types\":[\"jar\"]," + "\"excludes\":\"^(?!.*/pom\\\\.xml$).*/.*\\\\.xml$\","
                 + "\"checksum-only\":true," + "\"checksum-type\":\"md5\"}";
         BuildConfig bc = BuildConfig.load(json);
-        File file = new File(folder, "config.json");
+        Path path = folder.resolve("config.json");
 
-        bc.save(file);
+        bc.save(path);
 
-        assertThat(contentOf(file, StandardCharsets.UTF_8)).contains("  \"archive_types\" : [ \"jar\" ],");
+        assertThat(path).content(UTF_8).contains("  \"archive_types\" : [ \"jar\" ],");
 
-        BuildConfig bc2 = BuildConfig.load(file);
+        BuildConfig bc2 = BuildConfig.load(path);
 
         assertThat(bc2).hasToString(bc.toString());
     }

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,9 +34,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 class ChecksumTest {
     @Test
-    void testMissingFile(@TempDir File folder) {
+    void testMissingFile(@TempDir Path folder) {
         assertThatThrownBy(() -> {
-            try (FileObject fo = VFS.getManager().resolveFile(folder, "missing.zip");
+            try (FileObject fo = VFS.getManager().resolveFile(folder.resolve("missing.zip").toUri());
                     FileContent fc = fo.getContent()) {
                 Checksum.determineFileSize(fc);
             }

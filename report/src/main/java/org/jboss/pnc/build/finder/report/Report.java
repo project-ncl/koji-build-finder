@@ -15,9 +15,9 @@
  */
 package org.jboss.pnc.build.finder.report;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,18 +28,25 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 
 public abstract class Report {
-    private String name;
+    private final String name;
 
-    private String description;
+    private final String description;
 
-    private String baseFilename;
+    private final String baseFilename;
 
-    private File outputDirectory;
+    private final Path outputDirectory;
+
+    protected Report(String name, String description, String baseFilename, Path outputDirectory) {
+        this.name = name;
+        this.description = description;
+        this.baseFilename = baseFilename;
+        this.outputDirectory = outputDirectory;
+    }
 
     public static void generateReports(
             BuildConfig config,
             List<KojiBuild> buildList,
-            File outputDirectory,
+            Path outputDirectory,
             List<String> files) throws IOException {
         List<Report> reports = List.of(
                 new BuildStatisticsReport(outputDirectory, buildList),
@@ -73,7 +80,7 @@ public abstract class Report {
             return;
         }
 
-        Files.writeString(new File(outputDirectory, baseFilename + ".txt").toPath(), renderText.get());
+        Files.writeString(outputDirectory.resolve(baseFilename + ".txt"), renderText.get());
     }
 
     public abstract ContainerTag<? extends Tag<?>> toHTML();
@@ -85,39 +92,23 @@ public abstract class Report {
             return;
         }
 
-        Files.writeString(new File(outputDirectory, baseFilename + ".html").toPath(), renderText.get());
+        Files.writeString(outputDirectory.resolve(baseFilename + ".html"), renderText.get());
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getBaseFilename() {
         return baseFilename;
     }
 
-    public void setBaseFilename(String baseFilename) {
-        this.baseFilename = baseFilename;
-    }
-
-    public File getOutputDirectory() {
+    public Path getOutputDirectory() {
         return outputDirectory;
-    }
-
-    public void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
     }
 
     @Override

@@ -21,7 +21,6 @@ import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -66,11 +65,11 @@ class DistributionAnalyzerTest {
 
     @Disabled("Disabled for performance reasons")
     @Test
-    void testSize(@TempDir File folder) throws IOException {
-        File test = new File(folder, "test-size");
-        List<String> af = Collections.singletonList(test.getPath());
+    void testSize(@TempDir Path folder) throws IOException {
+        Path test = folder.resolve("test-size");
+        List<String> af = Collections.singletonList(test.toAbsolutePath().toString());
 
-        try (RandomAccessFile file = new RandomAccessFile(test, MODE)) {
+        try (RandomAccessFile file = new RandomAccessFile(test.toFile(), MODE)) {
             file.setLength(ONE_GB << 1L);
             BuildConfig config = new BuildConfig();
             config.setArchiveExtensions(Collections.emptyList());
@@ -81,14 +80,14 @@ class DistributionAnalyzerTest {
     }
 
     @Test
-    void testType(@TempDir File folder) throws IOException {
+    void testType(@TempDir Path folder) throws IOException {
         String[] types = { "test.res", "test.ram", "test.tmp", "test.file" };
         List<String> af = new ArrayList<>(types.length);
 
         for (String type : types) {
-            File test = new File(folder, "test-type-" + type);
-            Files.createFile(test.toPath());
-            af.add(test.getPath());
+            Path test = folder.resolve("test-type-" + type);
+            Files.createFile(test);
+            af.add(test.toAbsolutePath().toString());
         }
 
         BuildConfig config = new BuildConfig();
@@ -101,19 +100,19 @@ class DistributionAnalyzerTest {
     // XXX: Skip on Windows due to <https://issues.apache.org/jira/browse/VFS-634>
     @DisabledOnOs(OS.WINDOWS)
     @Test
-    void testCacheClearance(@TempDir File folder) throws IOException {
-        try (Stream<Path> stream = Files.walk(folder.toPath())) {
+    void testCacheClearance(@TempDir Path folder) throws IOException {
+        try (Stream<Path> stream = Files.walk(folder)) {
             Collection<Path> ls = stream.toList();
             assertThat(ls).hasSize(1);
         }
 
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
         da.checksumFiles();
 
-        try (Stream<Path> stream = Files.walk(folder.toPath())) {
+        try (Stream<Path> stream = Files.walk(folder)) {
             Collection<Path> files = stream.toList();
             assertThat(files).hasSize(1);
         }
@@ -121,7 +120,7 @@ class DistributionAnalyzerTest {
 
     @Test
     void testLoadNestedZip() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
@@ -132,7 +131,7 @@ class DistributionAnalyzerTest {
 
     @Test
     void testLoadNestedWar() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.war").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
@@ -144,7 +143,7 @@ class DistributionAnalyzerTest {
     @StdIo
     @Test
     void testLoadManPageZip(StdOut out) throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("symbolic.zip").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
@@ -157,7 +156,7 @@ class DistributionAnalyzerTest {
 
     @Test
     void testLoadNestedZipMultiThreaded() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         DistributionAnalyzer da = new DistributionAnalyzer(target, config);
@@ -168,7 +167,7 @@ class DistributionAnalyzerTest {
 
     @Test
     void testLoadNestedZipMultiThreadedMultipleChecksumTypes() throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile("nested.zip").toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         config.setChecksumTypes(EnumSet.allOf(ChecksumType.class));
@@ -212,7 +211,7 @@ class DistributionAnalyzerTest {
     @ParameterizedTest
     @MethodSource("stringIntProvider")
     void testLoadNestedNoRecursion(String filename, int numChecksums) throws IOException {
-        List<String> target = Collections.singletonList(TestUtils.loadFile(filename).getPath());
+        List<String> target = Collections.singletonList(TestUtils.loadFile(filename).toAbsolutePath().toString());
         BuildConfig config = new BuildConfig();
         config.setArchiveExtensions(Collections.emptyList());
         config.setDisableRecursion(true);

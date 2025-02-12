@@ -21,9 +21,10 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -130,7 +131,7 @@ public final class Main implements Callable<Void> {
     private Long cacheLifespan = ConfigDefaults.CACHE_LIFESPAN;
 
     @Option(names = { "-c", "--config" }, paramLabel = "FILE", description = "Specify configuration file to use.")
-    private File configFile = new File(ConfigDefaults.CONFIG);
+    private Path configFile = Path.of(ConfigDefaults.CONFIG);
 
     @Option(names = { "-d", "--debug" }, description = "Enable debug logging.")
     private boolean debug;
@@ -164,10 +165,10 @@ public final class Main implements Callable<Void> {
     private URL kojiWebURL = ConfigDefaults.KOJI_WEB_URL;
 
     @Option(names = "--krb-ccache", paramLabel = "FILE", description = "Set location of Kerberos credential cache.")
-    private File krbCCache;
+    private Path krbCCache;
 
     @Option(names = "--krb-keytab", paramLabel = "FILE", description = "Set location of Kerberos keytab.")
-    private File krbKeytab;
+    private Path krbKeytab;
 
     @Option(
             names = "--krb-password",
@@ -184,7 +185,7 @@ public final class Main implements Callable<Void> {
     private String krbService;
 
     @Option(names = { "-o", "--output-directory" }, paramLabel = "FILE", description = "Set output directory.")
-    private File outputDirectory = new File(ConfigDefaults.OUTPUT_DIR);
+    private Path outputDirectory = Path.of(ConfigDefaults.OUTPUT_DIR);
 
     @Option(names = "--pnc-num-threads", paramLabel = "LONG", description = "Set Pnc thread number.")
     private Long pncNumThreads = ConfigDefaults.PNC_NUM_THREADS;
@@ -282,7 +283,7 @@ public final class Main implements Callable<Void> {
         BuildConfig defaults = BuildConfig.load(cl);
         BuildConfig config;
 
-        if (configFile.exists()) {
+        if (Files.isRegularFile(configFile) && Files.isReadable(configFile)) {
             LOGGER.info("Using configuration file: {}", green(configFile));
 
             if (defaults == null) {
@@ -420,7 +421,7 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
-        String cacheLocation = new File(ConfigDefaults.CACHE_LOCATION).getAbsolutePath();
+        String cacheLocation = Path.of(ConfigDefaults.CACHE_LOCATION).toAbsolutePath().toString();
 
         globalConfig.globalState()
                 .persistentLocation(cacheLocation)
@@ -481,22 +482,26 @@ public final class Main implements Callable<Void> {
         }
     }
 
-    private static void writeConfiguration(File configFile, BuildConfig config) {
-        if (!configFile.exists()) {
-            File configDir = configFile.getParentFile();
+    private static void writeConfiguration(Path configFile, BuildConfig config) {
+        if (Files.exists(configFile)) {
+            if (!Files.isRegularFile(configFile)) {
+                LOGGER.warn("Could not write configuration file {}: not a file", red(configFile));
+            }
 
+            return;
+        }
+
+        Path configDir = configFile.getParent();
+
+        try {
             if (configDir != null) {
-                boolean ret = configDir.mkdirs();
-
-                LOGGER.debug("mkdirs returned {}", ret);
+                Files.createDirectories(configDir);
             }
 
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                LOGGER.warn("Error writing configuration file: {}", red(e.getMessage()));
-                LOGGER.debug("Error", e);
-            }
+            config.save(configFile);
+        } catch (IOException e) {
+            LOGGER.warn("Error writing configuration file {}: {}", red(configFile), red(e.getMessage()));
+            LOGGER.debug("Error", e);
         }
     }
 
@@ -536,9 +541,11 @@ public final class Main implements Callable<Void> {
 
         writeConfiguration(configFile, config);
 
-        boolean ret = outputDirectory.mkdirs();
-
-        LOGGER.debug("mkdirs returned {}", ret);
+        try {
+            Files.createDirectories(outputDirectory);
+        } catch (IOException e) {
+            LOGGER.error("Failed to create output directory {}: {}", boldRed(outputDirectory), boldRed(e.getMessage()));
+        }
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
@@ -555,9 +562,9 @@ public final class Main implements Callable<Void> {
 
         if (Boolean.TRUE.equals(config.getUseChecksumsFile())) {
             for (ChecksumType checksumType : checksumTypes) {
-                File checksumFile = new File(outputDirectory, BuildFinder.getChecksumFilename(checksumType));
+                Path checksumFile = outputDirectory.resolve(BuildFinder.getChecksumFilename(checksumType));
 
-                if (checksumFile.exists()) {
+                if (Files.isRegularFile(checksumFile) && Files.isReadable(checksumFile)) {
                     checksumsFromFile.put(checksumType, new ArrayListValuedHashMap<>()); // TODO: size
 
                     LOGGER.info("Loading checksums from file: {}", green(checksumFile));
@@ -580,7 +587,7 @@ public final class Main implements Callable<Void> {
                         System.exit(1);
                     }
                 } else {
-                    LOGGER.error("File {} does not exist", boldRed(checksumFile));
+                    LOGGER.error("File {} does not exist or is not readable", boldRed(checksumFile));
                     System.exit(1);
                 }
             }
@@ -651,11 +658,13 @@ public final class Main implements Callable<Void> {
 
         BuildFinder finder;
         Map<BuildSystemInteger, KojiBuild> builds = null;
-        File buildsFile = new File(outputDirectory, BuildFinder.getBuildsFilename());
+        Path buildsFile = outputDirectory.resolve(BuildFinder.getBuildsFilename());
 
         if (Boolean.TRUE.equals(config.getUseBuildsFile())) {
-            if (buildsFile.exists()) {
-                LOGGER.info("Loading builds from file: {}", green(buildsFile.getPath()));
+            if (Files.isRegularFile(buildsFile) && Files.isReadable(buildsFile)) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Loading builds from file: {}", green(buildsFile.toAbsolutePath().getParent()));
+                }
 
                 try {
                     builds = KojiJSONUtils.loadBuildsFile(buildsFile);

@@ -15,10 +15,10 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class TestUtils {
@@ -26,17 +26,21 @@ public final class TestUtils {
         throw new AssertionError();
     }
 
-    static File resolveFileResource(String resourceBase, String resourceName) throws IOException {
-        URL resource = Thread.currentThread().getContextClassLoader().getResource(resourceBase + resourceName);
+    static Path resolveFileResource() throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("");
 
         if (resource == null) {
-            throw new IOException("Unable to locate resource for: " + resourceBase + resourceName);
+            throw new IOException("Unable to locate resource directory");
         }
 
-        return new File(resource.getPath());
+        try {
+            return Path.of(resource.toURI()).toAbsolutePath();
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
-    public static File loadFile(String file) throws IOException {
+    public static Path loadFile(String file) throws IOException {
         URL url = Thread.currentThread().getContextClassLoader().getResource(file);
 
         if (url == null) {
@@ -44,7 +48,7 @@ public final class TestUtils {
         }
 
         try {
-            return Paths.get(url.toURI()).toFile();
+            return Paths.get(url.toURI());
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }

@@ -21,7 +21,6 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
 import static org.jboss.pnc.build.finder.core.Utils.BANG_SLASH;
 import static org.jboss.pnc.build.finder.core.Utils.getAllErrorMessages;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -114,7 +113,7 @@ public class BuildFinder
 
     private final Map<Integer, KojiBuild> allKojiBuilds;
 
-    private File outputDirectory;
+    private Path outputDirectory;
 
     private final DistributionAnalyzer analyzer;
 
@@ -160,7 +159,7 @@ public class BuildFinder
             PncClient pncclient) {
         this.session = session;
         this.config = config;
-        this.outputDirectory = new File("");
+        this.outputDirectory = Path.of("");
         this.analyzer = analyzer;
         this.cacheManager = cacheManager;
         // this.allKojiBuilds = Maps.newHashMapWithExpectedSize(ALL_KOJI_BUILDS_SIZE);
@@ -1241,16 +1240,16 @@ public class BuildFinder
         return Collections.unmodifiableMap(notFoundChecksums);
     }
 
-    public File getOutputDirectory() {
+    public Path getOutputDirectory() {
         return outputDirectory;
     }
 
-    public void setOutputDirectory(File outputDirectory) {
+    public void setOutputDirectory(Path outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
     public void outputToFile() throws IOException {
-        JSONUtils.dumpObjectToFile(builds, new File(outputDirectory, getBuildsFilename()));
+        JSONUtils.dumpObjectToFile(builds, outputDirectory.resolve(getBuildsFilename()));
     }
 
     @Override
