@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.collections4.MapUtils;
@@ -129,17 +128,21 @@ public final class PncUtils {
 
         BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
 
-        if (buildType != BuildType.NPM) { // need at least G:A
+        // need at least G:A
+        if (buildType != BuildType.NPM) {
             if (identSplit.length < 2) {
                 return NO_BUILD_BREW_NAME;
             }
+
             return identSplit[0] + "-" + identSplit[1];
-        } else { // should always be N:V
-            if (identSplit.length != 2) {
-                return NO_BUILD_BREW_NAME;
-            }
-            return identSplit[0];
         }
+
+        // should always be N:V
+        if (identSplit.length != 2) {
+            return NO_BUILD_BREW_NAME;
+        }
+
+        return identSplit[0];
     }
 
     private static String getBrewVersionFromArtifacts(PncBuild build) {
@@ -151,17 +154,21 @@ public final class PncUtils {
 
         BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
 
-        if (buildType != BuildType.NPM) { // needs to be at least G:A:P:V to extract V
+        // needs to be at least G:A:P:V to extract V
+        if (buildType != BuildType.NPM) {
             if (identSplit.length < 4) {
                 return NO_BUILD_BREW_NAME;
             }
+
             return identSplit[3];
-        } else {// should always be N:V
-            if (identSplit.length != 2) {
-                return NO_BUILD_BREW_NAME;
-            }
-            return identSplit[1];
         }
+
+        // should always be N:V
+        if (identSplit.length != 2) {
+            return NO_BUILD_BREW_NAME;
+        }
+
+        return identSplit[1];
     }
 
     private static String[] getIdentifierPartsFromArtifact(PncBuild build) {
@@ -324,6 +331,7 @@ public final class PncUtils {
             archiveInfo.setSize(-1);
         }
 
+        // TODO: How do we set ArtifactInfo for NPM builds?
         if (buildType != BuildType.NPM) {
             String[] gaecv = artifact.getIdentifier().split(":");
 
@@ -334,8 +342,6 @@ public final class PncUtils {
                 archiveInfo.setVersion(gaecv[3]);
                 archiveInfo.setClassifier(gaecv.length > 4 ? gaecv[4] : null);
             }
-        } else {
-            // TODO: How do we set ArtifactInfo for NPM builds?
         }
 
         return archiveInfo;
