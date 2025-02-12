@@ -64,7 +64,7 @@ public class MultiValuedMapProtobufWrapper<K, V> extends HashSetValuedHashMap<K,
     }
 
     /**
-     * POJO representing the key and list of values of MultiValuedMap for Protobuf.
+     * POJO representing the key and values list for the MultiValuedMap for Protobuf.
      * <p>
      * The key and values are marshalled as a WrappedMessage. In theory, the WrappedMessage object should know how to
      * marshall primitives, enums, and other POJO objects which can be marshalled by Protobuf (as long as they are in

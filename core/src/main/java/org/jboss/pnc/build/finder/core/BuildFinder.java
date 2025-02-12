@@ -534,11 +534,13 @@ public class BuildFinder
     }
 
     /**
-     * This method takes as input a filename which could not be found in the analysis (for example
-     * "foo.tar!/foo/bar.zip!/bar/jansi-1.18.0.redhat-00001.jar"). It will iterate over all the builds local archives
+     * This method takes as input a filename which could not be found in the analysis (for example,
+     * "foo.tar!/foo/bar.zip!/bar/jansi-1.18.0.redhat-00001.jar").
+     * It will iterate over all of a build's local archives
      * and search the ones that have a file name matching the parent of the filename specified (in this example
-     * "foo.tar!/foo/bar.zip"). If a match is found it will add the provided filename to the list of the unmatched
-     * filenames of the local archive. This method will iterate recursively on all the parents of the filename (parents
+     * "foo.tar!/foo/bar.zip").
+     * If a match is found, it will add the provided filename to the list of unmatched
+     * filenames for the local archive. This method will iterate recursively on all the parents of the filename (parents
      * are separated by "!/") until a local archive is matched.
      *
      * @param filename the filename
@@ -587,10 +589,10 @@ public class BuildFinder
     }
 
     /**
-     * This method accepts the name of a file which was found in the analysis. It will search all the builds local
+     * This method accepts the name of a file which was found in the analysis. It will search all the build's local
      * archives, whose name matches the parent of the filename specified, and removes the provided filename from the
-     * list of the unmatched filenames associated with the local archive. This in case a filename could not be found
-     * using a particular checksum type, but then was found later using another checksum type.
+     * list of the unmatched filenames associated with the local archive. This is in case a filename could not be
+     * found using a particular checksum type, but then was found later using another checksum type.
      *
      * @param filename the filename
      * @return the parent of the file name (separated by &quot;!/&quot;)
@@ -708,7 +710,7 @@ public class BuildFinder
         }
 
         /*
-         * For any checksum which was not already in the cache, get a list of KojiArchiveInfo by submitting a list of
+         * For any checksum that was not already in the cache, get a list of KojiArchiveInfo by submitting a list of
          * KojiArchiveQuery with a checksum value to find.
          */
         int numThreads = config.getKojiNumThreads();
@@ -782,7 +784,7 @@ public class BuildFinder
         session.enrichArchiveTypeInfo(archivesToEnrich);
 
         /*
-         * For any KojiArchiveInfo create a protobuf wrapper and add it to the checksum cache.
+         * For any KojiArchiveInfo, create a protobuf wrapper and add it to the checksum cache.
          */
         Iterator<KojiArchiveQuery> itqueries = allQueries.iterator();
 

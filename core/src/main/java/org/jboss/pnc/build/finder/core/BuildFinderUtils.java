@@ -203,9 +203,9 @@ public final class BuildFinderUtils {
 
     /**
      * Adds the checksum to the buildZero. If there is already a local archive associated with the checksum inside the
-     * buildZero, adds the filename to the filenames associated with that archive. Since the same checksum might have
-     * already been unfound (with a different checksum type), the archives are matched by any checksum associated with
-     * them, not just the same checksum type.
+     * buildZero, this method adds the filename to the filenames associated with that archive. Since the same checksum
+     * might have already been unfound (with a different checksum type), the archives are matched by any checksum
+     * associated with them, not just the same checksum type.
      *
      * @param buildZero the build which is associated with all the not found archives
      * @param checksum the checksum which was not found
@@ -450,7 +450,7 @@ public final class BuildFinderUtils {
             Collection<String> files = entry.getValue();
 
             if (checksum.getType().equals(preferredChecksumType)) {
-                // If the checksum type is already the preferred type there is no need to search further
+                // If the checksum type is already the preferred type, then there is no need to search further
                 preferredChecksumMap.put(checksum, files);
                 continue;
             }

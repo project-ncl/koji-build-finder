@@ -88,7 +88,7 @@ public final class PncUtils {
     }
 
     private static void setMavenBuildInfoFromBuildRecord(PncBuild build, KojiBuildInfo buildInfo) {
-        // PNC brew name for maven builds is in format of G:A
+        // PNC brew name for maven builds is in the format "G:A"
         String brewName = getBrewName(build);
         String[] ga = brewName.split("-", 2);
         if (ga.length >= 2) {
@@ -96,7 +96,7 @@ public final class PncUtils {
             buildInfo.setMavenArtifactId(ga[1]);
         }
 
-        // PNC brew version for maven builds is in format of V
+        // PNC brew version for maven builds is in the format "V"
         String brewVersion = getBrewVersion(build);
         buildInfo.setMavenVersion(brewVersion);
     }

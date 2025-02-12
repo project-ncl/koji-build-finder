@@ -95,7 +95,7 @@ class EmptyBuildsTest extends AbstractWireMockTest {
 
     @Test
     void testSkipOnEmptyZipFile() throws KojiClientException {
-        // 76cdb2bad9582d23c1f6f4d868218d6c is md5 for empty zip file with size of 22 bytes
+        // 76cdb2bad9582d23c1f6f4d868218d6c is the md5 of an empty zip file with size of 22 bytes
         String filename = "empty.zip";
         Collection<String> filenames = Collections.singletonList(filename);
         Checksum checksum = new Checksum(ChecksumType.md5, "76cdb2bad9582d23c1f6f4d868218d6c", filename, 22);

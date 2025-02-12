@@ -102,7 +102,7 @@ public final class MavenUtils {
      *
      * @param pomFileObject the POM file object
      * @return the Maven project
-     * @throws InterpolationException if an error occurs interpolating the Maven properties
+     * @throws InterpolationException if an error occurs while interpolating the Maven properties
      * @throws IOException if an error occurs when reading from the file
      * @throws XmlPullParserException if an error occurs when parsing the POM file
      */
@@ -145,7 +145,7 @@ public final class MavenUtils {
      *
      * @param project the Maven project
      * @param source the license source
-     * @return the list of Maven projects (may be empty)
+     * @return the list of Maven projects (which may be empty)
      */
     public static List<LicenseInfo> getLicenses(MavenProject project, LicenseSource source) {
         return project.getLicenses().stream().map(license -> new LicenseInfo(license, source)).toList();
@@ -157,8 +157,8 @@ public final class MavenUtils {
      *
      * @param pomFileObject the POM file object
      * @param source the license source
-     * @return a map with the key the GAV of the POM file and the value the list of licenses (may be empty)
-     * @throws InterpolationException if an error occurs interpolating the Maven properties
+     * @return a map with the key the GAV of the POM file and the value the list of licenses (whivh may be empty)
+     * @throws InterpolationException if an error occurs while interpolating the Maven properties
      * @throws IOException if an error occurs when reading from the file
      * @throws XmlPullParserException if an error occurs when parsing the POM file
      */

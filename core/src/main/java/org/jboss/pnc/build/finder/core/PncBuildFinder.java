@@ -181,7 +181,7 @@ public class PncBuildFinder {
     }
 
     /**
-     * A build produces multiple artifacts. This method associates all the artifacts to the one PncBuild
+     * A build produces multiple artifacts. This method associates all the artifacts with the one PncBuild
      *
      * @param artifacts All found artifacts
      * @return A map pncBuildId,pncBuild

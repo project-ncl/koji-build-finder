@@ -173,10 +173,10 @@ public final class SpdxLicenseUtils {
     /**
      * Tries to find the given license string in the license map. The license string may be either a license name or a
      * license URL. A URL is detected automatically by looking for <code>:/</code> in the license string. If a URL is
-     * detected, the URLs are then normalized. The normalization is a follows:
+     * detected, the URLs are then normalized. The normalization is as follows:
      * <ol>
      * <li>Call <code>URI::normalize</code></li>
-     * <li>Remove www. from the host</li>
+     * <li>Remove "www." from the host</li>
      * <li>Replace creativecommons with cc in the host (since CC is used for the SPDX short license identifiers)</li>
      * <li>Remove any trailing slash</li>
      * </ol>
@@ -220,7 +220,7 @@ public final class SpdxLicenseUtils {
      * </ol>
      * Words are searched for in order ignoring case and punctuation. Words are tokenized according to whitespace (for
      * the name) and slashes (for the URL). Additionally, numeric versions are currently treated as separate tokens,
-     * e.g, 1.0 is treated as the word 1 and the word 0.
+     * e.g., 1.0 is treated as the word 1 and the word 0.
      *
      * @param licenseName the license name
      * @return the license URL (which may be <code>null</code>)
@@ -363,7 +363,7 @@ public final class SpdxLicenseUtils {
      *
      * @param licenseName the license name
      * @param licenseUrl the license URL
-     * @return the match if any, otherwise empty
+     * @return the match, if any, otherwise empty
      */
     public static Optional<String> findMatchingLicense(String licenseName, String licenseUrl) {
         return findMatchingLicenseId(licenseName).or(() -> findMatchingLicenseName(licenseName, licenseUrl))
@@ -522,10 +522,10 @@ public final class SpdxLicenseUtils {
      * The license mapping JSON file (<code>build-finder-license-mapping.json</code>) is loaded into a map. The map keys
      * consist of SPDX license short identifiers, e.g., <code>Apache-2.0</code>). The values are either a license URL or
      * license name. These fields correspond to the values in the Maven POM for the license. It is generally preferred
-     * to use a URL as a name may be ambiguous, e.g., how do we know which BSD license the name &quot;BSD&quot; refers
+     * to use a URL as a name may be ambiguous, e.g., how do we know which BSD license the name "BSD" refers
      * to.
      * <p/>
-     * The license file is validated while loading in order to make sure that the license identifiers are valid.
+     * The license file is validated while loading to make sure that the license identifiers are valid.
      * <em>Note that even though SPDX identifiers are considered to be case-insensitive, the mapping file requires the
      * canonical names of the license identifiers from the license list.</em>
      *

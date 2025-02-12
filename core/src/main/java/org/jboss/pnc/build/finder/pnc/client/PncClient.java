@@ -28,7 +28,7 @@ import org.jboss.pnc.dto.ProductVersion;
  */
 public interface PncClient extends AutoCloseable {
     /**
-     * Get a list of artifacts with matching md5. Returns empty list if no matching artifacts
+     * Get a list of artifacts with matching md5. Returns an empty list if no matching artifacts
      *
      * @param md5 md5 value
      * @return list of artifacts
@@ -38,7 +38,7 @@ public interface PncClient extends AutoCloseable {
     RemoteCollection<Artifact> getArtifactsByMd5(String md5) throws RemoteResourceException;
 
     /**
-     * Get a list of artifacts with matching sha1. Returns empty list if no matching artifacts
+     * Get a list of artifacts with matching sha1. Returns an empty list if no matching artifacts
      *
      * @param sha1 sha1 value
      * @return list of artifacts
@@ -48,7 +48,7 @@ public interface PncClient extends AutoCloseable {
     RemoteCollection<Artifact> getArtifactsBySha1(String sha1) throws RemoteResourceException;
 
     /**
-     * Get a list of artifacts with matching sha256. Returns empty list if no matching artifacts
+     * Get a list of artifacts with matching sha256. Returns an empty list if no matching artifacts
      *
      * @param sha256 sha256 value
      * @return list of artifacts
@@ -67,7 +67,7 @@ public interface PncClient extends AutoCloseable {
     BuildPushResult getBuildPushResult(String buildId) throws RemoteResourceException;
 
     /**
-     * Lookups ProductVersion which ProductMilestone is associated with
+     * Looks up the ProductVersion that the ProductMilestone is associated with
      *
      * @param productMilestoneId ID of a ProductMilestone
      * @return ProductVersion entity

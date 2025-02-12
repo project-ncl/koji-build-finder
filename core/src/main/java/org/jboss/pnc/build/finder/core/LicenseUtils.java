@@ -199,7 +199,7 @@ public final class LicenseUtils {
      *
      * @param manifestFileObject the file object
      * @return the list of licenses from the <code>Bundle-License</code> manifest header, if any
-     * @throws IOException if an error occurs reading from the file object
+     * @throws IOException if an error occurs while reading from the file object
      */
     public static List<BundleLicense> getBundleLicenseFromManifest(FileObject manifestFileObject) throws IOException {
         try (FileContent fc = manifestFileObject.getContent(); InputStream in = fc.getInputStream()) {

@@ -30,7 +30,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Implementation of adapter to communicate with PNC Orchestrator REST API, which caches the results in HashMaps or ISPN
- * (if enabled) to improve performance of the application
+ * (if enabled) to improve the performance of the application
  *
  * @author Jakub Bartecek
  */
