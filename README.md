@@ -363,8 +363,8 @@ the builds.
 
 #### Problems flagged
 
-The report currently reports total builds, including number of builds
-that are *imports*. Additionally, it reports:
+The report currently reports total builds, including the number of
+builds  that are *imports*. Additionally, it reports:
 
 * Matching files with no Koji build associated. These are potentially
   files that need to be rebuilt from source, for example, a dynamic
@@ -378,7 +378,7 @@ that are *imports*. Additionally, it reports:
 
 ### Statistics Report
 
-This is an HTML-based report which displays various statistics about the
+This is an HTML-based report that displays various statistics about the
 distribution, including the number and percentage of builds and
 artifacts built from source. Note that the total number of artifacts
 includes *not-found* artifacts. If you wish to exclude these not-found
@@ -387,7 +387,7 @@ regular-expression pattern(s).
 
 ### Products Report
 
-This is an HTML-based report which displays the list of builds
+This is an HTML-based report that displays the list of builds
 partitioned by product (Koji build target). Note that the report tries
 to find a minimal set of products which cover the set of builds.
 Therefore, there will only be one product shown per build, even if the
