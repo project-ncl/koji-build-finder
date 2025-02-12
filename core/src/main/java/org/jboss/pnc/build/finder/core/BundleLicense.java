@@ -138,18 +138,15 @@ public class BundleLicense {
                 String v = removeQuotes(kv[1]);
 
                 switch (k) {
-                    case LINK:
+                    case LINK -> {
                         if (!LicenseUtils.isUrl(v)) {
                             throw new IOException("Expected URL, but got " + v);
                         }
 
                         bundleLicense.setLink(v);
-                        break;
-                    case DESCRIPTION:
-                        bundleLicense.setDescription(v);
-                        break;
-                    default:
-                        throw new IOException("Unknown key " + k);
+                    }
+                    case DESCRIPTION -> bundleLicense.setDescription(v);
+                    default -> throw new IOException("Unknown key " + k);
                 }
             }
         }

@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.collections4.MapUtils;
@@ -127,25 +128,18 @@ public final class PncUtils {
         }
 
         BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
-        switch (buildType) {
-            case NPM:
-                // should always be N:V
-                if (identSplit.length != 2) {
-                    break;
-                }
-                return identSplit[0];
-            case MVN:
-            case GRADLE:
-            case SBT:
-            default:
-                // need at least G:A
-                if (identSplit.length < 2) {
-                    break;
-                }
-                return identSplit[0] + "-" + identSplit[1];
-        }
 
-        return NO_BUILD_BREW_NAME;
+        if (buildType != BuildType.NPM) { // need at least G:A
+            if (identSplit.length < 2) {
+                return NO_BUILD_BREW_NAME;
+            }
+            return identSplit[0] + "-" + identSplit[1];
+        } else { // should always be N:V
+            if (identSplit.length != 2) {
+                return NO_BUILD_BREW_NAME;
+            }
+            return identSplit[0];
+        }
     }
 
     private static String getBrewVersionFromArtifacts(PncBuild build) {
@@ -156,26 +150,18 @@ public final class PncUtils {
         }
 
         BuildType buildType = build.getBuild().getBuildConfigRevision().getBuildType();
-        switch (buildType) {
-            case NPM:
-                // should always be N:V
-                if (identSplit.length != 2) {
-                    break;
-                }
-                return identSplit[1];
-            case MVN:
-            case GRADLE:
-            case SBT:
-            default:
-                // needs to be at least G:A:P:V to extract V
-                if (identSplit.length < 4) {
-                    break;
-                }
-                return identSplit[3];
+
+        if (buildType != BuildType.NPM) { // needs to be at least G:A:P:V to extract V
+            if (identSplit.length < 4) {
+                return NO_BUILD_BREW_NAME;
+            }
+            return identSplit[3];
+        } else {// should always be N:V
+            if (identSplit.length != 2) {
+                return NO_BUILD_BREW_NAME;
+            }
+            return identSplit[1];
         }
-
-        return NO_BUILD_BREW_NAME;
-
     }
 
     private static String[] getIdentifierPartsFromArtifact(PncBuild build) {
@@ -285,20 +271,11 @@ public final class PncUtils {
 
     private static void addPncBuildTypeToExtra(BuildType buildType, Map<String, Object> extra) {
         switch (buildType) {
-            case NPM:
-                extra.put(EXTERNAL_BUILD_TYPE, NPM);
-                break;
-            case GRADLE:
-                extra.put(EXTERNAL_BUILD_TYPE, GRADLE);
-                break;
-            case SBT:
-                extra.put(EXTERNAL_BUILD_TYPE, SBT);
-                break;
-            case MVN:
-                extra.put(EXTERNAL_BUILD_TYPE, MAVEN);
-                break;
-            default:
-                extra.put(EXTERNAL_BUILD_TYPE, UNKNOWN);
+            case NPM -> extra.put(EXTERNAL_BUILD_TYPE, NPM);
+            case GRADLE -> extra.put(EXTERNAL_BUILD_TYPE, GRADLE);
+            case SBT -> extra.put(EXTERNAL_BUILD_TYPE, SBT);
+            case MVN -> extra.put(EXTERNAL_BUILD_TYPE, MAVEN);
+            default -> extra.put(EXTERNAL_BUILD_TYPE, UNKNOWN);
         }
     }
 
@@ -347,23 +324,18 @@ public final class PncUtils {
             archiveInfo.setSize(-1);
         }
 
-        switch (buildType) {
-            case NPM:
-                // How do we set ArtifactInfo for NPM builds?
-                break;
-            case MVN:
-            case GRADLE:
-            case SBT:
-            default:
-                String[] gaecv = artifact.getIdentifier().split(":");
+        if (buildType != BuildType.NPM) {
+            String[] gaecv = artifact.getIdentifier().split(":");
 
-                if (gaecv.length >= 3) {
-                    archiveInfo.setGroupId(gaecv[0]);
-                    archiveInfo.setArtifactId(gaecv[1]);
-                    archiveInfo.setExtension(gaecv[2]);
-                    archiveInfo.setVersion(gaecv[3]);
-                    archiveInfo.setClassifier(gaecv.length > 4 ? gaecv[4] : null);
-                }
+            if (gaecv.length >= 3) {
+                archiveInfo.setGroupId(gaecv[0]);
+                archiveInfo.setArtifactId(gaecv[1]);
+                archiveInfo.setExtension(gaecv[2]);
+                archiveInfo.setVersion(gaecv[3]);
+                archiveInfo.setClassifier(gaecv.length > 4 ? gaecv[4] : null);
+            }
+        } else {
+            // TODO: How do we set ArtifactInfo for NPM builds?
         }
 
         return archiveInfo;

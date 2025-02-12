@@ -143,7 +143,7 @@ public class Checksum implements Comparable<Checksum>, Serializable {
                     CompletableFuture<Checksum> future;
 
                     switch (checksumType) {
-                        case md5:
+                        case md5 -> {
                             Object md5 = in.getSignatureHeader().getTag(RpmSignatureTag.MD5);
 
                             if (!(md5 instanceof byte[])) {
@@ -156,8 +156,8 @@ public class Checksum implements Comparable<Checksum>, Serializable {
                                     () -> new Checksum(checksumType, sigmd5, Utils.normalizePath(fo, root), fileSize));
 
                             futures2.put(checksumType, future);
-                            break;
-                        case sha1:
+                        }
+                        case sha1 -> {
                             Object sha1 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA1HEADER);
 
                             if (!(sha1 instanceof byte[])) {
@@ -171,8 +171,8 @@ public class Checksum implements Comparable<Checksum>, Serializable {
                                     () -> new Checksum(checksumType, sigsha1, Utils.normalizePath(fo, root), fileSize));
 
                             futures2.put(checksumType, future);
-                            break;
-                        case sha256:
+                        }
+                        case sha256 -> {
                             Object sha256 = in.getSignatureHeader().getTag(RpmSignatureTag.SHA256HEADER);
 
                             if (!(sha256 instanceof byte[])) {
@@ -190,9 +190,8 @@ public class Checksum implements Comparable<Checksum>, Serializable {
                                             fileSize));
 
                             futures2.put(checksumType, future);
-                            break;
-                        default:
-                            throw new IOException("Unrecognized checksum type: " + checksumType.getAlgorithm());
+                        }
+                        default -> throw new IOException("Unrecognized checksum type: " + checksumType.getAlgorithm());
                     }
                 }
             }
