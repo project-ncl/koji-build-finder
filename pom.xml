@@ -159,7 +159,8 @@
     <version.org.reactive-streams>1.0.4</version.org.reactive-streams>
     <version.org.slf4j>2.0.16</version.org.slf4j>
     <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.7.0</version.org.sonatype.plugins.nexus-staging-maven-plugin>
-    <version.org.spdx>1.1.12</version.org.spdx>
+    <version.org.spdx.java-spdx-library>2.0.0-RC2</version.org.spdx.java-spdx-library>
+    <version.org.spdx.spdx-java-core>1.0.0-RC2</version.org.spdx.spdx-java-core>
     <version.org.wiremock>3.12.0</version.org.wiremock>
   </properties>
 
@@ -467,7 +468,12 @@
       <dependency>
         <groupId>org.spdx</groupId>
         <artifactId>java-spdx-library</artifactId>
-        <version>${version.org.spdx}</version>
+        <version>${version.org.spdx.java-spdx-library}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.spdx</groupId>
+        <artifactId>spdx-java-core</artifactId>
+        <version>${version.org.spdx.spdx-java-core}</version>
       </dependency>
       <!-- Required dependency for packager-rpm (certain RPMs) -->
       <dependency>

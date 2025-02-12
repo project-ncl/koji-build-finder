@@ -41,7 +41,6 @@ import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getMatchingLicens
 import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getNumberOfSPDXLicenses;
 import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getSPDXLicenseListVersion;
 import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.getSpdxLicenseMapping;
-import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.initLicenseMaps;
 import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.isLicenseFile;
 import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.isLicenseFileName;
 import static org.jboss.pnc.build.finder.core.Utils.BANG_SLASH;
@@ -169,7 +168,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     }
 
     public DistributionAnalyzer(List<String> inputs, BuildConfig config, BasicCacheContainer cacheManager) {
-        initLicenseMaps();
         Map<String, List<String>> mapping = getSpdxLicenseMapping();
 
         if (LOGGER.isInfoEnabled()) {

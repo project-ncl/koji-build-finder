@@ -30,32 +30,27 @@ import java.util.Map;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.InvalidLicenseStringException;
-import org.spdx.library.model.license.LicenseInfoFactory;
-import org.spdx.library.model.license.SpdxListedLicense;
-import org.spdx.library.model.license.WithExceptionOperator;
+import org.spdx.core.DefaultStoreNotInitializedException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.LicenseInfoFactory;
+import org.spdx.library.model.v2.license.InvalidLicenseStringException;
+import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicense;
+import org.spdx.library.model.v3_0_1.expandedlicensing.WithAdditionOperator;
 
 class SpdxLicenseUtilsTest {
-    @BeforeAll
-    public static void setup() {
-        SpdxLicenseUtils.initLicenseMaps();
-    }
-
     @Test
     void testGetSPDXLicenseListVersion() {
         assertThat(SpdxLicenseUtils.getSPDXLicenseListVersion()).isNotEmpty();
     }
 
     @Test
-    void testParseSPDXLicenseString() throws InvalidLicenseStringException {
+    void testParseSPDXLicenseString() throws InvalidLicenseStringException, DefaultStoreNotInitializedException {
         assertThat(SpdxLicenseUtils.parseSPDXLicenseString("(GPL-2.0 WITH Universal-FOSS-exception-1.0)"))
-                .isInstanceOf(WithExceptionOperator.class);
+                .isInstanceOf(WithAdditionOperator.class);
     }
 
     @Test
@@ -193,9 +188,9 @@ class SpdxLicenseUtilsTest {
         assertThat(LicenseUtils.licenseFileToText(path)).isEqualToIgnoringWhitespace(http);
         assertThat(LicenseUtils.licenseFileToText(path2)).isEqualToIgnoringWhitespace(https);
 
-        SpdxListedLicense spdxListedLicense = LicenseInfoFactory.getListedLicenseById("Apache-2.0");
-        assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifier(spdxListedLicense, s1)).hasValue("Apache-2.0");
-        assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifier(spdxListedLicense, s2)).hasValue("Apache-2.0");
+        ListedLicense listedLicense = LicenseInfoFactory.getListedLicenseById("Apache-2.0");
+        assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifier(listedLicense, s1)).hasValue("Apache-2.0");
+        assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifier(listedLicense, s2)).hasValue("Apache-2.0");
 
         assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifierOrLicense(s1)).hasValue("Apache-2.0");
         assertThat(SpdxLicenseUtils.findMatchingSPDXLicenseIdentifierOrLicense(s2)).hasValue("Apache-2.0");
