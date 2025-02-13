@@ -129,8 +129,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
     private static final String LICENSES_FILENAME_BASENAME = "licenses";
 
-    private static final Pattern SPACE_PATTERN = Pattern.compile("\\s+");
-
     private static final int FILE_ERRORS_SIZE = 2;
 
     private static final int LOCAL_FILES_SIZE = 44515;
