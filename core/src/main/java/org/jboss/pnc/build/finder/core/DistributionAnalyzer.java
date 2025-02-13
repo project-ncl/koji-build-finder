@@ -87,6 +87,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileExtensionSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
@@ -219,8 +220,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             for (String input : inputs) {
                 try (FileObject fo = getFileObjectOfFile(manager, input)) {
                     if (LOGGER.isDebugEnabled()) {
-                        Path path = fo.getPath();
-                        LOGGER.debug("Will checksum file {}, size: {}", path, Files.size(path));
+                        try (FileContent fc = fo.getContent()) {
+                            LOGGER.debug("Will checksum file {}, size: {}", fo, fc.getSize());
+                        }
                     }
 
                     root = fo.getName()
