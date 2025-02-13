@@ -251,14 +251,17 @@ public final class Utils {
 
     public static Optional<Path> getVfsCache() throws IOException {
         String tmpDir = SystemProperties.getJavaIoTmpdir();
+        LOGGER.info("java.io.tmpdir: {}", green(tmpDir));
 
         if (tmpDir == null) {
             return Optional.empty();
         }
 
         Path vfsCacheDir = Path.of(tmpDir, VFS_CACHE).toAbsolutePath();
+        LOGGER.info("Commons VFS cache directory: {}", green(vfsCacheDir));
 
         if (!Files.isDirectory(vfsCacheDir)) {
+            LOGGER.error("Commons VFS cache directory {} is not a directory", boldRed(vfsCacheDir));
             return Optional.empty();
         }
 
@@ -267,11 +270,13 @@ public final class Utils {
 
     // XXX: <https://issues.apache.org/jira/browse/VFS-634>
     public static boolean cleanupVfsCache() throws IOException {
-        Path vfsCacheDir = getVfsCache().orElse(null);
+        Optional<Path> optionalVfsCacheDir = getVfsCache();
 
-        if (vfsCacheDir == null) {
+        if (optionalVfsCacheDir.isEmpty()) {
             return false;
         }
+
+        Path vfsCacheDir = optionalVfsCacheDir.get();
 
         try (Stream<Path> stream = Files.walk(vfsCacheDir)) {
             List<Path> paths = stream.sorted(reverseOrder()).toList();

@@ -220,6 +220,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         try (FileSystemManager manager = createManager()) {
             for (String input : inputs) {
                 try (FileObject fo = getFileObjectOfFile(manager, input)) {
+                    if (LOGGER.isDebugEnabled()) {
+                        Path path = fo.getPath();
+                        LOGGER.debug("Will checksum file {}, size: {}", path, Files.size(path));
+                    }
+
                     root = fo.getName()
                             .getFriendlyURI()
                             .substring(0, fo.getName().getFriendlyURI().indexOf(fo.getName().getBaseName()));
@@ -338,10 +343,19 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             }
         } finally {
             try {
-                boolean clean = Utils.cleanupVfsCache();
+                Optional<Path> optionalPath = Utils.getVfsCache();
 
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Cleaned up {}: {}", green(Utils.getVfsCache()), clean ? green("yes") : green("no"));
+                if (optionalPath.isPresent()) {
+                    boolean clean = Utils.cleanupVfsCache();
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
+                                "Cleaned up {}: {}",
+                                green(optionalPath.get()),
+                                clean ? green("yes") : green("no"));
+                    }
+                } else {
+                    LOGGER.debug("VFS cache directory does not exist or is not a directory");
                 }
             } catch (IOException e) {
                 if (LOGGER.isWarnEnabled()) {
