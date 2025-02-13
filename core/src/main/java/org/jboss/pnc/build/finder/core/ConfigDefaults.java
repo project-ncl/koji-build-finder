@@ -15,8 +15,8 @@
  */
 package org.jboss.pnc.build.finder.core;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public abstract class ConfigDefaults {
-    private static final String USER_HOME = Utils.getUserHome();
+    private static final Path USER_HOME = Utils.getUserHome();
     public static final List<String> ARCHIVE_TYPES = List.of("jar", "xml", "pom", "so", "dll", "dylib");
     public static final List<String> ARCHIVE_EXTENSIONS = List.of(
             "dll",
@@ -48,10 +48,10 @@ public abstract class ConfigDefaults {
     public static final Set<ChecksumType> CHECKSUM_TYPES = Collections
             .unmodifiableSet(EnumSet.allOf(ChecksumType.class));
     public static final String CONFIG_FILE = "config.json";
-    public static final String CONFIG_PATH = USER_HOME + File.separator + ".build-finder";
-    public static final String CONFIG = CONFIG_PATH + File.separator + CONFIG_FILE;
+    public static final Path CONFIG_PATH = USER_HOME.resolve(".build-finder");
+    public static final Path CONFIG = CONFIG_PATH.resolve(CONFIG_FILE);
     public static final Boolean DISABLE_CACHE = Boolean.FALSE;
-    public static final String CACHE_LOCATION = CONFIG_PATH + File.separator + "cache";
+    public static final Path CACHE_LOCATION = CONFIG_PATH.resolve("cache");
     public static final Boolean DISABLE_RECURSION = Boolean.FALSE;
     public static final List<Pattern> EXCLUDES = List.of(Pattern.compile("^(?!.*/pom\\.xml$).*/.*\\.xml$"));
     public static final URL KOJI_HUB_URL = null;

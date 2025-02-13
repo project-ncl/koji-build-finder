@@ -131,7 +131,7 @@ public final class Main implements Callable<Void> {
     private Long cacheLifespan = ConfigDefaults.CACHE_LIFESPAN;
 
     @Option(names = { "-c", "--config" }, paramLabel = "FILE", description = "Specify configuration file to use.")
-    private Path configFile = Path.of(ConfigDefaults.CONFIG);
+    private Path configFile = ConfigDefaults.CONFIG;
 
     @Option(names = { "-d", "--debug" }, description = "Enable debug logging.")
     private boolean debug;
@@ -421,7 +421,7 @@ public final class Main implements Callable<Void> {
 
     private void initCaches(BuildConfig config) {
         GlobalConfigurationChildBuilder globalConfig = new GlobalConfigurationBuilder();
-        String cacheLocation = Path.of(ConfigDefaults.CACHE_LOCATION).toAbsolutePath().toString();
+        String cacheLocation = ConfigDefaults.CACHE_LOCATION.toString();
 
         globalConfig.globalState()
                 .persistentLocation(cacheLocation)

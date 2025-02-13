@@ -17,18 +17,17 @@ package org.jboss.pnc.build.finder.core.it;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jboss.pnc.build.finder.core.ConfigDefaults.CONFIG;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.commonjava.o11yphant.metrics.DefaultMetricRegistry;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.util.jhttpc.auth.MemoryPasswordManager;
 import org.jboss.pnc.build.finder.core.BuildConfig;
+import org.jboss.pnc.build.finder.core.ConfigDefaults;
 import org.jboss.pnc.build.finder.koji.KojiClientSession;
 import org.jboss.pnc.build.finder.pnc.client.PncClientImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -70,7 +69,7 @@ public abstract class AbstractKojiIT {
 
     @BeforeEach
     void setup() throws IOException, KojiClientException {
-        Path configFile = Paths.get(CONFIG);
+        Path configFile = ConfigDefaults.CONFIG;
 
         if (!Files.isRegularFile(configFile) || !Files.isReadable(configFile)) {
             throw new IOException("File not found: " + configFile.toAbsolutePath());

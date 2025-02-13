@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.core;
 
+import static java.util.Comparator.reverseOrder;
 import static org.apache.commons.lang3.ThreadUtils.sleep;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldYellow;
@@ -24,13 +25,18 @@ import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.SystemProperties;
 import org.apache.commons.vfs2.FileContent;
@@ -55,6 +61,8 @@ public final class Utils {
     private static final Duration RETRY_DURATION = Duration.ofMillis(500L);
 
     private static final int NUM_RETRIES = 3;
+
+    private static final String VFS_CACHE = "vfs_cache";
 
     static {
         PROPERTIES = new Properties();
@@ -105,7 +113,7 @@ public final class Utils {
         return PROPERTIES.getProperty(name, "unknown");
     }
 
-    public static String getUserHome() {
+    public static Path getUserHome() {
         String userHome = SystemProperties.getUserHome();
 
         if (userHome == null || "?".equals(userHome)) {
@@ -114,10 +122,10 @@ public final class Utils {
                     "Using java.io.tmpdir {} instead of bogus user.home value {}",
                     boldRed(javaIoTmpdir),
                     boldRed(userHome));
-            return javaIoTmpdir;
+            return Path.of(javaIoTmpdir);
         }
 
-        return userHome;
+        return Path.of(userHome);
     }
 
     public static String byteCountToDisplaySize(long bytes) {
@@ -239,5 +247,42 @@ public final class Utils {
 
         LOGGER.error("Retry attempt failed after {} of {} tries", boldRed(numRetries), boldRed(NUM_RETRIES));
         throw new IllegalStateException(exception);
+    }
+
+    public static Optional<Path> getVfsCache() throws IOException {
+        String tmpDir = SystemProperties.getJavaIoTmpdir();
+
+        if (tmpDir == null) {
+            return Optional.empty();
+        }
+
+        Path vfsCacheDir = Path.of(tmpDir, VFS_CACHE).toAbsolutePath();
+
+        if (!Files.isDirectory(vfsCacheDir)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(vfsCacheDir);
+    }
+
+    // XXX: <https://issues.apache.org/jira/browse/VFS-634>
+    public static boolean cleanupVfsCache() throws IOException {
+        Path vfsCacheDir = getVfsCache().orElse(null);
+
+        if (vfsCacheDir == null) {
+            return false;
+        }
+
+        try (Stream<Path> stream = Files.walk(vfsCacheDir)) {
+            List<Path> paths = stream.sorted(reverseOrder()).toList();
+
+            for (Path path : paths) {
+                Files.delete(path);
+            }
+
+            Files.delete(vfsCacheDir);
+        }
+
+        return true;
     }
 }

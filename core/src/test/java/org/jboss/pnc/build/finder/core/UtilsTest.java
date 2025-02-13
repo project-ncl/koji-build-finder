@@ -23,6 +23,8 @@ import static org.jboss.pnc.build.finder.core.Utils.getBuildFinderVersion;
 import static org.jboss.pnc.build.finder.core.Utils.getUserHome;
 import static org.jboss.pnc.build.finder.core.Utils.retry;
 
+import java.nio.file.Path;
+
 import org.apache.commons.lang3.SystemProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
@@ -37,9 +39,9 @@ class UtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsTest.class);
 
     private static String userHome() {
-        String userHome = getUserHome();
+        Path userHome = getUserHome();
         LOGGER.debug("user.home={}", userHome);
-        return userHome;
+        return userHome.toString();
     }
 
     @ResourceLock(value = Resources.SYSTEM_PROPERTIES, mode = ResourceAccessMode.READ_WRITE)

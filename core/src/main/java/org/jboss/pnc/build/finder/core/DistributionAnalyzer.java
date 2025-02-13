@@ -338,7 +338,11 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             }
         } finally {
             try {
-                cleanupVfsCache();
+                boolean clean = Utils.cleanupVfsCache();
+
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Cleaned up {}: {}", green(Utils.getVfsCache()), clean ? green("yes") : green("no"));
+                }
             } catch (IOException e) {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("Cleaning up VFS cache failed: {}", red(getMessage(e)));
@@ -385,23 +389,6 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
         }
 
         return Collections.unmodifiableMap(map);
-    }
-
-    private static void cleanupVfsCache() throws IOException {
-        // XXX: <https://issues.apache.org/jira/browse/VFS-634>
-        String tmpDir = System.getProperty("java.io.tmpdir");
-
-        if (tmpDir != null) {
-            Path vfsCacheDir = Path.of(tmpDir, "vfs_cache").toAbsolutePath();
-
-            try (Stream<Path> stream = Files.walk(vfsCacheDir)) {
-                List<Path> paths = stream.sorted(reverseOrder()).toList();
-
-                for (Path path : paths) {
-                    Files.delete(path);
-                }
-            }
-        }
     }
 
     private static FileSystemManager createManager() throws FileSystemException {
