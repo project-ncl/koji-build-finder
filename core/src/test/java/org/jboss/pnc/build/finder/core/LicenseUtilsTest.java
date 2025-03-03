@@ -47,7 +47,7 @@ class LicenseUtilsTest {
     }
 
     @Test
-    void tesContainsWordsInSameOrder() {
+    void testContainsWordsInSameOrder() {
         String name = "Apache License, Version 2.0";
         String id = "Apache-2.0";
         assertThat(LicenseUtils.containsWordsInSameOrder(name, id)).isTrue();
@@ -70,7 +70,7 @@ class LicenseUtilsTest {
 
     @ParameterizedTest
     @MethodSource("stringListStringProvider")
-    void tesContainsWordsInSameOrderUrl1(String licenseUrl, List<String> tokens, String licenseId) {
+    void testContainsWordsInSameOrderUrl1(String licenseUrl, List<String> tokens, String licenseId) {
         List<String> tokens1 = LicenseUtils.tokenizeLicenseString(licenseUrl);
         assertThat(tokens1).containsAll(tokens);
         assertThat(LicenseUtils.containsWordsInSameOrder(licenseUrl, licenseId)).isTrue();

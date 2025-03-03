@@ -58,6 +58,8 @@ public final class LicenseUtils {
 
     private static final String URL_MARKER = ":/";
 
+    private static final String UNINTERPOLATED_PROPERTY_MARKER = "${";
+
     private static final String DOT = ".";
 
     private static final List<String> TEXT_EXTENSIONS = List.of(".html", ".md", ".php", ".txt");
@@ -104,7 +106,8 @@ public final class LicenseUtils {
      */
     public static boolean isUrl(String... strings) {
         for (String s : strings) {
-            if (s == null || !s.contains(URL_MARKER) || StringUtils.containsWhitespace(s)) {
+            if (!StringUtils.contains(s, URL_MARKER) || StringUtils.containsWhitespace(s)
+                    || StringUtils.contains(s, UNINTERPOLATED_PROPERTY_MARKER)) {
                 return false;
             }
         }

@@ -311,14 +311,18 @@ public final class SpdxLicenseUtils {
     }
 
     static Optional<String> findMatchingLicenseSeeAlso(String licenseUrl) {
-        if (licenseUrl == null || licenseUrl.isBlank()) {
+        if (!LicenseUtils.isUrl(licenseUrl)) {
             return Optional.empty();
         }
 
         Collection<ListedLicense> values = LICENSE_IDS_MAP.values();
 
         for (ListedLicense listedLicense : values) {
-            List<String> seeAlso = listedLicense.getSeeAlsos().stream().map(LicenseUtils::normalizeLicenseUrl).toList();
+            List<String> seeAlso = listedLicense.getSeeAlsos()
+                    .stream()
+                    .filter(LicenseUtils::isUrl)
+                    .map(LicenseUtils::normalizeLicenseUrl)
+                    .toList();
 
             if (seeAlso.contains(LicenseUtils.normalizeLicenseUrl(licenseUrl))) {
                 return Optional.of(getCurrentLicenseId(listedLicense.getId()));

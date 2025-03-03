@@ -105,6 +105,8 @@ class SpdxLicenseUtilsTest {
                 .hasValue("Apache-2.0");
         assertThat(SpdxLicenseUtils.findMatchingLicenseSeeAlso("https://apache.org/licenses/LICENSE-2.0.html"))
                 .hasValue("Apache-2.0");
+        assertThat(SpdxLicenseUtils.findMatchingLicenseSeeAlso("${project.scm.url}/raw-file/tip/LICENSE"))
+                .isEmpty();
     }
 
     @Test
