@@ -78,7 +78,7 @@
     <version.com.ginsberg.junit5-system-exit>2.0.2</version.com.ginsberg.junit5-system-exit>
     <version.com.github.ekryd.sortpom>4.0.0</version.com.github.ekryd.sortpom>
     <version.com.github.luben>1.5.7-1</version.com.github.luben>
-    <version.com.github.spotbugs.spotbugs>4.9.1</version.com.github.spotbugs.spotbugs>
+    <version.com.github.spotbugs.spotbugs>4.9.2</version.com.github.spotbugs.spotbugs>
     <version.com.github.spotbugs.spotbugs-maven-plugin>4.9.1.0</version.com.github.spotbugs.spotbugs-maven-plugin>
     <version.com.google.guava>33.4.0-jre</version.com.google.guava>
     <version.com.j2html>1.6.0</version.com.j2html>
