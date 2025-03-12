@@ -198,6 +198,10 @@ public final class Utils {
     }
 
     public static String getAllErrorMessages(Throwable t) {
+        if (t == null) {
+            return "null";
+        }
+
         StringBuilder sb = new StringBuilder(ERROR_MESSAGE_SIZE);
         Throwable t2 = t;
         String message = t2.getMessage();
