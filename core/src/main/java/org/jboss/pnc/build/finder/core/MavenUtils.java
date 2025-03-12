@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.maven.model.License;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
@@ -119,6 +120,15 @@ public final class MavenUtils {
                 model.setGroupId(interpolateString(model, groupId));
                 model.setArtifactId(interpolateString(model, artifactId));
                 model.setVersion(interpolateString(model, version));
+                List<License> licenses = model.getLicenses();
+
+                for (License license : licenses) {
+                    license.setName(interpolateString(model, license.getName()));
+                    license.setUrl(interpolateString(model, license.getUrl()));
+                    license.setDistribution(interpolateString(model, license.getDistribution()));
+                    license.setComments(interpolateString(model, license.getComments()));
+                }
+
                 return new MavenProject(model);
             } catch (IOException e) {
                 throw new XmlPullParserException(e.getMessage());

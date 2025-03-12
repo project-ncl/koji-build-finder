@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
+import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junitpioneer.jupiter.Issue;
 import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
 
@@ -219,5 +221,31 @@ class DistributionAnalyzerTest {
         Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.checksumFiles();
 
         assertThat(checksums.get(md5).size()).isEqualTo(numChecksums);
+    }
+
+    @Test
+    @Issue("NCL-9035")
+    void testGetLicensesMap() throws IOException {
+        String issueId = "NCL-9035";
+        String filename = issueId + ".pom";
+        List<String> target = Collections
+                .singletonList(TestUtils.loadFile(String.join("/", issueId, filename)).toAbsolutePath().toString());
+        BuildConfig config = new BuildConfig();
+        config.setArchiveExtensions(Collections.emptyList());
+        config.setChecksumTypes(Collections.singleton(md5));
+        DistributionAnalyzer da = new DistributionAnalyzer(target, config);
+        Map<ChecksumType, MultiValuedMap<String, LocalFile>> checksums = da.call();
+        assertThat(checksums).hasSize(1).containsKey(md5);
+        Map<String, Collection<LicenseInfo>> licensesMap = da.getLicensesMap();
+        assertThat(licensesMap).hasSize(1).containsKey(filename);
+        Collection<LicenseInfo> licenseInfos = licensesMap.get(filename);
+        assertThat(licenseInfos).hasSize(1);
+        LicenseInfo licenseInfo = licenseInfos.iterator().next();
+        assertThat(licenseInfo).extracting("comments").isEqualTo("NCL-9035:NCL-9035:1.0.0");
+        assertThat(licenseInfo).extracting("distribution").isEqualTo("repo");
+        assertThat(licenseInfo).extracting("name").isEqualTo("NCL-9035 - License");
+        assertThat(licenseInfo).extracting("url").isEqualTo("http://some/url//raw-file/tip/LICENSE");
+        assertThat(licenseInfo).extracting("spdxLicenseId").isEqualTo("NCL");
+        assertThat(licenseInfo).extracting("source").isEqualTo(POM);
     }
 }
