@@ -77,7 +77,7 @@
     <version.com.fasterxml.jackson>2.18.3</version.com.fasterxml.jackson>
     <version.com.ginsberg.junit5-system-exit>2.0.2</version.com.ginsberg.junit5-system-exit>
     <version.com.github.ekryd.sortpom>4.0.0</version.com.github.ekryd.sortpom>
-    <version.com.github.luben>1.5.7-1</version.com.github.luben>
+    <version.com.github.luben>1.5.7-2</version.com.github.luben>
     <version.com.github.spotbugs.spotbugs>4.9.3</version.com.github.spotbugs.spotbugs>
     <version.com.github.spotbugs.spotbugs-maven-plugin>4.9.2.0</version.com.github.spotbugs.spotbugs-maven-plugin>
     <version.com.google.guava>33.4.0-jre</version.com.google.guava>
