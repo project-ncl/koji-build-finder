@@ -73,7 +73,11 @@ public final class ProductReport extends Report {
     private final Map<String, List<String>> productMap;
 
     public ProductReport(Path outputDirectory, Collection<KojiBuild> builds) {
-        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
+        this(outputDirectory, BASE_FILENAME, builds);
+    }
+
+    public ProductReport(Path outputDirectory, String baseFilename, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, baseFilename, outputDirectory);
         List<String> targets = builds.stream()
                 .filter(build -> build.getBuildInfo() != null && build.getBuildInfo().getId() > 0)
                 .filter(

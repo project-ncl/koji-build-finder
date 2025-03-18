@@ -49,7 +49,11 @@ public final class GAVReport extends Report {
     private final List<String> gavs;
 
     public GAVReport(Path outputDirectory, Collection<KojiBuild> builds) {
-        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
+        this(outputDirectory, BASE_FILENAME, builds);
+    }
+
+    public GAVReport(Path outputDirectory, String baseFilename, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, baseFilename, outputDirectory);
         this.gavs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
                 .filter(

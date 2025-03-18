@@ -47,7 +47,11 @@ public final class BuildStatisticsReport extends Report {
     private final BuildStatistics buildStatistics;
 
     public BuildStatisticsReport(Path outputDirectory, Collection<KojiBuild> builds) {
-        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
+        this(outputDirectory, BASE_FILENAME, builds);
+    }
+
+    public BuildStatisticsReport(Path outputDirectory, String baseFilename, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, baseFilename, outputDirectory);
         buildStatistics = new BuildStatistics(builds);
     }
 

@@ -115,7 +115,18 @@ public final class HTMLReport extends Report {
             URL kojiwebUrl,
             URL pncUrl,
             List<Report> reports) {
-        super(NAME + join(", ", files), DESCRIPTION, BASE_FILENAME, outputDirectory);
+        this(outputDirectory, BASE_FILENAME, files, builds, kojiwebUrl, pncUrl, reports);
+    }
+
+    public HTMLReport(
+            Path outputDirectory,
+            String baseFilename,
+            Iterable<String> files,
+            List<KojiBuild> builds,
+            URL kojiwebUrl,
+            URL pncUrl,
+            List<Report> reports) {
+        super(NAME + join(", ", files), DESCRIPTION, baseFilename, outputDirectory);
         this.builds = builds;
         this.kojiwebUrl = kojiwebUrl;
         this.pncUrl = pncUrl;

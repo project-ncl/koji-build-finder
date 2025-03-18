@@ -51,7 +51,11 @@ public final class NVRReport extends Report {
     private final List<String> nvrs;
 
     public NVRReport(Path outputDirectory, Collection<KojiBuild> builds) {
-        super(NAME, DESCRIPTION, BASE_FILENAME, outputDirectory);
+        this(outputDirectory, BASE_FILENAME, builds);
+    }
+
+    public NVRReport(Path outputDirectory, String baseFilename, Collection<KojiBuild> builds) {
+        super(NAME, DESCRIPTION, baseFilename, outputDirectory);
         this.nvrs = builds.stream()
                 .filter(BuildFinderUtils::isNotBuildZero)
                 .map(KojiBuild::getBuildInfo)
