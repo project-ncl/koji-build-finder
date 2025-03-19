@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha1;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
-import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
@@ -246,6 +245,6 @@ class DistributionAnalyzerTest {
         assertThat(licenseInfo).extracting("name").isEqualTo("NCL-9035 - License");
         assertThat(licenseInfo).extracting("url").isEqualTo("http://some/url//raw-file/tip/LICENSE");
         assertThat(licenseInfo).extracting("spdxLicenseId").isEqualTo("NCL");
-        assertThat(licenseInfo).extracting("source").isEqualTo(POM);
+        assertThat(licenseInfo).extracting("source").isEqualTo(filename);
     }
 }

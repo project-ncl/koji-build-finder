@@ -24,10 +24,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.boldRed;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.green;
 import static org.jboss.pnc.build.finder.core.AnsiUtils.red;
-import static org.jboss.pnc.build.finder.core.LicenseSource.BUNDLE_LICENSE;
-import static org.jboss.pnc.build.finder.core.LicenseSource.POM;
-import static org.jboss.pnc.build.finder.core.LicenseSource.POM_XML;
-import static org.jboss.pnc.build.finder.core.LicenseSource.TEXT;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.getBundleLicenseFromManifest;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.getFirstNonBlankString;
 import static org.jboss.pnc.build.finder.core.LicenseUtils.isManifestMfFileName;
@@ -617,11 +613,10 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
                     boolean pomXml = isPomXml(file);
 
                     if (pom || pomXml) {
-                        LicenseSource source = pom ? POM : POM_XML;
-                        List<LicenseInfo> licenseInfos = addLicensesFromPom(file, source);
+                        List<LicenseInfo> licenseInfos = addLicensesFromPom(file);
 
                         try {
-                            Map<String, List<LicenseInfo>> map = getLicenses(root, file, source);
+                            Map<String, List<LicenseInfo>> map = getLicenses(root, file);
                             putLicenses(map.keySet().iterator().next(), licenseInfos);
                         } catch (XmlPullParserException | InterpolationException e) {
                             if (LOGGER.isErrorEnabled()) {
@@ -686,7 +681,7 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
 
         try {
             if (isPomXml(localFile)) {
-                licenseInfos = addLicensesFromPom(localFile, POM_XML);
+                licenseInfos = addLicensesFromPom(localFile);
             } else if (isManifestMfFileName(localFile)) {
                 licenseInfos = addLicensesFromBundleLicense(localFile);
             } else if (isLicenseFile(localFile)) {
@@ -717,10 +712,9 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
     private static List<LicenseInfo> addLicenseFromTextFile(FileObject jar, FileObject licenseFile) throws IOException {
         String licenseId = getMatchingLicense(licenseFile);
         LicenseInfo licenseInfo = new LicenseInfo(
-                null,
+                licenseFile,
                 jar.getName().getRelativeName(licenseFile.getName()),
-                getCurrentLicenseId(licenseId),
-                TEXT);
+                getCurrentLicenseId(licenseId));
         return Collections.singletonList(licenseInfo);
     }
 
@@ -733,16 +727,16 @@ public class DistributionAnalyzer implements Callable<Map<ChecksumType, MultiVal
             String description = bundleLicense.getDescription();
             String name = getFirstNonBlankString(licenseIdentifier, description);
             String url = bundleLicense.getLink();
-            LicenseInfo licenseInfo = new LicenseInfo(name, url, BUNDLE_LICENSE);
+            LicenseInfo licenseInfo = new LicenseInfo(fileObject, name, url);
             licenses.add(licenseInfo);
         }
 
         return Collections.unmodifiableList(licenses);
     }
 
-    private List<LicenseInfo> addLicensesFromPom(FileObject fileObject, LicenseSource source) throws IOException {
+    private List<LicenseInfo> addLicensesFromPom(FileObject fileObject) throws IOException {
         try {
-            Map<String, List<LicenseInfo>> map = getLicenses(root, fileObject, source);
+            Map<String, List<LicenseInfo>> map = getLicenses(root, fileObject);
             Entry<String, List<LicenseInfo>> entry = map.entrySet().iterator().next();
             String pomOrJarFile = entry.getKey();
             List<LicenseInfo> licenseInfos = entry.getValue();

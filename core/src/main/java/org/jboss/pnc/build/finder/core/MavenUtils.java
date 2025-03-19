@@ -153,12 +153,12 @@ public final class MavenUtils {
      * Converts the Maven licenses of the given project (if any) into <code>MavenLicense</code> JSON serializable
      * objects.
      *
+     * @param pomFileObject the file object pointing to the Maven POM file
      * @param project the Maven project
-     * @param source the license source
      * @return the list of Maven projects (which may be empty)
      */
-    public static List<LicenseInfo> getLicenses(MavenProject project, LicenseSource source) {
-        return project.getLicenses().stream().map(license -> new LicenseInfo(license, source)).toList();
+    public static List<LicenseInfo> getLicenses(FileObject pomFileObject, MavenProject project) {
+        return project.getLicenses().stream().map(license -> new LicenseInfo(pomFileObject, license)).toList();
     }
 
     /**
@@ -166,7 +166,6 @@ public final class MavenUtils {
      * the value (which may be empty).
      *
      * @param pomFileObject the POM file object
-     * @param source the license source
      * @return a map with the key the GAV of the POM file and the value the list of licenses (whivh may be empty)
      * @throws InterpolationException if an error occurs while interpolating the Maven properties
      * @throws IOException if an error occurs when reading from the file
@@ -174,9 +173,9 @@ public final class MavenUtils {
      */
     public static Map<String, List<LicenseInfo>> getLicenses(
             String root,
-            FileObject pomFileObject,
-            LicenseSource source) throws IOException, XmlPullParserException, InterpolationException {
+            FileObject pomFileObject) throws IOException, XmlPullParserException, InterpolationException {
         MavenProject project = getMavenProject(pomFileObject);
-        return Collections.singletonMap(Utils.normalizePath(pomFileObject, root), getLicenses(project, source));
+        String key = Utils.normalizePath(pomFileObject, root);
+        return Collections.singletonMap(key, getLicenses(pomFileObject, project));
     }
 }

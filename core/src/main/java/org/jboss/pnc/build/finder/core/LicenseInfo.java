@@ -18,6 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.maven.model.License;
 
 public class LicenseInfo implements Comparable<LicenseInfo> {
@@ -31,37 +32,35 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     private String spdxLicenseId;
 
-    private LicenseSource source;
+    private String source;
 
-    public LicenseInfo() {
-
-    }
-
-    public LicenseInfo(License license, LicenseSource source) {
+    public LicenseInfo(FileObject fileObject, License license) {
         comments = license.getComments();
         distribution = license.getDistribution();
         name = license.getName();
         url = license.getUrl();
         this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
-        this.source = source;
+        source = relativize(fileObject);
     }
 
-    public LicenseInfo(String name, String url, LicenseSource source) {
+    public LicenseInfo(FileObject fileObject, String name, String url) {
         comments = null;
         distribution = null;
         this.name = name;
         this.url = url;
         this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
-        this.source = source;
+        source = relativize(fileObject);
     }
 
-    public LicenseInfo(String name, String url, String spdxLicenseId, LicenseSource source) {
-        comments = null;
-        distribution = null;
-        this.name = name;
-        this.url = url;
-        this.spdxLicenseId = spdxLicenseId;
-        this.source = source;
+    private static String relativize(FileObject fileObject) {
+        String friendlyURI = fileObject.getName().getFriendlyURI();
+        int index = friendlyURI.lastIndexOf("!/");
+
+        if (index == -1) {
+            return fileObject.getName().getBaseName();
+        }
+
+        return friendlyURI.substring(index + 2);
     }
 
     public String getComments() {
@@ -88,7 +87,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         this.spdxLicenseId = spdxLicenseId;
     }
 
-    public LicenseSource getSource() {
+    public String getSource() {
         return source;
     }
 
@@ -110,7 +109,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
             return compare;
         }
 
-        compare = Integer.compare(source.ordinal(), o.source.ordinal());
+        compare = StringUtils.compare(source, o.source);
 
         if (compare != 0) {
             return compare;
