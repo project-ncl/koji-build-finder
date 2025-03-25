@@ -308,6 +308,8 @@ public final class Main implements Callable<Void> {
                         green(ConfigDefaults.CONFIG_FILE));
                 config = defaults;
             }
+
+            writeConfiguration(configFile, config);
         }
 
         if (commandSpec.commandLine().getParseResult().hasMatchedOption("-b")) {
