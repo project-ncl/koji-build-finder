@@ -263,12 +263,6 @@ public final class Utils {
 
         Path vfsCacheDir = Path.of(tmpDir, VFS_CACHE).toAbsolutePath();
         LOGGER.info("Commons VFS cache directory: {}", green(vfsCacheDir));
-
-        if (!Files.isDirectory(vfsCacheDir)) {
-            LOGGER.error("Commons VFS cache directory {} is not a directory", boldRed(vfsCacheDir));
-            return Optional.empty();
-        }
-
         return Optional.of(vfsCacheDir);
     }
 
