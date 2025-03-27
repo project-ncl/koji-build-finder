@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +89,7 @@ public final class SpdxLicenseUtils {
         List<String> listedLicenseIds = getListedLicenseIds();
         LICENSE_IDS_LIST = listedLicenseIds.stream()
                 .sorted(comparing(String::length).reversed().thenComparing(naturalOrder()))
-                .collect(Collectors.toList());
+                .toList();
         LICENSE_NAMES_MAP = new LinkedHashMap<>(EXPECTED_NUM_SPDX_LICENSES);
         LICENSE_NAMES_LIST = new ArrayList<>(EXPECTED_NUM_SPDX_LICENSES);
 
