@@ -18,7 +18,7 @@ package org.jboss.pnc.build.finder.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -43,7 +43,7 @@ class DeletedBuildTest extends AbstractWireMockTest {
     @BeforeAll
     static void setup() throws MalformedURLException {
         config = new BuildConfig();
-        config.setKojiHubURL(new URL(WIRE_MOCK_EXTENSION.baseUrl()));
+        config.setKojiHubURL(URI.create(WIRE_MOCK_EXTENSION.baseUrl()).toURL());
     }
 
     @Test

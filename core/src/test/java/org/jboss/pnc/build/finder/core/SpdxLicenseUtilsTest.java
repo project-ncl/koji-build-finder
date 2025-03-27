@@ -21,6 +21,7 @@ import static org.jboss.pnc.build.finder.core.SpdxLicenseUtils.NONE;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -162,7 +163,7 @@ class SpdxLicenseUtilsTest {
 
     @Test
     void testGetMatchingLicense(@TempDir Path folder) throws IOException, InvalidSPDXAnalysisException {
-        URL url = new URL("https://www.apache.org/licenses/LICENSE-2.0.txt");
+        URL url = URI.create("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL();
         Path path = folder.resolve("LICENSE-2.0-1.txt");
 
         try (InputStream in = url.openStream()) {

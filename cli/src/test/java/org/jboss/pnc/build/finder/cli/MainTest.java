@@ -20,6 +20,7 @@ import static org.jboss.pnc.build.finder.core.ChecksumType.md5;
 import static org.jboss.pnc.build.finder.core.ChecksumType.sha256;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -85,8 +86,8 @@ class MainTest {
         Path configFile = TestUtils.loadFile("config.json");
         Path inputFile = TestUtils.loadFile("nested.war");
 
-        URL hubURL = new URL("http://a.b");
-        URL webURL = new URL("http://c.d");
+        URL hubURL = URI.create("http://a.b").toURL();
+        URL webURL = URI.create("http://c.d").toURL();
         Path krbCcache = folder.resolve("krb5-cache");
         Path krbKeytab = folder.resolve("krb5-keytab");
         String krbPassword = "test";
