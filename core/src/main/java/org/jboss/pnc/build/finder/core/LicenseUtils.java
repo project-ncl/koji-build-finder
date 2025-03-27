@@ -50,9 +50,9 @@ public final class LicenseUtils {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
-    private static final Pattern TWO_DIGIT_PATTERN = Pattern.compile("([0-9])([0-9])");
+    private static final Pattern TWO_DIGIT_PATTERN = Pattern.compile("(\\d)(\\d)");
 
-    private static final Pattern LETTER_DIGIT_PATTERN = Pattern.compile("([A-Za-z])([0-9])");
+    private static final Pattern LETTER_DIGIT_PATTERN = Pattern.compile("([A-Za-z])(\\d)");
 
     private static final Pattern MANIFEST_MF_PATTERN = Pattern.compile("^.*META-INF/MANIFEST.MF$");
 
@@ -65,9 +65,9 @@ public final class LicenseUtils {
     private static final List<String> TEXT_EXTENSIONS = List.of(".html", ".md", ".php", ".txt");
 
     private static final Pattern NAME_VERSION_PATTERN = Pattern
-            .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>[0-9]+))?");
+            .compile("(?<name>[A-Z-a-z])[Vv]?(?<major>[1-9]+)(\\.(?<minor>\\d+))?");
 
-    private static final Pattern SINGLE_DIGIT_PATTERN = Pattern.compile("(?<b>[^0-9.])(?<major>[1-9])(?<a>[^0-9.])");
+    private static final Pattern SINGLE_DIGIT_PATTERN = Pattern.compile("(?<b>[^\\d.])(?<major>[1-9])(?<a>[^\\d.])");
 
     private static final int LINE_LIMIT = 5;
 
