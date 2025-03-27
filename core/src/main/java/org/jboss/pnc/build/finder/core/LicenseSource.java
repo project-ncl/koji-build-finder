@@ -1,5 +1,3 @@
-package org.jboss.pnc.build.finder.core;
-
 /*
  * Copyright (C) 2017 Red Hat, Inc.
  *
@@ -15,6 +13,7 @@ package org.jboss.pnc.build.finder.core;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.build.finder.core;
 
 public enum LicenseSource {
     UNKNOWN, POM, POM_XML, BUNDLE_LICENSE, TEXT

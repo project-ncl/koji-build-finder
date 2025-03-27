@@ -166,7 +166,7 @@ public final class MavenUtils {
      * the value (which may be empty).
      *
      * @param pomFileObject the POM file object
-     * @return a map with the key the GAV of the POM file and the value the list of licenses (whivh may be empty)
+     * @return a map with the key the GAV of the POM file and the value the list of licenses (which may be empty)
      * @throws InterpolationException if an error occurs while interpolating the Maven properties
      * @throws IOException if an error occurs when reading from the file
      * @throws XmlPullParserException if an error occurs when parsing the POM file
