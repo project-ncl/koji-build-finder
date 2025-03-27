@@ -1255,8 +1255,6 @@ public class BuildFinder
     @Override
     public Map<BuildSystemInteger, KojiBuild> call() throws KojiClientException {
         Instant startTime = Instant.now();
-        int initialMapCapacity;
-        int initialListCapacity;
         MultiValuedMap<Checksum, String> localchecksumMap = new ArrayListValuedHashMap<>(CHECKSUMS_SIZE); // TODO: fix
                                                                                                           // size
         Collection<Checksum> checksums = Sets.newHashSetWithExpectedSize(CHECKSUMS_SIZE);
