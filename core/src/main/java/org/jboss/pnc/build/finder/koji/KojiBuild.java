@@ -261,6 +261,7 @@ public class KojiBuild {
 
     @JsonIgnore
     public boolean isMaven() {
+        // XXX: I think that PNC always has a "maven" key, so isPnc may be unnecessary
         return (taskInfo != null && TASK_METHOD_MAVEN.equals(taskInfo.getMethod()))
                 || (buildInfo != null && MapUtils.getMap(buildInfo.getExtra(), KEY_MAVEN) != null) || isPnc();
     }
