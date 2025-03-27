@@ -253,7 +253,7 @@ public final class Utils {
         throw new IllegalStateException(exception);
     }
 
-    public static Optional<Path> getVfsCache() throws IOException {
+    public static Optional<Path> getVfsCache() {
         String tmpDir = SystemProperties.getJavaIoTmpdir();
         LOGGER.info("java.io.tmpdir: {}", green(tmpDir));
 
