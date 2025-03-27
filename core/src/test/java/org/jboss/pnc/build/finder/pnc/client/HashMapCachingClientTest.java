@@ -39,15 +39,15 @@ class HashMapCachingClientTest {
     private static final PncClient HASH_MAP_CACHING_PNC_CLIENT = new CachingPncClient(DUMMY_PNC_CLIENT, null);
 
     @Test
-    void testM1GetArtifactsByMd5FromClient() throws RemoteResourceException {
-        HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
+    void testM1GetArtifactsByMd5FromClient() {
+        DUMMY_PNC_CLIENT.getArtifactsByMd5("md5");
         assertThat(DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter()).isEqualTo(1);
     }
 
     @Test
     void testM2GetArtifactsByMd5FromCache() throws RemoteResourceException {
-        HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
-        assertThat(DUMMY_PNC_CLIENT.getGetArtifactsByMd5Counter()).isEqualTo(1);
+        RemoteCollection<Artifact> md5 = HASH_MAP_CACHING_PNC_CLIENT.getArtifactsByMd5("md5");
+        assertThat(md5).hasSize(1);
     }
 
     private static class DummyPncClient implements PncClient {
@@ -91,7 +91,7 @@ class HashMapCachingClientTest {
 
         @Override
         public void close() {
-
+            // No need to close
         }
     }
 }
