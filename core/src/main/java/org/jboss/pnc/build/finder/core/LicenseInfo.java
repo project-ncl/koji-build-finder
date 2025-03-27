@@ -22,17 +22,17 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.maven.model.License;
 
 public class LicenseInfo implements Comparable<LicenseInfo> {
-    private String comments;
+    private final String comments;
 
-    private String distribution;
+    private final String distribution;
 
-    private String name;
+    private final String name;
 
-    private String url;
+    private final String url;
 
     private String spdxLicenseId;
 
-    private String source;
+    private final String source;
 
     public LicenseInfo(FileObject fileObject, License license) {
         comments = license.getComments();
