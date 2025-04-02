@@ -32,7 +32,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
 
     private String spdxLicenseId;
 
-    private final String source;
+    private final String sourceUrl;
 
     public LicenseInfo(FileObject fileObject, License license) {
         comments = license.getComments();
@@ -40,7 +40,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         name = license.getName();
         url = license.getUrl();
         this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
-        source = relativize(fileObject);
+        sourceUrl = relativize(fileObject);
     }
 
     public LicenseInfo(FileObject fileObject, String name, String url) {
@@ -49,7 +49,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         this.name = name;
         this.url = url;
         this.spdxLicenseId = SpdxLicenseUtils.getSPDXLicenseId(name, url);
-        source = relativize(fileObject);
+        sourceUrl = relativize(fileObject);
     }
 
     private static String relativize(FileObject fileObject) {
@@ -87,8 +87,8 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         this.spdxLicenseId = spdxLicenseId;
     }
 
-    public String getSource() {
-        return source;
+    public String getSourceUrl() {
+        return sourceUrl;
     }
 
     @Override
@@ -109,7 +109,7 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
             return compare;
         }
 
-        compare = StringUtils.compare(source, o.source);
+        compare = StringUtils.compare(sourceUrl, o.sourceUrl);
 
         if (compare != 0) {
             return compare;
@@ -137,18 +137,18 @@ public class LicenseInfo implements Comparable<LicenseInfo> {
         LicenseInfo that = (LicenseInfo) o;
         return Objects.equals(comments, that.comments) && Objects.equals(distribution, that.distribution)
                 && Objects.equals(name, that.name) && Objects.equals(url, that.url)
-                && Objects.equals(spdxLicenseId, that.spdxLicenseId) && Objects.equals(source, that.source);
+                && Objects.equals(spdxLicenseId, that.spdxLicenseId) && Objects.equals(sourceUrl, that.sourceUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(comments, distribution, name, url, spdxLicenseId, source);
+        return Objects.hash(comments, distribution, name, url, spdxLicenseId, sourceUrl);
     }
 
     @Override
     public String toString() {
         return "LicenseInfo: " + ", comments: '" + comments + '\'' + ", distribution: '" + distribution + '\''
                 + ", name: '" + name + '\'' + ", url: '" + url + '\'' + ", spdxLicenseId: '" + spdxLicenseId + '\''
-                + ", source: " + source;
+                + ", sourceUrl: " + sourceUrl;
     }
 }

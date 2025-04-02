@@ -245,6 +245,6 @@ class DistributionAnalyzerTest {
         assertThat(licenseInfo).extracting("name").isEqualTo("NCL-9035 - License");
         assertThat(licenseInfo).extracting("url").isEqualTo("http://some/url//raw-file/tip/LICENSE");
         assertThat(licenseInfo).extracting("spdxLicenseId").isEqualTo("NCL");
-        assertThat(licenseInfo).extracting("source").isEqualTo(filename);
+        assertThat(licenseInfo).extracting("sourceUrl").isEqualTo(filename);
     }
 }
