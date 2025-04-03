@@ -142,7 +142,7 @@
     <version.org.fusesource.jansi>2.4.1</version.org.fusesource.jansi>
     <version.org.hibernate.validator>8.0.1.Final</version.org.hibernate.validator>
     <version.org.infinispan>15.0.10.Final</version.org.infinispan>
-    <version.org.jacoco>0.8.12</version.org.jacoco>
+    <version.org.jacoco>0.8.13</version.org.jacoco>
     <version.org.jboss.byteman>4.0.24</version.org.jboss.byteman>
     <version.org.jboss.logging>3.6.1.Final</version.org.jboss.logging>
     <version.org.jboss.logmanager>3.1.2.Final</version.org.jboss.logmanager>
