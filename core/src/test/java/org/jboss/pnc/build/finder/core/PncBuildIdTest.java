@@ -16,6 +16,8 @@
 package org.jboss.pnc.build.finder.core;
 
 import static com.redhat.red.build.koji.model.json.KojiJsonConstants.EXTERNAL_BUILD_ID;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.ID;
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.MAVEN_INFO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.MAP;
 import static org.jboss.pnc.build.finder.core.BuildSystem.none;
@@ -43,7 +45,7 @@ class PncBuildIdTest {
                     assertThat(build).extracting("buildInfo.extra")
                             .asInstanceOf(MAP)
                             .containsEntry(EXTERNAL_BUILD_ID, BUILD_ID);
-                    assertThat(build).extracting("id", "maven", "import").containsExactly(BUILD_ID, true, false);
+                    assertThat(build).extracting(ID, MAVEN_INFO, "import").containsExactly(BUILD_ID, true, false);
                 });
     }
 }

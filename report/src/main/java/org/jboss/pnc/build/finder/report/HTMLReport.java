@@ -15,6 +15,7 @@
  */
 package org.jboss.pnc.build.finder.report;
 
+import static com.redhat.red.build.koji.model.json.KojiJsonConstants.MAVEN_INFO;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.attrs;
 import static j2html.TagCreator.body;
@@ -400,7 +401,7 @@ public final class HTMLReport extends Report {
                                                                                 build.getTaskInfo() != null
                                                                                         && build.getTaskInfo()
                                                                                                 .getMethod() != null
-                                                                                        && "maven".equals(
+                                                                                        && MAVEN_INFO.equals(
                                                                                                 build.getTaskInfo()
                                                                                                         .getMethod())
                                                                                         && build.getTaskRequest() != null
