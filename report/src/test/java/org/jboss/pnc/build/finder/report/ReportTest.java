@@ -171,7 +171,8 @@ class ReportTest {
         assertThat(build.getProjectSourcesTgz()).get()
                 .extracting("filename", as(STRING))
                 .endsWith("-project-sources.tar.gz");
-        assertThat(build.getBuildInfo().getExtra()).hasSize(4)
+        Map<String, Object> extra = build.getBuildInfo().getExtra();
+        assertThat(extra).hasSize(4)
                 .containsEntry(BUILD_SYSTEM, PNC)
                 .containsEntry(EXTERNAL_BUILD_ID, "985")
                 .containsEntry(EXTERNAL_BUILD_URL, "http://localhost/pnc-web/#/build-records/985")
@@ -183,7 +184,6 @@ class ReportTest {
                                 .containsEntry(ARTIFACT_ID, "config-api-parent")
                                 .containsEntry(VERSION, "1.1.0.Final-redhat-14"));
 
-        Map<String, Object> extra = build.getBuildInfo().getExtra();
         Object obj = extra.get("maven");
 
         assertThat(obj).asInstanceOf(map(String.class, String.class))
@@ -191,6 +191,9 @@ class ReportTest {
                 .containsEntry(GROUP_ID, "org.wildfly.swarm")
                 .containsEntry(ARTIFACT_ID, "config-api-parent")
                 .containsEntry(VERSION, "1.1.0.Final-redhat-14");
+        assertThat(build.getExtra()).isPresent();
+        assertThat(build.getExtra().get().getMavenExtraInfo()).extracting("groupId", "artifactId", "version")
+                .containsExactly("org.wildfly.swarm", "config-api-parent", "1.1.0.Final-redhat-14");
 
         assertThat(build.getMethod()).get(as(STRING)).isEqualTo(PNC);
         assertThat(build.getDuplicateArchives()).isEmpty();

@@ -367,6 +367,10 @@ public class BuildConfig {
         this.useChecksumsFile = useChecksumsFile;
     }
 
+    public static <T> T convertValue(Object fromValue, Class<T> toValueType) {
+        return MAPPER.convertValue(fromValue, toValueType);
+    }
+
     @Override
     public String toString() {
         return "BuildConfig{" + "archiveExtensions=" + archiveExtensions + ", archiveTypes=" + archiveTypes
