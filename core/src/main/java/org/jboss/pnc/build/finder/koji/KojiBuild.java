@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections4.MapUtils;
+import org.jboss.pnc.build.finder.core.BuildConfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.redhat.red.build.koji.model.json.BuildExtraInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiArchiveInfo;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBtype;
 import com.redhat.red.build.koji.model.xmlrpc.KojiBuildInfo;
@@ -206,6 +208,21 @@ public class KojiBuild {
     @JsonIgnore
     public boolean isPnc() {
         return buildInfo != null && PNC.equals(MapUtils.getString(buildInfo.getExtra(), BUILD_SYSTEM));
+    }
+
+    @JsonIgnore
+    public Optional<BuildExtraInfo> getExtra() {
+        if (buildInfo == null) {
+            return Optional.empty();
+        }
+
+        Map<String, Object> extra = buildInfo.getExtra();
+
+        if (extra == null || extra.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(BuildConfig.convertValue(extra, BuildExtraInfo.class));
     }
 
     @JsonIgnore
